@@ -1,0 +1,84 @@
+﻿<UserControl
+    x:Class="Baconography.View.CommentView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Baconography.View"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cc="using:Baconography.Common"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+    <Grid Margin="5,5,20,10" Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}">
+        <Grid Visibility="{Binding IsMinimized, Converter={StaticResource booleanVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource TextButtonStyle}" VerticalAlignment="Top"  Command="{Binding MaximizeCommand}">[+]</Button>
+                <TextBlock Text="{Binding Path=Votable.TotalVotes}" Margin="5,0,0,0" />
+                <TextBlock Text="points" Margin="5,0,0,0" />
+                <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
+                <TextBlock Text="by" Margin="5,0,0,0"/>
+                <Button Style="{StaticResource TextButtonStyle}" Margin="5,0,0,0" VerticalAlignment="Top" CommandParameter="{Binding PosterName}" Command="{Binding GotoUserDetails, Source={StaticResource Locator}}">
+                    <Button.Content>
+                        <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair}">
+                            <TextBlock Margin="0,0,0,0" Text="{Binding PosterName}" />
+                        </Border>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Grid Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                <ToggleButton Command="{Binding Path=Votable.ToggleUpvote}" IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}" FontFamily="Marlett" FontSize="20" Content="5" Padding="0" BorderThickness="0" />
+                <ToggleButton Command="{Binding Path=Votable.ToggleDownvote}" IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}"  FontFamily="Marlett" FontSize="20" Content="6" Padding="0" BorderThickness="0" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource TextButtonStyle}" VerticalAlignment="Top"  Command="{Binding MinimizeCommand}">[-]</Button>
+                    <TextBlock Text="{Binding Path=Votable.TotalVotes}" Margin="5,0,0,0" />
+                    <TextBlock Text="points" Margin="5,0,0,0" />
+                    <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
+                    <TextBlock Text="by" Margin="5,0,0,0"/>
+                    <Button Style="{StaticResource TextButtonStyle}" Margin="5,0,0,0" VerticalAlignment="Top" CommandParameter="{Binding PosterName}" Command="{Binding GotoUserDetails, Source={StaticResource Locator}}">
+                        <Button.Content>
+                            <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair}">
+                                <TextBlock Margin="0,0,0,0" Text="{Binding PosterName}" />
+                            </Border>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <cc:MarkdownTextBlock DataContext="{Binding Body}" HorizontalAlignment="Stretch"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoContext}">parent</Button>
+                    <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Report}">report</Button>
+                    <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Save}">save</Button>
+                    <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoReply}">reply</Button>
+                </StackPanel>
+                <ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"></ContentControl>
+                <ItemsControl
+    ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:CommentView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.Template>
+                        <ControlTemplate>
+                            <ItemsPresenter />
+                        </ControlTemplate>
+                    </ItemsControl.Template>
+                </ItemsControl>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

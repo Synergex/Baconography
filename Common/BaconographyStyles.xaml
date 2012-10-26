@@ -1,0 +1,19 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Baconography.Common"
+    xmlns:converters="using:Baconography.Common.Converters">
+
+    <converters:TimeRelationConverter x:Key="timeRelationConverter"/>
+    <converters:InvertBooleanConverter x:Key="invertBooleanConverter"/>
+    <converters:BooleanVisibilityConverter x:Key="booleanVisibilityConverter"/>
+    <converters:InvertedBooleanVisibilityConverter x:Key="invertBooleanVisibilityConverter"/>
+    <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
+    <converters:MarkdownConverter x:Key="markdownConverter"/>
+    <converters:ReplyConverter x:Key="replyConverter"/>
+    <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
+    <local:TypedTemplateSelector x:Key="typedTemplateSelector"
+                                 DefaultTemplateKey="Default"/>
+
+
+</ResourceDictionary>
