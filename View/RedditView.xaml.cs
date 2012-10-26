@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.ApplicationSettings;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -158,8 +159,6 @@ namespace Baconography.View
 
         protected override void OnNavigatedTo( NavigationEventArgs e )
         {
-            // Turn on type to search.
-            SearchPane.GetForCurrentView().ShowOnKeyboardInput = true;
             base.OnNavigatedTo( e );
         }
 
@@ -167,8 +166,6 @@ namespace Baconography.View
         {
             if (_redditPickerFlyout != null)
                 _redditPickerFlyout.IsOpen = false;
-            // Turn off type to search.
-            SearchPane.GetForCurrentView().ShowOnKeyboardInput = false;
             base.OnNavigatedFrom( e );
         }
 
