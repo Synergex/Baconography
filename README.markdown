@@ -9,7 +9,7 @@ Baconography is an open source reddit client build from the ground up to provide
 # Instructions for building
 Open the solution file with Visual Studio 2012. If you dont already have one you will be prompted for a developer license, all it takes is a Microsoft live account.
 
-Once its opened we need to restore the nuget packages. the easiest way to do that is to right click on the project and goto "Manage NuGet Packages...". There should be a button to restore the pacakges at the top of that dialog.
+Once its opened we need to restore the nuget packages. The easiest way to do that is to right click on the project and goto "Manage NuGet Packages...". There should be a button to restore the pacakges at the top of that dialog.
 
 Now that everything is set up, you can build, deploy, and debug the solution
 
