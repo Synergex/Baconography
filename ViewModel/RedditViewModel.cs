@@ -160,8 +160,6 @@ namespace Baconography.ViewModel
                 if (newListing.Data.Children.Count == 0)
                     _dead = true;
 
-                //OfflineStore.Links.GetInstance().ContinueWith(async (inst) => (await inst).StoreLinks(newListing));
-
 				LiveTileManager.StartUpdateSequence();
                 foreach (var listing in newListing.Data.Children)
                 {

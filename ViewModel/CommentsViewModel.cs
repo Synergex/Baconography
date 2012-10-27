@@ -32,7 +32,6 @@ namespace Baconography.ViewModel
             _userService = userService;
             _actionQueue = actionQueue;
             _nav = nav;
-            //Comments = new CommentViewModelCollection("/r/pics", "/r/pics/comments/117av1/i_sent_tom_hanks_a_1934_smith_corona_typewriter/", "t1_117av1", _userService, _actionQueue, _nav);
             
             MessengerInstance.Register<SelectCommentTree>(this, (msg) => LoadLink(msg.LinkThing, msg.RootComment));
 
@@ -50,11 +49,6 @@ namespace Baconography.ViewModel
         {
             _linkThing = link;
             Comments = new CommentViewModelCollection(Subreddit, _linkThing.Data.Permalink, _linkThing.Data.Name, _linkThing.Data.SubredditId, _userService, _actionQueue, _nav, link != null ? link.Data.Author : null);
-            if (Comments.HasMoreItems)
-            {
-                //kick off the initial load of comments now that we know where we're going
-                //((ISupportIncrementalLoading)Comments).LoadMoreItemsAsync(500);
-            }
         }
 
         public CommentViewModelCollection Comments { get; private set; }
