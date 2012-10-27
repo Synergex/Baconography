@@ -14,7 +14,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 
 # What to do if things break
 *   make an issue for it here on github
-*   make a posting on (the Baconography subreddit)[http://reddit.com/r/baconography]
+*   make a posting on [the Baconography subreddit](http://reddit.com/r/baconography)
 *   send messages on reddit to either hippiehunter or madkat
 
 # Things we can do right now
