@@ -160,6 +160,8 @@ namespace Baconography.ViewModel
                 if (newListing.Data.Children.Count == 0)
                     _dead = true;
 
+                //OfflineStore.Links.GetInstance().ContinueWith(async (inst) => (await inst).StoreLinks(newListing));
+
 				LiveTileManager.StartUpdateSequence();
                 foreach (var listing in newListing.Data.Children)
                 {
@@ -376,8 +378,8 @@ namespace Baconography.ViewModel
                         flyout.Content = new Baconography.View.SearchQueryControl();
                         flyout.HeaderText = "Search";
                         flyout.IsOpen = true;
-                        flyout.Closed += (e, sender) => MessengerInstance.Unregister<SettingsMessage>( this );
-                        MessengerInstance.Register<SettingsMessage>( this, (message) =>
+                        flyout.Closed += (e, sender) => MessengerInstance.Unregister<CloseSettingsMessage>( this );
+                        MessengerInstance.Register<CloseSettingsMessage>(this, (message) =>
                         {
                             flyout.IsOpen = false;
                         });
