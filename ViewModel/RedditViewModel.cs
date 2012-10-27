@@ -378,8 +378,8 @@ namespace Baconography.ViewModel
                         flyout.Content = new Baconography.View.SearchQueryControl();
                         flyout.HeaderText = "Search";
                         flyout.IsOpen = true;
-                        flyout.Closed += (e, sender) => MessengerInstance.Unregister<CloseSettingsMessage>( this );
-                        MessengerInstance.Register<CloseSettingsMessage>( this, (message) =>
+                        flyout.Closed += (e, sender) => MessengerInstance.Unregister<SettingsMessage>( this );
+                        MessengerInstance.Register<SettingsMessage>( this, (message) =>
                         {
                             flyout.IsOpen = false;
                         });

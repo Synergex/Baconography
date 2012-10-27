@@ -2,14 +2,14 @@
 Baconography is an open source reddit client build from the ground up to provide an excellent user experience on Windows 8 regardless of the status of your internet connection.
 
 # Prerequisites for building
-*   Visual Studio 2012 (express should work)
+*   Visual Studio 2012 (Express should work)
 *   Windows 8
-*   [KitaroDBSDK](http://kitarodb.com/kitarodb-for-winrt/)
+*   [KitaroDB SDK](http://kitarodb.com/kitarodb-for-winrt/)
 
 # Instructions for building
-Open the solution file with Visual Studio 2012. If you dont already have one you will be prompted for a developer license, all it takes is a Microsoft live account.
+Open the solution file with Visual Studio 2012. If you don't already have one, you will be prompted for a developer license; all it takes is a Microsoft Live account.
 
-Once its opened we need to restore the nuget packages. The easiest way to do that is to right click on the project and goto "Manage NuGet Packages...". There should be a button to restore the pacakges at the top of that dialog.
+Once it's opened you need to restore the NuGet packages. The easiest way to do that is to right click on the project and go to "Manage NuGet Packages...". There should be a button to restore the packages at the top of that dialog.
 
 Now that everything is set up, you can build, deploy, and debug the solution
 
