@@ -19,3 +19,5 @@
 *   Implement messaging
 *   Add support for a lockscreen indicator to show messages/replys 
 *   Fix layout for 1/4 and 3/4 snapped view
+*   Multi-Reddit selector
+*   Add support for Posting
