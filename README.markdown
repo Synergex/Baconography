@@ -31,7 +31,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Optional filtering of NSFW content
 
 # Things left on the Todo list
-*   Get it in the app store
+*   Get it in the Windows 8 Store
 *   Use the imgur api (and the other domains supported by RES) to download and display images/albums directly
 *   Use NReadability to generate offline versions of (non image) links
 *   Add drop down tick for 'sort by' in RedditView and CommentsView
