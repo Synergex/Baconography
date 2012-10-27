@@ -160,13 +160,45 @@ namespace Baconography.View
         protected override void OnNavigatedTo( NavigationEventArgs e )
         {
             base.OnNavigatedTo( e );
+            //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+            var sp = SearchPane.GetForCurrentView();
+            if (sp != null)
+                sp.ShowOnKeyboardInput = true;
+            this.LostFocus += RedditView_LostFocus;
+            this.GotFocus += RedditView_GotFocus;
+        }
+
+        void RedditView_GotFocus(object sender, RoutedEventArgs e)
+        {
+            //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+            var sp = SearchPane.GetForCurrentView();
+            if(sp != null)
+                sp.ShowOnKeyboardInput = true;
+        }
+
+        void RedditView_LostFocus(object sender, RoutedEventArgs e)
+        {
+            //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+            var sp = SearchPane.GetForCurrentView();
+            if (sp != null)
+                sp.ShowOnKeyboardInput = false;
         }
 
         protected override void OnNavigatedFrom( NavigationEventArgs e )
         {
             if (_redditPickerFlyout != null)
                 _redditPickerFlyout.IsOpen = false;
+
+            //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+            var sp = SearchPane.GetForCurrentView();
+            if (sp != null)
+                sp.ShowOnKeyboardInput = false;
+            this.LostFocus -= RedditView_LostFocus;
+            this.GotFocus -= RedditView_GotFocus;
+
             base.OnNavigatedFrom( e );
+
+            
         }
 
         Flyout _redditPickerFlyout;

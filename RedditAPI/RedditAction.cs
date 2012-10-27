@@ -106,7 +106,9 @@ namespace Baconography.RedditAPI
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
-            _queueTimer = ThreadPoolTimer.CreateTimer(RunQueue, new TimeSpan(1, 0, 1));
+            //we dont need to be particularly active here, as we dont want to burn battery when nothing is happening and we dont want to choke out
+            //the content requests when the user is actively browsing around
+            _queueTimer = ThreadPoolTimer.CreateTimer(RunQueue, new TimeSpan(0, 0, 10));
         }
 
         public async void AddAction(IRedditAction action)
