@@ -16,7 +16,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 # What to do if things break
 *   Make an issue for it here on github
 *   Make a posting on [the Baconography subreddit](http://reddit.com/r/baconography)
-*   Send messages on reddit to either hippiehunter or madkat
+*   Send messages on reddit to either hippiehunter or madkatalpha
 
 # Things we can do right now
 *   Store Links and Comments for offline viewing [Using KitaroDB](http://www.kitarodb.com)
@@ -41,6 +41,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Fix layout for 1/4 and 3/4 snapped view
 *   Multi-Reddit selector
 *   Add support for Posting
+*   Add in RES style keyboard shortcuts
 
 # License
 Copyright (c) 2012 Synergex International Corporation
