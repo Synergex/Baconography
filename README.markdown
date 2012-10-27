@@ -1,7 +1,7 @@
 # Welcome to Baconography
 
 # Things we can do right now
-*   Store Links and Comments for offline viewing [Using KitaroDB](www.kitarodb.com)
+*   Store Links and Comments for offline viewing [Using KitaroDB](http://www.kitarodb.com)
 *   Infinite scrolling everywhere
 *   Support for browsing reddit while not logged in
 *   Support for multiple saved account credentials for rapid switching
