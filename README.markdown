@@ -1,4 +1,5 @@
 # Welcome to Baconography
+Baconography is an open source reddit client build from the ground up to provide an excellent user experience on Windows 8 regardless of the status of your internet connection.
 
 # Prerequisites for building
 *   Visual Studio 2012 (express should work)
