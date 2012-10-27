@@ -59,7 +59,6 @@ namespace Baconography.ViewModel
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 var getAdditional = new GetAdditionalFromListing { BaseURL = BaseListingUrl, After = TargetListing.Data.After };
                 var newListing = await getAdditional.Run(CurrentUser);
-                //OfflineStore.Links.GetInstance().ContinueWith(async (inst) => (await inst).StoreLinks(newListing));
 
                 foreach (var listing in newListing.Data.Children)
                 {

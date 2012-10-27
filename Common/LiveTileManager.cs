@@ -21,21 +21,21 @@ namespace Baconography.Common
 	{
 		static TileUpdater updater;
 		static int tileCounter;
-		static List<String> tileIds;
 
 		static LiveTileManager()
 		{
-			tileIds = new List<string>();
 			updater = TileUpdateManager.CreateTileUpdaterForApplication();
 			updater.EnableNotificationQueue(true);
 			tileCounter = 0;
 		}
 
+		// Call prior to a set of MaybeCreateTile() calls.
 		public static void StartUpdateSequence()
 		{
 			tileCounter = 0;
 		}
 
+		// Pass a LinkThing to MaybeCreateTile() to generate a live tile based on the link content.
 		public static void MaybeCreateTile(Thing thing)
 		{
 			try
@@ -60,6 +60,8 @@ namespace Baconography.Common
 			}
 		}
 
+		// Take a subreddit thing and generate a pinned secondary tile. Use the display
+		// name and subreddit header image in the tile.
 		public static async void CreateSecondaryTileForSubreddit(TypedThing<Subreddit> subreddit)
 		{
 			try
@@ -75,8 +77,11 @@ namespace Baconography.Common
 				if (subreddit != null)
 				{
 
+					// Download and create a local copy of the header image
 					var rawImage = await Images.SaveFileFromUriAsync(new Uri(subreddit.Data.HeaderImage), subreddit.Data.DisplayName + ".jpg", "Images");
+					// Generate a wide tile appropriate image
 					var wideImage = await Images.GenerateResizedImageAsync(rawImage, 310, 150);
+					// Generate a square tile appropriate image
 					var squareImage = await Images.GenerateResizedImageAsync(rawImage, 150, 150);
 
 					tile.WideLogo = new Uri("ms-appdata:///local/Images/" + wideImage.Name);
@@ -96,12 +101,12 @@ namespace Baconography.Common
 				}
 				tile.TileId = "r" + id;
 
-
+				// Ask the user to authorize creation of the tile
 				bool isPinned = await tile.RequestCreateAsync();
 			}
 			catch (Exception)
 			{
-
+				// TODO: Do something with exceptions
 			}
 		}
 
@@ -119,6 +124,8 @@ namespace Baconography.Common
 			}
 		}
 
+		// Generate a tile using the text provided (typically a link title). If an image is provided,
+		// we use the correct WinRT template. Otherwise, just the text wrap template.
 		static void CreateTile(string text, Uri squareImage = null, Uri wideImage = null)
 		{
 			StringBuilder builder = new StringBuilder(String.Empty);
@@ -134,6 +141,8 @@ namespace Baconography.Common
 				squareTemplate = "TileSquareText04";
 			}
 
+			// A single tile can contain both square and wide formats, but we
+			// have to go through extra work to add both bindings.
 			string xmlImage = "<image id=\"1\" src=\"{0}\" />";
 			string xmlText = "<text id=\"1\">{0}</text>";
 			string xmlBinding = "<binding template=\"{0}\">{1}{2}</binding>";
@@ -149,9 +158,11 @@ namespace Baconography.Common
 					String.Format(xmlText, text));
 			builder.Append("</visual></tile>");
 
+			// Generate the final XML obj
 			XmlDocument final = new XmlDocument();
 			final.LoadXml(builder.ToString());
 
+			// Create and send the tile notification
 			TileNotification notification = new TileNotification(final);
 			updater.Update(notification);
 		}
