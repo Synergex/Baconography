@@ -7,16 +7,16 @@ Baconography is an open source reddit client build from the ground up to provide
 *   [KitaroDBSDK](http://kitarodb.com/kitarodb-for-winrt/)
 
 # Instructions for building
-Open the solution file with Visual Studio. If you dont already have one you will be prompted for a developer license, all it takes is a Microsoft live account.
+Open the solution file with Visual Studio 2012. If you dont already have one you will be prompted for a developer license, all it takes is a Microsoft live account.
 
-Once its opened we need to restore the nuget packages. the easiest way to do that is to right click on the project and goto "Managed NuGet Packages...". There should be a button to restore the pacakges at the top of that dialog.
+Once its opened we need to restore the nuget packages. the easiest way to do that is to right click on the project and goto "Manage NuGet Packages...". There should be a button to restore the pacakges at the top of that dialog.
 
 Now that everything is set up, you can build, deploy, and debug the solution
 
 # What to do if things break
-*   make an issue for it here on github
-*   make a posting on [the Baconography subreddit](http://reddit.com/r/baconography)
-*   send messages on reddit to either hippiehunter or madkat
+*   Make an issue for it here on github
+*   Make a posting on [the Baconography subreddit](http://reddit.com/r/baconography)
+*   Send messages on reddit to either hippiehunter or madkat
 
 # Things we can do right now
 *   Store Links and Comments for offline viewing [Using KitaroDB](http://www.kitarodb.com)
