@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Baconography.OfflineStore;
 
 namespace Baconography.ViewModel
 {
@@ -95,12 +96,12 @@ namespace Baconography.ViewModel
                                 if(linkData == null || linkData.Url == null)
                                     continue;
 
-                                var linkImage = (linkData.Url.EndsWith(".jpg") || linkData.Url.EndsWith(".png") || linkData.Url.EndsWith(".gif")) ? 
-                                    linkData.Url :
-                                    linkData.Thumbnail;
-                                if (linkImage != null)
-                                    Files.Add(new File { Image = linkImage, Title = linkData.Title, Description = ""});
-                                
+                                var images = await Images.GetImagesFromUrl(linkData.Url);
+
+                                foreach (var image in images)
+                                {
+                                    Files.Add(new File { Image = image, Title = linkData.Title, Description = ""});
+                                }
                             }
                         });
                 }

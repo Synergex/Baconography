@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Baconography.ImageAPI;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,5 +132,26 @@ namespace Baconography.OfflineStore
 
 			return null;
 		}
+
+        public static async Task<IEnumerable<string>> GetImagesFromUrl(string url)
+        {
+            var uri = new Uri(url);
+
+            string filename = Path.GetFileName(uri.LocalPath);
+            if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".gif"))
+                return new string[] { url };
+            else
+            {
+                var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+
+                switch (targetHost)
+                {
+                    case "imgur.com":
+                        return await Imgur.GetImagesFromUri(uri);
+                    default:
+                        return Enumerable.Empty<string>();
+                }
+            }
+        }
 	}
 }
