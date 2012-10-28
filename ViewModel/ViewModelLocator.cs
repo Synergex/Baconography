@@ -22,6 +22,7 @@ using Baconography.RedditAPI.Actions;
 using Baconography.RedditAPI.Things;
 using Baconography.Services;
 using Baconography.View;
+using System.Linq;
 
 namespace Baconography.ViewModel
 {
@@ -202,9 +203,18 @@ namespace Baconography.ViewModel
             {
                 if (_gotoMarkdownLink == null)
                 {
-                    _gotoMarkdownLink = new RelayCommand<string>((str) => 
+                    _gotoMarkdownLink = new RelayCommand<string>(async (str) => 
                     {
-                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate<Baconography.View.LinkedWebView>(new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                        var imageResults = await Images.GetImagesFromUrl("", str);
+                        if (imageResults != null && imageResults.Count() > 0)
+                        {
+                            ServiceLocator.Current.GetInstance<INavigationService>().Navigate<Baconography.View.LinkedPictureView>(imageResults);
+                        }
+                        else
+                        {
+                            //its not an image url we can understand so whatever it is just show it in the browser
+                            ServiceLocator.Current.GetInstance<INavigationService>().Navigate<Baconography.View.LinkedWebView>(new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                        }
                     });
                 }
                 return _gotoMarkdownLink;

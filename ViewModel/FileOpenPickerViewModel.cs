@@ -87,6 +87,8 @@ namespace Baconography.ViewModel
                             Files = new ObservableCollection<File>();
 
                             var currentUser = await _userService.GetUser();
+                            //limit to imgur right now since we know how to deal with them
+                            //expand later when we finish the images api stuff
                             var search = new Search { Query = Query + " AND site:'imgur'"};
                             var searchListing = await search.Run( currentUser );
                             
@@ -96,11 +98,11 @@ namespace Baconography.ViewModel
                                 if(linkData == null || linkData.Url == null)
                                     continue;
 
-                                var images = await Images.GetImagesFromUrl(linkData.Url);
+                                var images = await Images.GetImagesFromUrl(linkData.Title, linkData.Url);
 
                                 foreach (var image in images)
                                 {
-                                    Files.Add(new File { Image = image, Title = linkData.Title, Description = ""});
+                                    Files.Add(new File { Image = image.Item2, Title = image.Item1, Description = ""});
                                 }
                             }
                         });

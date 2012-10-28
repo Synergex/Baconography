@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
+using Baconography.OfflineStore;
 
 namespace Baconography.ViewModel
 {
@@ -133,9 +134,18 @@ namespace Baconography.ViewModel
             {
                 if (_gotoLink == null)
                 {
-                    _gotoLink = new RelayCommand(() =>
+                    _gotoLink = new RelayCommand(async () =>
                         {
-                            _nav.Navigate<Baconography.View.LinkedWebView>(new NavigateToUrlMessage { TargetUrl = _linkThing.Data.Url, Title = _linkThing.Data.Title });
+                            var imageResults = await Images.GetImagesFromUrl(_linkThing.Data.Title, _linkThing.Data.Url);
+                            if (imageResults != null && imageResults.Count() > 0)
+                            {
+                                _nav.Navigate<Baconography.View.LinkedPictureView>(imageResults);
+                            }
+                            else
+                            {
+                                //its not an image url we can understand so whatever it is just show it in the browser
+                                _nav.Navigate<Baconography.View.LinkedWebView>(new NavigateToUrlMessage { TargetUrl = _linkThing.Data.Url, Title = _linkThing.Data.Title });
+                            }
                         });
                 }
                 return _gotoLink;

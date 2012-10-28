@@ -178,10 +178,17 @@ namespace Baconography.View
 
         void RedditView_LostFocus(object sender, RoutedEventArgs e)
         {
-            //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
-            var sp = SearchPane.GetForCurrentView();
-            if (sp != null)
-                sp.ShowOnKeyboardInput = false;
+            try
+            {
+                //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+                var sp = SearchPane.GetForCurrentView();
+                if (sp != null)
+                    sp.ShowOnKeyboardInput = false;
+            }
+            catch
+            {
+                //do nothing we were most likely shutting down
+            }
         }
 
         protected override void OnNavigatedFrom( NavigationEventArgs e )

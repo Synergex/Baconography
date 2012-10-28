@@ -187,6 +187,7 @@
     <Compile Include="ViewModel\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
     <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />
+    <Compile Include="ViewModel\LinkedPictureViewModel.cs" />
     <Compile Include="ViewModel\LinkedWebViewModel.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\RedditPickerViewModel.cs" />
@@ -218,6 +219,9 @@
     </Compile>
     <Compile Include="View\FlatCommentView.xaml.cs">
       <DependentUpon>FlatCommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkedPictureView.xaml.cs">
+      <DependentUpon>LinkedPictureView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\LinkedWebView.xaml.cs">
       <DependentUpon>LinkedWebView.xaml</DependentUpon>
@@ -317,6 +321,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\FlatCommentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedPictureView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

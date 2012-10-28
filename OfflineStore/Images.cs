@@ -133,13 +133,13 @@ namespace Baconography.OfflineStore
 			return null;
 		}
 
-        public static async Task<IEnumerable<string>> GetImagesFromUrl(string url)
+        public static async Task<IEnumerable<Tuple<string, string>>> GetImagesFromUrl(string title, string url)
         {
             var uri = new Uri(url);
 
             string filename = Path.GetFileName(uri.LocalPath);
             if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".gif"))
-                return new string[] { url };
+                return new Tuple<string, string>[] { Tuple.Create(title, url) };
             else
             {
                 var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
@@ -147,9 +147,9 @@ namespace Baconography.OfflineStore
                 switch (targetHost)
                 {
                     case "imgur.com":
-                        return await Imgur.GetImagesFromUri(uri);
+                        return await Imgur.GetImagesFromUri(title, uri);
                     default:
-                        return Enumerable.Empty<string>();
+                        return Enumerable.Empty<Tuple<string, string>>();
                 }
             }
         }
