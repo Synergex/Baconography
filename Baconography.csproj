@@ -123,7 +123,12 @@
     <Compile Include="Common\Converters\TimeRelationConverter.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Common\WebViewWrapper.cs" />
+    <Compile Include="ImageAPI\Deviantart.cs" />
+    <Compile Include="ImageAPI\Flickr.cs" />
     <Compile Include="ImageAPI\Imgur.cs" />
+    <Compile Include="ImageAPI\Minus.cs" />
+    <Compile Include="ImageAPI\Picsarus.cs" />
+    <Compile Include="ImageAPI\Quickmeme.cs" />
     <Compile Include="MarkdownSharp\MarkdownSharp.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
     <Compile Include="Messages\ConnectionStatusMessage.cs" />

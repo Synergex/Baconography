@@ -135,22 +135,38 @@ namespace Baconography.OfflineStore
 
         public static async Task<IEnumerable<Tuple<string, string>>> GetImagesFromUrl(string title, string url)
         {
-            var uri = new Uri(url);
-
-            string filename = Path.GetFileName(uri.LocalPath);
-            if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".gif"))
-                return new Tuple<string, string>[] { Tuple.Create(title, url) };
-            else
+            try
             {
-                var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+                var uri = new Uri(url);
 
-                switch (targetHost)
+                string filename = Path.GetFileName(uri.LocalPath);
+                if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".gif"))
+                    return new Tuple<string, string>[] { Tuple.Create(title, url) };
+                else
                 {
-                    case "imgur.com":
-                        return await Imgur.GetImagesFromUri(title, uri);
-                    default:
-                        return Enumerable.Empty<Tuple<string, string>>();
+                    var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+
+                    switch (targetHost)
+                    {
+                        case "imgur.com":
+                            return await Imgur.GetImagesFromUri(title, uri);
+                        case "min.us":
+                            return await Minus.GetImagesFromUri(title, uri);
+                        case "www.quickmeme.com":
+                        case "i.qkme.me":
+                        case "quickmeme.com":
+                        case "qkme.me":
+                            return Quickmeme.GetImagesFromUri(title, uri);
+                        case "flickr.com":
+                            return await Flickr.GetImagesFromUri(title, uri);
+                        default:
+                            return Enumerable.Empty<Tuple<string, string>>();
+                    }
                 }
+            }
+            catch
+            {
+                return Enumerable.Empty<Tuple<string, string>>(); 
             }
         }
 	}
