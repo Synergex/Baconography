@@ -15,7 +15,7 @@
         <DataTemplate x:Key="250x150ItemTemplate">
             <Grid HorizontalAlignment="Left" Width="250" Height="150" Margin="6">
                 <Border Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                    <Image Source="{Binding Image}" Stretch="Fill"/>
+                    <Image Source="{Binding Image}" Stretch="Uniform"/>
                 </Border>
                 <ToolTipService.Placement>Mouse</ToolTipService.Placement>
                 <ToolTipService.ToolTip>
