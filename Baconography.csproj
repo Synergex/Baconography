@@ -126,6 +126,7 @@
     <Compile Include="ImageAPI\Deviantart.cs" />
     <Compile Include="ImageAPI\Flickr.cs" />
     <Compile Include="ImageAPI\Imgur.cs" />
+    <Compile Include="ImageAPI\Memecrunch.cs" />
     <Compile Include="ImageAPI\Minus.cs" />
     <Compile Include="ImageAPI\Picsarus.cs" />
     <Compile Include="ImageAPI\Quickmeme.cs" />

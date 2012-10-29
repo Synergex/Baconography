@@ -157,6 +157,8 @@ namespace Baconography.OfflineStore
                         case "quickmeme.com":
                         case "qkme.me":
                             return Quickmeme.GetImagesFromUri(title, uri);
+                        case "memecrunch.com":
+                            return Memecrunch.GetImagesFromUri(title, uri);
                         case "flickr.com":
                             return await Flickr.GetImagesFromUri(title, uri);
                         default:
