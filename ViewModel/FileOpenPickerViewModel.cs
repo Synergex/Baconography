@@ -87,9 +87,8 @@ namespace Baconography.ViewModel
                             Files = new ObservableCollection<File>();
 
                             var currentUser = await _userService.GetUser();
-                            //limit to imgur right now since we know how to deal with them
-                            //expand later when we finish the images api stuff
-                            var search = new Search { Query = Query + " AND site:'imgur'"};
+                            //limited to our known image sites for the user best experiance
+                            var search = new Search { Query = Query + " AND (site:'imgur' OR site:'flickr' OR site:'memecrunch' OR site:'quickmeme' OR site:qkme OR site:'min' OR site:'picsarus'" };
                             var searchListing = await search.Run( currentUser );
                             
                             foreach ( Thing thing in searchListing.Data.Children )
