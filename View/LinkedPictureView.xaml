@@ -9,12 +9,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Page.Resources>
-
-        <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
-        <x:String x:Key="AppName">My Application</x:String>
-    </Page.Resources>
-
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -36,11 +30,11 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{Binding ImageTitle}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
 
-        <ListView Grid.Row="2" Margin="20,0,0,0" Name="comments"
+        <ListView Grid.Row="2" Margin="50,0,50,0" Name="comments"
                 Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                 VerticalAlignment="Stretch" 
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 SelectionMode="None"
                 HorizontalContentAlignment="Stretch"
                 HorizontalAlignment="Stretch"
@@ -48,10 +42,12 @@
                 ItemContainerStyle="{StaticResource ListViewItemStyle1}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding Title}"/>
-                        <Image Source="{Binding Url}" Stretch="None"/>
-                    </StackPanel>
+                    <Grid>
+                        <TextBlock Text="{Binding Title}" Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                            <Image Source="{Binding Url}"/>
+                        </Viewbox>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
