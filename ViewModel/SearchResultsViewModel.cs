@@ -81,7 +81,7 @@ namespace Baconography.ViewModel
             set
             {
                 if (value is LinkViewModel)
-                    ((LinkViewModel)value).NavigateToComments.Execute(null);
+                    ((LinkViewModel)value).GotoLink.Execute(null);
                 else if (value is SubredditViewModel)
                     _navigationService.Navigate<RedditView>(new SelectSubreddit { Subreddit = ((SubredditViewModel)value).Thing });
             }
