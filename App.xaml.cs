@@ -110,17 +110,27 @@ namespace Baconography
             
         }
 
+        private bool _isTypeToSearch = false;
+
         private void TriggerAbout(Windows.UI.Popups.IUICommand command)
         {
             var flyout = new SettingsFlyout();
             flyout.Content = new Baconography.View.AboutControl();
             flyout.HeaderText = "About";
             flyout.IsOpen = true;
-            flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
+            flyout.Closed += (e, sender) => 
+                {
+                    Messenger.Default.Unregister<CloseSettingsMessage>(this);
+                    SetSearchKeyboard(_isTypeToSearch);
+                };
             Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
             {
                 flyout.IsOpen = false;
+                SetSearchKeyboard(_isTypeToSearch);
             });
+
+            _isTypeToSearch = GetSearchKeyboard();
+            App.SetSearchKeyboard(false);
         }
 
         private void TriggerContentPreferences(Windows.UI.Popups.IUICommand command)
@@ -129,11 +139,19 @@ namespace Baconography
             flyout.Content = new Baconography.View.ContentPreferencesControl();
             flyout.HeaderText = "Content Preferences";
             flyout.IsOpen = true;
-            flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
+            flyout.Closed += (e, sender) =>
+            {
+                Messenger.Default.Unregister<CloseSettingsMessage>(this);
+                SetSearchKeyboard(_isTypeToSearch);
+            };
             Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
             {
                 flyout.IsOpen = false;
+                SetSearchKeyboard(_isTypeToSearch);
             });
+
+            _isTypeToSearch = GetSearchKeyboard();
+            App.SetSearchKeyboard(false);
         }
 
         private void TriggerLogin(Windows.UI.Popups.IUICommand command)
@@ -142,11 +160,50 @@ namespace Baconography
             flyout.Content = new Baconography.View.LoginControl();
             flyout.HeaderText = "Login";
             flyout.IsOpen = true;
-            flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
+            flyout.Closed += (e, sender) =>
+            {
+                Messenger.Default.Unregister<CloseSettingsMessage>(this);
+                SetSearchKeyboard(_isTypeToSearch);
+            };
             Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
             {
                 flyout.IsOpen = false;
+                SetSearchKeyboard(_isTypeToSearch);
             });
+
+            _isTypeToSearch = GetSearchKeyboard();
+            App.SetSearchKeyboard(false);
+        }
+
+        internal static void SetSearchKeyboard(bool value)
+        {
+            try
+            {
+                //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+                var sp = Windows.ApplicationModel.Search.SearchPane.GetForCurrentView();
+                if (sp != null)
+                    sp.ShowOnKeyboardInput = value;
+            }
+            catch
+            {
+                //do nothing we were most likely shutting down
+            }
+        }
+
+        internal static bool GetSearchKeyboard()
+        {
+            try
+            {
+                //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
+                var sp = Windows.ApplicationModel.Search.SearchPane.GetForCurrentView();
+                if (sp != null)
+                    return sp.ShowOnKeyboardInput;
+            }
+            catch
+            {
+                //do nothing we were most likely shutting down
+            }
+            return false;
         }
 
         /// <summary>

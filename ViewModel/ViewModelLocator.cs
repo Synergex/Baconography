@@ -221,6 +221,8 @@ namespace Baconography.ViewModel
             }
         }
 
+        bool _isTypeToSearch = false;
+
         RelayCommand _showLogin;
         public RelayCommand ShowLogin
         {
@@ -234,11 +236,19 @@ namespace Baconography.ViewModel
                         flyout.Content = new Baconography.View.LoginControl();
                         flyout.HeaderText = "Login";
                         flyout.IsOpen = true;
-                        flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
+                        flyout.Closed += (e, sender) =>
+                        {
+                            Messenger.Default.Unregister<CloseSettingsMessage>(this);
+                            App.SetSearchKeyboard(_isTypeToSearch);
+                        };
                         Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
                         {
                             flyout.IsOpen = false;
+                            App.SetSearchKeyboard(_isTypeToSearch);
                         });
+
+                        _isTypeToSearch = App.GetSearchKeyboard();
+                        App.SetSearchKeyboard(false);
                     });
                 }
                 return _showLogin;

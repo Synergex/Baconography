@@ -161,19 +161,7 @@ namespace Baconography.View
         {
             base.OnNavigatedTo( e );
             //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
-            SetSearchKeyboard(true);
-            this.LostFocus += RedditView_LostFocus;
-            this.GotFocus += RedditView_GotFocus;
-        }
-
-        void RedditView_GotFocus(object sender, RoutedEventArgs e)
-        {
-            SetSearchKeyboard(true);
-        }
-
-        void RedditView_LostFocus(object sender, RoutedEventArgs e)
-        {
-            SetSearchKeyboard(false);
+            App.SetSearchKeyboard(true);
         }
 
         protected override void OnNavigatedFrom( NavigationEventArgs e )
@@ -181,14 +169,9 @@ namespace Baconography.View
             if (_redditPickerFlyout != null)
                 _redditPickerFlyout.IsOpen = false;
 
-            this.LostFocus -= RedditView_LostFocus;
-            this.GotFocus -= RedditView_GotFocus;
-
-            SetSearchKeyboard(false);
+            App.SetSearchKeyboard(false);
 
             base.OnNavigatedFrom( e );
-
-            
         }
 
         Flyout _redditPickerFlyout;
@@ -199,21 +182,6 @@ namespace Baconography.View
             _redditPickerFlyout.PlacementTarget = sender as UIElement;
             _redditPickerFlyout.Content = new SubredditPickerControl();
             _redditPickerFlyout.IsOpen = true;
-        }
-
-        private void SetSearchKeyboard(bool value)
-        {
-            try
-            {
-                //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
-                var sp = Windows.ApplicationModel.Search.SearchPane.GetForCurrentView();
-                if (sp != null)
-                    sp.ShowOnKeyboardInput = value;
-            }
-            catch
-            {
-                //do nothing we were most likely shutting down
-            }
         }
     }
 }

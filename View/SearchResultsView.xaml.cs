@@ -77,44 +77,14 @@ namespace Baconography.View
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
-            this.LostFocus -= OnLostFocus;
-            this.GotFocus -= OnGotFocus;
-            SetSearchKeyboard(false);
+            App.SetSearchKeyboard(false);
         }
 
-        private void OnGotFocus(object sender, RoutedEventArgs e)
-        {
-            SetSearchKeyboard(true);
-        }
-
-        private void OnLostFocus(object sender, RoutedEventArgs e)
-        {
-            SetSearchKeyboard(false);
-        }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            this.LostFocus += OnLostFocus;
-            this.GotFocus += OnGotFocus;
-            SetSearchKeyboard(true);
-        }
-
-        private void SetSearchKeyboard(bool value)
-        {
-            try
-            {
-                //this needs to be guarded as the search pane can disappear on us if we're getting dumped out of/suspended
-                var sp = Windows.ApplicationModel.Search.SearchPane.GetForCurrentView();
-                if (sp != null)
-                    sp.ShowOnKeyboardInput = value;
-            }
-            catch
-            {
-                //do nothing we were most likely shutting down
-            }
+            App.SetSearchKeyboard(true);
         }
 
     }
