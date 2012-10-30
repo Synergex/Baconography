@@ -33,6 +33,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 
 # Things left on the Todo list
 *   Get it in the Windows 8 Store
+*   Show Images inline RES style
 *   ~~Use the imgur api (and the other domains supported by RES) to download and display images/albums directly~~
 *   Use NReadability to generate offline versions of (non image) links
 *   Add drop down tick for 'sort by' in RedditView and CommentsView
@@ -43,6 +44,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Multi-Reddit selector
 *   Add support for Posting
 *   Add in RES style keyboard shortcuts
+*   Integrate Animated gif renderer (Windows 8 Xaml doesnt allow animated gif's in the Image control)
 
 # License
 Copyright (c) 2012 Synergex International Corporation
