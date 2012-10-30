@@ -140,7 +140,11 @@ namespace Baconography.OfflineStore
                 var uri = new Uri(url);
 
                 string filename = Path.GetFileName(uri.LocalPath);
-                if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".gif"))
+
+                if(filename.EndsWith(".gif"))
+                    return Enumerable.Empty<Tuple<string, string>>(); 
+
+                if (filename.EndsWith(".jpg") || filename.EndsWith(".png"))
                     return new Tuple<string, string>[] { Tuple.Create(title, url) };
                 else
                 {
