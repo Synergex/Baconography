@@ -55,6 +55,15 @@ namespace Baconography.ViewModel
             {
                 _query = value;
                 RaisePropertyChanged("Query");
+                RaisePropertyChanged("Heading");
+            }
+        }
+
+        public string Heading
+        {
+            get
+            {
+                return _query;
             }
         }
 

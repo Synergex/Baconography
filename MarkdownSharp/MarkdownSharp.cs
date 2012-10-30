@@ -227,7 +227,7 @@ namespace MarkdownSharp
             get { return _autoHyperlink; }
             set { _autoHyperlink = value; }
         }
-        private bool _autoHyperlink = false;
+        private bool _autoHyperlink = true;
 
         /// <summary>
         /// when true, problematic URL characters like [, ], (, and so forth will be encoded 
@@ -1469,7 +1469,8 @@ namespace MarkdownSharp
         private string HyperlinkEvaluator(Match match)
         {
             string link = match.Groups[1].Value;
-            return string.Format("<InlineUIContainer><Button Tag=\"{0}\">{0}</Button></InlineUIContainer>", link);
+
+            return "<InlineUIContainer><Button Command=\"{Binding Path=Locator.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"" + link + "\">" + AttributeEncode(EscapeBoldItalic(link)) + "</Button></InlineUIContainer>";
         }
 
         private string EmailEvaluator(Match match)
