@@ -43,7 +43,7 @@ namespace Baconography.ViewModel
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(Thumbnail);
+                return !string.IsNullOrWhiteSpace(Thumbnail) && Thumbnail != "self" && Thumbnail != "nsfw" && Thumbnail != "default";
             }
         }
 

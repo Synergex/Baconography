@@ -86,7 +86,7 @@ namespace Baconography.ViewModel
             set
             {
                 if (value is LinkViewModel)
-                    ((LinkViewModel)value).NavigateToComments.Execute(null);
+                    ((LinkViewModel)value).GotoLink.Execute(null);
                 else if (value is CommentViewModel)
                     ((CommentViewModel)value).GotoContext.Execute(null);
             }
