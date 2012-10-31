@@ -26,7 +26,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <Button x:Name="ExitButton" IsTabStop="False" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot, Converter={StaticResource invertBooleanConverter}}" Click="OnExit" Style="{StaticResource ExitButtonStyle}" />
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <TextBlock x:Name="pageTitle" Text="{Binding Heading}" Style="{StaticResource PageHeaderTextStyle}"/>
                 <Button Style="{StaticResource TextButtonStyle}" Foreground="White" FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="46" Margin="-5,10,0,0" Click="ShowRedditPicker">&#xE011;</Button>
