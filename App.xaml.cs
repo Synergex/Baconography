@@ -99,6 +99,7 @@ namespace Baconography
                 new SettingsCommand("UserLogin", "Login", TriggerLogin),
                 new SettingsCommand("ContentPreferences", "Content Preferences", TriggerContentPreferences),
                 new SettingsCommand("About", "About", TriggerAbout),
+                new SettingsCommand("PrivacyPolicy", "Privacy Policy", TriggerPrivacyPolicy),
             };
 
             //make sure we dont insert duplicates, I've seen apps that have problems with this but dont really know how/why
@@ -173,6 +174,11 @@ namespace Baconography
 
             _isTypeToSearch = GetSearchKeyboard();
             App.SetSearchKeyboard(false);
+        }
+
+        private async void TriggerPrivacyPolicy(Windows.UI.Popups.IUICommand command)
+        {
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/Synergex/Baconography/wiki/PrivacyPolicy"));
         }
 
         internal static void SetSearchKeyboard(bool value)
