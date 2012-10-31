@@ -33,7 +33,7 @@
         <ListView Grid.Row="2" Margin="50,0,50,0" Name="comments"
                 Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                 VerticalAlignment="Stretch" 
-                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 SelectionMode="None"
                 HorizontalContentAlignment="Stretch"
