@@ -27,5 +27,18 @@ namespace Baconography.View
         {
 
         }
+
+		public new Brush Background
+		{
+			get { return (Brush)GetValue(BackgroundProperty); }
+			set
+			{
+				SetValue(BackgroundProperty, value);
+				GridView.Background = value;
+			}
+		}
+
+		public new static readonly DependencyProperty BackgroundProperty =
+			DependencyProperty.Register("Background", typeof(Brush), typeof(VotableControl), new PropertyMetadata("#464646"));
     }
 }

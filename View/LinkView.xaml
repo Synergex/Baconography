@@ -6,52 +6,54 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="150"
-    d:DesignWidth="700">
+    d:DesignHeight="150">
 
-    <Grid Margin="0,0,0,10">
+    <Grid Margin="0,0,15,0" Background="#353535" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition MinWidth="700" Width="*" />
         </Grid.ColumnDefinitions>
 
-        <local:VotableControl DataContext="{Binding Votable}" />
+        <local:VotableControl Background="#575757" Grid.Column="0" DataContext="{Binding Votable}" />
 
-        <Border Grid.Column="1" Margin="10,8,24,8" Width="70" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-            <Image Source="{Binding Thumbnail}" Margin="0" Stretch="UniformToFill"/>
-        </Border>
+        <StackPanel Grid.Column="1" Margin="20,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
+            <Grid MinHeight="80" HorizontalAlignment="Stretch">
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="100*" />
+                </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="1" Margin="10,0,0,0" Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
-
-        <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" />
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted" />
-                <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
-                <TextBlock Style="{StaticResource BodyTextStyle}" Text="by" Margin="5,0,0,0" />
-                <Button Style="{StaticResource TextButtonStyle}" Margin="5,0,0,0" VerticalAlignment="Top" CommandParameter="{Binding Author}" Command="{Binding GotoUserDetails, Source={StaticResource Locator}}">
-                    <Button.Content>
+                <Border Grid.Column="0" Height="70" Margin="0,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
+                </Border>
+                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}"/>
+                </Border>
+            </Grid>
+            
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="55" Margin="0,5,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted" Margin="2,0,0,0" />
+                    <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="by" Margin="5,0,0,0" />
+                    <Button BorderThickness="0" Padding="0" Margin="5,0,0,0" VerticalAlignment="Top" CommandParameter="{Binding Author}" Command="{Binding GotoUserDetails, Source={StaticResource Locator}}">
                         <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding AuthorFlair}">
-                            <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding Author}" Margin="5,0,0,0" />
+                            <TextBlock Foreground="Goldenrod" Style="{StaticResource BodyTextStyle}" Text="{Binding Author}" Margin="0,-3,0,0" />
                         </Border>
-                    </Button.Content>
+                    </Button>
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="to" Margin="5,0,0,0" />
+                    <TextBlock Foreground="Goldenrod" Style="{StaticResource BodyTextStyle}" Text="{Binding Subreddit}" Margin="5,0,0,0" />
+                </StackPanel>
+                <Button Command="{Binding NavigateToComments}" BorderThickness="0" Padding="2" Margin="0,2,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding CommentCount}" />
+                        <TextBlock Text="comments" Margin="5,0,0,0" />
+                    </StackPanel>
                 </Button>
-                <TextBlock Style="{StaticResource BodyTextStyle}" Text="to" Margin="5,0,0,0" />
-                <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding Subreddit}" Margin="5,0,0,0" />
-                <!--<Button Margin="5,0,0,0" BorderThickness="0" Command="{Binding NavigateToComments}">comments</Button> -->
             </StackPanel>
-            <Button Style="{StaticResource TextButtonStyle}" Command="{Binding NavigateToComments}">
-                <Button.Template>
-                    <ControlTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding CommentCount}" />
-                            <TextBlock Text="comments" Margin="5,0,0,0" />
-                        </StackPanel>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
         </StackPanel>
+
     </Grid>
 
 </UserControl>

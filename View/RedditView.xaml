@@ -20,13 +20,14 @@
         </Grid.RowDefinitions>
 
         <!-- Page header -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Image Margin="0,0,25,0" Source="ms-appx:///Assets/BaconographySnoo.png" Width="75"/>
                 <TextBlock x:Name="pageTitle" Text="{Binding Heading}" Style="{StaticResource PageHeaderTextStyle}"/>
                 <Button Style="{StaticResource TextButtonStyle}" Foreground="White" FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="46" Margin="-5,10,0,0" Click="ShowRedditPicker">&#xE011;</Button>
             </StackPanel>
@@ -39,7 +40,7 @@
         <!-- Activity indicator -->
         <local:LoadIndicatorView Grid.Row="1" />
         <!-- Body -->
-        <ListView Grid.Row="2" HorizontalAlignment="Left" Margin="20,0,0,0"
+        <ListView Grid.Row="2" HorizontalAlignment="Left" Margin="130,0,130,0"
                   Name="linksView"
                   Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                   BorderThickness="0" VerticalAlignment="Stretch" 
@@ -47,7 +48,14 @@
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                   SelectedItem="{Binding Mode=TwoWay,Path=SelectedLink}"
                   SelectionMode="Single"
-                  ItemsSource="{Binding Path=Links}">
+                  ItemsSource="{Binding Path=Links}"
+                  HorizontalContentAlignment="Stretch">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Margin" Value="0,0,0,10" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <local:LinkView />

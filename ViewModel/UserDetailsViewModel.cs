@@ -47,7 +47,7 @@ namespace Baconography.ViewModel
         {
             get
             {
-                return _accountThing.Data.Name;
+                return "/u/" + _accountThing.Data.Name;
             }
         }
 

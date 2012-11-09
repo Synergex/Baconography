@@ -274,6 +274,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Assets\BaconographySnoo.png" />
     <Content Include="Assets\default_reddits.json" />
     <None Include="Baconography_TemporaryKey.pfx" />
   </ItemGroup>
