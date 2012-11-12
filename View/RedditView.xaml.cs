@@ -40,6 +40,7 @@ namespace Baconography.View
             {
                 _selectedSubredditMessage = selectedSubreddit;
             });
+			
         }
 
         ~RedditView()
