@@ -220,6 +220,9 @@
     <Compile Include="View\ContentPreferencesControl.xaml.cs">
       <DependentUpon>ContentPreferencesControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SnappedLinkView.xaml.cs">
+      <DependentUpon>SnappedLinkView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\FileOpenPickerView.xaml.cs">
       <DependentUpon>FileOpenPickerView.xaml</DependentUpon>
     </Compile>
@@ -322,6 +325,10 @@
     <Page Include="View\ContentPreferencesControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SnappedLinkView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\FileOpenPickerView.xaml">
       <SubType>Designer</SubType>

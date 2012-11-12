@@ -270,7 +270,7 @@ namespace Baconography.ViewModel
             get
             {
                 if (_heading == null)
-                    _heading = "Reddit - The front page of this device";
+                    _heading = "The front page of this device";
                 return _heading;
             }
             set

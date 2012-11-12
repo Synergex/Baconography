@@ -8,30 +8,22 @@
     mc:Ignorable="d"
     d:DesignHeight="150">
 
-    <Grid Margin="0,0,15,0" Background="#353535" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"/>
-            <ColumnDefinition MinWidth="700" Width="*" />
-        </Grid.ColumnDefinitions>
+    <StackPanel Margin="0,0,15,0" Background="#353535" Orientation="Horizontal">
+        <local:VotableControl x:Name="votable"  Background="#575757" DataContext="{Binding Votable}" />
 
-        <local:VotableControl Background="#575757" Grid.Column="0" DataContext="{Binding Votable}" />
+        <StackPanel Margin="20,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
 
-        <StackPanel Grid.Column="1" Margin="20,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
-            <Grid MinHeight="80" HorizontalAlignment="Stretch">
-                
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70" />
-                    <ColumnDefinition Width="100*" />
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Height="70" Margin="0,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+            <StackPanel MinHeight="80" HorizontalAlignment="Stretch" Orientation="Horizontal">
+                <Border Height="70" Margin="0,10,10,10" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
                     <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
                 </Border>
-                <Border Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                    <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}"/>
-                </Border>
-            </Grid>
-            
+                <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}"/>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="55" Margin="0,5,0,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted" Margin="2,0,0,0" />
@@ -54,6 +46,33 @@
             </StackPanel>
         </StackPanel>
 
-    </Grid>
+        <VisualStateManager.VisualStateGroups>
 
+            <!-- Visual states reflect the application's view state -->
+            <VisualStateGroup x:Name="ApplicationViewStates">
+                <VisualState x:Name="FullScreenLandscape">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="votable" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+
+                <VisualState x:Name="Snapped">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="votable" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                <VisualState x:Name="Filled">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="votable" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </StackPanel>
 </UserControl>

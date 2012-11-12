@@ -28,6 +28,15 @@ namespace Baconography.View
 
         }
 
+		public new Visibility Visibility
+		{
+			get { return GridView.Visibility; }
+			set
+			{
+				GridView.Visibility = value;
+			}
+		}
+
 		public new Brush Background
 		{
 			get { return (Brush)GetValue(BackgroundProperty); }
