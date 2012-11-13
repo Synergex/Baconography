@@ -16,4 +16,8 @@
                                  DefaultTemplateKey="Default"/>
 
 
+    <DataTemplate x:Key="asda">
+        
+    </DataTemplate>
+    
 </ResourceDictionary>

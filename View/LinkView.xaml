@@ -7,23 +7,39 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="150">
+    d:DesignHeight="150" x:Name="_page">
 
-    <StackPanel Margin="0,0,15,0" Background="#353535" Orientation="Horizontal">
-        <local:VotableControl x:Name="votable"  Background="#575757" DataContext="{Binding Votable}" />
+    <Grid Margin="0,0,15,0" Background="#353535">
+        <local:VotableControl x:Name="votable" HorizontalAlignment="Left" Background="#575757" DataContext="{Binding Votable}" />
 
-        <StackPanel Margin="20,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
+        <Grid x:Name="snappedView" MinHeight="100" Margin="10,0,5,5" HorizontalAlignment="Stretch" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="75"  Height="Auto" />
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
 
-            <StackPanel MinHeight="80" HorizontalAlignment="Stretch" Orientation="Horizontal">
-                <Border Height="70" Margin="0,10,10,10" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
-                </Border>
-                <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}"/>
+            <Border Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,5" MaxWidth="320">
+                <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="20" Margin="0,0,25,0" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}"/>
+            </Border>
+            <Border Grid.Row="1" HorizontalAlignment="Left">
+                <TextBlock Foreground="Goldenrod" FontSize="18" Style="{StaticResource BodyTextStyle}" Text="{Binding Subreddit}" />
+            </Border>
+        </Grid>
+
+        <StackPanel x:Name="fullView" Margin="70,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
+
+            <Grid x:Name="fullGrid" MinHeight="80" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal">
+                    <Border Height="70" Margin="0,10,10,10" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
                     </Border>
-                </Grid>
-            </StackPanel>
+                    <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" MaxWidth="{Binding ElementName=fullGrid, Path=ActualWidth}" Margin="0,0,70,0"/>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Grid>
 
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="55" Margin="0,5,0,0">
                 <StackPanel Orientation="Horizontal">
@@ -58,11 +74,24 @@
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
+                <VisualState x:Name="FullScreenPortrait">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="votable" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
 
                 <VisualState x:Name="Snapped">
                     <Storyboard>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="votable" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="fullView" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="snappedView" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -75,5 +104,5 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-    </StackPanel>
+    </Grid>
 </common:LayoutAwareUserControl>

@@ -14,22 +14,21 @@
 
         <!-- Main page layout -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
+            <RowDefinition MinHeight="100" MaxHeight="140"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page header -->
-        <Grid Grid.Row="0" Margin="0,0,0,0">
+        <Grid x:Name="pageHeader" Grid.Row="0" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <Image Margin="0,0,25,0" Source="ms-appx:///Assets/BaconographySnoo.png" Width="75"/>
-                <TextBlock x:Name="pageTitle" Text="{Binding Heading}" Style="{StaticResource PageHeaderTextStyle}"/>
-                <Button Foreground="Goldenrod" BorderThickness="0" Padding="0" FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="46" Margin="-5,10,0,0" Click="ShowRedditPicker">&#xE011;</Button>
+                <Image x:Name="pageLogo" Style="{StaticResource BaconPageLogoStyle}"/>
+                <TextBlock x:Name="pageTitle" Text="{Binding Heading}" Style="{StaticResource BaconPageHeaderTextStyle}"/>
+                <Button x:Name="subredditPicker" Style="{StaticResource BaconLargeDropdownButtonStyle}" Click="ShowRedditPicker" />
             </StackPanel>
             <ComboBox Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" SelectedIndex="{Binding Path=IsOnline, Mode=TwoWay, Converter={StaticResource booleanToZeroBasedIndexConverter}}" Width="100" ItemContainerStyle="{StaticResource TransparentComboBoxItemStyle}" Style="{StaticResource TransparentComboBoxStyle}">
                 <ComboBoxItem>Online</ComboBoxItem>
@@ -40,16 +39,16 @@
         <!-- Activity indicator -->
         <local:LoadIndicatorView Grid.Row="1" />
         <!-- Body -->
-        <ListView Grid.Row="2" HorizontalAlignment="Left" Margin="130,0,130,0"
-                  Name="linksView"
-                  Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                  BorderThickness="0" VerticalAlignment="Stretch" 
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                  SelectedItem="{Binding Mode=TwoWay,Path=SelectedLink}"
-                  SelectionMode="Single"
-                  ItemsSource="{Binding Path=Links}"
-                  HorizontalContentAlignment="Stretch">
+        <ListView Grid.Row="2" HorizontalAlignment="Left" Margin="130,0,0,0"
+                Name="linksView"
+                Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                SelectedItem="{Binding Mode=TwoWay,Path=SelectedLink}"
+                SelectionMode="Single"
+                ItemsSource="{Binding Path=Links}"
+                HorizontalContentAlignment="Stretch">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -69,11 +68,24 @@
 
             <!-- Visual states reflect the application's view state -->
             <VisualStateGroup x:Name="ApplicationViewStates">
-                <VisualState x:Name="FullScreenLandscape"/>
+                <VisualState x:Name="FullScreenLandscape">
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="linksView" Storyboard.TargetProperty="Margin">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="130,0,0,0"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+                
                 <VisualState x:Name="Filled">
                     <Storyboard>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="linksView" Storyboard.TargetProperty="Margin">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -81,11 +93,11 @@
                 <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
                 <VisualState x:Name="FullScreenPortrait">
                     <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="linksView" Storyboard.TargetProperty="Margin">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -93,14 +105,20 @@
                 <!-- The back button and title have different styles when snapped -->
                 <VisualState x:Name="Snapped">
                     <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="linksView" Storyboard.TargetProperty="Margin">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconSnappedPageHeaderTextStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageLogo" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedPageHeaderTextStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="linksView" Storyboard.TargetProperty="Margin">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="0,0,0,0"/>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="subredditPicker" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -124,8 +142,6 @@
                     <Button Style="{StaticResource RefreshAppBarButtonStyle}" 
                             Command="{Binding RefreshRedditView}"
                             Visibility="Visible"/>
-                    <!--<Button Style="{StaticResource SearchAppBarButtonStyle}"
-                            Command="{Binding SearchReddits}" />-->
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource PinAppBarButtonStyle}" 
@@ -140,7 +156,6 @@
                     <Button Style="{StaticResource LogoutAppBarButtonStyle}" 
                             Command="{Binding DoLogout, Source={StaticResource Locator}}"
                             Visibility="{Binding LoggedIn, Converter={StaticResource booleanVisibilityConverter}}"/>
-
                     <Button Style="{StaticResource OfflineAppBarButtonStyle}"
                             Command="{Binding DownloadForOffline}"/>
                 </StackPanel>

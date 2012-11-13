@@ -2578,4 +2578,44 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="BaconLargeDropdownButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="Goldenrod" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="46" />
+        <Setter Property="Margin" Value="-5,10,0,0" />
+        <Setter Property="Content" Value="&#xE011;" />
+    </Style>
+
+    <Style x:Key="BaconSmallDropdownButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="Goldenrod" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="Margin" Value="0,20,0,0" />
+        <Setter Property="Content" Value="&#xE011;" />
+    </Style>
+
+    <Style x:Key="BaconPageHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource PageHeaderTextStyle}">
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="BaconSnappedPageHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SnappedPageHeaderTextStyle}">
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+    <Style x:Key="BaconPageLogoStyle" TargetType="Image">
+        <Setter Property="Source" Value="ms-appx:///Assets/BaconographySnoo.png" />
+        <Setter Property="Margin" Value="0,0,25,0" />
+        <Setter Property="Width"  Value="75" />
+    </Style>
+
+    <Style x:Key="BaconSnappedPageLogoStyle" TargetType="Image" BasedOn="{StaticResource BaconPageLogoStyle}">
+        <Setter Property="Source" Value="ms-appx:///Assets/BaconographySnooHead.png" />
+        <Setter Property="Width"  Value="50" />
+    </Style>
 </ResourceDictionary>

@@ -35,7 +35,7 @@
             <local:VotableControl Grid.Column="1" DataContext="{Binding Votable}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             <!-- Title, etc. -->
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <TextBlock Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
+                <TextBlock x:Name="pageTitle" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted"/>
                     <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
@@ -102,6 +102,9 @@
                     <Storyboard>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconSnappedPageHeaderTextStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
