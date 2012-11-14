@@ -144,12 +144,12 @@ namespace BaconographyPortable.ViewModel
         public RelayCommand<CommentViewModel> Save { get { return _save; } }
         public RelayCommand<CommentViewModel> GotoReply { get { return _gotoReply; } }
 
-        static RelayCommand<CommentViewModel> _gotoReply;
-        static RelayCommand<CommentViewModel> _save;
-        static RelayCommand<CommentViewModel> _report;
-        static RelayCommand<CommentViewModel> _gotoFullLink;
+        static RelayCommand<CommentViewModel> _gotoReply = new RelayCommand<CommentViewModel>((vm) => vm.GotoReplyImpl());
+        static RelayCommand<CommentViewModel> _save = new RelayCommand<CommentViewModel>((vm) => vm.SaveImpl());
+        static RelayCommand<CommentViewModel> _report = new RelayCommand<CommentViewModel>((vm) => vm.ReportImpl());
+        static RelayCommand<CommentViewModel> _gotoFullLink = new RelayCommand<CommentViewModel>((vm) => vm.GotoFullLinkImpl());
         static RelayCommand<CommentViewModel> _gotoContext = new RelayCommand<CommentViewModel>((vm) => vm.GotoContextImpl());
-;
+
         static RelayCommand<CommentViewModel> _maximizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = false);
         static RelayCommand<CommentViewModel> _minimizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = true );
 
@@ -171,59 +171,19 @@ namespace BaconographyPortable.ViewModel
 
         private void ReportImpl()
         {
-            _redditService.AddReportOnThing(
-        }
-        
-        public RelayCommand Report
-        {
-            get
-            {
-                if (_report == null)
-                {
-                    _report = new RelayCommand(() =>
-                    {
-                        var reportThing = new AddReportOnThing { Id = _comment.Data.Name };
-                        _actionQueue.AddAction(reportThing);
-                    });
-                }
-                return _report;
-            }
+            _redditService.AddReportOnThing(_comment.Data.Name);
         }
 
-        
-        public RelayCommand Save
+        private void SaveImpl()
         {
-            get
-            {
-                if (_save == null)
-                {
-                    _save = new RelayCommand(() =>
-                    {
-                        var saveThing = new AddSavedThing { Id = _comment.Data.Name };
-                        _actionQueue.AddAction(saveThing);
-                    });
-                }
-                return _save;
-            }
+            _redditService.AddSavedThing(_comment.Data.Name);
         }
 
-        
-        public RelayCommand GotoReply
+        private void GotoReplyImpl()
         {
-            get
-            {
-                if (_gotoReply == null)
-                {
-                    _gotoReply = new RelayCommand(() =>
-                    {
-                        ReplyData = new ReplyViewModel(_comment, _userService, _actionQueue, new RelayCommand(() => ReplyData = null),
-                            (madeComment) => _replies.Add(new CommentViewModel(madeComment, _linkId, _actionQueue, _nav, _userService, !OddNesting, _opName)));
-                    });
-                }
-                return _gotoReply;
-            }
+            ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
+                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting, _opName)));
         }
-
 
     }
 }

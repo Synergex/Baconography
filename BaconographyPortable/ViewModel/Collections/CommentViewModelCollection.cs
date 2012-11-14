@@ -1,4 +1,6 @@
 ﻿using BaconographyPortable.Common;
+using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,21 +9,32 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
 {
-    public class CommentViewModelCollection : BaseIncrementalLoadCollection<CommentViewModel>
+    public class CommentViewModelCollection : ThingViewModelCollection
     {
-        protected override Task<IEnumerable<CommentViewModel>> InitialLoad(Dictionary<object, object> state)
+        string _permaLink;
+        string _subreddit;
+        string _targetName;
+        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string targetName)
+            : base(baconProvider) 
         {
-            throw new NotImplementedException();
+            _permaLink = permaLink;
+            _subreddit = subreddit;
+            _targetName = targetName;
         }
 
-        protected override Task<IEnumerable<CommentViewModel>> LoadAdditional(Dictionary<object, object> state)
+        protected override Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            throw new NotImplementedException();
+            return _redditService.GetCommentsOnPost(_subreddit, _permaLink, null);
         }
 
-        protected override bool HasAdditional(Dictionary<object, object> state)
+        protected override Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
         {
-            return state.ContainsKey("After");
+            return _redditService.GetAdditionalFromListing("http://reddit.com" + _permaLink, after, null);
+        }
+
+        protected override Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)
+        {
+            return _redditService.GetMoreOnListing(ids, _targetName, _subreddit);
         }
     }
 }
