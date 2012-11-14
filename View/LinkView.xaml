@@ -34,7 +34,7 @@
                         <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
                     </Border>
                     <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Center">
                             <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" MaxWidth="{Binding ElementName=fullGrid, Mode=TwoWay, Path=ActualWidth}" Margin="0,0,70,0"/>
                         </Border>
                     </Grid>
