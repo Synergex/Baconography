@@ -34,7 +34,7 @@
             <!-- Up/Down control -->
             <local:VotableControl Grid.Column="1" DataContext="{Binding Votable}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             <!-- Title, etc. -->
-            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+            <StackPanel Grid.Column="2" VerticalAlignment="Top">
                 <TextBlock x:Name="pageTitle" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted"/>

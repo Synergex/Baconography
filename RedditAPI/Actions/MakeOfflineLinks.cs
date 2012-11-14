@@ -19,6 +19,8 @@ namespace Baconography.RedditAPI.Actions
         {
             try
             {
+				TriggerToast(string.Format("Downloading content for offline viewing."));
+
                 await (await Comments.GetInstance()).Clear();
                 await (await Links.GetInstance()).Clear();
 
@@ -58,6 +60,10 @@ namespace Baconography.RedditAPI.Actions
                         var comments = await commentGetter.Run(loggedInUser);
                         if (comments != null)
                         {
+							if (comments.Data.Children.Count == 0)
+							{
+								throw new Exception();
+							}
                             await (await Comments.GetInstance()).StoreComments(comments);
                             var moreChild = comments.Data.Children.LastOrDefault(comment => comment.Data is More);
                             if (moreChild != null)
@@ -124,11 +130,15 @@ namespace Baconography.RedditAPI.Actions
 
         private void TriggerToast(string text)
         {
-            ToastTemplateType toastTemplate = ToastTemplateType.ToastText01; 
+            ToastTemplateType toastTemplate = ToastTemplateType.ToastImageAndText01; 
             XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(toastTemplate);
 
             XmlNodeList toastTextElements = toastXml.GetElementsByTagName("text");
             toastTextElements[0].AppendChild(toastXml.CreateTextNode(text));
+
+			XmlElement imageNode = (XmlElement)toastXml.GetElementsByTagName("image")[0];
+			imageNode.SetAttribute("id", "1");
+			imageNode.SetAttribute("src", @"Assets/BaconographyKitaroPlug.png");
 
             IXmlNode toastNode = toastXml.SelectSingleNode("/toast"); 
             ((XmlElement)toastNode).SetAttribute("launch", "{\"type\":\"toast\" }");

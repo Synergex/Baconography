@@ -473,7 +473,7 @@
 
     <Style x:Key="OfflineAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="OfflineAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Offline Cache"/>
+        <Setter Property="AutomationProperties.Name" Value="Cache Offline Content"/>
         <Setter Property="Content" Value="&#xE151;"/>
     </Style>
 
@@ -2605,7 +2605,7 @@
 
     <Style x:Key="BaconSnappedPageHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SnappedPageHeaderTextStyle}">
         <Setter Property="TextWrapping" Value="Wrap" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontSize" Value="16" />
     </Style>
 
     <Style x:Key="BaconPageLogoStyle" TargetType="Image">

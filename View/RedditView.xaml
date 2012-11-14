@@ -14,12 +14,12 @@
 
         <!-- Main page layout -->
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="100" MaxHeight="140"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="pageHeader" Grid.Row="0" Margin="0,0,0,0">
+        <Grid x:Name="pageHeader" Grid.Row="0" Margin="0,15,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -30,7 +30,7 @@
                 <TextBlock x:Name="pageTitle" Text="{Binding Heading}" Style="{StaticResource BaconPageHeaderTextStyle}"/>
                 <Button x:Name="subredditPicker" Style="{StaticResource BaconLargeDropdownButtonStyle}" Click="ShowRedditPicker" />
             </StackPanel>
-            <ComboBox Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" SelectedIndex="{Binding Path=IsOnline, Mode=TwoWay, Converter={StaticResource booleanToZeroBasedIndexConverter}}" Width="100" ItemContainerStyle="{StaticResource TransparentComboBoxItemStyle}" Style="{StaticResource TransparentComboBoxStyle}">
+            <ComboBox Grid.Column="1" x:Name="offlineSelector" HorizontalAlignment="Right" VerticalAlignment="Top" SelectedIndex="{Binding Path=IsOnline, Mode=TwoWay, Converter={StaticResource booleanToZeroBasedIndexConverter}}" Width="100" ItemContainerStyle="{StaticResource TransparentComboBoxItemStyle}" Style="{StaticResource TransparentComboBoxStyle}">
                 <ComboBoxItem>Online</ComboBoxItem>
                 <ComboBoxItem>Offline</ComboBoxItem>
             </ComboBox>
@@ -76,6 +76,18 @@
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageLogo" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="subredditPicker" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="offlineSelector" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
                 
@@ -86,6 +98,18 @@
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageLogo" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="subredditPicker" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="offlineSelector" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -98,6 +122,18 @@
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BaconPageHeaderTextStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageLogo" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BackButtonStyle}"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="subredditPicker" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="offlineSelector" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
                 </VisualState>
@@ -118,6 +154,9 @@
                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
                         </ObjectAnimationUsingKeyFrames>
                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="subredditPicker" Storyboard.TargetProperty="Visibility">
+                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                        </ObjectAnimationUsingKeyFrames>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="offlineSelector" Storyboard.TargetProperty="Visibility">
                             <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
                         </ObjectAnimationUsingKeyFrames>
                     </Storyboard>
@@ -146,10 +185,10 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource PinAppBarButtonStyle}" 
                             Command="{Binding PinReddit}"
-                            Visibility="{Binding IsPinned, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
+                            Visibility="{Binding IsPinned, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource UnpinAppBarButtonStyle}" 
                             Command="{Binding UnpinReddit}"
-                            Visibility="{Binding IsPinned, Converter={StaticResource booleanVisibilityConverter}}"/>
+                            Visibility="{Binding IsPinned, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource LoginAppBarButtonStyle}" 
                             Command="{Binding ShowLogin, Source={StaticResource Locator}}"
                             Visibility="{Binding LoggedIn, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
@@ -157,7 +196,14 @@
                             Command="{Binding DoLogout, Source={StaticResource Locator}}"
                             Visibility="{Binding LoggedIn, Converter={StaticResource booleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource OfflineAppBarButtonStyle}"
-                            Command="{Binding DownloadForOffline}"/>
+                            Command="{Binding DownloadForOffline}"
+                            Visibility="{Binding Path=IsOnline, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"/>
+                    <Button Style="{StaticResource OfflineAppBarButtonStyle}"
+                            Command="{Binding GoOffline}" AutomationProperties.Name="Go Offline"
+                            Visibility="{Binding Path=OfflineReady, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"/>
+                    <Button Style="{StaticResource OfflineAppBarButtonStyle}"
+                            Command="{Binding GoOnline}" AutomationProperties.Name="Go Online"
+                            Visibility="{Binding Path=IsOnline, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
                 </StackPanel>
             </Grid>
         </AppBar>

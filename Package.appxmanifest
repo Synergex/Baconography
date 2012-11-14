@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="ac0f06ea-3a1e-40f5-87c8-389323dae2c0" Publisher="CN=devadm" Version="1.0.0.0" />
+  <Identity Name="ac0f06ea-3a1e-40f5-87c8-389323dae2c0" Publisher="CN=devadm" Version="1.0.0.2" />
   <Properties>
     <DisplayName>Baconography</DisplayName>
     <PublisherDisplayName>devadm</PublisherDisplayName>

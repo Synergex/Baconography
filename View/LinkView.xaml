@@ -35,7 +35,7 @@
                     </Border>
                     <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" MaxWidth="{Binding ElementName=fullGrid, Path=ActualWidth}" Margin="0,0,70,0"/>
+                            <TextBlock  Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" MaxWidth="{Binding ElementName=fullGrid, Mode=TwoWay, Path=ActualWidth}" Margin="0,0,70,0"/>
                         </Border>
                     </Grid>
                 </StackPanel>

@@ -110,9 +110,19 @@ namespace Baconography.ViewModel
             {
                 _isOnline = value;
                 RaisePropertyChanged("IsOnline");
+				RaisePropertyChanged("OfflineReady");
                 MessengerInstance.Send<ConnectionStatusMessage>(new ConnectionStatusMessage { IsOnline = value, UserInitiated = true });
             }
         }
+
+		private bool _offlineReady = false;
+		public bool OfflineReady
+		{
+			get
+			{
+				return IsOnline && _offlineReady;
+			}
+		}
 
 		private void RefreshLinks(string targetUrl)
 		{
@@ -439,6 +449,38 @@ namespace Baconography.ViewModel
             }
         }
 
+		RelayCommand _goOffline;
+		public RelayCommand GoOffline
+		{
+			get
+			{
+				if (_goOffline == null)
+				{
+					_goOffline = new RelayCommand(() =>
+					{
+						this.IsOnline = false;
+					});
+				}
+				return _goOffline;
+			}
+		}
+
+		RelayCommand _goOnline;
+		public RelayCommand GoOnline
+		{
+			get
+			{
+				if (_goOnline == null)
+				{
+					_goOnline = new RelayCommand(() =>
+					{
+						this.IsOnline = true;
+					});
+				}
+				return _goOnline;
+			}
+		}
+
 		RelayCommand _refreshRedditView;
 		public RelayCommand RefreshRedditView
 		{
@@ -491,6 +533,8 @@ namespace Baconography.ViewModel
                             await offlineLinks.Run(await _userService.GetUser());
 
                             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+							_offlineReady = true;
+							RaisePropertyChanged("OfflineReady");
                         });
                 }
                 return _downloadForOffline;
