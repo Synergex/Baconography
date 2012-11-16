@@ -36,18 +36,7 @@ namespace Baconography.View
         public RedditView()
         {
             this.InitializeComponent();
-            Messenger.Default.Register<SelectSubreddit>(this, selectedSubreddit =>
-            {
-                _selectedSubredditMessage = selectedSubreddit;
-            });
-			
         }
-
-        ~RedditView()
-        {
-            Messenger.Default.Unregister<SelectSubreddit>(this);
-        }
-
 
         public static DependencyObject GetScrollViewer(DependencyObject o)
         {
@@ -92,15 +81,15 @@ namespace Baconography.View
 
             if (pageState != null && pageState.ContainsKey("SelectedSubredditMessage"))
             {
-                var selectedSubredditMessage = pageState["SelectedSubredditMessage"] as SelectSubreddit;
-                Messenger.Default.Send<SelectSubreddit>(selectedSubredditMessage);
+                _selectedSubredditMessage = pageState["SelectedSubredditMessage"] as SelectSubreddit;
+                Messenger.Default.Send<SelectSubreddit>(_selectedSubredditMessage);
             }
             else if (navigationParameter != null)
             {
 				if (navigationParameter is SelectSubreddit)
 				{
-					var selectedSubredditMessage = navigationParameter as SelectSubreddit;
-					Messenger.Default.Send<SelectSubreddit>(selectedSubredditMessage);
+                    _selectedSubredditMessage = navigationParameter as SelectSubreddit;
+                    Messenger.Default.Send<SelectSubreddit>(_selectedSubredditMessage);
 				}
 				else if (navigationParameter is string)
 				{

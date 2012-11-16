@@ -69,6 +69,8 @@ namespace Baconography.View
         {
             pageState["NavigateToUrlMessage"] = _navigateToUrlMessage;
 			UnregisterShareSourceContract();
+            ServiceLocator.Current.GetInstance<LinkedWebViewModel>().WebView = null;
+            mainGrid.Children.Remove(theWebView);
         }
 
         WebViewBrush webViewBrush = null;

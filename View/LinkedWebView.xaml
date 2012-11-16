@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     DataContext="{Binding LinkedWeb, Source={StaticResource Locator}}">
 
-    <Grid Style="{StaticResource LayoutRootStyle}">
+    <Grid x:Name="mainGrid" Style="{StaticResource LayoutRootStyle}">
 
         <!-- Main page layout -->
         <Grid.RowDefinitions>
