@@ -26,7 +26,7 @@ namespace Baconography.Common.Converters
 
                     if(isSame)
                     {
-                        return new TextBlock { Text = startingText };
+                        return new TextBlock { Text = startingText, TextWrapping = TextWrapping.Wrap };
                     }
                     else
                     {
