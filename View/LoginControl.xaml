@@ -17,7 +17,8 @@
                 <xc:WatermarkTextBox Width="300" WatermarkText="Username" HorizontalAlignment="Left" Text="{Binding Mode=TwoWay, Path=Username}" Margin="0,5,0,5"/>
                 <PasswordBox Name="passwordBox" Width="300" HorizontalAlignment="Left" Password="{Binding Mode=TwoWay, Path=Password}" Margin="0,5,0,5" Style="{StaticResource WatermarkedPasswordBox}" GotFocus="PasswordBox_GotFocus_1" LostFocus="PasswordBox_LostFocus_1" Loaded="passwordBox_Loaded_1"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="300">
-                    <Button HorizontalAlignment="Left" Command="{Binding DoLogin}">Login</Button>
+                    <Button Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}" HorizontalAlignment="Left" Command="{Binding DoLogin}">Login</Button>
+                    <ProgressRing Width="65" Height="30" IsActive="True" Visibility="{Binding Working, Converter={StaticResource booleanVisibilityConverter}}"/>
                     <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                         <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,0,5">Remember Me</TextBlock>
                         <TextBlock FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,0,5">Login Automatically</TextBlock>
@@ -27,6 +28,7 @@
                         <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}"/>
                     </StackPanel>
                 </StackPanel>
+                <TextBlock Visibility="{Binding HasErrors, Converter={StaticResource booleanVisibilityConverter}}" FontSize="14" HorizontalAlignment="Center" Text="Failed To Login using supplied credentials"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
