@@ -19,9 +19,21 @@ namespace Baconography.Common.Converters
             {
                 try
                 {
-                    var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", (new MarkdownSharp.Markdown()).Transform(value as string))) as RichTextBlock;
-                    uiElement.DataContext = new { TextButtonStyle = App.Current.Resources["TextButtonStyle"] as Style, Locator = App.Current.Resources["Locator"] as ViewModelLocator };
-                    return uiElement;
+                    var startingText = value as string;
+                    var markdown =  (new MarkdownSharp.Markdown()).Transform(startingText);
+
+                    var isSame = string.Compare(startingText, 0, markdown, "<paragraph>".Length, startingText.Length) == 0;
+
+                    if(isSame)
+                    {
+                        return new TextBlock { Text = startingText };
+                    }
+                    else
+                    {
+                        var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
+                        uiElement.DataContext = new { TextButtonStyle = App.Current.Resources["TextButtonStyle"] as Style, Locator = App.Current.Resources["Locator"] as ViewModelLocator };
+                        return uiElement;
+                    }
                 }
                 catch
                 {
