@@ -37,7 +37,7 @@ namespace Baconography.Common.Converters
                 }
                 catch
                 {
-                    return new TextBlock { Text = value as string };
+                    return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap };
                 }
             }
             else
