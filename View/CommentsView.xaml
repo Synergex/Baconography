@@ -26,29 +26,36 @@
             <!-- Main layout for page header -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="70"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!-- Back button -->
             <Button Grid.Column="0" x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
             <!-- Up/Down control -->
-            <local:VotableControl Grid.Column="1" DataContext="{Binding Votable}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <local:VotableControl Grid.Column="1" Margin="0,0,20,0" DataContext="{Binding Votable}" VerticalAlignment="Bottom"/>
             <!-- Title, etc. -->
-            <StackPanel Grid.Column="2" VerticalAlignment="Top">
-                <TextBlock x:Name="pageTitle" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal">
+            
+            <Grid Grid.Column="2" VerticalAlignment="Top" Height="140">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" x:Name="pageTitle" VerticalAlignment="Center" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted"/>
                     <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="by" Margin="5,0,0,0"/>
                     <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding Author}" Margin="5,0,0,0" />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
                     <Button Style="{StaticResource TextButtonStyle}" Margin="0,0,0,0" Command="{Binding SaveLink}">Save</Button>
                     <Button Style="{StaticResource TextButtonStyle}" Margin="5,0,0,0" Command="{Binding ReportLink}">Report</Button>
                     <Button Style="{StaticResource TextButtonStyle}" Margin="5,0,0,0" Command="{Binding GotoReply}">Reply</Button>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
         </Grid>
 
         <!-- Activity indicator -->
