@@ -26,7 +26,7 @@ namespace Baconography.Common.Converters
 
                     if(isSame)
                     {
-                        return new TextBlock { Text = startingText };
+                        return new TextBlock { Text = startingText, TextWrapping = TextWrapping.Wrap };
                     }
                     else
                     {
@@ -37,7 +37,7 @@ namespace Baconography.Common.Converters
                 }
                 catch
                 {
-                    return new TextBlock { Text = value as string };
+                    return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap };
                 }
             }
             else
