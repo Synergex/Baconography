@@ -28,19 +28,22 @@
                         <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}"/>
                     </StackPanel>
                 </StackPanel>
-                <Border Margin="10,20,0,0">
+                <Border Margin="0,20,0,0">
                     <TextBlock FontSize="14">New to reddit? Sign-up online:</TextBlock>
                 </Border>
-                <HyperlinkButton Margin="10,0,0,0" Padding="5,0,5,0" NavigateUri="http://www.reddit.com/register">http://www.reddit.com/register</HyperlinkButton>
-                <TextBlock Visibility="{Binding HasErrors, Converter={StaticResource booleanVisibilityConverter}}" FontSize="14" HorizontalAlignment="Center" Text="Failed To Login using supplied credentials"/>
+                <HyperlinkButton Margin="0,0,0,20" Padding="5,0,5,0" NavigateUri="http://www.reddit.com/register">http://www.reddit.com/register</HyperlinkButton>
+                
+                <Border Margin="0,0,0,20" Visibility="{Binding HasErrors, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                    <TextBlock FontSize="13" Foreground="Red" HorizontalAlignment="Left" Text="Login Failed: incorrect username or password"/>
+                </Border>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
-                <TextBlock FontSize="14">Currently Logged In as</TextBlock>
-                <TextBlock FontSize="14" Margin="5,0,0,0" Text="{Binding CurrentUserName}"/>
+            <StackPanel Margin="0,0,0,20" Orientation="Vertical" Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
+                <TextBlock FontSize="14">Currently logged in as</TextBlock>
+                <TextBlock FontSize="14" Margin="14,7,0,0" Text="{Binding CurrentUserName}"/>
             </StackPanel>
 
-            <ListView HorizontalAlignment="Left" Margin="5,0,0,5"
+            <ListView HorizontalAlignment="Left" Margin="0,0,0,5"
                   Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                   BorderThickness="0" VerticalAlignment="Stretch" 
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -48,10 +51,11 @@
                   SelectedItem="{Binding Mode=TwoWay,Path=SelectedCredential}"
                   SelectionMode="Single"
                   ItemsSource="{Binding Path=Credentials}"
-                  Header="Stored Credentials">
+                  Header="Stored Credentials"
+                  FontSize="14">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding}"/>
+                        <TextBlock Margin="10,0,0,0" Text="{Binding}" FontSize="14"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

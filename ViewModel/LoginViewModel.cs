@@ -206,10 +206,12 @@ namespace Baconography.ViewModel
                             var loggedInUser = await _userService.TryStoredLogin(value);
                             if (loggedInUser != null)
                             {
+                                HasErrors = false;
                                 MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
                             }
                             else
                             {
+                                HasErrors = true;
                                 await _userService.RemoveStoredCredential(value);
                                 _credentials = null;
                                 RaisePropertyChanged("Credentials");
