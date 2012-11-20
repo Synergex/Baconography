@@ -27,6 +27,10 @@
                         <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}"/>
                     </StackPanel>
                 </StackPanel>
+                <Border Margin="10,20,0,0">
+                    <TextBlock FontSize="14">New to reddit? Sign-up online:</TextBlock>
+                </Border>
+                <HyperlinkButton Margin="10,0,0,0" Padding="5,0,5,0" NavigateUri="http://www.reddit.com/register">http://www.reddit.com/register</HyperlinkButton>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
