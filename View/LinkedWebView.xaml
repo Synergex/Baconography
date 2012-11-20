@@ -40,9 +40,6 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Style="{StaticResource GoToBrowserAppBarButtonStyle}" Command="{Binding GotoBrowser}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource ExitAppBarButtonStyle}" Command="{Binding Exit}"/>
-                </StackPanel>
             </Grid>
         </AppBar>
     </Page.BottomAppBar>
