@@ -11,5 +11,7 @@ namespace BaconographyPortable.Services
     {
         void MaybeCreateTile(Thing thing);
         Task CreateSecondaryTileForSubreddit(TypedThing<Subreddit> subreddit);
+        bool TileExists(string name);
+        void RemoveSecondaryTile(string name);
     }
 }

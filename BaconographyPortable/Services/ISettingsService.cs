@@ -17,5 +17,7 @@ namespace BaconographyPortable.Services
         bool OpenLinksInBrowser { get; set; }
         bool HighlightAlreadyClickedLinks { get; set; }
         bool ApplyReadabliltyToLinks { get; set; }
+
+        void ShowSettings();
     }
 }

@@ -12,5 +12,7 @@ namespace BaconographyPortable.Services
         void GoForward();
         bool Navigate<T>(object parameter);
         bool Navigate(Type source, object parameter);
+
+        void NavigateToSecondary(Type source, object parameter);
     }
 }

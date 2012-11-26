@@ -12,5 +12,9 @@ namespace BaconographyPortable.Services
         Type LinkedPictureView { get; }
         Type LinkedWebView { get; }
         Type CommentsView { get; }
+        Type SearchResultsView { get; }
+        Type SubredditsView { get; }
+        Type SearchQueryView { get; }
+        Type SubmitToSubredditView { get; }
     }
 }

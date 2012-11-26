@@ -20,8 +20,8 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
-        private ReplyViewModel _replyData;
-        CommentViewModelCollection _replies;
+        ReplyViewModel _replyData;
+        CommentReplyViewModelCollection _replies;
         private bool _isMinimized;
         string _linkId;
         string _opName;
@@ -52,22 +52,17 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public CommentViewModelCollection Replies
+        public CommentReplyViewModelCollection Replies
         {
             get
             {
                 if (_replies == null)
                 {
-                    if (_comment.Data.Replies != null)
-                    {
-                        _replies = new CommentViewModelCollection(_baconProvider, _comment.Data.Subreddit, _comment.Data.Name, 
-                            _linkId, _comment.Data.SubredditId,_comment.Data.Replies.Data.Children, OddNesting, _opName);
-                    }
-                    else
-                    {
-                        _replies = new CommentViewModelCollection(_baconProvider, _comment.Data.Subreddit, _comment.Data.Name, _linkId,
-                            _comment.Data.SubredditId, new List<Thing> { }, OddNesting, _opName);
-                    }
+                    var things = _comment.Data.Replies != null ?
+                        _comment.Data.Replies.Data.Children :
+                        Enumerable.Empty<Thing>();
+
+                    _replies = new CommentReplyViewModelCollection(_baconProvider, things, _comment.Data.Subreddit, _comment.Data.Name);
                 }
                 return _replies;
             }

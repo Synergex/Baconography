@@ -8,24 +8,13 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
 {
-    class SearchResultsViewModelCollection : ThingViewModelCollection
+    public class SearchResultsViewModelCollection : ThingViewModelCollection
     {
-        string _query;
         public SearchResultsViewModelCollection(IBaconProvider baconProvider, string query) :
-            base(baconProvider)
-        {
-            _query = query;
-        }
+            base(baconProvider, 
+                new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(baconProvider, query),
+                new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(baconProvider, query)) { }
 
-        protected override Task<Listing> GetInitialListing(Dictionary<object, object> state)
-        {
-            return _redditService.Search(_query, null);
-        }
-
-        protected override Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
-        {
-            //TODO: this url is bleeding over from the model, it should be routed from somewhere on the model side instead
-            return _redditService.GetAdditionalFromListing(string.Format("http://www.reddit.com/search.json?q={0}", _query), after, null);
-        }
+        
     }
 }

@@ -11,23 +11,30 @@ namespace BaconographyPortable.ViewModel.Collections
 {
     public class ImageSearchViewModelCollection : BaseIncrementalLoadCollection<ImageViewModel>
     {
-        private string _query;
+        IBaconProvider _baconProvider;
         IRedditService _redditService;
         IImagesService _imagesService;
+        ISettingsService _settingsService;
+        IListingProvider _onlineListingProvider;
+        IListingProvider _offlineListingProvider;
 
-        public ImageSearchViewModelCollection(IRedditService redditService, IImagesService imagesService, string query)
+        public ImageSearchViewModelCollection(IBaconProvider baconProvider, string query)
         {
-            _redditService = redditService;
-            _imagesService = imagesService;
-            _query = query;
+            _baconProvider = baconProvider;
+            _redditService = baconProvider.GetService<IRedditService>();
+            _imagesService = baconProvider.GetService<IImagesService>();
+            _settingsService = baconProvider.GetService<ISettingsService>();
+
+            //we only want image results and this seems to be the best way to get that
+            var searchQuery = query + " AND (site:'imgur' OR site:'flickr' OR site:'memecrunch' OR site:'quickmeme' OR site:qkme OR site:'min' OR site:'picsarus')";
+
+            _onlineListingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(_baconProvider, searchQuery);
+            _offlineListingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(_baconProvider, searchQuery);
         }
 
         protected override async Task<IEnumerable<ImageViewModel>> InitialLoad(Dictionary<object, object> state)
         {
-            var searchQuery = _query + " AND (site:'imgur' OR site:'flickr' OR site:'memecrunch' OR site:'quickmeme' OR site:qkme OR site:'min' OR site:'picsarus')";
-            var searchResults = await _redditService.Search(searchQuery, null);
-
-            return await MapListing(searchResults, state);
+            return await MapListing(await GetInitialListing(state), state);
         }
 
         protected async override Task<IEnumerable<ImageViewModel>> LoadAdditional(Dictionary<object, object> state)
@@ -35,7 +42,7 @@ namespace BaconographyPortable.ViewModel.Collections
             var after = state["After"] as string;
             state.Remove("After");
 
-            return await MapListing(await _redditService.GetAdditionalFromListing("http://www.reddit.com/reddits", after, null), state);
+            return await MapListing(await GetAdditionalListing(after, state), state);
         }
 
         private async Task<IEnumerable<ImageViewModel>> MapListing(Listing listing, Dictionary<object, object> state)
@@ -65,6 +72,23 @@ namespace BaconographyPortable.ViewModel.Collections
         protected override bool HasAdditional(Dictionary<object, object> state)
         {
             return state.ContainsKey("After");
+        }
+
+
+        private Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        {
+            if (_settingsService.IsOnline())
+                return _onlineListingProvider.GetInitialListing(state);
+            else
+                return _offlineListingProvider.GetInitialListing(state);
+        }
+
+        private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
+        {
+            if (_settingsService.IsOnline())
+                return _onlineListingProvider.GetAdditionalListing(after, state);
+            else
+                return _offlineListingProvider.GetAdditionalListing(after, state);
         }
     }
 }

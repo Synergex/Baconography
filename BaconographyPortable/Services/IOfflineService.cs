@@ -25,5 +25,7 @@ namespace BaconographyPortable.Services
 
         Task StoreOrderedThings(string key, IEnumerable<Thing> things);
         Task<IEnumerable<Thing>> RetrieveOrderedThings(string key);
+
+        Task StoreOrderedThings(IListingProvider listingProvider);
     }
 }

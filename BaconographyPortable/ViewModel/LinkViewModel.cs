@@ -36,7 +36,7 @@ namespace BaconographyPortable.ViewModel
             get
             {
                 if (_votable == null)
-                    _votable = new VotableViewModel(_linkThing, _redditService);
+                    _votable = new VotableViewModel(_linkThing, _baconProvider);
                 return _votable;
             }
         }

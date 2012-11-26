@@ -16,19 +16,23 @@ namespace BaconographyPortable.ViewModel.Collections
         protected INavigationService _navigationService;
         protected IUserService _userService;
         protected IBaconProvider _baconProvider;
+        protected ISettingsService _settingsService;
+        protected IListingProvider _onlineListingProvider;
+        protected IListingProvider _offlineListingProvider;
 
-        public ThingViewModelCollection(IBaconProvider baconProvider)
+        public ThingViewModelCollection(IBaconProvider baconProvider, IListingProvider onlineListingProvider, IListingProvider offlineListingProvider)
         {
             _baconProvider = baconProvider;
             _redditService = _baconProvider.GetService<IRedditService>();
             _navigationService = _baconProvider.GetService<INavigationService>();
             _userService = _baconProvider.GetService<IUserService>();
+            _settingsService = _baconProvider.GetService<ISettingsService>();
+            _onlineListingProvider = onlineListingProvider;
+            _offlineListingProvider = offlineListingProvider;
         }
 
         protected override async Task<IEnumerable<ViewModelBase>> InitialLoad(Dictionary<object, object> state)
         {
-            //state["CurrentUser"] = await _userService.GetUser();
-            //state["SubscribedSubreddits"] = await _redditService.GetSubscribedSubreddits();
             return MapListing(await GetInitialListing(state), state);
         }
 
@@ -56,6 +60,8 @@ namespace BaconographyPortable.ViewModel.Collections
 
                 return MapListing(await GetMore(targetMore, state), state);
             }
+            else
+                throw new NotImplementedException();
         }
 
         private IEnumerable<ViewModelBase> MapListing(Listing listing, Dictionary<object, object> state)
@@ -70,14 +76,19 @@ namespace BaconographyPortable.ViewModel.Collections
                 .Where(vmb => vmb != null);
         }
 
-        private ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
+        protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
             if (thing.Data is Link)
                 return new LinkViewModel(thing, _baconProvider);
             else if (thing.Data is Comment)
                 return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, true, string.Empty);
             else if (thing.Data is Subreddit)
-                return new AboutSubredditViewModel(_baconProvider, thing, ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name));
+            {
+                var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
+                    ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
+                    false;
+                return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
+            }
             else if (thing.Data is More)
             {
                 //multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
@@ -110,8 +121,28 @@ namespace BaconographyPortable.ViewModel.Collections
             return state.ContainsKey("After") || state.ContainsKey("More");
         }
 
-        protected abstract Task<Listing> GetInitialListing(Dictionary<object, object> state);
-        protected abstract Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state);
-        protected abstract Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state);
+        private Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        {
+            if (_settingsService.IsOnline())
+                return _onlineListingProvider.GetInitialListing(state);
+            else
+                return _offlineListingProvider.GetInitialListing(state);
+        }
+
+        private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
+        {
+            if (_settingsService.IsOnline())
+                return _onlineListingProvider.GetAdditionalListing(after, state);
+            else
+                return _offlineListingProvider.GetAdditionalListing(after, state);
+        }
+
+        private Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)
+        {
+            if (_settingsService.IsOnline())
+                return _onlineListingProvider.GetMore(ids, state);
+            else
+                return _offlineListingProvider.GetMore(ids, state);
+        }
     }
 }
