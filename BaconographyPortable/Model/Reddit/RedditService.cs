@@ -17,6 +17,10 @@ namespace BaconographyPortable.Model.Reddit
         IUserService _userService;
         INotificationService _notificationService;
 
+
+        Dictionary<string, string> _linkToOpMap = new Dictionary<string, string>();
+        Dictionary<string, HashSet<string>> _subredditToModMap = new Dictionary<string, HashSet<string>>();
+
         public RedditService(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
         {
             _settingsService = settingsService;
@@ -110,10 +114,6 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<HashSet<string>> GetSubscribedSubreddits()
         {
-            var maxLimit = (await UserIsGold()) ? 1500 : 100;
-
-            var targetUri = string.Format("http://www.reddit.com/reddits/mine.json?limit={0}", maxLimit);
-
             var hashifyListing = new Func<Thing, string>((thing) =>
                 {
                     if (thing.Data is Subreddit)
@@ -124,27 +124,10 @@ namespace BaconographyPortable.Model.Reddit
                         return null;
                 });
 
-            try
-            {
-                var subreddits = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
-
-                if (subreddits == "\"{}\"")
-                    return new HashSet<string>(JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits)
-                        .Data.Children.Select(hashifyListing)
-                        .Where(str => str != null));
-                else
-                    return new HashSet<string>(JsonConvert.DeserializeObject<Listing>(subreddits)
-                        .Data.Children.Select(hashifyListing)
-                        .Where(str => str != null));
-                            
-            }
-            catch (Exception ex)
-            {
-                _notificationService.CreateErrorNotification(ex);
-                return new HashSet<string>(JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits)
-                        .Data.Children.Select(hashifyListing)
-                        .Where(str => str != null));
-            }
+            return new HashSet<string>((await GetSubscribedSubredditListing())
+                    .Data.Children.Select(hashifyListing)
+                    .Where(str => str != null));
+            
         }
 
         public async Task<Listing> GetSubreddits(int? limit)
@@ -474,6 +457,59 @@ namespace BaconographyPortable.Model.Reddit
             }
 
             return source;
+        }
+
+
+        public AuthorFlairKind GetUsernameModifiers(string username, string permalink, string subreddit)
+        {
+            if (string.IsNullOrEmpty(permalink))
+            {
+                string opName;
+                if (_linkToOpMap.TryGetValue(permalink, out opName) && opName == username)
+                {
+                    return AuthorFlairKind.OriginalPoster;
+                }
+            }
+
+            if (string.IsNullOrEmpty(subreddit))
+            {
+                HashSet<string> subredditMods;
+                if (_subredditToModMap.TryGetValue(subreddit, out subredditMods) && subredditMods.Contains(username))
+                {
+                    return AuthorFlairKind.Moderator;
+                }
+            }
+
+            return AuthorFlairKind.None;
+        }
+
+
+        public async Task<Listing> GetSubscribedSubredditListing()
+        {
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
+
+            var targetUri = string.Format("http://www.reddit.com/reddits/mine.json?limit={0}", maxLimit);
+
+            try
+            {
+                var subreddits = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+
+                if (subreddits == "\"{}\"")
+                    return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
+                else
+                    return JsonConvert.DeserializeObject<Listing>(subreddits);
+
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
+            }
+        }
+
+        public async Task<Listing> GetDefaultSubreddits()
+        {
+            return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
         }
     }
 }

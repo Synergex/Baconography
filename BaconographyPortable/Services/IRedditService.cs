@@ -14,6 +14,8 @@ namespace BaconographyPortable.Services
         Task<Listing> Search(string query, int? limit);
         Task<Thing> GetThingById(string id);
         Task<HashSet<string>> GetSubscribedSubreddits();
+        Task<Listing> GetSubscribedSubredditListing();
+        Task<Listing> GetDefaultSubreddits();
         Task<Listing> GetSubreddits(int? limit);
         Task<TypedThing<Subreddit>> GetSubreddit(string name);
         Task<Listing> GetPostsByUser(string username, int? limit);
@@ -29,5 +31,7 @@ namespace BaconographyPortable.Services
         void AddPost(string kind, string url, string subreddit, string title);
         void AddMessage(string recipient, string subject, string message);
         void AddComment(string parentId, string content);
+
+        AuthorFlairKind GetUsernameModifiers(string username, string permalink, string subreddit);
     }
 }

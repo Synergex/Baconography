@@ -14,5 +14,6 @@ namespace BaconographyPortable.Services
         bool Navigate(Type source, object parameter);
 
         void NavigateToSecondary(Type source, object parameter);
+        void NavigateToExternalUri(Uri uri);
     }
 }

@@ -53,6 +53,7 @@
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditLinks.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\SubredditSubscriptions.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\UserActivity.cs" />
     <Compile Include="Model\Reddit\Account.cs" />
     <Compile Include="Model\Reddit\Comment.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditLinks.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\SubredditSubscriptions.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\UserActivity.cs" />
     <Compile Include="Model\Reddit\Message.cs" />
     <Compile Include="Model\Reddit\More.cs" />
@@ -94,14 +96,18 @@
     <Compile Include="Services\IBaconProvider.cs" />
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\ISimpleHttpService.cs" />
+    <Compile Include="Services\ISystemServices.cs" />
     <Compile Include="Services\IUserService.cs" />
+    <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentReplyViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\SearchResultsViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\StoredUserCredentialsCollection.cs" />
     <Compile Include="ViewModel\Collections\SubredditViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\SubscribedSubredditViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ThingViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\UserActivityViewModelCollection.cs" />
     <Compile Include="ViewModel\CommentsViewModel.cs" />
@@ -111,7 +117,7 @@
     <Compile Include="ViewModel\LinkedPictureViewModel.cs" />
     <Compile Include="ViewModel\LinkedWebViewModel.cs" />
     <Compile Include="ViewModel\LinkViewModel.cs" />
-    <Compile Include="ViewModel\LoadIndicatorViewModelcs.cs" />
+    <Compile Include="ViewModel\LoadIndicatorViewModel.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\RedditPickerViewModel.cs" />
     <Compile Include="ViewModel\RedditViewModel.cs" />

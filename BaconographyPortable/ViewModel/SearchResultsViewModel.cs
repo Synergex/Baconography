@@ -26,12 +26,14 @@ namespace BaconographyPortable.ViewModel
             _userService = _baconProvider.GetService<IUserService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
 
-            MessengerInstance.Register<SearchQueryMessage>(this, (queryMessage) =>
-            {
-                Query = queryMessage.Query;
-                Results = new SearchResultsViewModelCollection(_baconProvider, Query);
-            });
+            MessengerInstance.Register<SearchQueryMessage>(this, OnSearchQuery);
 
+        }
+
+        private void OnSearchQuery(SearchQueryMessage queryMessage)
+        {
+            Query = queryMessage.Query;
+            Results = new SearchResultsViewModelCollection(_baconProvider, Query);
         }
 
         private string _query;
