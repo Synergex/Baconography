@@ -14,6 +14,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         public SubredditSubscriptions(IBaconProvider baconProvider)
         {
             _userService = baconProvider.GetService<IUserService>();
+            _redditService = baconProvider.GetService<IRedditService>();
         }
 
         public async Task<Listing> GetInitialListing(Dictionary<object, object> state)

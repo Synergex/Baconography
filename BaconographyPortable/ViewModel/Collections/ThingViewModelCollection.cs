@@ -64,7 +64,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 throw new NotImplementedException();
         }
 
-        private IEnumerable<ViewModelBase> MapListing(Listing listing, Dictionary<object, object> state)
+        protected virtual IEnumerable<ViewModelBase> MapListing(Listing listing, Dictionary<object, object> state)
         {
             if (listing.Data.After != null)
             {
@@ -81,7 +81,7 @@ namespace BaconographyPortable.ViewModel.Collections
             if (thing.Data is Link)
                 return new LinkViewModel(thing, _baconProvider);
             else if (thing.Data is Comment)
-                return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, true, string.Empty);
+                return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
             else if (thing.Data is Subreddit)
             {
                 var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?

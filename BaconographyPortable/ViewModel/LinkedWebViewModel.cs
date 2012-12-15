@@ -21,10 +21,26 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<NavigateToUrlMessage>(this, OnNavigateTo);
         }
 
+        public IWebViewWrapper WebViewWrapper
+        {
+            get
+            {
+                return _webViewWrapper;
+            }
+        }
+
         private void OnNavigateTo(NavigateToUrlMessage message)
         {
-            Source = message.TargetUrl;
+            _webViewWrapper.Url = message.TargetUrl;
             LinkedTitle = message.Title;
+        }
+
+        public string Source
+        {
+            get
+            {
+                return _webViewWrapper.Url;
+            }
         }
 
         private string _linkedTitle;
@@ -38,20 +54,6 @@ namespace BaconographyPortable.ViewModel
             {
                 _linkedTitle = value;
                 RaisePropertyChanged("LinkedTitle");
-            }
-        }
-
-        private string _source;
-        public string Source
-        {
-            get
-            {
-                return _source;
-            }
-            set
-            {
-                _source = value;
-                RaisePropertyChanged("Source");
             }
         }
 

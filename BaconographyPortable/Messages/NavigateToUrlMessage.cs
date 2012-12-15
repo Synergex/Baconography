@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class NavigateToUrlMessage : MessageBase
+    public class NavigateToUrlMessage : MessageBase
     {
         public string TargetUrl { get; set; }
         public string Title { get; set; }

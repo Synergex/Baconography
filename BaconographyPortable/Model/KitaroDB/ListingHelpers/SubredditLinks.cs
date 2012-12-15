@@ -19,14 +19,14 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
             _subreddit = subreddit;
         }
 
-        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+            return _offlineService.LinksForSubreddit(_subreddit, null);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
         {
-            throw new NotImplementedException();
+            return _offlineService.LinksForSubreddit(_subreddit, after);
         }
 
         public Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)

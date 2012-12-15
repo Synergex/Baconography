@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class CloseSettingsMessage : MessageBase
+    public class CloseSettingsMessage : MessageBase
     {
     }
 }

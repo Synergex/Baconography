@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class SelectSubredditMessage : MessageBase
+    public class SelectSubredditMessage : MessageBase
     {
         public TypedThing<Subreddit> Subreddit { get; set; }
     }

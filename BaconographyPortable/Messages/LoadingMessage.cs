@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class LoadingMessage : MessageBase
+    public class LoadingMessage : MessageBase
     {
         public bool Loading { get; set; }
     }

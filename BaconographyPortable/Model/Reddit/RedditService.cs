@@ -11,17 +11,16 @@ namespace BaconographyPortable.Model.Reddit
 {
     public class RedditService : IRedditService
     {
-        ISettingsService _settingsService;
-        IOfflineService _offlineService;
-        ISimpleHttpService _simpleHttpService;
-        IUserService _userService;
-        INotificationService _notificationService;
-
+        protected ISettingsService _settingsService;
+        protected IOfflineService _offlineService;
+        protected ISimpleHttpService _simpleHttpService;
+        protected IUserService _userService;
+        protected INotificationService _notificationService;
 
         Dictionary<string, string> _linkToOpMap = new Dictionary<string, string>();
         Dictionary<string, HashSet<string>> _subredditToModMap = new Dictionary<string, HashSet<string>>();
 
-        public RedditService(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
+        public virtual void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
         {
             _settingsService = settingsService;
             _offlineService = offlineService;
@@ -41,13 +40,19 @@ namespace BaconographyPortable.Model.Reddit
         {
             try
             {
-                var thing = JsonConvert.DeserializeObject<Thing>(await _simpleHttpService.SendGet(user.LoginCookie, "http://www.reddit.com/api/me.json"));
-                return (new TypedThing<Account>(thing)).Data;
+                var meString = await _simpleHttpService.SendGet(user.LoginCookie, "http://www.reddit.com/api/me.json");
+                if (!string.IsNullOrWhiteSpace(meString) && meString != "{}")
+                {
+                    var thing = JsonConvert.DeserializeObject<Thing>(meString);
+                    return (new TypedThing<Account>(thing)).Data;
+                }
+                else
+                    return null;
             }
             catch (Exception ex)
             {
                 _notificationService.CreateErrorNotification(ex);
-                return new Account { Name = user.Username };
+                return null;
             }
         }
 
@@ -193,7 +198,7 @@ namespace BaconographyPortable.Model.Reddit
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-            var targetUri = string.Format("http://www.reddit.com/r/{0}/.json?limit={1}", subreddit, guardedLimit);
+            var targetUri = string.Format("http://www.reddit.com{0}.json?limit={1}", subreddit, guardedLimit);
             try
             {
                 var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
@@ -326,7 +331,7 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
-        public async void AddVote(string thingId, int direction)
+        public virtual async void AddVote(string thingId, int direction)
         {
             var modhash = await GetCurrentModhash();
 
@@ -340,7 +345,7 @@ namespace BaconographyPortable.Model.Reddit
             var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/vote");
         }
 
-        public async void AddSubredditSubscription(string subreddit, bool unsub)
+        public virtual async void AddSubredditSubscription(string subreddit, bool unsub)
         {
             var modhash = await GetCurrentModhash();
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
@@ -348,7 +353,7 @@ namespace BaconographyPortable.Model.Reddit
                 "http://www.reddit.com/api/subscribe");
         }
 
-        public async void AddSavedThing(string thingId)
+        public virtual async void AddSavedThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/save";
@@ -362,7 +367,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public async void AddReportOnThing(string thingId)
+        public virtual async void AddReportOnThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/report";
@@ -376,7 +381,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public async void AddPost(string kind, string url, string subreddit, string title)
+        public virtual async void AddPost(string kind, string url, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
@@ -384,7 +389,7 @@ namespace BaconographyPortable.Model.Reddit
                 "http://www.reddit.com/api/submit");
         }
 
-        public async void AddMessage(string recipient, string subject, string message)
+        public virtual async void AddMessage(string recipient, string subject, string message)
         {
             var modhash = await GetCurrentModhash();
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
@@ -392,7 +397,7 @@ namespace BaconographyPortable.Model.Reddit
                 "http://www.reddit.com/api/compose");
         }
 
-        public async void AddComment(string parentId, string content)
+        public virtual async void AddComment(string parentId, string content)
         {
             var modhash = await GetCurrentModhash();
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
@@ -460,12 +465,12 @@ namespace BaconographyPortable.Model.Reddit
         }
 
 
-        public AuthorFlairKind GetUsernameModifiers(string username, string permalink, string subreddit)
+        public AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit)
         {
-            if (string.IsNullOrEmpty(permalink))
+            if (string.IsNullOrEmpty(linkid))
             {
                 string opName;
-                if (_linkToOpMap.TryGetValue(permalink, out opName) && opName == username)
+                if (_linkToOpMap.TryGetValue(linkid, out opName) && opName == username)
                 {
                     return AuthorFlairKind.OriginalPoster;
                 }
@@ -495,7 +500,7 @@ namespace BaconographyPortable.Model.Reddit
                 var subreddits = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
 
                 if (subreddits == "\"{}\"")
-                    return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
+                    return await GetDefaultSubreddits();
                 else
                     return JsonConvert.DeserializeObject<Listing>(subreddits);
 
@@ -503,13 +508,21 @@ namespace BaconographyPortable.Model.Reddit
             catch (Exception ex)
             {
                 _notificationService.CreateErrorNotification(ex);
-                return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
             }
+            //cant await in a catch block so do it after
+            return await GetDefaultSubreddits();
         }
 
         public async Task<Listing> GetDefaultSubreddits()
         {
-            return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits);
+            return JsonConvert.DeserializeObject<Listing>(Resources.DefaultSubreddits1 + Resources.DefaultSubreddits2 + Resources.DefaultSubreddits3);
+        }
+
+
+        public async Task<bool> CheckLogin(string loginToken)
+        {
+            var meString = await _simpleHttpService.SendGet(loginToken, "http://www.reddit.com/api/me.json");
+            return (!string.IsNullOrWhiteSpace(meString) && meString != "{}");
         }
     }
 }

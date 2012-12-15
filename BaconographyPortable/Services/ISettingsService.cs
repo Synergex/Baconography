@@ -10,6 +10,7 @@ namespace BaconographyPortable.Services
     {
         bool IsOnline();
         void SetOffline(bool fromUser);
+        void SetOnline(bool fromUser);
 
         bool AllowOver18 {get; set;}
         int MaxTopLevelOfflineComments { get; set; }
@@ -17,7 +18,11 @@ namespace BaconographyPortable.Services
         bool OpenLinksInBrowser { get; set; }
         bool HighlightAlreadyClickedLinks { get; set; }
         bool ApplyReadabliltyToLinks { get; set; }
+        bool PreferImageLinksForTiles { get; set; }
 
         void ShowSettings();
+        Task Persist();
+        Task ClearHistory();
+        int DefaultOfflineLinkCount { get; set; }
     }
 }

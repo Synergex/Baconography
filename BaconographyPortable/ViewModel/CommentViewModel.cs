@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Messages;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
@@ -6,6 +7,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,13 +23,15 @@ namespace BaconographyPortable.ViewModel
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
         ReplyViewModel _replyData;
-        CommentReplyViewModelCollection _replies;
+        ObservableCollection<ViewModelBase> _replies;
         private bool _isMinimized;
+        private bool _isCollapsed;
         string _linkId;
-        string _opName;
 
-        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting, string opName)
+        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting)
         {
+            _isMinimized = false;
+            _isCollapsed = false;
             _comment = new TypedThing<Comment>(comment);
             _baconProvider = baconProvider;
             _redditService = _baconProvider.GetService<IRedditService>();
@@ -36,7 +40,7 @@ namespace BaconographyPortable.ViewModel
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _linkId = linkId;
             OddNesting = oddNesting;
-            _opName = opName;
+            AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
         }
 
         public bool OddNesting { get; private set; }
@@ -52,19 +56,18 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public CommentReplyViewModelCollection Replies
+        AuthorFlairKind AuthorFlair { get; set; }
+
+        public ObservableCollection<ViewModelBase> Replies
         {
             get
             {
-                if (_replies == null)
-                {
-                    var things = _comment.Data.Replies != null ?
-                        _comment.Data.Replies.Data.Children :
-                        Enumerable.Empty<Thing>();
-
-                    _replies = new CommentReplyViewModelCollection(_baconProvider, things, _comment.Data.Subreddit, _comment.Data.Name);
-                }
                 return _replies;
+            }
+            set
+            {
+                _replies = value;
+                RaisePropertyChanged("Replies");
             }
         }
 
@@ -92,18 +95,6 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public AuthorFlairKind PosterFlair
-        {
-            get
-            {
-                if (_opName == _comment.Data.Author)
-                    return AuthorFlairKind.OriginalPoster;
-
-                else
-                    return AuthorFlairKind.None;
-            }
-        }
-
         public bool IsMinimized
         {
             get
@@ -114,6 +105,31 @@ namespace BaconographyPortable.ViewModel
             {
                 _isMinimized = value;
                 RaisePropertyChanged("IsMinimized");
+                foreach (var child in Replies.OfType<CommentViewModel>())
+                    child.IsCollapsed = value;
+            }
+        }
+
+        public bool IsCollapsed
+        {
+            get
+            {
+                return _isCollapsed;
+            }
+            set
+            {
+                _isCollapsed = value;
+                RaisePropertyChanged("IsCollapsed");
+                foreach (var child in Replies.OfType<CommentViewModel>())
+                    child.IsCollapsed = value;
+            }
+        }
+
+        public AuthorFlairKind PosterFlair
+        {
+            get
+            {
+                return _redditService.GetUsernameModifiers(PosterName, _linkId, _comment.Data.SubredditId);
             }
         }
 
@@ -177,7 +193,7 @@ namespace BaconographyPortable.ViewModel
         private void GotoReplyImpl()
         {
             ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
-                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting, _opName)));
+                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting)));
         }
 
     }

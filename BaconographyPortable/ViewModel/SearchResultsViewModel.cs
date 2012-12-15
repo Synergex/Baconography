@@ -82,7 +82,7 @@ namespace BaconographyPortable.ViewModel
             set
             {
                 if (value is LinkViewModel)
-                    ((LinkViewModel)value).GotoLink.Execute(null);
+                    ((LinkViewModel)value).GotoLink.Execute(((LinkViewModel)value));
                 else if (value is AboutSubredditViewModel)
                     _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = ((AboutSubredditViewModel)value).Thing });
             }

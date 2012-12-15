@@ -11,5 +11,6 @@ namespace BaconographyPortable.Services
         event Action<string> UrlChanged;
         string Url { get; set; }
         void Disable();
+        object WebView { get; }
     }
 }

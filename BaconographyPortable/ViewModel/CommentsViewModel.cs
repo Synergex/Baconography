@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
 {
-    class CommentsViewModel : ViewModelBase
+    public class CommentsViewModel : ViewModelBase
     {
         IBaconProvider _baconProvider;
         IUserService _userService;
@@ -157,8 +157,8 @@ namespace BaconographyPortable.ViewModel
 
         private void GotoReplyImpl()
         {
-            ReplyData = new ReplyViewModel(_baconProvider, _linkThing, new RelayCommand(() => ReplyData = null),
-                (madeComment) => Comments.Add(new CommentViewModel(_baconProvider, madeComment, _linkThing.Data.Name, true, _linkThing.Data.Author)));
+            Action<Thing> uiResponse = (madeComment) => Comments.Add(new CommentViewModel(_baconProvider, madeComment, _linkThing.Data.Name, false));
+            ReplyData = new ReplyViewModel(_baconProvider, _linkThing, new RelayCommand(() => ReplyData = null), uiResponse);
         }
 
         private ReplyViewModel _replyData;

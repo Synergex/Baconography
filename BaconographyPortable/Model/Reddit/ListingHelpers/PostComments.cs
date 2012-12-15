@@ -24,7 +24,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return _redditService.GetCommentsOnPost(_subreddit, _permaLink, null);
+            return _redditService.GetCommentsOnPost(_subreddit, _permaLink, -1);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

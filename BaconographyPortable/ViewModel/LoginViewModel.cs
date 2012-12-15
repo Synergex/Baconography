@@ -21,6 +21,7 @@ namespace BaconographyPortable.ViewModel
         public LoginViewModel(IBaconProvider baconProvider)
         {
             _userService = baconProvider.GetService<IUserService>();
+            _systemServices = baconProvider.GetService<ISystemServices>();
             _baconProvider = baconProvider;
             _isLoggedIn = false;
             MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);

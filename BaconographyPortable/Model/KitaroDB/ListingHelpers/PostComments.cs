@@ -14,10 +14,12 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         string _permaLink;
         string _targetName;
         IOfflineService _offlineService;
+        ISettingsService _settingsService;
 
         public PostComments(IBaconProvider baconProvider, string subreddit, string permaLink, string targetName)
         {
             _offlineService = baconProvider.GetService<IOfflineService>();
+            _settingsService = baconProvider.GetService<ISettingsService>();
             _subreddit = subreddit;
             _permaLink = permaLink;
             _targetName = targetName;
@@ -25,7 +27,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            throw new NotImplementedException();
+            return _offlineService.GetTopLevelComments(_subreddit, _targetName, _settingsService.MaxTopLevelOfflineComments);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -35,7 +37,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)
         {
-            throw new NotImplementedException();
+            return _offlineService.GetMoreComments(_subreddit, _targetName, ids);
         }
     }
 }

@@ -49,7 +49,6 @@
     <Compile Include="Messages\SelectUserAccountMessage.cs" />
     <Compile Include="Messages\UserLoggedInMessage.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
-    <Compile Include="Model\KitaroDB\ListingHelpers\ReplyComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditLinks.cs" />
@@ -67,7 +66,6 @@
     <Compile Include="Model\Reddit\Link.cs" />
     <Compile Include="Model\Reddit\Listing.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
-    <Compile Include="Model\Reddit\ListingHelpers\ReplyComments.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditLinks.cs" />
@@ -100,7 +98,6 @@
     <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
-    <Compile Include="ViewModel\Collections\CommentReplyViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
@@ -113,12 +110,14 @@
     <Compile Include="ViewModel\CommentsViewModel.cs" />
     <Compile Include="ViewModel\CommentViewModel.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
+    <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\LinkedPictureViewModel.cs" />
     <Compile Include="ViewModel\LinkedWebViewModel.cs" />
     <Compile Include="ViewModel\LinkViewModel.cs" />
     <Compile Include="ViewModel\LoadIndicatorViewModel.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
+    <Compile Include="ViewModel\MoreViewModel.cs" />
     <Compile Include="ViewModel\RedditPickerViewModel.cs" />
     <Compile Include="ViewModel\RedditViewModel.cs" />
     <Compile Include="ViewModel\ReplyViewModel.cs" />
@@ -129,17 +128,6 @@
     <Compile Include="ViewModel\VotableViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="GalaSoft.MvvmLight">
-      <HintPath>..\3rdPartyBin\GalaSoft.MvvmLight.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\Portable.CommonServiceLocator.1.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.10\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +135,23 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GalaSoft.MvvmLight">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platforms.NetCore45">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Platforms.NetCore45.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,10 +13,9 @@ namespace BaconographyPortable.Services
         //an async method that returns async loaded image tuples
         Task<IEnumerable<Task<Tuple<string, byte[]>>>> GetImages(string uri);
 
-        Task StoreComment(Thing comment);
         Task StoreComments(Listing listing);
         Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count);
-        Task<Listing> GetMoreComments(string after, int count);
+        Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids);
 
         Task StoreLink(Thing link);
         Task StoreLinks(Listing listing);
@@ -27,5 +26,17 @@ namespace BaconographyPortable.Services
         Task<IEnumerable<Thing>> RetrieveOrderedThings(string key);
 
         Task StoreOrderedThings(IListingProvider listingProvider);
+
+        Task StoreSetting(string name, string value);
+        Task<string> GetSetting(string name);
+
+        Task StoreHistory(string link);
+        Task ClearHistory();
+        Task<bool> HasHistory(string link);
+
+        Task Suspend();
+
+        Task EnqueueAction(string actionName, Dictionary<string, string> parameters);
+        Task<Tuple<string, Dictionary<string, string>>> DequeueAction();
     }
 }

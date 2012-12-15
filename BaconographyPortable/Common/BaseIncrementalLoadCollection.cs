@@ -1,20 +1,49 @@
 ﻿using BaconographyPortable.Messages;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.Common
 {
-    public abstract class BaseIncrementalLoadCollection<T> : ObservableCollection<T>
+    public interface PortableISupportIncrementalLoad : ICollection, INotifyCollectionChanged, INotifyPropertyChanged, IList
+    {
+        bool HasMoreItems { get; }
+        Task<int> LoadMoreItemsAsync(uint count);
+    }
+
+    public class PrebuiltIncrementalLoadCollection<T> : ObservableCollection<T>, PortableISupportIncrementalLoad
+    {
+        public PrebuiltIncrementalLoadCollection(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+                Add(item);
+        }
+
+        public bool HasMoreItems
+        {
+            get { return false; }
+        }
+
+        public Task<int> LoadMoreItemsAsync(uint count)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public abstract class BaseIncrementalLoadCollection<T> : ObservableCollection<T>, PortableISupportIncrementalLoad
     {
         private bool _initialLoaded;
 
         //this is to allow a very loose binding of state in the derived classes
-        private Dictionary<object, object> _state;
+        private Dictionary<object, object> _state = new Dictionary<object,object>();
 
         protected abstract Task<IEnumerable<T>> InitialLoad(Dictionary<object, object> state);
         protected abstract Task<IEnumerable<T>> LoadAdditional(Dictionary<object, object> state);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class SearchQueryMessage : MessageBase
+    public class SearchQueryMessage : MessageBase
     {
         public string Query { get; set; }
     }

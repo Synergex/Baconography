@@ -8,9 +8,9 @@ namespace BaconographyPortable.Services
 {
     public interface ISystemServices
     {
-        object StartTimer(EventHandler<object> tickHandler, TimeSpan tickSpan);
+        object StartTimer(EventHandler<object> tickHandler, TimeSpan tickSpan, bool uiThread);
         void StopTimer(object tickHandle);
 
-        void RunAsync(Action<object> action);
+        void RunAsync(Func<object, Task> action);
     }
 }

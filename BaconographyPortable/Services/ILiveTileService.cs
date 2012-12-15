@@ -9,7 +9,7 @@ namespace BaconographyPortable.Services
 {
     public interface ILiveTileService
     {
-        void MaybeCreateTile(Thing thing);
+        Task MaybeCreateTile(Tuple<string, string, TypedThing<Link>> thingTpl);
         Task CreateSecondaryTileForSubreddit(TypedThing<Subreddit> subreddit);
         bool TileExists(string name);
         void RemoveSecondaryTile(string name);

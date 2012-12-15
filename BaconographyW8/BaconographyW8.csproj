@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>BaconographyW8_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -101,38 +102,97 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <Folder Include="View\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\NeutralServices\KitaroDB\Comments.cs">
-      <Link>NeutralServices\KitaroDB\Comments.cs</Link>
-    </Compile>
-    <Compile Include="..\NeutralServices\KitaroDB\Images.cs">
-      <Link>NeutralServices\KitaroDB\Images.cs</Link>
-    </Compile>
-    <Compile Include="..\NeutralServices\KitaroDB\Links.cs">
-      <Link>NeutralServices\KitaroDB\Links.cs</Link>
-    </Compile>
-    <Compile Include="..\NeutralServices\KitaroDB\Subreddits.cs">
-      <Link>NeutralServices\KitaroDB\Subreddits.cs</Link>
-    </Compile>
-    <Compile Include="..\NeutralServices\KitaroDB\Thumbnails.cs">
-      <Link>NeutralServices\KitaroDB\Thumbnails.cs</Link>
-    </Compile>
-    <Compile Include="..\NeutralServices\OfflineService.cs">
-      <Link>NeutralServices\OfflineService.cs</Link>
-    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PlatformServices\ImageAPI\Deviantart.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Flickr.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Imgur.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Memecrunch.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Minus.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Picsarus.cs" />
-    <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
+    <Compile Include="Common\BindableBase.cs" />
+    <Compile Include="Common\BooleanNegationConverter.cs" />
+    <Compile Include="Common\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Common\LayoutAwarePage.cs" />
+    <Compile Include="Common\LayoutAwareUserControl.cs" />
+    <Compile Include="Common\RichTextColumns.cs" />
+    <Compile Include="Common\SuspensionManager.cs" />
+    <Compile Include="Common\TypedTemplateSelector.cs" />
+    <Compile Include="Common\VisualTreeHelperExtensions.cs" />
+    <Compile Include="Common\WatermarkTextBox.cs" />
+    <Compile Include="Converters\AlternatingColorConverter.cs" />
+    <Compile Include="Converters\AuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
+    <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\ColorBrightnessConverter.cs" />
+    <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\ColoredIndentationDepthConverter.cs" />
+    <Compile Include="Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Converters\MarkdownConverter.cs" />
+    <Compile Include="Converters\PortableAsyncCollectionConverter.cs" />
+    <Compile Include="Converters\ReplyConverter.cs" />
+    <Compile Include="Converters\TimeRelationConverter.cs" />
+    <Compile Include="PlatformServices\DynamicViewLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaticCommands.cs" />
+    <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="View\AboutUserView.xaml.cs">
+      <DependentUpon>AboutUserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\AboutView.xaml.cs">
+      <DependentUpon>AboutView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CommentsView.xaml.cs">
+      <DependentUpon>CommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CommentView.xaml.cs">
+      <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ContentPreferencesView.xaml.cs">
+      <DependentUpon>ContentPreferencesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\FileOpenPickerView.xaml.cs">
+      <DependentUpon>FileOpenPickerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkedPictureView.xaml.cs">
+      <DependentUpon>LinkedPictureView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkedWebView.xaml.cs">
+      <DependentUpon>LinkedWebView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkView.xaml.cs">
+      <DependentUpon>LinkView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoadIndicatorView.xaml.cs">
+      <DependentUpon>LoadIndicatorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoginView.xaml.cs">
+      <DependentUpon>LoginView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MoreCommentsView.xaml.cs">
+      <DependentUpon>MoreCommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\RedditView.xaml.cs">
+      <DependentUpon>RedditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ReplyView.xaml.cs">
+      <DependentUpon>ReplyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SearchQueryView.xaml.cs">
+      <DependentUpon>SearchQueryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SearchResultsView.xaml.cs">
+      <DependentUpon>SearchResultsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubredditPickerView.xaml.cs">
+      <DependentUpon>SubredditPickerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubredditsView.xaml.cs">
+      <DependentUpon>SubredditsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubredditView.xaml.cs">
+      <DependentUpon>SubredditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\VotableView.xaml.cs">
+      <DependentUpon>VotableView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -142,10 +202,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\BaconographyKitaroPlug.png" />
+    <Content Include="Assets\BaconographySnoo.png" />
+    <Content Include="Assets\BaconographySnooHead.png" />
+    <Content Include="Assets\BadgeLogo.png" />
     <Content Include="Assets\Logo.png" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\WideLogo.png" />
+    <Content Include="Common\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -156,24 +222,134 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Resources\BaconographyStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Resources\DataDeclarations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="View\AboutUserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AboutView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ContentPreferencesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\FileOpenPickerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedPictureView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedWebView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoadIndicatorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoginView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MoreCommentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RedditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ReplyView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SearchQueryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SearchResultsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SubredditPickerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SubredditsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SubredditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VotableView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaconographyPortable\BaconographyPortable.csproj">
       <Project>{386be814-a21a-4a84-abf3-f9b61130d4f2}</Project>
       <Name>BaconographyPortable</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BaconographyW8BackgroundTask\BaconographyW8BackgroundTask.csproj">
+      <Project>{aac67f7f-6d50-4ab3-b9a8-e0a10a4f464c}</Project>
+      <Name>BaconographyW8BackgroundTask</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BaconographyW8Core\BaconographyW8Core.csproj">
+      <Project>{aafe0904-dfe5-4fe8-bffd-3facae48ced9}</Project>
+      <Name>BaconographyW8Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="KitaroDBSDK, Version=1.1.0.0">
       <Name>KitaroDB for Windows Store Applications</Name>
     </SDKReference>
-    <SDKReference Include="Microsoft.VCLibs, Version=11.0">
-      <Name>Microsoft Visual C++ Runtime Package</Name>
-    </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="GalaSoft.MvvmLight">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platforms.NetCore45">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Platforms.NetCore45.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\winrt45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Windows.UI.Interactivity">
+      <HintPath>..\packages\Windows.UI.Interactivity.1.0.9.0\lib\winrt45\Windows.UI.Interactivity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">

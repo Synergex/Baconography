@@ -14,11 +14,12 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         public SearchResults(IBaconProvider baconProvider, string query)
         {
             _query = query;
+            _redditService = baconProvider.GetService<IRedditService>();
         }
 
         public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return _redditService.Search(_query, null);
+            return _redditService.Search(_query, 20);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

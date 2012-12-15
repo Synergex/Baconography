@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class SelectCommentTreeMessage : MessageBase
+    public class SelectCommentTreeMessage : MessageBase
     {
         public TypedThing<Link> LinkThing { get; set; }
         public TypedThing<Comment> RootComment { get; set; }

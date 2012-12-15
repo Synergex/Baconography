@@ -12,17 +12,18 @@ namespace BaconographyPortable.ViewModel
     public class LoadIndicatorViewModel : ViewModelBase
     {
         object _dispatcherTimerHandle;
-        bool _running;
+        int _running;
         ISystemServices _systemServices;
 
         public LoadIndicatorViewModel(IBaconProvider baconProvider)
         {
+            _running = 0;
             _systemServices = baconProvider.GetService<ISystemServices>();
             MessengerInstance.Register<LoadingMessage>(this, OnLoadingMessage);
         }
 
         bool _progressBarVisibility;
-        bool ProgressBarVisibility
+        public bool ProgressBarVisibility
         {
             get
             {
@@ -31,28 +32,34 @@ namespace BaconographyPortable.ViewModel
             set
             {
                 _progressBarVisibility = value;
-                RaisePropertyChanged("ProgressBarVisibility");
+                try
+                {
+                    RaisePropertyChanged("ProgressBarVisibility");
+                }
+                catch
+                {
+                    //this sometimes goes weird if we're not in the main application (search/picker)
+                }
             }
         }
-
 
         private void OnLoadingMessage(LoadingMessage message)
         {
             if (message.Loading)
             {
                 ProgressBarVisibility = true;
-                _running = true;
-                _dispatcherTimerHandle = _systemServices.StartTimer(OnTick, TimeSpan.FromSeconds(2));
+                _running++;
+                _dispatcherTimerHandle = _systemServices.StartTimer(OnTick, TimeSpan.FromSeconds(2), true);
             }
             else
             {
-                _running = false;
+                _running--;
             }
         }
 
         private void OnTick(object obj, object obj2)
         {
-            if (!_running)
+            if (_running == 0)
             {
                 ProgressBarVisibility = false;
                 _systemServices.StopTimer(_dispatcherTimerHandle);

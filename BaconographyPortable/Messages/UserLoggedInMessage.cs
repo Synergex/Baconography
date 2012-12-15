@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class UserLoggedInMessage : MessageBase
+    public class UserLoggedInMessage : MessageBase
     {
         public User CurrentUser { get; set; }
     }

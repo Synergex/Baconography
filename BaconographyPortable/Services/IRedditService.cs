@@ -10,6 +10,7 @@ namespace BaconographyPortable.Services
     public interface IRedditService
     {
         Task<Account> GetMe();
+        Task<bool> CheckLogin(string loginToken);
         Task<User> Login(string username, string password);
         Task<Listing> Search(string query, int? limit);
         Task<Thing> GetThingById(string id);
@@ -32,6 +33,6 @@ namespace BaconographyPortable.Services
         void AddMessage(string recipient, string subject, string message);
         void AddComment(string parentId, string content);
 
-        AuthorFlairKind GetUsernameModifiers(string username, string permalink, string subreddit);
+        AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit);
     }
 }

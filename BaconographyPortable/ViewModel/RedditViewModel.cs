@@ -22,6 +22,7 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
+        ISettingsService _settingsService;
         TypedThing<Subreddit> _selectedSubreddit;
 
         public RedditViewModel(IBaconProvider baconProvider)
@@ -33,6 +34,7 @@ namespace BaconographyPortable.ViewModel
             _userService = baconProvider.GetService<IUserService>();
             _liveTileService = baconProvider.GetService<ILiveTileService>();
             _offlineService = baconProvider.GetService<IOfflineService>();
+            _settingsService = baconProvider.GetService<ISettingsService>();
 
             MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
@@ -166,9 +168,9 @@ namespace BaconographyPortable.ViewModel
                 if (_selectedLink != null)
                 {
                     if (SelectedLink.IsSelfPost)
-                        _selectedLink.NavigateToComments.Execute(null);
+                        _selectedLink.NavigateToComments.Execute(value);
                     else
-                        _selectedLink.GotoLink.Execute(null);
+                        _selectedLink.GotoLink.Execute(value);
                 }
             }
         }
@@ -349,7 +351,7 @@ namespace BaconographyPortable.ViewModel
             else
                 targetUrl += "/";
 
-            await _offlineService.StoreOrderedThings(new SubredditLinks(_baconProvider, targetUrl));
+            await _offlineService.StoreLinks(await _redditService.GetPostsBySubreddit(targetUrl, _settingsService.DefaultOfflineLinkCount));
 
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _offlineReady = true;

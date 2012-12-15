@@ -41,7 +41,7 @@ namespace BaconographyPortable.ViewModel
             //TODO: implement this
         }
 
-        public Subreddit SelectedSubreddit
+        public AboutSubredditViewModel SelectedSubreddit
         {
             get
             {
@@ -49,7 +49,7 @@ namespace BaconographyPortable.ViewModel
             }
             set
             {
-                _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = value }) });
+                _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = new TypedThing<Subreddit>(value.Thing) });
             }
         }
 
