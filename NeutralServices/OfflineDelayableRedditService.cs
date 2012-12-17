@@ -77,17 +77,7 @@ namespace Baconography.NeutralServices
         }
 
         ThreadPoolTimer _queueTimer;
-
-        public override void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
-        {
-            base.Initialize(settingsService, offlineService, simpleHttpService, userService, notificationService);
-
-            //tick at the max rate allowed by reddit once every 2 seconds
-            _queueTimer = ThreadPoolTimer.CreateTimer(RunQueue, new TimeSpan(2000));
-
-        }
-
-        public async void RunQueue(ThreadPoolTimer timer)
+        public async Task RunQueue(ThreadPoolTimer timer)
         {
             try
             {
@@ -140,7 +130,7 @@ namespace Baconography.NeutralServices
             }
             //we dont need to be particularly active here, as we dont want to burn battery when nothing is happening and we dont want to choke out
             //the content requests when the user is actively browsing around
-            _queueTimer = ThreadPoolTimer.CreateTimer(RunQueue, new TimeSpan(0, 0, 2));
+            _queueTimer = ThreadPoolTimer.CreateTimer(async (timerParam) => await RunQueue(timerParam), new TimeSpan(0, 0, 2));
         }
     }
 }

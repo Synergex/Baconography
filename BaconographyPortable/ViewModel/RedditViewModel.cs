@@ -343,15 +343,7 @@ namespace BaconographyPortable.ViewModel
         {
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 
-            var targetUrl = "http://www.reddit.com";
-            if (_selectedSubreddit != null)
-            {
-                targetUrl += _selectedSubreddit.Data.Url;
-            }
-            else
-                targetUrl += "/";
-
-            await _offlineService.StoreLinks(await _redditService.GetPostsBySubreddit(targetUrl, _settingsService.DefaultOfflineLinkCount));
+            await _offlineService.StoreLinks(await _redditService.GetPostsBySubreddit(_selectedSubreddit != null ? _selectedSubreddit.Data.Url : "/", _settingsService.DefaultOfflineLinkCount));
 
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _offlineReady = true;

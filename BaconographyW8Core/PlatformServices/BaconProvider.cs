@@ -19,10 +19,10 @@ namespace BaconographyW8.PlatformServices
             var redditService = new OfflineDelayableRedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
-            var offlineService = new OfflineService(redditService);
-            var simpleHttpService = new SimpleHttpService();
             var notificationService = new NotificationService();
             var settingsService = new SettingsService();
+            var offlineService = new OfflineService(redditService, notificationService, settingsService);
+            var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
             var navigationService = new NavigationService();
             var webViewWrapper = new WebViewWrapper();
@@ -71,6 +71,9 @@ namespace BaconographyW8.PlatformServices
                 if (tpl.Value is IBaconService)
                     await ((IBaconService)tpl.Value).Initialize(this);
             }
+
+            var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
+            await redditService.RunQueue(null);
         }
 
         private Dictionary<Type, object> _services;

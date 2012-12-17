@@ -48,49 +48,49 @@ namespace BaconographyW8.PlatformServices
                 var offlineService = _baconProvider.GetService<IOfflineService>();
 
                 var allowOver18String = await offlineService.GetSetting("AllowOver18");
-                if (allowOver18String != null)
+                if (!string.IsNullOrWhiteSpace(allowOver18String))
                     AllowOver18 = bool.Parse(allowOver18String);
                 else
                     AllowOver18 = false;
 
                 var maxTopLevelOfflineCommentsString = await offlineService.GetSetting("MaxTopLevelOfflineComments");
-                if (maxTopLevelOfflineCommentsString != null)
+                if (!string.IsNullOrWhiteSpace(maxTopLevelOfflineCommentsString))
                     MaxTopLevelOfflineComments = int.Parse(maxTopLevelOfflineCommentsString);
                 else
                     MaxTopLevelOfflineComments = 50;
 
                 var offlineOnlyGetsFirstSetString = await offlineService.GetSetting("OfflineOnlyGetsFirstSet");
-                if (offlineOnlyGetsFirstSetString != null)
+                if (!string.IsNullOrWhiteSpace(offlineOnlyGetsFirstSetString))
                     OfflineOnlyGetsFirstSet = bool.Parse(offlineOnlyGetsFirstSetString);
                 else
                     OfflineOnlyGetsFirstSet = true;
 
                 var openLinksInBrowserString = await offlineService.GetSetting("OpenLinksInBrowser");
-                if (openLinksInBrowserString != null)
+                if (!string.IsNullOrWhiteSpace(openLinksInBrowserString))
                     OpenLinksInBrowser = bool.Parse(openLinksInBrowserString);
                 else
                     OpenLinksInBrowser = false;
 
                 var highlightAlreadyClickedLinksString = await offlineService.GetSetting("HighlightAlreadyClickedLinks");
-                if (highlightAlreadyClickedLinksString != null)
+                if (!string.IsNullOrWhiteSpace(highlightAlreadyClickedLinksString))
                     HighlightAlreadyClickedLinks = bool.Parse(highlightAlreadyClickedLinksString);
                 else
                     HighlightAlreadyClickedLinks = true;
 
                 var applyReadabliltyToLinksString = await offlineService.GetSetting("ApplyReadabliltyToLinks");
-                if (allowOver18String != null)
+                if (!string.IsNullOrWhiteSpace(allowOver18String))
                     ApplyReadabliltyToLinks = bool.Parse(applyReadabliltyToLinksString);
                 else
                     ApplyReadabliltyToLinks = false;
 
                 var preferImageLinksForTiles = await offlineService.GetSetting("PreferImageLinksForTiles");
-                if (preferImageLinksForTiles != null)
+                if (!string.IsNullOrWhiteSpace(preferImageLinksForTiles))
                     PreferImageLinksForTiles = bool.Parse(preferImageLinksForTiles);
                 else
                     PreferImageLinksForTiles = true;
 
                 var defaultOfflineLinkCount = await offlineService.GetSetting("DefaultOfflineLinkCount");
-                if (defaultOfflineLinkCount != null)
+                if (!string.IsNullOrWhiteSpace(defaultOfflineLinkCount))
                     DefaultOfflineLinkCount = int.Parse(defaultOfflineLinkCount);
                 else
                     DefaultOfflineLinkCount = 25;

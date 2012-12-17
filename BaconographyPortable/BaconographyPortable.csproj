@@ -42,6 +42,7 @@
     <Compile Include="Messages\ConnectionStatusMessage.cs" />
     <Compile Include="Messages\LoadingMessage.cs" />
     <Compile Include="Messages\NavigateToUrlMessage.cs" />
+    <Compile Include="Messages\OfflineStatusMessage.cs" />
     <Compile Include="Messages\PickerFileMessage.cs" />
     <Compile Include="Messages\SearchQueryMessage.cs" />
     <Compile Include="Messages\SelectCommentTreeMessage.cs" />

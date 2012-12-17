@@ -20,20 +20,23 @@ namespace Baconography.NeutralServices.KitaroDB
         private static async Task<DB> GetDBInstance()
         {
             var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-rev1.ism";
-            var db = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//comments-rev1.ism", DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+            var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
-                new DBKey(32, 0, DBKeyFlags.Alpha, "main", false, false, false, 0, new DBKeySegment[] { new DBKeySegment(8, 32, DBKeyFlags.AutoSequence, false) }),
+                new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0, new DBKeySegment[] { new DBKeySegment(8, 32, DBKeyFlags.AutoSequence, false) }),
                 new DBKey(20, 0, DBKeyFlags.Alpha, "direct", false, false, false, 1, new DBKeySegment[] { new DBKeySegment(12, 40, DBKeyFlags.Alpha, false) }), 
-                new DBKey(8, 52, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 2)
+                new DBKey(8, 52, DBKeyFlags.AutoTime, "creation_timestamp", true, false, false, 2)
             });
             return db;
         }
 
         public static Task<Comments> GetInstance()
         {
-            if (_instanceTask == null)
+            lock (typeof(Comments))
             {
-                _instanceTask = GetInstanceImpl();
+                if (_instanceTask == null)
+                {
+                    _instanceTask = GetInstanceImpl();
+                }
             }
             return _instanceTask;
         }
@@ -51,7 +54,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private byte[] GenerateMainKeyspace(string subredditId, string linkId, string parentId)
         {
-            var keyspace = new byte[PrimaryKeySpaceSize];
+            var keyspace = new byte[MainKeySpaceSize];
 
             //these ids are stored in base 36 so we will never see unicode chars
             for (int i = 0; i < 8 && i < subredditId.Length; i++)
@@ -90,7 +93,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private byte[] GenerateDirectKeyspace(string subredditId, string linkId, string name)
         {
-            var keyspace = new byte[PrimaryKeySpaceSize];
+            var keyspace = new byte[DirectKeySpaceSize];
 
             //these ids are stored in base 36 so we will never see unicode chars
             for (int i = 0; i < 8 && i < subredditId.Length; i++)
@@ -128,7 +131,14 @@ namespace Baconography.NeutralServices.KitaroDB
             }
             else
             {
-                await _commentsDB.InsertAsync(combinedSpace);
+                try
+                {
+                    await _commentsDB.InsertAsync(combinedSpace);
+                }
+                catch
+                {
+                    //this shouldnt happen
+                }
             }
         }
 

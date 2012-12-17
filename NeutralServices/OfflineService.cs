@@ -1,6 +1,8 @@
 using Baconography.NeutralServices.KitaroDB;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using GalaSoft.MvvmLight.Messaging;
 using KitaroDB;
 using Newtonsoft.Json;
 using System;
@@ -12,12 +14,16 @@ namespace Baconography.NeutralServices
 {
     class OfflineService : IOfflineService
     {
-        public OfflineService(IRedditService redditService)
+        public OfflineService(IRedditService redditService, INotificationService notificationService, ISettingsService settingsService)
         {
             _redditService = redditService;
+            _notificationService = notificationService;
+            _settingsService = settingsService;
         }
 
+        INotificationService _notificationService;
         IRedditService _redditService;
+        ISettingsService _settingsService;
         Task _instanceTask;
         bool _hasQueuedActions;
 
@@ -43,9 +49,12 @@ namespace Baconography.NeutralServices
 
         public Task Initialize()
         {
-            if (_instanceTask == null)
+            lock (this)
             {
-                _instanceTask = InitializeImpl();
+                if (_instanceTask == null)
+                {
+                    _instanceTask = InitializeImpl();
+                }
             }
             return _instanceTask;
         }
@@ -55,6 +64,7 @@ namespace Baconography.NeutralServices
         DB _settingsDb;
         DB _historyDb;
         DB _actionsDb;
+        DB _thumbnailsDb;
 
         public async Task Clear()
         {
@@ -96,7 +106,96 @@ namespace Baconography.NeutralServices
         public async Task StoreLinks(Listing listing)
         {
             await Initialize();
+
             await _links.StoreLinks(listing);
+
+            foreach(var link in listing.Data.Children)
+            {
+                if(link.Data is Link)
+                {
+                    Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = ((Link)link.Data).Id, Status = OfflineStatusMessage.OfflineStatus.Initial });
+                }
+            }
+            
+
+            _notificationService.CreateKitaroDBNotification(string.Format("{0} Links now available offline", listing.Data.Children.Count));
+            //this is where we should kick off the non reddit content getter/converter on a seperate thread
+
+            var remainingMoreThings = new List<Tuple<Link, TypedThing<More>>>();
+
+
+            foreach (var link in listing.Data.Children)
+            {
+                bool finishedLink = true;
+                var linkData = link.Data as Link;
+                if (linkData != null)
+                {
+                    var comments = await _redditService.GetCommentsOnPost(linkData.Subreddit, linkData.Permalink, null);
+                    if (comments != null)
+                    {
+                        if (comments.Data.Children.Count == 0)
+                        {
+                            throw new Exception();
+                        }
+                        await (await Comments.GetInstance()).StoreComments(comments);
+                        var moreChild = comments.Data.Children.LastOrDefault(comment => comment.Data is More);
+                        if (moreChild != null)
+                        {
+                            TypedThing<More> moreThing = new TypedThing<More>(moreChild);
+                            if (moreThing != null && moreThing.Data.Children.Count > 0)
+                            {
+                                if (moreThing.Data.Children.Count > _settingsService.MaxTopLevelOfflineComments)
+                                {
+                                    moreThing.Data.Children.RemoveRange(_settingsService.MaxTopLevelOfflineComments, moreThing.Data.Children.Count - _settingsService.MaxTopLevelOfflineComments - 1);
+                                }
+                                finishedLink = false;
+                                remainingMoreThings.Add(Tuple.Create(linkData, moreThing));
+                            }
+                        }
+                    }
+                }
+                Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = linkData.Id, Status = finishedLink ? OfflineStatusMessage.OfflineStatus.AllComments : OfflineStatusMessage.OfflineStatus.TopComments });
+            }
+
+            _notificationService.CreateKitaroDBNotification("Inital comments for offline links now available");
+
+            //we've seperated getting the links and initial comments because we want to prioritize getting some data for all of the links instead of all the data for a very small number of links
+            //ex, someone getting on a plane in 5 minutes wants to get what they can on a broad a selection of links as possible, rather than all of the comments on the latest 10 bazilion comment psy ama
+
+            if (!_settingsService.OfflineOnlyGetsFirstSet)
+            {
+
+                uint commentCount = 0;
+                foreach (var moreThingTpl in remainingMoreThings)
+                {
+                    var moreThing = moreThingTpl.Item2;
+                    var linkData = moreThingTpl.Item1;
+
+                    while (moreThing != null && moreThing.Data.Children.Count > 0)
+                    {
+                        var moreChildren = moreThing.Data.Children.Take(500).ToList();
+                        var moreComments = await _redditService.GetMoreOnListing(moreChildren, linkData.Name, linkData.Subreddit);
+                        var moreMoreComments = moreComments.Data.Children.FirstOrDefault(thing => thing.Data is More);
+                        if (moreMoreComments != null)
+                        {
+                            //we asked for more then reddit was willing to give us back
+                            //just make sure we dont lose anyone
+                            moreChildren.RemoveAll((str) => ((More)moreMoreComments.Data).Children.Contains(str));
+                            //all thats left is what was returned so remove them by value from the moreThing
+                            moreThing.Data.Children.RemoveAll((str) => moreChildren.Contains(str));
+                            commentCount += (uint)((More)moreMoreComments.Data).Children.Count;
+                        }
+                        else
+                        {
+                            moreThing.Data.Children.RemoveRange(0, moreChildren.Count);
+                        }
+                        await (await Comments.GetInstance()).StoreComments(moreComments);
+                    }
+                    Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = linkData.Id, Status = OfflineStatusMessage.OfflineStatus.AllComments });
+
+                }
+                _notificationService.CreateKitaroDBNotification(string.Format("{0} Top level comments for offline links now available", commentCount));
+            }
         }
 
         public async Task<Listing> LinksForSubreddit(string subredditName, string after)
@@ -114,7 +213,7 @@ namespace Baconography.NeutralServices
         public async Task StoreOrderedThings(string key, IEnumerable<Thing> things)
         {
             await Initialize();
-            
+
         }
 
         public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
