@@ -83,6 +83,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="PlatformServices\BaconProvider.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Deviantart.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Flickr.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Imgur.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Memecrunch.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Minus.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Picsarus.cs" />
+    <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
+    <Compile Include="PlatformServices\ImagesService.cs" />
+    <Compile Include="PlatformServices\LiveTileService.cs" />
+    <Compile Include="PlatformServices\NavigationService.cs" />
+    <Compile Include="PlatformServices\NotificationService.cs" />
+    <Compile Include="PlatformServices\SettingsService.cs" />
+    <Compile Include="PlatformServices\SimpleHttpService.cs" />
+    <Compile Include="PlatformServices\SystemServices.cs" />
+    <Compile Include="PlatformServices\UserService.cs" />
+    <Compile Include="PlatformServices\WebViewWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +107,34 @@
       <Project>{386BE814-A21A-4A84-ABF3-F9B61130D4F2}</Project>
       <Name>BaconographyPortable</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GalaSoft.MvvmLight, Version=4.0.23.23876, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platforms.WP75">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.Platforms.WP75.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

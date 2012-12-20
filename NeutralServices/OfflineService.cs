@@ -45,6 +45,18 @@ namespace Baconography.NeutralServices
             //get our initial action queue state
             var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock);
             _hasQueuedActions = actionCursor != null;
+
+            var historyCursor = await _historyDb.SeekAsync(DBReadFlags.NoLock);
+            if (historyCursor != null)
+            {
+                using (historyCursor)
+                {
+                    do
+                    {
+                        _clickHistory.Add(historyCursor.GetString());
+                    } while (await historyCursor.MoveNextAsync());
+                }
+            }
         }
 
         public Task Initialize()
@@ -65,6 +77,7 @@ namespace Baconography.NeutralServices
         DB _historyDb;
         DB _actionsDb;
         DB _thumbnailsDb;
+        HashSet<string> _clickHistory = new HashSet<string>();
 
         public async Task Clear()
         {
@@ -245,22 +258,26 @@ namespace Baconography.NeutralServices
         public async Task StoreHistory(string link)
         {
             await Initialize();
-            await _historyDb.InsertAsync(link, "");
+            if (!_clickHistory.Contains(link))
+            {
+                _clickHistory.Add(link);
+                await _historyDb.InsertAsync(link, link);
+            }
+            
         }
 
         public async Task ClearHistory()
         {
             await Initialize();
+            _clickHistory.Clear();
             _historyDb.Dispose();
             _historyDb = null;
             _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history.ism", DBCreateFlags.Supersede);
         }
 
-        public async Task<bool> HasHistory(string link)
+        public bool HasHistory(string link)
         {
-            await Initialize();
-
-            return await _historyDb.GetAsync(link) != null;
+            return _clickHistory.Contains(link);
         }
 
         public async Task Suspend()

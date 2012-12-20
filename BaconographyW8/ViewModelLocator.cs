@@ -1,5 +1,6 @@
 ﻿using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
+using BaconographyW8.Converters;
 using BaconographyW8.PlatformServices;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
@@ -23,7 +24,6 @@ namespace BaconographyW8
 
                 //ensure we exist
                 ServiceLocator.Current.GetInstance<RedditViewModel>();
-                ServiceLocator.Current.GetInstance<CommentsViewModel>();
                 ServiceLocator.Current.GetInstance<LinkedWebViewModel>();
                 ServiceLocator.Current.GetInstance<LoginViewModel>();
                 ServiceLocator.Current.GetInstance<AboutUserViewModel>();
@@ -43,7 +43,6 @@ namespace BaconographyW8
 
             SimpleIoc.Default.Register<RedditViewModel>();
             SimpleIoc.Default.Register<LoginViewModel>();
-            SimpleIoc.Default.Register<CommentsViewModel>();
             SimpleIoc.Default.Register<LoadIndicatorViewModel>();
             SimpleIoc.Default.Register<LinkedWebViewModel>();
             SimpleIoc.Default.Register<SubredditsViewModel>();
@@ -53,6 +52,7 @@ namespace BaconographyW8
             SimpleIoc.Default.Register<ContentPreferencesViewModel>();
             SimpleIoc.Default.Register<RedditPickerViewModel>();
             SimpleIoc.Default.Register<SearchQueryViewModel>();
+            SimpleIoc.Default.Register<VisitedLinkConverter>();
             
 
             if (DesignMode.DesignModeEnabled)
@@ -61,6 +61,14 @@ namespace BaconographyW8
                 baconProvider.Initialize(null).Wait();
                 baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
                 Initialize(baconProvider);
+            }
+        }
+
+        public VisitedLinkConverter VisitedLink
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<VisitedLinkConverter>();
             }
         }
 
@@ -76,7 +84,7 @@ namespace BaconographyW8
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<CommentsViewModel>();
+                return new CommentsViewModel(_baconProvider);
             }
         }
 

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
+using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
@@ -18,9 +19,22 @@ namespace BaconographyW8.PlatformServices
         {
             if (localFileName.StartsWith("/"))
                 localFileName = localFileName.Substring(1);
-            var file = await StorageFile.CreateStreamedFileFromUriAsync(localFileName, fileUri, Windows.Storage.Streams.RandomAccessStreamReference.CreateFromUri(fileUri));
+            
             var destinationFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(localPath, CreationCollisionOption.OpenIfExists);
-            var outFile = await file.CopyAsync(destinationFolder, file.Name, collisionOption);
+            var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.ReplaceExisting);
+
+            BackgroundDownloader backgroundDownloader = new BackgroundDownloader();
+            var download = backgroundDownloader.CreateDownload(fileUri, outFile);
+            try
+            {
+                download.CostPolicy = BackgroundTransferCostPolicy.Always;
+                var downloadTask = download.StartAsync();
+                await downloadTask;
+            }
+            catch
+            {
+            }
+
             return outFile;
         }
 

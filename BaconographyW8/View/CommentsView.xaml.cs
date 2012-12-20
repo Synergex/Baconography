@@ -66,6 +66,8 @@ namespace BaconographyW8.View
         {
             pageState["SelectedCommentTreeMessage"] = _selectedCommentTree;
             UnregisterShareSourceContract();
+            Content = null;
+            ((CommentsViewModel)DataContext).Cleanup();
         }
 
         /// <summary>

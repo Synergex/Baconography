@@ -129,6 +129,8 @@ namespace BaconographyW8.PlatformServices
         // we use the correct WinRT template. Otherwise, just the text wrap template.
         private async Task CreateTile(string text, Uri smallIamge, Uri largeImage)
         {
+            text = text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
+
             bool textIsLong = text.Length > 42;
             bool largeImageIsTall = false;
             bool largeImageIsWide = false;
@@ -142,7 +144,7 @@ namespace BaconographyW8.PlatformServices
             {
                 largeImageFile = (await _imagesService.SaveFileFromUriAsync(largeImage, largeImage.LocalPath, "liveTiles")) as StorageFile;
                 var imageProperties = await largeImageFile.Properties.GetImagePropertiesAsync();
-                var imageRatio = ((double)imageProperties.Height / (double)imageProperties.Width);
+                var imageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
                 largeImageIsTall = imageRatio < .9;
                 largeImageIsWide = imageRatio > 1.34;
             }
@@ -151,7 +153,7 @@ namespace BaconographyW8.PlatformServices
             {
                 smallImageFile = (await _imagesService.SaveFileFromUriAsync(smallIamge, smallIamge.LocalPath, "liveTiles")) as StorageFile;
                 var imageProperties = await smallImageFile.Properties.GetImagePropertiesAsync();
-                var smallImageRatio = ((double)imageProperties.Height / (double)imageProperties.Width);
+                var smallImageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
                 smallImageIsTall = smallImageRatio < .9;
                 smallImageIsWide = smallImageRatio > 1.34;
             }
@@ -228,7 +230,7 @@ namespace BaconographyW8.PlatformServices
                   </visual>
                 </tile>";
 
-                var smallImageFilePath = "ms-appdata:///local/liveTiles/" + smallImageFile.DisplayName + smallImageFile.FileType;
+                var smallImageFilePath = "ms-appdata:///local/liveTiles/" + smallImageFile.DisplayName;
 
                 tileXmlString = string.Format(tileFormat, smallImageFilePath, text);
             }
@@ -250,7 +252,7 @@ namespace BaconographyW8.PlatformServices
                   </visual>
                 </tile>";
 
-                var smallImageFilePath = "ms-appdata:///local/liveTiles/" + smallImageFile.DisplayName + smallImageFile.FileType;
+                var smallImageFilePath = "ms-appdata:///local/liveTiles/" + smallImageFile.DisplayName;
 
                 tileXmlString = string.Format(tileFormat, smallImageFilePath, text);
             }

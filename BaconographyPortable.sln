@@ -86,7 +86,6 @@ Global
 		{09FF6663-CB96-438E-ABC8-59981E6F1AFD}.Release|ARM.Build.0 = Release|ARM
 		{09FF6663-CB96-438E-ABC8-59981E6F1AFD}.Release|x64.ActiveCfg = Release|Any CPU
 		{09FF6663-CB96-438E-ABC8-59981E6F1AFD}.Release|x86.ActiveCfg = Release|x86
-		{09FF6663-CB96-438E-ABC8-59981E6F1AFD}.Release|x86.Build.0 = Release|x86
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Debug|ARM.ActiveCfg = Debug|ARM
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Debug|ARM.Build.0 = Debug|ARM
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Debug|ARM.Deploy.0 = Debug|ARM
@@ -99,8 +98,6 @@ Global
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Release|ARM.Deploy.0 = Release|ARM
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Release|x64.ActiveCfg = Release|Any CPU
 		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Release|x86.ActiveCfg = Release|x86
-		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Release|x86.Build.0 = Release|x86
-		{0FE36153-24F5-429E-A5A3-B95DA0367CAB}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

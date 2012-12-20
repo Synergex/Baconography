@@ -4,6 +4,7 @@ using BaconographyPortable.ViewModel;
 using BaconographyW8.Common;
 using BaconographyW8.PlatformServices;
 using BaconographyW8.View;
+using BaconographyW8BackgroundTask;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
@@ -111,8 +112,6 @@ namespace BaconographyW8
             {
                 await _baconProvider.Initialize(rootFrame);
             }
-            
-            
 
             if (rootFrame.Content == null)
             {
@@ -126,6 +125,9 @@ namespace BaconographyW8
             }
             // Ensure the current window is active
             Window.Current.Activate();
+
+            LiveTileUpdater ltu = new LiveTileUpdater();
+            ltu.RunBody(_baconProvider);
         }
 
         /// <summary>

@@ -21,9 +21,9 @@
     <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
     <converters:MarkdownConverter x:Key="markdownConverter"/>
     <converters:ReplyConverter x:Key="replyConverter"/>
+    <converters:ExtendedCommentConverter x:Key="extendedCommentConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
-    <converters:ColoredIndentationDepthConverter x:Key="coloredIndentationDepthConverter"/>
     <common:TypedTemplateSelector x:Key="typedTemplateSelector"
                                  DefaultTemplateKey="Default"/>
 

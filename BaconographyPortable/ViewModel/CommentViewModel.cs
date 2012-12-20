@@ -25,13 +25,12 @@ namespace BaconographyPortable.ViewModel
         ReplyViewModel _replyData;
         ObservableCollection<ViewModelBase> _replies;
         private bool _isMinimized;
-        private bool _isCollapsed;
+        private bool _isExtended;
         string _linkId;
 
         public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting)
         {
             _isMinimized = false;
-            _isCollapsed = false;
             _comment = new TypedThing<Comment>(comment);
             _baconProvider = baconProvider;
             _redditService = _baconProvider.GetService<IRedditService>();
@@ -41,6 +40,7 @@ namespace BaconographyPortable.ViewModel
             _linkId = linkId;
             OddNesting = oddNesting;
             AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
+            _showExtendedView = new RelayCommand(ShowExtendedViewImpl);
         }
 
         public bool OddNesting { get; private set; }
@@ -105,23 +105,19 @@ namespace BaconographyPortable.ViewModel
             {
                 _isMinimized = value;
                 RaisePropertyChanged("IsMinimized");
-                foreach (var child in Replies.OfType<CommentViewModel>())
-                    child.IsCollapsed = value;
             }
         }
 
-        public bool IsCollapsed
+        public bool IsExtended
         {
             get
             {
-                return _isCollapsed;
+                return _isExtended;
             }
             set
             {
-                _isCollapsed = value;
-                RaisePropertyChanged("IsCollapsed");
-                foreach (var child in Replies.OfType<CommentViewModel>())
-                    child.IsCollapsed = value;
+                _isExtended = value;
+                RaisePropertyChanged("IsExtended");
             }
         }
 
@@ -148,12 +144,14 @@ namespace BaconographyPortable.ViewModel
 
 
         public RelayCommand<CommentViewModel> MinimizeCommand { get { return _minimizeCommand; } }
-        public RelayCommand<CommentViewModel> MaximizeCommand { get { return _maximizeCommand; } }
+        public RelayCommand ShowExtendedView { get { return _showExtendedView; } }
         public RelayCommand<CommentViewModel> GotoContext { get { return _gotoContext; } }
         public RelayCommand<CommentViewModel> GotoFullLink { get { return _gotoFullLink; } }
         public RelayCommand<CommentViewModel> Report { get { return _report; } }
         public RelayCommand<CommentViewModel> Save { get { return _save; } }
         public RelayCommand<CommentViewModel> GotoReply { get { return _gotoReply; } }
+
+        RelayCommand _showExtendedView;
 
         static RelayCommand<CommentViewModel> _gotoReply = new RelayCommand<CommentViewModel>((vm) => vm.GotoReplyImpl());
         static RelayCommand<CommentViewModel> _save = new RelayCommand<CommentViewModel>((vm) => vm.SaveImpl());
@@ -161,9 +159,12 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<CommentViewModel> _gotoFullLink = new RelayCommand<CommentViewModel>((vm) => vm.GotoFullLinkImpl());
         static RelayCommand<CommentViewModel> _gotoContext = new RelayCommand<CommentViewModel>((vm) => vm.GotoContextImpl());
 
-        static RelayCommand<CommentViewModel> _maximizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = false);
-        static RelayCommand<CommentViewModel> _minimizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = true );
+        static RelayCommand<CommentViewModel> _minimizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = !vm.IsMinimized);
 
+        private void ShowExtendedViewImpl()
+        {
+            IsExtended = !IsExtended;
+        }
 
         private void GotoContextImpl()
         {

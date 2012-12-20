@@ -22,9 +22,9 @@ namespace Baconography.NeutralServices.KitaroDB
             var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-rev1.ism";
             var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
-                new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0, new DBKeySegment[] { new DBKeySegment(8, 32, DBKeyFlags.AutoSequence, false) }),
-                new DBKey(20, 0, DBKeyFlags.Alpha, "direct", false, false, false, 1, new DBKeySegment[] { new DBKeySegment(12, 40, DBKeyFlags.Alpha, false) }), 
-                new DBKey(8, 52, DBKeyFlags.AutoTime, "creation_timestamp", true, false, false, 2)
+                new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0),
+                new DBKey(20, 0, DBKeyFlags.Alpha, "direct", false, false, false, 1, new DBKeySegment[] { new DBKeySegment(12, 32, DBKeyFlags.Alpha, false) }), 
+                new DBKey(8, 44, DBKeyFlags.AutoTime, "creation_timestamp", true, false, false, 2)
             });
             return db;
         }
@@ -47,8 +47,8 @@ namespace Baconography.NeutralServices.KitaroDB
         }
 
         DB _commentsDB;
-        private static int CommentKeySpaceSize = 60;
-        private static int PrimaryKeySpaceSize = 52;
+        private static int CommentKeySpaceSize = 52;
+        private static int PrimaryKeySpaceSize = 44;
         private static int MainKeySpaceSize = 32;
         private static int DirectKeySpaceSize = 32;
 
@@ -84,7 +84,7 @@ namespace Baconography.NeutralServices.KitaroDB
                 keyspace[i + 20] = (byte)parentId[i];
 
             for (int i = 0; i < 12 && i < name.Length; i++)
-                keyspace[i + 40] = (byte)name[i];
+                keyspace[i + 32] = (byte)name[i];
 
             value.CopyTo(keyspace, CommentKeySpaceSize);
 
@@ -135,9 +135,8 @@ namespace Baconography.NeutralServices.KitaroDB
                 {
                     await _commentsDB.InsertAsync(combinedSpace);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //this shouldnt happen
                 }
             }
         }

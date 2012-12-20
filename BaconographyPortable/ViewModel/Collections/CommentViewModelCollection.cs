@@ -12,18 +12,20 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
 {
-    public class CommentViewModelCollection : ObservableCollection<ViewModelBase>
+    public class CommentViewModelCollection : ObservableCollection<ViewModelBase>, IDisposable
     {
         IListingProvider _listingProvider;
         Dictionary<object, object> _state;
         ISystemServices _systemServices;
         IBaconProvider _baconProvider;
+        List<WeakReference> _timerHandles;
         string _permaLink;
         string _subreddit;
         string _targetName;
 
         public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string targetName)
         {
+            _timerHandles = new List<WeakReference>();
             _state = new Dictionary<object, object>();
             _permaLink = permaLink;
             _subreddit = subreddit;
@@ -51,7 +53,7 @@ namespace BaconographyPortable.ViewModel.Collections
             var remainingVMs = MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
-            _systemServices.StartTimer(tickHandler, new TimeSpan(100), true);
+            _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(200), true)));
         }
 
         IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
@@ -85,23 +87,45 @@ namespace BaconographyPortable.ViewModel.Collections
                 return null;
         }
 
-        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, ObservableCollection<ViewModelBase> targetCollection, object timerHandle)
+        int CountVMChildren(ViewModelBase vm)
         {
-            var target = remainingVMs.Take(10);
-
-            int vmCount = 0;
-            foreach (var vm in target)
+            if (vm is CommentViewModel)
             {
-                vmCount++;
-                targetCollection.Add(vm);
-            }
-
-            if (vmCount < 10)
-            {
-                _systemServices.StopTimer(timerHandle);
+                int counter = 1;
+                var commentVM = vm as CommentViewModel;
+                foreach(var reply in commentVM.Replies)
+                {
+                    counter += CountVMChildren(reply);
+                }
+                return counter;
             }
             else
-                remainingVMs = remainingVMs.Skip(10);
+                return 1;
+        }
+
+        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, ObservableCollection<ViewModelBase> targetCollection, object timerHandle)
+        {
+            _systemServices.StopTimer(timerHandle);
+            int vmCount = 0;
+            int topLevelVMCount = 0;
+            foreach (var vm in remainingVMs)
+            {
+                topLevelVMCount++;
+                vmCount += CountVMChildren(vm);
+                targetCollection.Add(vm);
+
+                if (vmCount > 15)
+                    break;
+            }
+
+            if (vmCount >= 15)
+            {
+                remainingVMs = remainingVMs.Skip(topLevelVMCount);
+                _systemServices.RunAsync(async (obj) =>
+                    {
+                        _systemServices.RestartTimer(timerHandle);
+                    });
+            }
         }
 
         async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent)
@@ -110,7 +134,18 @@ namespace BaconographyPortable.ViewModel.Collections
             var initialListing = await _listingProvider.GetMore(ids, _state);
             var remainingVMs = MapListing(initialListing, parent);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _systemServices.StartTimer((obj, obj2) => RunUILoad(ref remainingVMs, targetCollection ?? this, obj), new TimeSpan(100), true);
+            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => RunUILoad(ref remainingVMs, targetCollection ?? this, obj), new TimeSpan(200), true)));
+        }
+
+        public void Dispose()
+        {
+            foreach (var timer in _timerHandles)
+            {
+                if (timer.IsAlive)
+                {
+                    _systemServices.StopTimer(timer.Target);
+                }
+            }
         }
     }
 }

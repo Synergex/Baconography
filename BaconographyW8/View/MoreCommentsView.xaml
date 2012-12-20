@@ -11,8 +11,8 @@
     <Grid>
         <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0" Padding="0" Margin="0,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Foreground="Blue" Style="{StaticResource BodyTextStyle}" Text="Load more comments" Margin="0,0,0,0" />
-                <TextBlock Foreground="DarkBlue" Style="{StaticResource BodyTextStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
+                <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="Load more comments" Margin="0,0,0,0" />
+                <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
             </StackPanel>
         </Button>
         <ProgressRing IsActive="{Binding Loading}" Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" IsEnabled="{Binding Loading}"/>

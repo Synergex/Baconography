@@ -16,12 +16,11 @@ using Windows.UI.Xaml.Navigation;
 
 namespace BaconographyW8.View
 {
-    public sealed partial class CommentView : UserControl
+    public sealed partial class ExtendedCommentView : UserControl
     {
-        public CommentView()
+        public ExtendedCommentView()
         {
             this.InitializeComponent();
         }
-
     }
 }

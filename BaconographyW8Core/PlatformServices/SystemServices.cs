@@ -16,7 +16,8 @@ namespace BaconographyW8.PlatformServices
         {
             if (tickHandle is DispatcherTimer)
             {
-                ((DispatcherTimer)tickHandle).Stop();
+                if(((DispatcherTimer)tickHandle).IsEnabled)
+                    ((DispatcherTimer)tickHandle).Stop();
             }
             else if (tickHandle is ThreadPoolTimer)
             {
@@ -42,6 +43,18 @@ namespace BaconographyW8.PlatformServices
             else
             {
                 return ThreadPoolTimer.CreatePeriodicTimer((timer) => tickHandler(this, timer), tickSpan);
+            }
+        }
+
+        public void RestartTimer(object tickHandle)
+        {
+            if (tickHandle is DispatcherTimer)
+            {
+                ((DispatcherTimer)tickHandle).Start();
+            }
+            else if (tickHandle is ThreadPoolTimer)
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -862,7 +862,7 @@ namespace MarkdownSharp
                 //    result += " title=\"" + title + "\"";
                 //}
 
-                result += ">" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button></InlineUIContainer>";
+                result += "><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"" + url + "\"/></Button.Foreground><Button.Content>" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button.Content></Button></InlineUIContainer>";
             }
             else
                 result = wholeMatch;
@@ -893,7 +893,7 @@ namespace MarkdownSharp
                 //    result += " title=\"" + title + "\"";
                 //}
 
-                result += ">" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button></InlineUIContainer>";
+                result += "><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"" + url + "\"/></Button.Foreground><Button.Content>" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button.Content></Button></InlineUIContainer>";
             }
             else
                 result = wholeMatch;
@@ -923,7 +923,7 @@ namespace MarkdownSharp
             //    result += string.Format(" title=\"{0}\"", title);
             //}
 
-            result += ">" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button></InlineUIContainer>";
+            result += "><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"" + url + "\"/></Button.Foreground><Button.Content>" + AttributeEncode(EscapeBoldItalic(linkText)) + "</Button.Content></Button></InlineUIContainer>";
             return result;
         }
 
@@ -1470,7 +1470,7 @@ namespace MarkdownSharp
         {
             string link = match.Groups[1].Value;
 
-            return "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"" + link + "\">" + AttributeEncode(EscapeBoldItalic(link)) + "</Button></InlineUIContainer>";
+            return "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"" + link + "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"" + link + "\"/></Button.Foreground><Button.Content>" + AttributeEncode(EscapeBoldItalic(link)) + "</Button.Content></Button></InlineUIContainer>";
         }
 
         private string EmailEvaluator(Match match)
@@ -1556,8 +1556,8 @@ namespace MarkdownSharp
             {
                 // Encode all ampersands; HTML entities are not
                 // entities within a Markdown code span.
-                //case "&":
-                //    return "&amp;";
+                case "&":
+                    return "&";
                 // Do the angle bracket song and dance
                 //case "<":
                 //    return "&lt;";

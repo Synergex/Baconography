@@ -32,7 +32,7 @@ namespace BaconographyPortable.Services
 
         Task StoreHistory(string link);
         Task ClearHistory();
-        Task<bool> HasHistory(string link);
+        bool HasHistory(string link);
 
         Task Suspend();
 

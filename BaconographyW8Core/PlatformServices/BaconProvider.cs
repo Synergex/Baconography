@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Background;
 using Windows.UI.Xaml.Controls;
 
 namespace BaconographyW8.PlatformServices
@@ -74,6 +75,7 @@ namespace BaconographyW8.PlatformServices
 
             var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
             await redditService.RunQueue(null);
+            
         }
 
         private Dictionary<Type, object> _services;

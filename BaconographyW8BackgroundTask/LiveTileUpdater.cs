@@ -21,6 +21,19 @@ namespace BaconographyW8BackgroundTask
             var baconProvider = new BaconProvider();
             await baconProvider.Initialize(null);
 
+            await RunBodyImpl(baconProvider);
+            
+            _deferral.Complete();
+        }
+
+        public async void RunBody(object baconProviderObj)
+        {
+            IBaconProvider baconProvider = baconProviderObj as IBaconProvider;
+            await RunBodyImpl(baconProvider);
+        }
+
+        private async Task RunBodyImpl(IBaconProvider baconProvider)
+        {
             var posts = await baconProvider.GetService<IRedditService>().GetPostsBySubreddit("/", 20);
 
             var liveTileService = baconProvider.GetService<ILiveTileService>();
@@ -34,9 +47,15 @@ namespace BaconographyW8BackgroundTask
                 sortedLinks.Add(await MapLink(link));
 
             foreach (var linkTpl in sortedLinks)
-                await liveTileService.MaybeCreateTile(linkTpl);
-            
-            _deferral.Complete();
+            {
+                try
+                {
+                    await liveTileService.MaybeCreateTile(linkTpl);
+                }
+                catch
+                {
+                }
+            }
         }
 
         //get the thumbnail url, the processed image url and the typed link thing
