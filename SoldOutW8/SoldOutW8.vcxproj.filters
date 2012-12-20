@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>d05d6150-e3d9-4acd-9529-8faefd813087</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SoldOut.cpp" />
+    <ClCompile Include="array.cpp" />
+    <ClCompile Include="buffer.cpp" />
+    <ClCompile Include="markdown.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SoldOut.h" />
+    <ClInclude Include="markdown.h" />
+    <ClInclude Include="array.h" />
+    <ClInclude Include="buffer.h" />
+  </ItemGroup>
+</Project>

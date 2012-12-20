@@ -72,10 +72,10 @@
                             <TextBlock Text="comments" Margin="5,0,0,0" />
                         </StackPanel>
                     </Button>
-                    <Button Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}" Command="{Binding ShowPreview}" Style="{StaticResource ShowPreviewAppBarButtonStyle}"/>
+                    <Button Padding="5" Margin="5,0,0,0" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}" Command="{Binding ShowPreview}" Style="{StaticResource ShowPreviewAppBarButtonStyle}"/>
                 </StackPanel>
             </StackPanel>
-            <ContentControl Grid.Row="2" Content="{Binding PreviewPack, Converter={Binding PreviewData, Source={StaticResource Locator}}}"/>
+            <ContentControl Grid.Row="2" HorizontalAlignment="Left" MaxWidth="768" Content="{Binding PreviewPack, Converter={Binding PreviewData, Source={StaticResource Locator}}}"/>
         </Grid>
 
         <VisualStateManager.VisualStateGroups>

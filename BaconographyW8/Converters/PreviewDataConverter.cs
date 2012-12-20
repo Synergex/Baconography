@@ -45,8 +45,8 @@ namespace BaconographyW8.Converters
                 _systemServices = systemServices;
                 IsLoading = true;
                 imagesTask.ContinueWith(FinishLoad, TaskScheduler.FromCurrentSynchronizationContext());
-                MoveBackButton = new RelayCommand(() => CurrentPosition++);
-                MoveForwardButton = new RelayCommand(() => CurrentPosition--);
+                MoveBack = new RelayCommand(() => CurrentPosition = _currentPosition - 1);
+                MoveForward = new RelayCommand(() => CurrentPosition = _currentPosition + 1);
             }
 
             private void FinishLoad(Task<IEnumerable<Tuple<string, string>>> imagesTask)
@@ -79,7 +79,7 @@ namespace BaconographyW8.Converters
             {
                 get
                 {
-                    return _finishedImages != null ? _finishedImages[CurrentPosition].Item1 : "";
+                    return _finishedImages != null ? _finishedImages[_currentPosition].Item1 : "";
                 }
             }
 
@@ -87,7 +87,7 @@ namespace BaconographyW8.Converters
             {
                 get
                 {
-                    return _finishedImages != null ? _finishedImages[CurrentPosition].Item2 : "";
+                    return _finishedImages != null ? _finishedImages[_currentPosition].Item2 : "";
                 }
             }
 
@@ -98,14 +98,14 @@ namespace BaconographyW8.Converters
             {
                 get
                 {
-                    return _currentPosition;
+                    return _currentPosition + 1;
                 }
                 set
                 {
                     if (value >= _finishedImages.Count)
                         _currentPosition = 0;
                     else if (value < 0)
-                        _currentPosition = _finishedImages.Count;
+                        _currentPosition = _finishedImages.Count - 1;
                     else
                         _currentPosition = value;
 
@@ -115,8 +115,8 @@ namespace BaconographyW8.Converters
                 }
             }
 
-            public RelayCommand MoveBackButton { get; set; }
-            public RelayCommand MoveForwardButton { get; set; }
+            public RelayCommand MoveBack { get; set; }
+            public RelayCommand MoveForward { get; set; }
         }
     }
 }

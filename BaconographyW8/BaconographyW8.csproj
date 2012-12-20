@@ -337,6 +337,10 @@
       <Project>{aafe0904-dfe5-4fe8-bffd-3facae48ced9}</Project>
       <Name>BaconographyW8Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
+      <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>
+      <Name>SoldOutW8</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="KitaroDBSDK, Version=1.1.0.0">

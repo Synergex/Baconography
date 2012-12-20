@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.ViewModel;
+using SoldOutW8;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace BaconographyW8.Converters
                 try
                 {
                     var startingText = value as string;
-                    var markdown =  (new MarkdownSharp.Markdown()).Transform(startingText);
+                    var markdown = SoldOut.MarkdownToXaml(startingText);
 
                     var isSame = string.Compare(startingText, 0, markdown, "<paragraph>".Length, startingText.Length) == 0;
 
