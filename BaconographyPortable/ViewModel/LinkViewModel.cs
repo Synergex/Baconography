@@ -19,6 +19,7 @@ namespace BaconographyPortable.ViewModel
         IImagesService _imagesService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        bool _isPreviewShown;
 
         public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
         {
@@ -28,6 +29,8 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _imagesService = _baconProvider.GetService<IImagesService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
+            _isPreviewShown = false;
+            ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
         }
 
         VotableViewModel _votable;
@@ -114,11 +117,52 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string Url
+        {
+            get
+            {
+                return _linkThing.Data.Url;
+            }
+        }
+
+        public bool HasPreview
+        {
+            get
+            {
+                return _imagesService.MightHaveImagesFromUrl(Url);
+            }
+        }
+
+        public bool IsPreviewShown
+        {
+            get
+            {
+                return _isPreviewShown;
+            }
+            set
+            {
+                _isPreviewShown = value;
+                RaisePropertyChanged("IsPreviewShown");
+                RaisePropertyChanged("PreviewPack");
+            }
+        }
+
+        public Tuple<bool, string> PreviewPack
+        {
+            get
+            {
+                return Tuple.Create(IsPreviewShown, Url);
+            }
+        }
+
         public RelayCommand<LinkViewModel> NavigateToComments { get { return _navigateToComments; } }
         public RelayCommand<LinkViewModel> GotoLink { get { return _gotoLink; } }
 
         static RelayCommand<LinkViewModel> _navigateToComments = new RelayCommand<LinkViewModel>(NavigateToCommentsImpl);
         static RelayCommand<LinkViewModel> _gotoLink = new RelayCommand<LinkViewModel>(GotoLinkImpl);
+
+        public RelayCommand ShowPreview { get; set; }
+
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
@@ -127,6 +171,7 @@ namespace BaconographyPortable.ViewModel
         
         private static async void GotoLinkImpl(LinkViewModel vm)
         {
+            await vm._baconProvider.GetService<IOfflineService>().StoreHistory(vm._linkThing.Data.Url);
             var imageResults = await vm._imagesService.GetImagesFromUrl(vm._linkThing.Data.Title, vm._linkThing.Data.Url);
             if (imageResults != null && imageResults.Count() > 0)
             {

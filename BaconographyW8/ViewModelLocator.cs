@@ -53,6 +53,8 @@ namespace BaconographyW8
             SimpleIoc.Default.Register<RedditPickerViewModel>();
             SimpleIoc.Default.Register<SearchQueryViewModel>();
             SimpleIoc.Default.Register<VisitedLinkConverter>();
+            SimpleIoc.Default.Register<VisitedMainLinkConverter>();
+            SimpleIoc.Default.Register<PreviewDataConverter>();
             
 
             if (DesignMode.DesignModeEnabled)
@@ -64,11 +66,27 @@ namespace BaconographyW8
             }
         }
 
+        public PreviewDataConverter PreviewData
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<PreviewDataConverter>();
+            }
+        }
+
         public VisitedLinkConverter VisitedLink
         {
             get
             {
                 return ServiceLocator.Current.GetInstance<VisitedLinkConverter>();
+            }
+        }
+
+        public VisitedMainLinkConverter VisitedMainLink
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<VisitedMainLinkConverter>();
             }
         }
 

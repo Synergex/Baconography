@@ -19,6 +19,8 @@ namespace BaconographyW8.PlatformServices
         {
             if (localFileName.StartsWith("/"))
                 localFileName = localFileName.Substring(1);
+
+            localFileName = Path.GetFileName(localFileName);
             
             var destinationFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(localPath, CreationCollisionOption.OpenIfExists);
             var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.ReplaceExisting);
@@ -198,6 +200,45 @@ namespace BaconographyW8.PlatformServices
         public async  Task<object> GenerateResizedImage(object inputFile, uint width, uint height, uint edgePadding = 5, uint bottomPadding = 20, bool replaceIfExists = true)
         {
             return await GenerateResizedImageAsync(inputFile as StorageFile, width, height, edgePadding, bottomPadding, replaceIfExists ? NameCollisionOption.ReplaceExisting : NameCollisionOption.FailIfExists);
+        }
+
+
+        public bool MightHaveImagesFromUrl(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+
+                string filename = Path.GetFileName(uri.LocalPath);
+                if (filename.EndsWith(".gif"))
+                    return false;
+
+                if (filename.EndsWith(".jpg") || url.EndsWith(".png"))
+                    return true;
+                else
+                {
+                    var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+
+                    switch (targetHost)
+                    {
+                        case "imgur.com":
+                        case "min.us":
+                        case "www.quickmeme.com":
+                        case "i.qkme.me":
+                        case "quickmeme.com":
+                        case "qkme.me":
+                        case "memecrunch.com":
+                        case "flickr.com":
+                            return true;
+                    }
+                }
+
+            }
+            catch
+            {
+                //ignore failure here, we're going to return false anyway
+            }
+            return false;
         }
     }
 }

@@ -27,23 +27,32 @@
                 <TextBlock Foreground="Goldenrod" FontSize="18" Style="{StaticResource BodyTextStyle}" Text="{Binding Subreddit}" />
             </Border>
         </Grid>
+        <Grid x:Name="fullView" Margin="70,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" x:Name="fullGrid" MinHeight="80" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Grid.Column="0" Height="70" Margin="0,10,10,10" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
+                </Border>
 
-        <StackPanel x:Name="fullView" Margin="70,0,0,0" HorizontalAlignment="Stretch" MinHeight="140">
-
-            <Grid x:Name="fullGrid" MinHeight="80" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Horizontal">
-                    <Border Height="70" Margin="0,10,10,10" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None"/>
-                    </Border>
-                    <Grid MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MaxWidth="{Binding ElementName=fullGrid, Mode=TwoWay, Path=ActualWidth}">
-                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,90,0">
-                            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}" />
-                        </Border>
-                    </Grid>
-                </StackPanel>
+                <Border Grid.Column="1" MinHeight="80" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,90,0">
+                    <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource SubheaderTextStyle}">
+                        <TextBlock.Foreground>
+                            <Binding Path="Url" Converter="{Binding VisitedMainLink, Source={StaticResource Locator}}"/>
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                </Border>
             </Grid>
 
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="55" Margin="0,5,0,0">
+            <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="55" Margin="0,5,0,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted" Margin="2,0,0,0" />
                     <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
@@ -56,14 +65,18 @@
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="to" Margin="5,0,0,0" />
                     <TextBlock Foreground="Goldenrod" Style="{StaticResource BodyTextStyle}" Text="{Binding Subreddit}" Margin="5,0,0,0" />
                 </StackPanel>
-                <Button Command="{Binding NavigateToComments}" CommandParameter="{Binding}" BorderThickness="0" Padding="2" Margin="-3,2,0,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding CommentCount}" />
-                        <TextBlock Text="comments" Margin="5,0,0,0" />
-                    </StackPanel>
-                </Button>
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding NavigateToComments}" CommandParameter="{Binding}" BorderThickness="0" Padding="2" Margin="-3,2,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CommentCount}" />
+                            <TextBlock Text="comments" Margin="5,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}" Command="{Binding ShowPreview}" Style="{StaticResource ShowPreviewAppBarButtonStyle}"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+            <ContentControl Grid.Row="2" Content="{Binding PreviewPack, Converter={Binding PreviewData, Source={StaticResource Locator}}}"/>
+        </Grid>
 
         <VisualStateManager.VisualStateGroups>
 

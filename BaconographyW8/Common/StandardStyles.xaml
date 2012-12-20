@@ -1501,10 +1501,38 @@
     </Style>
 
     <Style x:Key="GoToBrowserAppBarButtonStyle" TargetType="Button" BasedOn="{StaticResource AppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="GoToBrowsereAppBarButton"/>
+        <Setter Property="AutomationProperties.AutomationId" Value="GoToBrowserAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Open in browser"/>
         <Setter Property="Content" Value="&#xE12B;"/>
     </Style>
+
+    <Style x:Key="ShowPreviewAppBarButtonStyle" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource AppBarItemForegroundThemeBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Content" Value="&#xE114;"/>
+    </Style>
+
+    <Style x:Key="GoBackButton" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource AppBarItemForegroundThemeBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Content" Value="&#xE112;"/>
+    </Style>
+
+    <Style x:Key="GoForwardButton" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource AppBarItemForegroundThemeBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Content" Value="&#xE111;"/>
+    </Style>
+
 
     <Style x:Key="LoginAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="LoginAppBarButton"/>

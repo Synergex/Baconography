@@ -127,6 +127,7 @@
     <Compile Include="Converters\InvertBooleanConverter.cs" />
     <Compile Include="Converters\MarkdownConverter.cs" />
     <Compile Include="Converters\PortableAsyncCollectionConverter.cs" />
+    <Compile Include="Converters\PreviewDataConverter.cs" />
     <Compile Include="Converters\ReplyConverter.cs" />
     <Compile Include="Converters\TimeRelationConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
@@ -172,6 +173,9 @@
     </Compile>
     <Compile Include="View\MoreCommentsView.xaml.cs">
       <DependentUpon>MoreCommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PicturePreviewView.xaml.cs">
+      <DependentUpon>PicturePreviewView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\RedditView.xaml.cs">
       <DependentUpon>RedditView.xaml</DependentUpon>
@@ -280,6 +284,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MoreCommentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\PicturePreviewView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
