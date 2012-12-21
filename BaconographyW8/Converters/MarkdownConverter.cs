@@ -36,7 +36,8 @@ namespace BaconographyW8.Converters
                     var startingText = value as string;
                     var markdown = SoldOut.MarkdownToXaml(startingText);
 
-                    var isSame = string.Compare(startingText, 0, markdown, "<paragraph>".Length, startingText.Length) == 0;
+                    //bad markdown (possibly due to unicode char, just pass it through plain)
+                    var isSame = (markdown.Length == 0) || string.Compare(startingText, 0, markdown, "<paragraph>".Length, startingText.Length) == 0;
 
                     if (isSame)
                     {
