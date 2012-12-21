@@ -25,6 +25,7 @@
             <TextBlock Text="{Binding AlbumSize}"/>
             <TextBlock Margin="5,0,0,0" Text="{Binding Title}"/>
         </StackPanel>
+        <ProgressRing Grid.Row="2" IsActive="{Binding IsLoading}"/>
         <Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly">
             <Image Source="{Binding Url}"/>
         </Viewbox>

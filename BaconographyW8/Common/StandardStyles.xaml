@@ -1506,11 +1506,12 @@
         <Setter Property="Content" Value="&#xE12B;"/>
     </Style>
 
-    <Style x:Key="ShowPreviewAppBarButtonStyle" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
+    <Style x:Key="ShowPreviewAppBarButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{StaticResource AppBarItemForegroundThemeBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
         <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="20"/>
         <Setter Property="Content" Value="&#xE114;"/>
     </Style>
