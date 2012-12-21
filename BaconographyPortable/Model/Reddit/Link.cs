@@ -37,7 +37,7 @@ namespace BaconographyPortable.Model.Reddit
         public MediaEmbed MediaEmbed { get; set; }
         [JsonProperty("num_comments")]
         public int CommentCount { get; set; }
-        [JsonProperty("over18")]
+        [JsonProperty("over_18")]
         public bool Over18 { get; set; }
         [JsonProperty("permalink")]
         public string Permalink { get; set; }

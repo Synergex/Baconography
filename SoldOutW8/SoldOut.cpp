@@ -2,9 +2,71 @@
 #include "markdown.h"
 #include <cstdint>
 #include <string>
+#include <algorithm>
+#include <functional>
+#include <cctype>
 
 using namespace SoldOutW8;
 using namespace Platform;
+
+//bool has_ending (std::string const &fullString, std::string const &ending)
+//{
+//    if (fullString.length() >= ending.length()) {
+//        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+//    } else {
+//        return false;
+//    }
+//}
+//
+//struct url {
+//    url(const std::string& url_s); // omitted copy, ==, accessors, ...
+//private:
+//    void parse(const std::string& url_s);
+//public:
+//    std::string protocol_, host_, path_, query_;
+//};
+//
+//void url::parse(const std::string& url_s)
+//{
+//	using std::string;
+//	using std::transform;
+//	using std::ptr_fun;
+//
+//    const string prot_end("://");
+//    string::const_iterator prot_i = search(url_s.begin(), url_s.end(),
+//                                           prot_end.begin(), prot_end.end());
+//    protocol_.reserve(distance(url_s.begin(), prot_i));
+//    transform(url_s.begin(), prot_i,
+//              back_inserter(protocol_),
+//              ptr_fun<int,int>(tolower)); // protocol is icase
+//    if( prot_i == url_s.end() )
+//        return;
+//    advance(prot_i, prot_end.length());
+//    string::const_iterator path_i = find(prot_i, url_s.end(), '/');
+//    host_.reserve(distance(prot_i, path_i));
+//    transform(prot_i, path_i,
+//              back_inserter(host_),
+//              ptr_fun<int,int>(tolower)); // host is icase
+//    string::const_iterator query_i = find(path_i, url_s.end(), '?');
+//    path_.assign(path_i, query_i);
+//    if( query_i != url_s.end() )
+//        ++query_i;
+//    query_.assign(query_i, url_s.end());
+//}
+//
+//bool is_url_known_image(uint8_t* ptr, size_t length)
+//{
+//	std::string str((char*)ptr, length);
+//	if(has_ending(str, ".jpg") || has_ending(str, ".png"))
+//	{
+//		return true;
+//	}
+//	else
+//	{
+//		url parsedUrl(str);
+//		if(parse
+//	}
+//}
 
 /*****************************
  * EXPORTED HELPER FUNCTIONS *
@@ -61,7 +123,7 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	lus_attr_escape(ob, link->data, link->size);
 	BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
 	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
+	BUFPUTSL(ob, "</Button.Content></Button><ContentControl/></InlineUIContainer>");
 	return 1; 
 }
 
