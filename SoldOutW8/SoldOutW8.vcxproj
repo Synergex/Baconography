@@ -211,16 +211,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="array.h" />
+    <ClInclude Include="autolink.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="html_blocks.h" />
     <ClInclude Include="markdown.h" />
     <ClInclude Include="SoldOut.h" />
+    <ClInclude Include="stack.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="array.cpp" />
+    <ClCompile Include="autolink.cpp" />
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="markdown.cpp" />
     <ClCompile Include="SoldOut.cpp" />
+    <ClCompile Include="stack.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

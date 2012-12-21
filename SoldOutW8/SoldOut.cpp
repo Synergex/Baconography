@@ -12,7 +12,7 @@ using namespace Platform;
 
 /* lus_attr_escape • copy the buffer entity-escaping '<', '>', '&' and '"' */
 void
-lus_attr_escape(struct buf *ob, char *src, size_t size) {
+lus_attr_escape(struct buf *ob, uint8_t *src, size_t size) {
 	size_t  i = 0, org;
 	while (i < size) {
 		/* copying directly unescaped characters */
@@ -34,7 +34,7 @@ lus_attr_escape(struct buf *ob, char *src, size_t size) {
 
 /* lus_body_escape • copy the buffer entity-escaping '<', '>' and '&' */
 void
-lus_body_escape(struct buf *ob, char *src, size_t size) {
+lus_body_escape(struct buf *ob, uint8_t *src, size_t size) {
 	size_t  i = 0, org;
 	while (i < size) {
 		/* copying directly unescaped characters */
@@ -53,8 +53,7 @@ lus_body_escape(struct buf *ob, char *src, size_t size) {
 }
 
 static int
-rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type,
-						void *opaque) {
+rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque) {
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
 	lus_attr_escape(ob, link->data, link->size);
@@ -67,7 +66,7 @@ rndr_autolink(struct buf *ob, struct buf *link, enum mkd_autolink type,
 }
 
 static void
-rndr_blockcode(struct buf *ob, struct buf *text, void *opaque) {
+rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "\n");
 	if (text) lus_body_escape(ob, text->data, text->size);
@@ -75,7 +74,7 @@ rndr_blockcode(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static void
-rndr_blockquote(struct buf *ob, struct buf *text, void *opaque) {
+rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "\n");
 	if (text) lus_body_escape(ob, text->data, text->size);
@@ -83,7 +82,7 @@ rndr_blockquote(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static int
-rndr_codespan(struct buf *ob, struct buf *text, void *opaque) {
+rndr_codespan(struct buf *ob,const  struct buf *text, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "\n");
 	if (text) lus_body_escape(ob, text->data, text->size);
@@ -92,7 +91,7 @@ rndr_codespan(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static int
-rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_double_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontWeight=\"Bold\">");
 	bufput(ob, text->data, text->size);
@@ -101,15 +100,31 @@ rndr_double_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
 }
 
 static int
-rndr_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontStyle=\"Italic\">");
 	if (text) bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</Span>");
 	return 1; }
 
+static int
+rndr_strikethrough(struct buf *ob, const struct buf *text, void *opaque) {
+	if (!text || !text->size) return 0;
+	//BUFPUTSL(ob, "<Span FontStyle=\"Italic\">");
+	if (text) bufput(ob, text->data, text->size);
+	//BUFPUTSL(ob, "</Span>");
+	return 1; }
+
+static int
+rndr_superscript(struct buf *ob, const struct buf *text, void *opaque) {
+	if (!text || !text->size) return 0;
+	//BUFPUTSL(ob, "<Span FontStyle=\"Italic\">");
+	if (text) bufput(ob, text->data, text->size);
+	//BUFPUTSL(ob, "</Span>");
+	return 1; }
+
 static void
-rndr_header(struct buf *ob, struct buf *text, int level, void *opaque) {
+rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 
 	BUFPUTSL(ob, "<Span FontSize=\"");
@@ -145,8 +160,7 @@ rndr_header(struct buf *ob, struct buf *text, int level, void *opaque) {
 }
 
 static int
-rndr_link(struct buf *ob, struct buf *link, struct buf *title,
-			struct buf *content, void *opaque) 
+rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque) 
 {
 	if (!link || !link->size) return 0;
 	BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
@@ -160,7 +174,7 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title,
 }
 
 static void
-rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque) {
+rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<Paragraph>\n");
 	if (text) bufput(ob, text->data, text->size);
@@ -168,22 +182,20 @@ rndr_list(struct buf *ob, struct buf *text, int flags, void *opaque) {
 }
 
 static void
-rndr_listitem(struct buf *ob, struct buf *text, int flags, void *opaque) {
+rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque) {
 	BUFPUTSL(ob, "•  ");
 	if (text) {
-		while (text->size && text->data[text->size - 1] == '\n')
-			text->size -= 1;
 		bufput(ob, text->data, text->size); }
 	BUFPUTSL(ob, "<LineBreak/>\n"); 
 }
 
 static void
-rndr_normal_text(struct buf *ob, struct buf *text, void *opaque) {
+rndr_normal_text(struct buf *ob, const struct buf *text, void *opaque) {
 	if (text) lus_body_escape(ob, text->data, text->size); 
 }
 
 static void
-rndr_paragraph(struct buf *ob, struct buf *text, void *opaque) {
+rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<Paragraph>\n");
 	if (text) bufput(ob, text->data, text->size);
@@ -191,7 +203,7 @@ rndr_paragraph(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static void
-rndr_raw_block(struct buf *ob, struct buf *text, void *opaque) {
+rndr_raw_block(struct buf *ob,const  struct buf *text, void *opaque) {
 	size_t org, sz;
 	if (!text) return;
 	sz = text->size;
@@ -205,13 +217,13 @@ rndr_raw_block(struct buf *ob, struct buf *text, void *opaque) {
 }
 
 static int
-rndr_raw_inline(struct buf *ob, struct buf *text, void *opaque) {
-	bufput(ob, text->data, text->size);
+rndr_raw_inline(struct buf *ob, const struct buf *tag, void *opaque) {
+	bufput(ob, tag->data, tag->size);
 	return 1;
 }
 
 static int
-rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
+rndr_triple_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontWeight=\"Bold\">");
 	bufput(ob, text->data, text->size);
@@ -232,10 +244,7 @@ rndr_linebreak(struct buf *ob, void *opaque) {
 }
 
 /* exported renderer structure */
-const struct mkd_renderer mkd_xaml = {
-	NULL,
-	NULL,
-
+const struct sd_callbacks mkd_xaml = {
 	rndr_blockcode,
 	rndr_blockquote,
 	rndr_raw_block,
@@ -257,13 +266,14 @@ const struct mkd_renderer mkd_xaml = {
 	rndr_link,
 	rndr_raw_inline,
 	rndr_triple_emphasis,
+	rndr_strikethrough,
+	rndr_superscript,
 
 	NULL,
 	rndr_normal_text,
 
-	64,
-	"*_",
-	NULL };
+	NULL,
+	NULL};
 
 Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
 {
@@ -287,12 +297,19 @@ static void toBufString(Platform::String^ src, buf* target)
 	}
 	int length = src->Length() * 2;
 	bufgrow(target, length);
-	length = wcstombs(target->data, src->Data(), length) ;
+	length = wcstombs((char*)target->data, src->Data(), length) ;
 	if(length == -1)
 		target->size = 0;
 	else
 		target->size = length;
 }
+
+static const unsigned int snudown_default_md_flags =
+	MKDEXT_NO_INTRA_EMPHASIS |
+	MKDEXT_SUPERSCRIPT |
+	MKDEXT_AUTOLINK |
+	MKDEXT_STRIKETHROUGH |
+	MKDEXT_TABLES;
 
 Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 {
@@ -303,9 +320,13 @@ Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 
 		toBufString(source, ib);
 
-		markdown(ob, ib, &mkd_xaml);
+		auto markdownProc = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
 
-		auto result = toPlatformString(ob->data, ob->size);
+		sd_markdown_render(ob, ib->data, ib->size, markdownProc);
+
+		sd_markdown_free(markdownProc);
+
+		auto result = toPlatformString((char*)ob->data, ob->size);
 
 		bufrelease(ib);
 		bufrelease(ob);

@@ -44,6 +44,8 @@ namespace BaconographyW8
                 {
                     _gotoMarkdownLink = new RelayCommand<string>(async (str) =>
                     {
+                        
+
                         var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
                         await baconProvider.GetService<IOfflineService>().StoreHistory(str);
                         var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl("", str);

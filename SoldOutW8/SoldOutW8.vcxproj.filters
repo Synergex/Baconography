@@ -8,14 +8,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SoldOut.cpp" />
-    <ClCompile Include="array.cpp" />
+    <ClCompile Include="autolink.cpp" />
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="markdown.cpp" />
+    <ClCompile Include="stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SoldOut.h" />
-    <ClInclude Include="markdown.h" />
-    <ClInclude Include="array.h" />
+    <ClInclude Include="autolink.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="html_blocks.h" />
+    <ClInclude Include="markdown.h" />
+    <ClInclude Include="stack.h" />
   </ItemGroup>
 </Project>
