@@ -252,8 +252,49 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        Tuple<DateTime, string, string, Listing> _lastCommentsOnPostRequest;
+
+        public async Task<Thing> GetLinkByUrl(string url)
+        {
+            Listing listing = null;
+            var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
+            if (comments.StartsWith("["))
+            {
+                var listings = JsonConvert.DeserializeObject<Listing[]>(comments);
+                listing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
+                foreach (var combinableListing in listings)
+                {
+                    listing.Data.Children.AddRange(combinableListing.Data.Children);
+                    listing.Kind = combinableListing.Kind;
+                    listing.Data.After = combinableListing.Data.After;
+                    listing.Data.Before = combinableListing.Data.Before;
+                }
+            }
+            else
+                listing = JsonConvert.DeserializeObject<Listing>(comments);
+
+            var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
+            if (requestedLinkInfo != null)
+            {
+
+                var result = MaybeFilterForNSFW(listing);
+
+                _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
+                return requestedLinkInfo;
+            }
+            else
+                return null;
+        }
+
         public async Task<Listing> GetCommentsOnPost(string subreddit, string permalink, int? limit)
         {
+            //comments are pretty slow to get, so cache it to within 5 minutes for the most recent request
+            if (_lastCommentsOnPostRequest != null &&
+                (DateTime.Now - _lastCommentsOnPostRequest.Item1).TotalMinutes < 5 &&
+                _lastCommentsOnPostRequest.Item2 == subreddit &&
+                _lastCommentsOnPostRequest.Item3 == permalink)
+                return _lastCommentsOnPostRequest.Item4;
+
             try
             {
                 var maxLimit = (await UserIsGold()) ? 1500 : 500;
@@ -280,7 +321,11 @@ namespace BaconographyPortable.Model.Reddit
                 else
                     listing = JsonConvert.DeserializeObject<Listing>(comments);
 
-                return MaybeFilterForNSFW(listing);
+                var result = MaybeFilterForNSFW(listing);
+
+                _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, subreddit, permalink, result);
+
+                return result;
             }
             catch (Exception ex)
             {

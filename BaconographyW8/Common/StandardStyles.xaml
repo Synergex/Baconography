@@ -24,8 +24,8 @@
             <SolidColorBrush x:Key="FlyoutBackgroundBrush">#FFFFFFFF</SolidColorBrush>
             <x:String x:Key="SettingsFlyoutBackButtonGlyph">&#xE0BA;</x:String>
             <SolidColorBrush x:Key="SettingsFlyoutHeaderBackgroundBrush">#FF000000</SolidColorBrush>
-            <SolidColorBrush x:Key="SettingsFlyoutContentBackgroundThemeBrush">#FFFFFFFF</SolidColorBrush>
-            <SolidColorBrush x:Key="SettingsFlyoutContentForegroundThemeBrush">#FF000000</SolidColorBrush>
+            <SolidColorBrush x:Key="SettingsFlyoutContentBackgroundThemeBrush" Color="#FF1D1D1D" />
+            <SolidColorBrush x:Key="SettingsFlyoutContentForegroundThemeBrush" Color="#DEFFFFFF" />
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">

@@ -56,10 +56,27 @@ namespace BaconographyW8.PlatformServices
             return await getClient.GetStringAsync(uri);
         }
 
-        public Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
+        public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
         {
-            //TODO: implement me
-            throw new NotImplementedException();
+            //limit requests to once every 500 milliseconds
+            await ThrottleRequests();
+            var getMeClientHandler = new HttpClientHandler { CookieContainer = new CookieContainer() };
+
+            var postClient = new HttpClient(getMeClientHandler);
+            postClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("Baconography_Windows_8_Client", "1.0"));
+            var postResult = await postClient.PostAsync(uri, new FormUrlEncodedContent(urlEncodedData));
+
+            if (postResult.IsSuccessStatusCode)
+            {
+                var jsonResult = await postResult.Content.ReadAsStringAsync();
+
+                var loginCookies = getMeClientHandler.CookieContainer.GetCookies(new Uri(uri));
+                var loginCookie = loginCookies["reddit_session"].Value;
+
+                return Tuple.Create(jsonResult, new Dictionary<string, string> { {"reddit_session", loginCookie} });
+            }
+            else
+                throw new Exception(postResult.StatusCode.ToString());
         }
 
         public async Task<string> UnAuthedGet(string uri)

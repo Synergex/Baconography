@@ -80,9 +80,9 @@ namespace BaconographyPortable.ViewModel
             set
             {
                 if (value is LinkViewModel)
-                    ((LinkViewModel)value).GotoLink.Execute(null);
+                    ((LinkViewModel)value).GotoLink.Execute(value);
                 else if (value is CommentViewModel)
-                    ((CommentViewModel)value).GotoContext.Execute(null);
+                    ((CommentViewModel)value).GotoContext.Execute(value);
             }
         }
     }
