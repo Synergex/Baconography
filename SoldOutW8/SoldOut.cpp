@@ -153,9 +153,9 @@ rndr_link(struct buf *ob, struct buf *link, struct buf *title,
 	lus_attr_escape(ob, link->data, link->size);
 	BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
+	BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content><RichTextBlock><RichTextBlock.Blocks><Paragraph>");
 	if (content && content->size) bufput(ob, content->data, content->size);
-	BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
+	BUFPUTSL(ob, "</Paragraph></RichTextBlock.Blocks></RichTextBlock></Button.Content></Button></InlineUIContainer>");
 	return 1;  
 }
 
@@ -213,7 +213,7 @@ rndr_raw_inline(struct buf *ob, struct buf *text, void *opaque) {
 static int
 rndr_triple_emphasis(struct buf *ob, struct buf *text, char c, void *opaque) {
 	if (!text || !text->size) return 0;
-	BUFPUTSL(ob, "<Span FontStyle=\"Bold\">");
+	BUFPUTSL(ob, "<Span FontWeight=\"Bold\">");
 	bufput(ob, text->data, text->size);
 	BUFPUTSL(ob, "</Span>");
 	return 1; 

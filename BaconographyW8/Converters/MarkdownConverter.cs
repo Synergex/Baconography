@@ -37,7 +37,7 @@ namespace BaconographyW8.Converters
                     var markdown = SoldOut.MarkdownToXaml(startingText);
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length == 0) || string.Compare(startingText, 0, markdown, "<paragraph>".Length, startingText.Length) == 0;
+                    var isSame = (markdown.Length == 0) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
 
                     if (isSame)
                     {
@@ -49,6 +49,15 @@ namespace BaconographyW8.Converters
                     }
                     else
                     {
+                        markdown = markdown.Trim('\n');
+                        if (!markdown.EndsWith("</Paragraph>"))
+                        {
+                            var lastParagraph = markdown.LastIndexOf("</Paragraph>");
+                            if (lastParagraph != -1)
+                            {
+                                markdown = markdown.Substring(0, lastParagraph + "</Paragraph>".Length) + "<Paragraph>" + markdown.Substring(lastParagraph + "</Paragraph>".Length + 1) + "</Paragraph>";
+                            }
+                        }
                         var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
                         uiElement.DataContext = bindingContext;
                         return uiElement;
