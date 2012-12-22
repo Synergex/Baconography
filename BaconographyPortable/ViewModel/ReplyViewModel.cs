@@ -40,6 +40,17 @@ namespace BaconographyPortable.ViewModel
                 IsLoggedIn = true;
             }
 
+            _addBold = new RelayCommand(AddBoldImpl);
+            _addItalic = new RelayCommand(AddItalicImpl);
+            _addStrike = new RelayCommand(AddStrikeImpl);
+            _addSuper = new RelayCommand(AddSuperImpl);
+            _addLink = new RelayCommand(AddLinkImpl);
+            _addQuote = new RelayCommand(AddQuoteImpl);
+            _addCode = new RelayCommand(AddCodeImpl);
+            _addBullets = new RelayCommand(AddBulletsImpl);
+            _addNumbers = new RelayCommand(AddNumbersImpl);
+            _submit = new RelayCommand(SubmitImpl);
+
         }
 
         private int _selectionLength;
@@ -156,27 +167,27 @@ namespace BaconographyPortable.ViewModel
         private string _bulletFormattingString = "*{0}";
         private string _numberFormattingString = "1. {0}";
 
-        public RelayCommand<ReplyViewModel> AddBold { get { return _addBold; } }
-        public RelayCommand<ReplyViewModel> AddItalic { get { return _addItalic; } }
-        public RelayCommand<ReplyViewModel> AddStrike { get { return _addStrike; } }
-        public RelayCommand<ReplyViewModel> AddSuper { get { return _addSuper; } }
-        public RelayCommand<ReplyViewModel> AddLink { get { return _addLink; } }
-        public RelayCommand<ReplyViewModel> AddQuote { get { return _addQuote; } }
-        public RelayCommand<ReplyViewModel> AddCode { get { return _addCode; } }
-        public RelayCommand<ReplyViewModel> AddBullets { get { return _addBullets; } }
-        public RelayCommand<ReplyViewModel> AddNumbers { get { return _addNumbers; } }
-        public RelayCommand<ReplyViewModel> Submit { get { return _submit; } }
+        public RelayCommand AddBold { get { return _addBold; } }
+        public RelayCommand AddItalic { get { return _addItalic; } }
+        public RelayCommand AddStrike { get { return _addStrike; } }
+        public RelayCommand AddSuper { get { return _addSuper; } }
+        public RelayCommand AddLink { get { return _addLink; } }
+        public RelayCommand AddQuote { get { return _addQuote; } }
+        public RelayCommand AddCode { get { return _addCode; } }
+        public RelayCommand AddBullets { get { return _addBullets; } }
+        public RelayCommand AddNumbers { get { return _addNumbers; } }
+        public RelayCommand Submit { get { return _submit; } }
 
-        static RelayCommand<ReplyViewModel> _addBold = new RelayCommand<ReplyViewModel>((vm) => vm.AddBoldImpl());
-        static RelayCommand<ReplyViewModel> _addItalic = new RelayCommand<ReplyViewModel>((vm) => vm.AddItalicImpl());
-        static RelayCommand<ReplyViewModel> _addStrike = new RelayCommand<ReplyViewModel>((vm) => vm.AddStrikeImpl());
-        static RelayCommand<ReplyViewModel> _addSuper = new RelayCommand<ReplyViewModel>((vm) => vm.AddSuperImpl());
-        static RelayCommand<ReplyViewModel> _addLink = new RelayCommand<ReplyViewModel>((vm) => vm.AddLinkImpl());
-        static RelayCommand<ReplyViewModel> _addQuote = new RelayCommand<ReplyViewModel>((vm) => vm.AddQuoteImpl());
-        static RelayCommand<ReplyViewModel> _addCode = new RelayCommand<ReplyViewModel>((vm) => vm.AddCodeImpl());
-        static RelayCommand<ReplyViewModel> _addBullets = new RelayCommand<ReplyViewModel>((vm) => vm.AddBulletsImpl());
-        static RelayCommand<ReplyViewModel> _addNumbers = new RelayCommand<ReplyViewModel>((vm) => vm.AddNumbersImpl());
-        static RelayCommand<ReplyViewModel> _submit = new RelayCommand<ReplyViewModel>((vm) => vm.SubmitImpl());
+        RelayCommand _addBold;
+        RelayCommand _addItalic;
+        RelayCommand _addStrike;
+        RelayCommand _addSuper;
+        RelayCommand _addLink;
+        RelayCommand _addQuote;
+        RelayCommand _addCode;
+        RelayCommand _addBullets;
+        RelayCommand _addNumbers;
+        RelayCommand _submit;
         
         private void AddBoldImpl()
         {

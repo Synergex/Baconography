@@ -1,4 +1,5 @@
-﻿using BaconographyW8.View;
+﻿using BaconographyPortable.ViewModel;
+using BaconographyW8.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,10 @@ namespace BaconographyW8.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if ((bool)value)
+            var tpl = ((Tuple<bool, CommentViewModel>)value);
+            if (tpl.Item1)
             {
-                return new ExtendedCommentView { DataContext = parameter };
+                return new ExtendedCommentView { DataContext = tpl.Item2 };
             }
             else
                 return null;

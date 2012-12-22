@@ -9,64 +9,77 @@
 using namespace SoldOutW8;
 using namespace Platform;
 
-//bool has_ending (std::string const &fullString, std::string const &ending)
-//{
-//    if (fullString.length() >= ending.length()) {
-//        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-//    } else {
-//        return false;
-//    }
-//}
-//
-//struct url {
-//    url(const std::string& url_s); // omitted copy, ==, accessors, ...
-//private:
-//    void parse(const std::string& url_s);
-//public:
-//    std::string protocol_, host_, path_, query_;
-//};
-//
-//void url::parse(const std::string& url_s)
-//{
-//	using std::string;
-//	using std::transform;
-//	using std::ptr_fun;
-//
-//    const string prot_end("://");
-//    string::const_iterator prot_i = search(url_s.begin(), url_s.end(),
-//                                           prot_end.begin(), prot_end.end());
-//    protocol_.reserve(distance(url_s.begin(), prot_i));
-//    transform(url_s.begin(), prot_i,
-//              back_inserter(protocol_),
-//              ptr_fun<int,int>(tolower)); // protocol is icase
-//    if( prot_i == url_s.end() )
-//        return;
-//    advance(prot_i, prot_end.length());
-//    string::const_iterator path_i = find(prot_i, url_s.end(), '/');
-//    host_.reserve(distance(prot_i, path_i));
-//    transform(prot_i, path_i,
-//              back_inserter(host_),
-//              ptr_fun<int,int>(tolower)); // host is icase
-//    string::const_iterator query_i = find(path_i, url_s.end(), '?');
-//    path_.assign(path_i, query_i);
-//    if( query_i != url_s.end() )
-//        ++query_i;
-//    query_.assign(query_i, url_s.end());
-//}
-//
-//bool is_url_known_image(uint8_t* ptr, size_t length)
-//{
-//	std::string str((char*)ptr, length);
-//	if(has_ending(str, ".jpg") || has_ending(str, ".png"))
-//	{
-//		return true;
-//	}
-//	else
-//	{
-//		url parsedUrl(str);
-//		if(parse
-//	}
-//}
+bool has_ending (std::string const &fullString, std::string const &ending)
+{
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+struct url {
+    url(const std::string& url_s); // omitted copy, ==, accessors, ...
+public:
+    std::string protocol_, host_, path_, query_;
+};
+
+url::url(const std::string& url_s)
+{
+	using std::string;
+	using std::transform;
+	using std::ptr_fun;
+
+    const string prot_end("://");
+    string::const_iterator prot_i = search(url_s.begin(), url_s.end(),
+                                           prot_end.begin(), prot_end.end());
+    protocol_.reserve(distance(url_s.begin(), prot_i));
+    transform(url_s.begin(), prot_i,
+              back_inserter(protocol_),
+              ptr_fun<int,int>(tolower)); // protocol is icase
+    if( prot_i == url_s.end() )
+        return;
+    advance(prot_i, prot_end.length());
+    string::const_iterator path_i = find(prot_i, url_s.end(), '/');
+    host_.reserve(distance(prot_i, path_i));
+    transform(prot_i, path_i,
+              back_inserter(host_),
+              ptr_fun<int,int>(tolower)); // host is icase
+    string::const_iterator query_i = find(path_i, url_s.end(), '?');
+    path_.assign(path_i, query_i);
+    if( query_i != url_s.end() )
+        ++query_i;
+    query_.assign(query_i, url_s.end());
+}
+
+bool is_url_known_image(uint8_t* ptr, size_t length)
+{
+	std::string str((char*)ptr, length);
+	if(has_ending(str, ".gif"))
+		return false;
+	else if(has_ending(str, ".jpg") || has_ending(str, ".png"))
+		return true;
+	else
+	{
+		std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+		url parsedUrl(str);
+		std::string& host = parsedUrl.host_; 
+		if(host == "imgur.com" ||
+			host == "min.us" ||
+			host == "www.quickmeme.com" ||
+			host == "i.qkme.me" ||
+			host == "quickmeme.com" ||
+			host == "qkme.me" ||
+			host == "memecrunch.com" ||
+			host == "flickr.com")
+		{
+			return true;
+		}
+		else
+			return false;
+		
+	}
+}
 
 /*****************************
  * EXPORTED HELPER FUNCTIONS *
@@ -116,14 +129,31 @@ lus_body_escape(struct buf *ob, uint8_t *src, size_t size) {
 
 static int
 rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque) {
+
 	if (!link || !link->size) return 0;
-	BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
-	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
-	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "</Button.Content></Button><ContentControl/></InlineUIContainer>");
+	if(is_url_known_image(link->data, link->size))
+	{
+		if (!link || !link->size) return 0;
+		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "</Button.Content></Button><view:ImagePreviewWithButtonView Grid.Column=\"1\" DataContext=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Grid></InlineUIContainer>");
+	}
+	else
+	{
+		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
+	}
 	return 1; 
 }
 
@@ -224,23 +254,37 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque) {
 static int
 rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque) 
 {
-	if (!link || !link->size) return 0;
-	BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
-	lus_attr_escape(ob, link->data, link->size);
-	BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content><RichTextBlock><RichTextBlock.Blocks><Paragraph>");
-	if (content && content->size) bufput(ob, content->data, content->size);
-	BUFPUTSL(ob, "</Paragraph></RichTextBlock.Blocks></RichTextBlock></Button.Content></Button></InlineUIContainer>");
+	if(is_url_known_image(link->data, link->size))
+	{
+		if (!link || !link->size) return 0;
+		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
+		if (content && content->size) bufput(ob, content->data, content->size);
+		BUFPUTSL(ob, "</Button.Content></Button><view:ImagePreviewWithButtonView Grid.Column=\"1\" DataContext=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Grid></InlineUIContainer>");
+	}
+	else
+	{
+		if (!link || !link->size) return 0;
+		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></Button.Foreground><Button.Content>");
+		if (content && content->size) bufput(ob, content->data, content->size);
+		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
+	}
 	return 1;  
 }
 
 static void
 rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<Paragraph>\n");
 	if (text) bufput(ob, text->data, text->size);
-	BUFPUTSL(ob, "</Paragraph>");
 }
 
 static void

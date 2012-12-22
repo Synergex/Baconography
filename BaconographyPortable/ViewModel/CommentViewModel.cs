@@ -118,6 +118,15 @@ namespace BaconographyPortable.ViewModel
             {
                 _isExtended = value;
                 RaisePropertyChanged("IsExtended");
+                RaisePropertyChanged("ExtendedData");
+            }
+        }
+
+        public Tuple<bool, CommentViewModel> ExtendedData
+        {
+            get
+            {
+                return Tuple.Create(IsExtended, this);
             }
         }
 
@@ -193,7 +202,10 @@ namespace BaconographyPortable.ViewModel
 
         private void GotoReplyImpl()
         {
-            ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
+            if (ReplyData != null)
+                ReplyData = null;
+            else
+                ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
                             (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting)));
         }
 

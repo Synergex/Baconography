@@ -10,6 +10,7 @@ namespace BaconographyPortable.Services
     public interface IRedditService
     {
         Task<Account> GetMe();
+        Task<Account> GetMe(User user);
         Task<bool> CheckLogin(string loginToken);
         Task<User> Login(string username, string password);
         Task<Listing> Search(string query, int? limit);

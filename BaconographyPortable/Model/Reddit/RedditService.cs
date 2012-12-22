@@ -36,7 +36,7 @@ namespace BaconographyPortable.Model.Reddit
         }
 
         //this one is seperated out so we can use it interally on initial user login
-        private async Task<Account> GetMe(User user)
+        public async Task<Account> GetMe(User user)
         {
             try
             {
@@ -256,6 +256,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Thing> GetLinkByUrl(string url)
         {
+            url = url + ".json";
             Listing listing = null;
             var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
             if (comments.StartsWith("["))
@@ -322,6 +323,15 @@ namespace BaconographyPortable.Model.Reddit
                     listing = JsonConvert.DeserializeObject<Listing>(comments);
 
                 var result = MaybeFilterForNSFW(listing);
+
+                var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
+                if (requestedLinkInfo != null)
+                {
+                    if (!_linkToOpMap.ContainsKey(((Link)requestedLinkInfo.Data).Name))
+                    {
+                        _linkToOpMap.Add(((Link)requestedLinkInfo.Data).Name, ((Link)requestedLinkInfo.Data).Author);
+                    }
+                }
 
                 _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, subreddit, permalink, result);
 
@@ -393,9 +403,17 @@ namespace BaconographyPortable.Model.Reddit
         public virtual async void AddSubredditSubscription(string subreddit, bool unsub)
         {
             var modhash = await GetCurrentModhash();
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
-                string.Format("sr={0}&uh={1}&r={2}&renderstyle={3}&action={4}", subreddit, modhash, subreddit, "html", unsub ? "unsub" : "sub"),
-                "http://www.reddit.com/api/subscribe");
+
+            var content = new Dictionary<string, string>
+            {
+                { "sr", subreddit},
+                { "uh", modhash},
+                { "r", subreddit},
+                { "renderstyle", "html"},
+                { "action", unsub ? "unsub" : "sub"}
+            };
+
+            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe");
         }
 
         public virtual async void AddSavedThing(string thingId)
@@ -429,25 +447,51 @@ namespace BaconographyPortable.Model.Reddit
         public virtual async void AddPost(string kind, string url, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
-                string.Format("uh={0}&kind={1}&url={2}&sr={3}&title={4}&r={3}&renderstyle=html", modhash, kind, url, subreddit, title),
-                "http://www.reddit.com/api/submit");
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"kind", kind},
+                {"url", url},
+                {"title", title},
+                {"r", subreddit},
+                {"renderstyle", "html" },
+                {"uh", modhash}
+            };
+
+            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
         public virtual async void AddMessage(string recipient, string subject, string message)
         {
             var modhash = await GetCurrentModhash();
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
-                string.Format("id={0}&uh={1}&to={2}&text={3}&subject={4}&thing-id={5}&renderstyle={6}", "#compose-message", modhash, recipient, message, subject, "", "html"),
-                "http://www.reddit.com/api/compose");
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"id", "#compose-message"},
+                {"to", recipient},
+                {"text", message},
+                {"subject", subject},
+                {"thing-id", ""},
+                {"renderstyle", "html"},
+                {"uh", modhash}
+            };
+
+
+            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
         public virtual async void AddComment(string parentId, string content)
         {
             var modhash = await GetCurrentModhash();
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(),
-                string.Format("thing_id={0}&text={1}&uh={2}", parentId, content.Replace("\r\n", "\n"), modhash),
-                "http://www.reddit.com/api/comment");
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"thing_id", parentId},
+                {"text", content.Replace("\r\n", "\n")},
+                {"uh", modhash}
+            };
+
+            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
         }
 
         private async Task<bool> UserIsGold()
@@ -459,7 +503,7 @@ namespace BaconographyPortable.Model.Reddit
         private async Task<string> GetCurrentLoginCookie()
         {
             var currentUser = await _userService.GetUser();
-            if (currentUser != null && currentUser.Authenticated)
+            if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.LoginCookie))
             {
                 return currentUser.LoginCookie;
             }
@@ -470,8 +514,13 @@ namespace BaconographyPortable.Model.Reddit
         private async Task<string> GetCurrentModhash()
         {
             var currentUser = await _userService.GetUser();
-            if (currentUser != null && currentUser.Authenticated && currentUser.Me != null)
+            if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.LoginCookie) && currentUser.Me != null)
             {
+                return currentUser.Me.ModHash;
+            }
+            else if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.LoginCookie))
+            {
+                currentUser.Me = await GetMe();
                 return currentUser.Me.ModHash;
             }
             else
@@ -512,7 +561,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit)
         {
-            if (string.IsNullOrEmpty(linkid))
+            if (!string.IsNullOrEmpty(linkid))
             {
                 string opName;
                 if (_linkToOpMap.TryGetValue(linkid, out opName) && opName == username)
@@ -521,10 +570,10 @@ namespace BaconographyPortable.Model.Reddit
                 }
             }
 
-            if (string.IsNullOrEmpty(subreddit))
+            if (!string.IsNullOrEmpty(subreddit))
             {
                 HashSet<string> subredditMods;
-                if (_subredditToModMap.TryGetValue(subreddit, out subredditMods) && subredditMods.Contains(username))
+                if (_subredditToModMap.TryGetValue(subreddit, out subredditMods) && subredditMods != null && subredditMods.Contains(username))
                 {
                     return AuthorFlairKind.Moderator;
                 }

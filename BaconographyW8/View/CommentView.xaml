@@ -17,46 +17,44 @@
             <local:MoreCommentsView/>
         </DataTemplate>
     </UserControl.Resources>
-    <Button Margin="0" Style="{StaticResource PlainButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding ShowExtendedView}">
-        <Button.Content>
-
-            <Grid Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}" Margin="20,5,5,5">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="1" Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource TextButtonStyle}" VerticalAlignment="Top"  Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
-                            <TextBlock Text="{Binding Path=Votable.TotalVotes}" Margin="5,0,0,0" />
-                            <TextBlock Text="points" Margin="5,0,0,0" />
-                            <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
-                            <TextBlock Text="by" Margin="5,0,5,0"/>
-                            <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
-                                <TextBlock Margin="0,0,0,0" Text="{Binding PosterName}" />
-                            </Border>
-                        </StackPanel>
-                        <ContentPresenter Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Stretch"/>
-                        <ContentControl Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"></ContentControl>
-                        <ContentControl Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding IsExtended, Converter={StaticResource extendedCommentConverter}, ConverterParameter={Binding}}"></ContentControl>
-                        <ItemsControl Margin="0,5,0,0" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Stretch" 
-                              HorizontalContentAlignment="Stretch" ItemTemplateSelector="{StaticResource typedTemplateSelector}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.Template>
-                                <ControlTemplate>
-                                    <ItemsPresenter />
-                                </ControlTemplate>
-                            </ItemsControl.Template>
-                        </ItemsControl>
-                    </StackPanel>
-                </Grid>
-            </Grid>
-        </Button.Content>
-    </Button>
+    <Grid Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}" Margin="20,5,5,5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" Margin="0" Style="{StaticResource PlainButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding ShowExtendedView}">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <Button BorderThickness="0" VerticalAlignment="Top" FontSize="20" Margin="0,-5,0,0" Padding="5,-3,5,5" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
+                    <TextBlock Text="{Binding Path=Votable.TotalVotes}" Margin="5,0,0,0" />
+                    <TextBlock Text="points" Margin="5,0,0,0" />
+                    <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
+                    <TextBlock Text="by" Margin="5,0,5,0"/>
+                    <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
+                        <TextBlock Margin="0,0,0,0" Text="{Binding PosterName}" />
+                    </Border>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        <ContentPresenter Grid.Row="1" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Stretch"/>
+        <ContentControl Grid.Row="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
+        <ContentControl Grid.Row="3" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
+        <Border Grid.Row="4" BorderThickness="0" Height="1"/>
+        <ItemsControl Grid.Row="5" Margin="0,5,0,0" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Stretch" ItemTemplateSelector="{StaticResource typedTemplateSelector}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </ItemsControl.Template>
+        </ItemsControl>
+    </Grid>
 </UserControl>

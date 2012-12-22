@@ -63,7 +63,9 @@ namespace BaconographyW8
         {
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             var navigationService = baconProvider.GetService<INavigationService>();
-            if (_commentsPageRegex.IsMatch(str))
+
+
+            if (_commentsPageRegex.IsMatch(str) && !_commentRegex.IsMatch(str))
             {
                 var targetLinkThing = await baconProvider.GetService<IRedditService>().GetLinkByUrl(str);
                 if (targetLinkThing != null)

@@ -103,22 +103,29 @@ namespace BaconographyW8.PlatformServices
                     existingCredential.LoginCookie = newCredential.LoginCookie;
                     existingCredential.IsDefault = newCredential.IsDefault;
 
-                    //go find the one we're updating and actually do it
-                    var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-                    if (userCredentialsCursor != null)
+                    try
                     {
-                        using (userCredentialsCursor)
+                        //go find the one we're updating and actually do it
+                        var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.AutoLock);
+                        if (userCredentialsCursor != null)
                         {
-                            do
+                            using (userCredentialsCursor)
                             {
-                                var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-                                if (credential.Username == newCredential.Username)
+                                do
                                 {
-                                    await userCredentialsCursor.UpdateAsync(JsonConvert.SerializeObject(existingCredential));
-                                    break;
-                                }
-                            } while (await userCredentialsCursor.MoveNextAsync());
+                                    var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
+                                    if (credential.Username == newCredential.Username)
+                                    {
+                                        await userCredentialsCursor.UpdateAsync(JsonConvert.SerializeObject(existingCredential));
+                                        break;
+                                    }
+                                } while (await userCredentialsCursor.MoveNextAsync());
+                            }
                         }
+                    }
+                    catch
+                    {
+                        //let it fail
                     }
                 }
                 if (!string.IsNullOrWhiteSpace(password))
@@ -137,21 +144,28 @@ namespace BaconographyW8.PlatformServices
         public async Task RemoveStoredCredential(string username)
         {
             var userInfoDb = await GetUserInfoDB();
-            //go find the one we're updating and actually do it
-            var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-            if (userCredentialsCursor != null)
+            try
             {
-                using (userCredentialsCursor)
+                //go find the one we're updating and actually do it
+                var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.AutoLock);
+                if (userCredentialsCursor != null)
                 {
-                    do
+                    using (userCredentialsCursor)
                     {
-                        var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-                        if (credential.Username == username)
+                        do
                         {
-                            await userCredentialsCursor.DeleteAsync();
-                        }
-                    } while (await userCredentialsCursor.MoveNextAsync());
+                            var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
+                            if (credential.Username == username)
+                            {
+                                await userCredentialsCursor.DeleteAsync();
+                            }
+                        } while (await userCredentialsCursor.MoveNextAsync());
+                    }
                 }
+            }
+            catch
+            {
+                //let it fail
             }
 
             var passwordVault = new Windows.Security.Credentials.PasswordVault();
@@ -200,25 +214,36 @@ namespace BaconographyW8.PlatformServices
         {
             List<UserCredential> credentials = new List<UserCredential>();
             var userInfoDb = await GetUserInfoDB();
-            var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-            if (userCredentialsCursor != null)
+            try
             {
-                using (userCredentialsCursor)
+                var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
+                if (userCredentialsCursor != null)
                 {
-                    do
+                    using (userCredentialsCursor)
                     {
-                        var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-                        credentials.Add(credential);
-                    } while (await userCredentialsCursor.MoveNextAsync());
+                        do
+                        {
+                            var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
+                            credentials.Add(credential);
+                        } while (await userCredentialsCursor.MoveNextAsync());
+                    }
                 }
+            }
+            catch
+            {
+                //let it fail
             }
             return credentials;
         }
 
         private async Task<User> LoginWithCredentials(UserCredential credential)
         {
-            if(await _redditService.CheckLogin(credential.LoginCookie))
-                return new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
+            if (await _redditService.CheckLogin(credential.LoginCookie))
+            {
+                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
+                loggedInUser.Me = await _redditService.GetMe(loggedInUser);
+                return loggedInUser;
+            }
             else
             {
                 //we dont currently posses a valid login cookie, see if windows has a stored credential we can use for this username
