@@ -41,6 +41,13 @@ namespace BaconographyPortable.ViewModel
             OddNesting = oddNesting;
             AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
             _showExtendedView = new RelayCommand(ShowExtendedViewImpl);
+            _gotoReply = new RelayCommand(GotoReplyImpl);
+            _save = new RelayCommand(SaveImpl);
+            _report = new RelayCommand(ReportImpl);
+            _gotoFullLink = new RelayCommand(GotoFullLinkImpl);
+            _gotoContext = new RelayCommand(GotoContextImpl);
+            _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
+            _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
         }
 
         public bool OddNesting { get; private set; }
@@ -152,23 +159,24 @@ namespace BaconographyPortable.ViewModel
         }
 
 
-        public RelayCommand<CommentViewModel> MinimizeCommand { get { return _minimizeCommand; } }
+        public RelayCommand MinimizeCommand { get { return _minimizeCommand; } }
         public RelayCommand ShowExtendedView { get { return _showExtendedView; } }
-        public RelayCommand<CommentViewModel> GotoContext { get { return _gotoContext; } }
-        public RelayCommand<CommentViewModel> GotoFullLink { get { return _gotoFullLink; } }
-        public RelayCommand<CommentViewModel> Report { get { return _report; } }
-        public RelayCommand<CommentViewModel> Save { get { return _save; } }
-        public RelayCommand<CommentViewModel> GotoReply { get { return _gotoReply; } }
+        public RelayCommand GotoContext { get { return _gotoContext; } }
+        public RelayCommand GotoFullLink { get { return _gotoFullLink; } }
+        public RelayCommand Report { get { return _report; } }
+        public RelayCommand Save { get { return _save; } }
+        public RelayCommand GotoReply { get { return _gotoReply; } }
+        public RelayCommand GotoUserDetails { get { return _gotoUserDetails; } }
 
         RelayCommand _showExtendedView;
 
-        static RelayCommand<CommentViewModel> _gotoReply = new RelayCommand<CommentViewModel>((vm) => vm.GotoReplyImpl());
-        static RelayCommand<CommentViewModel> _save = new RelayCommand<CommentViewModel>((vm) => vm.SaveImpl());
-        static RelayCommand<CommentViewModel> _report = new RelayCommand<CommentViewModel>((vm) => vm.ReportImpl());
-        static RelayCommand<CommentViewModel> _gotoFullLink = new RelayCommand<CommentViewModel>((vm) => vm.GotoFullLinkImpl());
-        static RelayCommand<CommentViewModel> _gotoContext = new RelayCommand<CommentViewModel>((vm) => vm.GotoContextImpl());
-
-        static RelayCommand<CommentViewModel> _minimizeCommand = new RelayCommand<CommentViewModel>((vm) => vm.IsMinimized = !vm.IsMinimized);
+        RelayCommand _gotoReply;
+        RelayCommand _save;
+        RelayCommand _report;
+        RelayCommand _gotoFullLink;
+        RelayCommand _gotoContext;
+        RelayCommand _minimizeCommand;
+        RelayCommand _gotoUserDetails;
 
         private void ShowExtendedViewImpl()
         {
@@ -188,6 +196,13 @@ namespace BaconographyPortable.ViewModel
             var commentTree = new SelectCommentTreeMessage { RootComment = _comment, Context = 3, LinkThing = new TypedThing<Link>(linkThing) };
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
+        }
+
+        private async void GotoUserDetailsImpl()
+        {
+            var getAccount =  await _redditService.GetAccountInfo(_comment.Data.Author);
+            var accountMessage = new SelectUserAccountMessage { Account = getAccount};
+            _navigationService.Navigate(_dynamicViewLocator.AboutUserView, accountMessage);
         }
 
         private void ReportImpl()

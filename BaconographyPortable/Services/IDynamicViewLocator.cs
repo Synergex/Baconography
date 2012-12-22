@@ -16,5 +16,6 @@ namespace BaconographyPortable.Services
         Type SubredditsView { get; }
         Type SearchQueryView { get; }
         Type SubmitToSubredditView { get; }
+        Type AboutUserView { get; }
     }
 }

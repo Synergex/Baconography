@@ -49,5 +49,10 @@ namespace BaconographyW8.PlatformServices
         {
             get { throw new NotImplementedException(); }
         }
+
+        public Type AboutUserView
+        {
+            get { return typeof(AboutUserView); }
+        }
     }
 }

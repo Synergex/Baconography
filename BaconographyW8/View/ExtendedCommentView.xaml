@@ -12,9 +12,10 @@
     <StackPanel Orientation="Horizontal">
         <ToggleButton IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}" FontFamily="Marlett" FontSize="20" Content="5" Padding="0" BorderThickness="0" />
         <ToggleButton IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}"  FontFamily="Marlett" FontSize="20" Content="6" Padding="0" BorderThickness="0" />
-        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoContext}" CommandParameter="{Binding}">parent</Button>
-        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Report}" CommandParameter="{Binding}">report</Button>
-        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Save}" CommandParameter="{Binding}">save</Button>
-        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoReply}" CommandParameter="{Binding}">reply</Button>
+        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoContext}">parent</Button>
+        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Report}">report</Button>
+        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding Save}">save</Button>
+        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoReply}">reply</Button>
+        <Button BorderThickness="0" Margin="0,0,0,0" Command="{Binding GotoUserDetails}">user</Button>
     </StackPanel>
 </UserControl>
