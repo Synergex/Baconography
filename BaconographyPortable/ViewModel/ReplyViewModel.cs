@@ -280,6 +280,7 @@ namespace BaconographyPortable.ViewModel
                 }
             };
             _convertIntoUIReply(theComment);
+            Cancel.Execute(null);
         }
 
         RelayCommand _cancel;
