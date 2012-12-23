@@ -58,11 +58,14 @@ namespace BaconographyW8BackgroundTask
                 }
             }
             var liveTilesFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync("liveTiles");
-            foreach (var file in await liveTilesFolder.GetFilesAsync())
+            if (liveTilesFolder != null)
             {
-                if (file.DateCreated.LocalDateTime < start)
+                foreach (var file in await liveTilesFolder.GetFilesAsync())
                 {
-                    await file.DeleteAsync();
+                    if (file.DateCreated.LocalDateTime < start)
+                    {
+                        await file.DeleteAsync();
+                    }
                 }
             }
         }
