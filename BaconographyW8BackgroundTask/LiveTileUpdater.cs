@@ -34,6 +34,7 @@ namespace BaconographyW8BackgroundTask
 
         private async Task RunBodyImpl(IBaconProvider baconProvider)
         {
+            DateTime start = DateTime.Now;
             var posts = await baconProvider.GetService<IRedditService>().GetPostsBySubreddit("/", 20);
 
             var liveTileService = baconProvider.GetService<ILiveTileService>();
@@ -54,6 +55,14 @@ namespace BaconographyW8BackgroundTask
                 }
                 catch
                 {
+                }
+            }
+            var liveTilesFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync("liveTiles");
+            foreach (var file in await liveTilesFolder.GetFilesAsync())
+            {
+                if (file.DateCreated.LocalDateTime < start)
+                {
+                    await file.DeleteAsync();
                 }
             }
         }
