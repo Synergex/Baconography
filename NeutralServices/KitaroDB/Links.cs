@@ -52,10 +52,10 @@ namespace Baconography.NeutralServices.KitaroDB
             var keySpace = new byte[PrimaryKeySpaceSize];
 
             //these ids are stored in base 36 so we will never see unicode chars
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 8 && i < ((Link)link.Data).SubredditId.Length; i++)
                 keySpace[i] = combinedSpace[i] = (byte)((Link)link.Data).SubredditId[i];
 
-            for (int i = 8; i < 16; i++)
+            for (int i = 8; i < 16 && i < (byte)((Link)link.Data).Name.Length + 8; i++)
                 keySpace[i] = combinedSpace[i] = (byte)((Link)link.Data).Name[i - 8];
 
             encodedValue.CopyTo(combinedSpace, LinkKeySpaceSize);
@@ -90,7 +90,7 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             foreach (var link in listing.Data.Children)
             {
-                if (link.Data is Comment)
+                if (link.Data is Link)
                 {
                     await StoreLink(link);
                 }
@@ -132,7 +132,7 @@ namespace Baconography.NeutralServices.KitaroDB
             var subredditId = await TranslateSubredditNameToId(redditService, subredditName);
             var keyspace = new byte[8];
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 8 && i < subredditId.Length; i++)
                 keyspace[i] = (byte)subredditId[i];
 
             var linkCursor = await _linksDB.SelectAsync(_linksDB.GetKeys().First(), keyspace);
@@ -141,7 +141,7 @@ namespace Baconography.NeutralServices.KitaroDB
             {
                 var afterKeyspace = new byte[16];
 
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 16 && i < after.Length + 10; i++)
                     afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
 
                 await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace);
@@ -158,7 +158,7 @@ namespace Baconography.NeutralServices.KitaroDB
             {
                 var afterKeyspace = new byte[16];
 
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < 16 && i < after.Length + 10; i++)
                     afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
 
                 linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);

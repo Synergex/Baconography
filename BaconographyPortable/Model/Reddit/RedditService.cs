@@ -158,6 +158,10 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
         {
+            //no info for the front page
+            if(name == "/")
+                return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+
             var targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
 
             try

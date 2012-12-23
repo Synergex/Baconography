@@ -21,12 +21,22 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return _offlineService.LinksForSubreddit(_subreddit, null);
+            if (_subreddit != null && _subreddit != "/")
+                return _offlineService.LinksForSubreddit(_subreddit, null);
+            else
+            {
+                return _offlineService.AllLinks(null);
+            }
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
         {
-            return _offlineService.LinksForSubreddit(_subreddit, after);
+            if (_subreddit != null && _subreddit != "/")
+                return _offlineService.LinksForSubreddit(_subreddit, after);
+            else
+            {
+                return _offlineService.AllLinks(after);
+            }
         }
 
         public Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)

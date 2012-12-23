@@ -156,6 +156,9 @@
     <Compile Include="View\FileOpenPickerView.xaml.cs">
       <DependentUpon>FileOpenPickerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ImagePreviewWithButtonView.xaml.cs">
+      <DependentUpon>ImagePreviewWithButtonView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LinkedPictureView.xaml.cs">
       <DependentUpon>LinkedPictureView.xaml</DependentUpon>
     </Compile>
@@ -261,6 +264,10 @@
     <Page Include="View\FileOpenPickerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ImagePreviewWithButtonView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\LinkedPictureView.xaml">
       <SubType>Designer</SubType>

@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +47,8 @@ namespace BaconographyW8.PlatformServices
             _baconProvider = baconProvider;
             try
             {
+                Messenger.Default.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
+
                 var offlineService = _baconProvider.GetService<IOfflineService>();
 
                 var allowOver18String = await offlineService.GetSetting("AllowOver18");
@@ -101,6 +105,14 @@ namespace BaconographyW8.PlatformServices
             }
         }
 
+        private void OnConnectionStatusChanged(ConnectionStatusMessage obj)
+        {
+            if (obj.IsOnline)
+                SetOnline(obj.UserInitiated);
+            else
+                SetOffline(obj.UserInitiated);
+        }
+
         public async Task Persist()
         {
             var offlineService = _baconProvider.GetService<IOfflineService>();
@@ -121,5 +133,6 @@ namespace BaconographyW8.PlatformServices
             var offlineService = _baconProvider.GetService<IOfflineService>();
             await offlineService.ClearHistory();
         }
+
     }
 }

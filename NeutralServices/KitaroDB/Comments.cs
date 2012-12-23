@@ -110,8 +110,11 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task StoreComment(Thing thing, string subredditId, string linkId, string parentId, string name)
         {
-            if(thing.Data is Comment)
-                ((Comment)thing.Data).BodyHtml = ""; //we dont need this and on large comments this causes problems for the max record size
+            ((Comment)thing.Data).BodyHtml = ""; //we dont need this and on large comments this causes problems for the max record size
+
+            var replies = ((Comment)thing.Data).Replies;
+            ((Comment)thing.Data).Replies = null;
+
             var value = JsonConvert.SerializeObject(thing);
             var encodedValue = Encoding.UTF8.GetBytes(value);
 
@@ -139,6 +142,8 @@ namespace Baconography.NeutralServices.KitaroDB
                 {
                 }
             }
+            if(replies != null)
+                await StoreComments(replies);
         }
 
         public async Task Clear()
@@ -159,10 +164,10 @@ namespace Baconography.NeutralServices.KitaroDB
                     mostRecentComment = ((Comment)comment.Data);
                     await StoreComment(comment, mostRecentComment.SubredditId, mostRecentComment.LinkId, mostRecentComment.ParentId, mostRecentComment.Name);
                 }
-                else if (comment.Data is More && mostRecentComment != null)
-                {
-                    await StoreComment(comment, mostRecentComment.SubredditId, mostRecentComment.LinkId, mostRecentComment.ParentId, "more");
-                }
+                //else if (comment.Data is More && mostRecentComment != null)
+                //{
+                //    await StoreComment(comment, mostRecentComment.SubredditId, mostRecentComment.LinkId, mostRecentComment.ParentId, "more");
+                //}
             }
         }
 
@@ -208,13 +213,14 @@ namespace Baconography.NeutralServices.KitaroDB
             foreach (var child in target.Data.Children)
             {
                 var typedChild = child.Data as Comment;
-                typedChild.Replies = await GetChildren(typedChild.SubredditId, typedChild.LinkId, typedChild.Name);
+                if(typedChild != null)
+                    typedChild.Replies = await GetChildren(typedChild.SubredditId, typedChild.LinkId, typedChild.Name);
             }
         }
 
         public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
         {
-            var keyspace = GenerateMainKeyspace(subredditId, linkId, "");
+            var keyspace = GenerateMainKeyspace(subredditId, linkId, linkId);
 
             var commentCursor = await _commentsDB.SelectAsync(_commentsDB.GetKeys().First(), keyspace);
             Listing topLevelChildren = null;
@@ -223,6 +229,8 @@ namespace Baconography.NeutralServices.KitaroDB
                 topLevelChildren = await DeserializeCursor(commentCursor, count);
             }
             await FillInChildren(topLevelChildren);
+            //we've got the order the wrong way this is a cheap fix for now
+            topLevelChildren.Data.Children.Reverse();
             return topLevelChildren;
             
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Messages
 {
-    class ConnectionStatusMessage : MessageBase
+    public class ConnectionStatusMessage : MessageBase
     {
         public bool UserInitiated { get; set; }
         public bool IsOnline { get; set; }
