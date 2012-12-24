@@ -113,7 +113,7 @@ namespace BaconographyW8.View
                     }
                 }
             }
-            else if (_selectedSubredditMessage != null)
+            else
             {
                 Messenger.Default.Send<SelectSubredditMessage>(null);
             }
@@ -163,7 +163,10 @@ namespace BaconographyW8.View
         Flyout _redditPickerFlyout;
         private void ShowRedditPicker(object sender, RoutedEventArgs e)
         {
+            App.SetSearchKeyboard(false);
             _redditPickerFlyout = new Flyout();
+            _redditPickerFlyout.Width = 430;
+            _redditPickerFlyout.Closed += (obj1, obj2) => App.SetSearchKeyboard(true);
             _redditPickerFlyout.Placement = PlacementMode.Bottom;
             _redditPickerFlyout.PlacementTarget = sender as UIElement;
             _redditPickerFlyout.Content = new SubredditPickerView();
