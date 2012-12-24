@@ -352,6 +352,9 @@
     <SDKReference Include="KitaroDBSDK, Version=1.1.0.0">
       <Name>KitaroDB for Windows Store Applications</Name>
     </SDKReference>
+    <SDKReference Include="Microsoft.VCLibs, Version=11.0">
+      <Name>Microsoft Visual C++ Runtime Package</Name>
+    </SDKReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight">
