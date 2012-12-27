@@ -260,35 +260,43 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Thing> GetLinkByUrl(string url)
         {
-            url = url + ".json";
-            Listing listing = null;
-            var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
-            if (comments.StartsWith("["))
+            try
             {
-                var listings = JsonConvert.DeserializeObject<Listing[]>(comments);
-                listing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
-                foreach (var combinableListing in listings)
+                url = url + ".json";
+                Listing listing = null;
+                var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
+                if (comments.StartsWith("["))
                 {
-                    listing.Data.Children.AddRange(combinableListing.Data.Children);
-                    listing.Kind = combinableListing.Kind;
-                    listing.Data.After = combinableListing.Data.After;
-                    listing.Data.Before = combinableListing.Data.Before;
+                    var listings = JsonConvert.DeserializeObject<Listing[]>(comments);
+                    listing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
+                    foreach (var combinableListing in listings)
+                    {
+                        listing.Data.Children.AddRange(combinableListing.Data.Children);
+                        listing.Kind = combinableListing.Kind;
+                        listing.Data.After = combinableListing.Data.After;
+                        listing.Data.Before = combinableListing.Data.Before;
+                    }
                 }
-            }
-            else
-                listing = JsonConvert.DeserializeObject<Listing>(comments);
+                else
+                    listing = JsonConvert.DeserializeObject<Listing>(comments);
 
-            var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
-            if (requestedLinkInfo != null)
+                var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
+                if (requestedLinkInfo != null)
+                {
+
+                    var result = MaybeFilterForNSFW(listing);
+
+                    _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
+                    return requestedLinkInfo;
+                }
+                else
+                    return null;
+            }
+            catch(Exception ex)
             {
-
-                var result = MaybeFilterForNSFW(listing);
-
-                _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
-                return requestedLinkInfo;
-            }
-            else
+                _notificationService.CreateErrorNotification(ex);
                 return null;
+            }
         }
 
         public async Task<Listing> GetCommentsOnPost(string subreddit, string permalink, int? limit)

@@ -71,7 +71,13 @@ namespace BaconographyW8
         {
             base.OnWindowCreated(args);
             SettingsPane.GetForCurrentView().CommandsRequested += App_CommandsRequested;
-            await BackgroundExecutionManager.RequestAccessAsync();
+            try
+            {
+                var status = await BackgroundExecutionManager.RequestAccessAsync();
+            }
+            catch
+            {
+            }
         }
 
         /// <summary>
