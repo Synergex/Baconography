@@ -67,10 +67,11 @@ namespace BaconographyW8
             }
         }
 
-        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override async void OnWindowCreated(WindowCreatedEventArgs args)
         {
             base.OnWindowCreated(args);
             SettingsPane.GetForCurrentView().CommandsRequested += App_CommandsRequested;
+            await BackgroundExecutionManager.RequestAccessAsync();
         }
 
         /// <summary>
