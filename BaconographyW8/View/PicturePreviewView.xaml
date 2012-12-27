@@ -1,0 +1,33 @@
+﻿<UserControl
+    x:Class="BaconographyW8.View.PicturePreviewView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BaconographyW8.View"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}">
+            <Button Style="{StaticResource GoBackButton}" Command="{Binding MoveBack}"/>
+            <Button Style="{StaticResource GoForwardButton}" Command="{Binding MoveForward}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}">
+            <TextBlock Text="{Binding CurrentPosition}"/>
+            <TextBlock Text=" of "/>
+            <TextBlock Text="{Binding AlbumSize}"/>
+            <TextBlock Margin="5,0,0,0" Text="{Binding Title}"/>
+        </StackPanel>
+        <ProgressRing Grid.Row="2" IsActive="{Binding IsLoading}"/>
+        <Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly">
+            <Image Source="{Binding Url}"/>
+        </Viewbox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,25 @@
+﻿<UserControl
+    x:Class="BaconographyW8.View.SearchQueryView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BaconographyW8.View"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="using:BaconographyW8.Common"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    DataContext="{Binding SearchQuery, Source={StaticResource Locator}}">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <common:WatermarkTextBox Width="300" WatermarkText="Query" HorizontalAlignment="Left" Margin="0,5,0,5"
+                                 Text="{Binding Query,Mode=TwoWay}" />
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Search"
+                        Command="{Binding Search}"
+                        CommandParameter="{Binding}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

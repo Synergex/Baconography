@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{386BE814-A21A-4A84-ABF3-F9B61130D4F2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BaconographyPortable</RootNamespace>
+    <AssemblyName>BaconographyPortable</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile78</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
+    <Compile Include="Messages\CloseSettingsMessage.cs" />
+    <Compile Include="Messages\ConnectionStatusMessage.cs" />
+    <Compile Include="Messages\LoadingMessage.cs" />
+    <Compile Include="Messages\NavigateToUrlMessage.cs" />
+    <Compile Include="Messages\OfflineStatusMessage.cs" />
+    <Compile Include="Messages\PickerFileMessage.cs" />
+    <Compile Include="Messages\SearchQueryMessage.cs" />
+    <Compile Include="Messages\SelectCommentTreeMessage.cs" />
+    <Compile Include="Messages\SelectSubredditMessage.cs" />
+    <Compile Include="Messages\SelectUserAccountMessage.cs" />
+    <Compile Include="Messages\UserLoggedInMessage.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\SubredditLinks.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\SubredditSubscriptions.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\UserActivity.cs" />
+    <Compile Include="Model\Reddit\Account.cs" />
+    <Compile Include="Model\Reddit\Comment.cs" />
+    <Compile Include="Model\Reddit\Converters\ThingDataConverter.cs" />
+    <Compile Include="Model\Reddit\Converters\UnixTimeConverter.cs" />
+    <Compile Include="Model\Reddit\Flair.cs" />
+    <Compile Include="Model\Reddit\ICreated.cs" />
+    <Compile Include="Model\Reddit\IListingProvider.cs" />
+    <Compile Include="Model\Reddit\IVotable.cs" />
+    <Compile Include="Model\Reddit\Json.cs" />
+    <Compile Include="Model\Reddit\Link.cs" />
+    <Compile Include="Model\Reddit\Listing.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\SubredditLinks.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\SubredditSubscriptions.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\UserActivity.cs" />
+    <Compile Include="Model\Reddit\Message.cs" />
+    <Compile Include="Model\Reddit\More.cs" />
+    <Compile Include="Model\Reddit\RedditService.cs" />
+    <Compile Include="Model\Reddit\Subreddit.cs" />
+    <Compile Include="Model\Reddit\Thing.cs" />
+    <Compile Include="Model\Reddit\User.cs" />
+    <Compile Include="Model\Reddit\UserCredential.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\IDynamicViewLocator.cs" />
+    <Compile Include="Services\IImagesService.cs" />
+    <Compile Include="Services\ILiveTileService.cs" />
+    <Compile Include="Services\INavigationService.cs" />
+    <Compile Include="Services\INotificationService.cs" />
+    <Compile Include="Services\IOfflineService.cs" />
+    <Compile Include="Services\IRedditService.cs" />
+    <Compile Include="Services\IBaconProvider.cs" />
+    <Compile Include="Services\ISettingsService.cs" />
+    <Compile Include="Services\ISimpleHttpService.cs" />
+    <Compile Include="Services\ISystemServices.cs" />
+    <Compile Include="Services\IUserService.cs" />
+    <Compile Include="Services\IWebViewWrapper.cs" />
+    <Compile Include="ViewModel\AboutUserViewModel.cs" />
+    <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\SearchResultsViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\StoredUserCredentialsCollection.cs" />
+    <Compile Include="ViewModel\Collections\SubredditViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\SubscribedSubredditViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\ThingViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\UserActivityViewModelCollection.cs" />
+    <Compile Include="ViewModel\CommentsViewModel.cs" />
+    <Compile Include="ViewModel\CommentViewModel.cs" />
+    <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
+    <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />
+    <Compile Include="ViewModel\ImageViewModel.cs" />
+    <Compile Include="ViewModel\LinkedPictureViewModel.cs" />
+    <Compile Include="ViewModel\LinkedWebViewModel.cs" />
+    <Compile Include="ViewModel\LinkViewModel.cs" />
+    <Compile Include="ViewModel\LoadIndicatorViewModel.cs" />
+    <Compile Include="ViewModel\LoginViewModel.cs" />
+    <Compile Include="ViewModel\MoreViewModel.cs" />
+    <Compile Include="ViewModel\RedditPickerViewModel.cs" />
+    <Compile Include="ViewModel\RedditViewModel.cs" />
+    <Compile Include="ViewModel\ReplyViewModel.cs" />
+    <Compile Include="ViewModel\SearchQueryViewModel.cs" />
+    <Compile Include="ViewModel\SearchResultsViewModel.cs" />
+    <Compile Include="ViewModel\SubredditsViewModel.cs" />
+    <Compile Include="ViewModel\AboutSubredditViewModel.cs" />
+    <Compile Include="ViewModel\VotableViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GalaSoft.MvvmLight">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platforms.NetCore45">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\netcore45\GalaSoft.MvvmLight.Platforms.NetCore45.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
