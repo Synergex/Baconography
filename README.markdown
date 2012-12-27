@@ -33,6 +33,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Show images inline RES style, for links as well as comments
 
 # Things left on the Todo list
+*   keep track of links that have already been shown in never ending reddit, don't show them further down
 *   ~~Get it in the Windows 8 Store~~
 *   ~~Show Images inline RES style~~
 *   ~~Use the imgur api (and the other domains supported by RES) to download and display images/albums directly~~
