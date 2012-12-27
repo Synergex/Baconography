@@ -356,6 +356,14 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        public void AddFlairInfo(string linkId, string opName)
+        {
+            if (!_linkToOpMap.ContainsKey(linkId))
+            {
+                _linkToOpMap.Add(linkId, opName);
+            }
+        }
+
         public async Task<Listing> GetAdditionalFromListing(string baseUrl, string after, int? limit)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 500;

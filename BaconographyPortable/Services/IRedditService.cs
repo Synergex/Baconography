@@ -34,6 +34,7 @@ namespace BaconographyPortable.Services
         void AddPost(string kind, string url, string subreddit, string title);
         void AddMessage(string recipient, string subject, string message);
         void AddComment(string parentId, string content);
+        void AddFlairInfo(string linkId, string opName);
 
         AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit);
     }

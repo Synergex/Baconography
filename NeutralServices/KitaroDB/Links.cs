@@ -1,6 +1,7 @@
 ﻿using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using KitaroDB;
+using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -99,6 +100,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private async Task<Listing> DeserializeCursor(DBCursor cursor, int count)
         {
+            var redditService = ServiceLocator.Current.GetInstance<IRedditService>();
             int i = 0;
             var targetListing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
 
@@ -109,6 +111,10 @@ namespace Baconography.NeutralServices.KitaroDB
                     var currentRecord = cursor.Get();
                     var decodedListing = Encoding.UTF8.GetString(currentRecord, LinkKeySpaceSize, currentRecord.Length - LinkKeySpaceSize);
                     var deserializedLink = JsonConvert.DeserializeObject<Thing>(decodedListing);
+                    if (deserializedLink != null && deserializedLink.Data is Link)
+                    {
+                        redditService.AddFlairInfo(((Link)deserializedLink.Data).Name, ((Link)deserializedLink.Data).Author);
+                    }
                     targetListing.Data.Children.Add(deserializedLink);
                     
                     if (i++ > count)
