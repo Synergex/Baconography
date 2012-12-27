@@ -84,9 +84,25 @@ namespace BaconographyW8
                 var nameIndex = str.LastIndexOf("/r/");
                 var subredditName = str.Substring(nameIndex + 3);
 
-                var subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                TypedThing<Subreddit> subreddit = null;
 
-                navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                if (settingsService.IsOnline())
+                {
+                    subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                }
+                else
+                {
+                    var thing = await offlineService.GetSubreddit(subredditName);
+                    if(thing != null)
+                        subreddit = new TypedThing<Subreddit>(thing);
+                }
+
+                if(subreddit != null)
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                else
+                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
             }
             else
             {

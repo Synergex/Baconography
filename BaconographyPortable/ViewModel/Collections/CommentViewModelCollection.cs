@@ -23,7 +23,7 @@ namespace BaconographyPortable.ViewModel.Collections
         string _subreddit;
         string _targetName;
 
-        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string targetName)
+        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
         {
             _timerHandles = new List<WeakReference>();
             _state = new Dictionary<object, object>();
@@ -35,7 +35,7 @@ namespace BaconographyPortable.ViewModel.Collections
             if (settingsService.IsOnline())
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
             else
-                _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
+                _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
 
 
             //dont add to the observable collection all at once, make the view models on the background thread then start a ui timer to add them 10 at a time

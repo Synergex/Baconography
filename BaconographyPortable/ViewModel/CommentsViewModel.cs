@@ -59,7 +59,7 @@ namespace BaconographyPortable.ViewModel
         private void LoadLink(TypedThing<Link> link, TypedThing<Comment> rootComment)
         {
             _linkThing = link;
-            Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+            Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
         }
 
         public CommentViewModelCollection Comments { get; private set; }

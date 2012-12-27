@@ -122,14 +122,18 @@ namespace Baconography.NeutralServices.KitaroDB
 
             return targetListing;
         }
-        private async Task<string> TranslateSubredditNameToId(IRedditService redditService, string subredditName)
+        private async Task<string> TranslateSubredditNameToId(Subreddits subreddits, string subredditName)
         {
-            return (await redditService.GetSubreddit(subredditName)).Data.Name;
+            var subreddit = await subreddits.GetSubreddit(null, subredditName);
+            if (subreddit != null)
+                return ((Subreddit)subreddit.Data).Name;
+            else
+                return null;
         }
 
-        public async Task<Listing> LinksForSubreddit(IRedditService redditService, string subredditName, string after)
+        public async Task<Listing> LinksForSubreddit(Subreddits subreddits, string subredditName, string after)
         {
-            var subredditId = await TranslateSubredditNameToId(redditService, subredditName);
+            var subredditId = await TranslateSubredditNameToId(subreddits, subredditName);
             var keyspace = new byte[8];
 
             for (int i = 0; i < 8 && i < subredditId.Length; i++)

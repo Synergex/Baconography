@@ -38,5 +38,7 @@ namespace BaconographyPortable.Services
 
         Task EnqueueAction(string actionName, Dictionary<string, string> parameters);
         Task<Tuple<string, Dictionary<string, string>>> DequeueAction();
+
+        Task<Thing> GetSubreddit(string name);
     }
 }

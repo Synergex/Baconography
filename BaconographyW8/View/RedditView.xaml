@@ -179,7 +179,7 @@
                             Visibility="{Binding DisplayingSubreddit, Converter={StaticResource booleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource RefreshAppBarButtonStyle}" 
                             Command="{Binding RefreshRedditView}" CommandParameter="{Binding}"
-                            Visibility="Visible"/>
+                            Visibility="Visible" Click="OnRefresh"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource PinAppBarButtonStyle}" 

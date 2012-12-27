@@ -31,6 +31,7 @@ namespace Baconography.NeutralServices
         {
             _comments = await Comments.GetInstance();
             _links = await Links.GetInstance();
+            _subreddits = await Subreddits.GetInstance();
 
             //tell the key value pair infrastructure to allow duplicates
             //we dont really have a key, all we actually wanted was an ordered queue
@@ -73,6 +74,7 @@ namespace Baconography.NeutralServices
 
         Comments _comments;
         Links _links;
+        Subreddits _subreddits;
         DB _settingsDb;
         DB _historyDb;
         DB _actionsDb;
@@ -128,6 +130,7 @@ namespace Baconography.NeutralServices
                 {
                     if (link.Data is Link)
                     {
+                        await _subreddits.StoreSubreddit(((Link)link.Data).SubredditId, ((Link)link.Data).Subreddit);
                         Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = ((Link)link.Data).Id, Status = OfflineStatusMessage.OfflineStatus.Initial });
                     }
                 }
@@ -221,7 +224,7 @@ namespace Baconography.NeutralServices
         public async Task<Listing> LinksForSubreddit(string subredditName, string after)
         {
             await Initialize();
-            return await _links.LinksForSubreddit(_redditService, subredditName, after);
+            return await _links.LinksForSubreddit(_subreddits, subredditName, after);
         }
 
         public async Task<Listing> AllLinks(string after)
@@ -317,6 +320,12 @@ namespace Baconography.NeutralServices
                 _hasQueuedActions = false;
             }
             return null;
+        }
+
+
+        public Task<Thing> GetSubreddit(string name)
+        {
+            return _subreddits.GetSubreddit(null, name);
         }
     }
 

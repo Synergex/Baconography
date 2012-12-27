@@ -172,5 +172,12 @@ namespace BaconographyW8.View
             _redditPickerFlyout.Content = new SubredditPickerView();
             _redditPickerFlyout.IsOpen = true;
         }
+
+        private void OnRefresh(object sender, RoutedEventArgs e)
+        {
+            var scrollViewer = GetScrollViewer(linksView) as ScrollViewer;
+            _scrollOffset = 0;
+            scrollViewer.ScrollToVerticalOffset(0);
+        }
     }
 }
