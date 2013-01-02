@@ -406,7 +406,7 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
-        public virtual async void AddVote(string thingId, int direction)
+        public virtual async Task AddVote(string thingId, int direction)
         {
             var modhash = await GetCurrentModhash();
 
@@ -420,7 +420,7 @@ namespace BaconographyPortable.Model.Reddit
             var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/vote");
         }
 
-        public virtual async void AddSubredditSubscription(string subreddit, bool unsub)
+        public virtual async Task AddSubredditSubscription(string subreddit, bool unsub)
         {
             var modhash = await GetCurrentModhash();
 
@@ -436,7 +436,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe");
         }
 
-        public virtual async void AddSavedThing(string thingId)
+        public virtual async Task AddSavedThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/save";
@@ -450,7 +450,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async void AddReportOnThing(string thingId)
+        public virtual async Task AddReportOnThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/report";
@@ -464,7 +464,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async void AddPost(string kind, string url, string subreddit, string title)
+        public virtual async Task AddPost(string kind, string url, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
 
@@ -481,7 +481,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
-        public virtual async void AddMessage(string recipient, string subject, string message)
+        public virtual async Task AddMessage(string recipient, string subject, string message)
         {
             var modhash = await GetCurrentModhash();
 
@@ -500,7 +500,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
-        public virtual async void AddComment(string parentId, string content)
+        public virtual async Task AddComment(string parentId, string content)
         {
             var modhash = await GetCurrentModhash();
 
