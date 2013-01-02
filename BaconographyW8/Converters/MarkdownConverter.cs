@@ -38,7 +38,7 @@ namespace BaconographyW8.Converters
                     var markdown = SoldOut.MarkdownToXaml(startingText);
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length == 0) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
+                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
 
                     if (isSame)
                     {
@@ -60,7 +60,7 @@ namespace BaconographyW8.Converters
                             }
                         }
 
-                        for (int lineBreakPos = markdown.IndexOf("<LineBreak/>", 0); lineBreakPos != -1; lineBreakPos = markdown.IndexOf("<LineBreak/>", lineBreakPos + insertionLength))
+                        for (int lineBreakPos = markdown.IndexOf("<LineBreak/>", 0); lineBreakPos != -1 && lineBreakPos + "<LineBreak/>".Length + 1 < markdown.Length; lineBreakPos = markdown.IndexOf("<LineBreak/>", lineBreakPos + insertionLength))
                         {
                             //unfortnately the renderer doesnt really allow us to  wrap this in a paragrpah properly (For xaml)
                             if (lineBreakPos > -1)

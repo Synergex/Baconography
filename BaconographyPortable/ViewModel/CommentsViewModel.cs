@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Messages;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
@@ -17,6 +18,8 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         IUserService _userService;
         IRedditService _redditService;
+        INavigationService _navigationService;
+        IDynamicViewLocator _dynamicViewLocator;
         TypedThing<Link> _linkThing;
         /// <summary>
         /// Initializes a new instance of the CommentsViewModel class.
@@ -26,9 +29,15 @@ namespace BaconographyPortable.ViewModel
             _baconProvider = baconProvider;
             _userService = baconProvider.GetService<IUserService>();
             _redditService = baconProvider.GetService<IRedditService>();
+            _navigationService = baconProvider.GetService<INavigationService>();
+            _dynamicViewLocator = baconProvider.GetService<IDynamicViewLocator>();
 
             MessengerInstance.Register<SelectCommentTreeMessage>(this, OnComentTreeSelection);
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
+
+            _gotoLink = new RelayCommand(GotoLinkImpl);
+            _gotoSubreddit = new RelayCommand(GotoSubredditImpl);
+            _gotoUserDetails = new RelayCommand(GotoUserImpl);
         }
 
         public override void Cleanup()
@@ -148,16 +157,36 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<CommentsViewModel> _saveLink = new RelayCommand<CommentsViewModel>((vm) => vm.SaveLinkImpl());
         static RelayCommand<CommentsViewModel> _reportLink = new RelayCommand<CommentsViewModel>((vm) => vm.ReportLinkImpl());
         static RelayCommand<CommentsViewModel> _gotoReply = new RelayCommand<CommentsViewModel>((vm) => vm.GotoReplyImpl());
-
+        RelayCommand _gotoLink;
+        RelayCommand _gotoSubreddit;
+        RelayCommand _gotoUserDetails;
 
         public RelayCommand<CommentsViewModel> SaveLink { get { return _saveLink; } }
         public RelayCommand<CommentsViewModel> ReportLink { get { return _reportLink; } }
         public RelayCommand<CommentsViewModel> GotoReply { get { return _gotoReply; } }
+        public RelayCommand GotoLink { get { return _gotoLink; } }
+        public RelayCommand GotoSubreddit { get { return _gotoSubreddit; } }
+        public RelayCommand GotoUserDetails { get { return _gotoUserDetails; } }
 
         private void SaveLinkImpl()
         {
             //TODO: is this the right name?
             _redditService.AddSavedThing(_linkThing.Data.Name);
+        }
+
+        private void GotoLinkImpl()
+        {
+            UtilityCommandImpl.GotoLinkImpl(_linkThing.Data.Url);
+        }
+
+        private void GotoUserImpl()
+        {
+            UtilityCommandImpl.GotoUserDetails(_linkThing.Data.Author);
+        }
+
+        private async void GotoSubredditImpl()
+        {
+            _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
         }
 
         private void ReportLinkImpl()
