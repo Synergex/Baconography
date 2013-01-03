@@ -18,10 +18,14 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         IBaconProvider _baconProvider;
         ISystemServices _systemServices;
+        INotificationService _notificationService;
+        ISettingsService _settingsService;
         public LoginViewModel(IBaconProvider baconProvider)
         {
             _userService = baconProvider.GetService<IUserService>();
             _systemServices = baconProvider.GetService<ISystemServices>();
+            _notificationService = baconProvider.GetService<INotificationService>();
+            _settingsService = baconProvider.GetService<ISettingsService>();
             _baconProvider = baconProvider;
             _isLoggedIn = false;
             MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
@@ -161,33 +165,46 @@ namespace BaconographyPortable.ViewModel
                 {
                     _doLogin = new RelayCommand(async () =>
                     {
-                        Working = true;
-                        var loggedInUser = await _userService.TryLogin(Username, Password);
-                        if (loggedInUser == null)
+                        try
                         {
-                            HasErrors = true;
-                            Working = false;
-                        }
-                        else
-                        {
-                            HasErrors = false;
-                            Working = false;
-                            if (IsRememberLogin)
+                            if (_settingsService.IsOnline())
                             {
-                                var newCredentials = new UserCredential
+                                Working = true;
+                                var loggedInUser = await _userService.TryLogin(Username, Password);
+                                if (loggedInUser == null)
                                 {
-                                    IsDefault = IsDefaultLogin,
-                                    LoginCookie = loggedInUser.LoginCookie,
-                                    Username = loggedInUser.Username,
-                                    Me = new Thing { Kind = "t2", Data = loggedInUser.Me }
-                                };
-                                await _userService.AddStoredCredential(newCredentials, Password);
-                                //reload credentials
-                                _credentials = null;
-                                RaisePropertyChanged("Credentials");
-                            }
+                                    HasErrors = true;
+                                    Working = false;
+                                }
+                                else
+                                {
+                                    HasErrors = false;
+                                    Working = false;
+                                    if (IsRememberLogin)
+                                    {
+                                        var newCredentials = new UserCredential
+                                        {
+                                            IsDefault = IsDefaultLogin,
+                                            LoginCookie = loggedInUser.LoginCookie,
+                                            Username = loggedInUser.Username,
+                                            Me = new Thing { Kind = "t2", Data = loggedInUser.Me }
+                                        };
+                                        await _userService.AddStoredCredential(newCredentials, Password);
+                                        //reload credentials
+                                        _credentials = null;
+                                        RaisePropertyChanged("Credentials");
+                                    }
 
-                            MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
+                                    MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
+
+                                }
+                            }
+                            else
+                                _notificationService.CreateNotification("Login functionality not available in offline mode");
+                        }
+                        catch (Exception ex)
+                        {
+                            _notificationService.CreateErrorNotification(ex);
                         }
                     });
                 }
@@ -207,19 +224,24 @@ namespace BaconographyPortable.ViewModel
                 {
                     _systemServices.RunAsync(async (c) =>
                     {
-                        var loggedInUser = await _userService.TryStoredLogin(value);
-                        if (loggedInUser != null)
+                        if (_settingsService.IsOnline())
                         {
-                            HasErrors = false;
-                            MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
+                            var loggedInUser = await _userService.TryStoredLogin(value);
+                            if (loggedInUser != null)
+                            {
+                                HasErrors = false;
+                                MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
+                            }
+                            else
+                            {
+                                HasErrors = true;
+                                await _userService.RemoveStoredCredential(value);
+                                _credentials = null;
+                                RaisePropertyChanged("Credentials");
+                            }
                         }
                         else
-                        {
-                            HasErrors = true;
-                            await _userService.RemoveStoredCredential(value);
-                            _credentials = null;
-                            RaisePropertyChanged("Credentials");
-                        }
+                            _notificationService.CreateNotification("Login functionality not available in offline mode");
                     });
                 }
             }

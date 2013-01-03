@@ -314,6 +314,7 @@ namespace Baconography.NeutralServices
                     using (actionCursor)
                     {
                         var tpl = JsonConvert.DeserializeAnonymousType(actionCursor.GetString(), new { Name = "", Parameters = new Dictionary<string, string>() });
+                        await actionCursor.DeleteAsync();
                         return Tuple.Create(tpl.Name, tpl.Parameters);
                     }
                 }

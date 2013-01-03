@@ -1,4 +1,7 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,17 +31,41 @@ namespace BaconographyW8.PlatformServices
 
         public void CreateErrorNotification(Exception exception)
         {
-            ToastTemplateType toastTemplate = ToastTemplateType.ToastText01;
-            XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(toastTemplate);
+            //we're no longer connected to the internet
+            if (exception is System.Net.Http.HttpRequestException)
+            {
+                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                if (settingsService.IsOnline())
+                {
+                    ToastTemplateType toastTemplate = ToastTemplateType.ToastText01;
+                    XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(toastTemplate);
 
-            XmlNodeList toastTextElements = toastXml.GetElementsByTagName("text");
-            toastTextElements[0].AppendChild(toastXml.CreateTextNode("We're having a hard time connecting to reddit, you might want to try again later or go into offline mode"));
+                    XmlNodeList toastTextElements = toastXml.GetElementsByTagName("text");
+                    toastTextElements[0].AppendChild(toastXml.CreateTextNode("We're having a hard time connecting to reddit, you've been moved to offline mode"));
 
-            IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
-            ((XmlElement)toastNode).SetAttribute("launch", "{\"type\":\"toast\" }");
+                    IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
+                    ((XmlElement)toastNode).SetAttribute("launch", "{\"type\":\"toast\" }");
 
-            ToastNotification toast = new ToastNotification(toastXml);
-            ToastNotificationManager.CreateToastNotifier().Show(toast);
+                    ToastNotification toast = new ToastNotification(toastXml);
+                    ToastNotificationManager.CreateToastNotifier().Show(toast);
+
+                    Messenger.Default.Send<ConnectionStatusMessage>(new ConnectionStatusMessage { IsOnline = false, UserInitiated = false });
+                }
+            }
+            else
+            {
+                ToastTemplateType toastTemplate = ToastTemplateType.ToastText01;
+                XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(toastTemplate);
+
+                XmlNodeList toastTextElements = toastXml.GetElementsByTagName("text");
+                toastTextElements[0].AppendChild(toastXml.CreateTextNode("We're having a hard time connecting to reddit, you might want to try again later or go into offline mode"));
+
+                IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
+                ((XmlElement)toastNode).SetAttribute("launch", "{\"type\":\"toast\" }");
+
+                ToastNotification toast = new ToastNotification(toastXml);
+                ToastNotificationManager.CreateToastNotifier().Show(toast);
+            }
         }
 
 

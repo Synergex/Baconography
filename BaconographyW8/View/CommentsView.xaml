@@ -50,13 +50,26 @@
                     <RowDefinition Height="25" />
                     <RowDefinition Height="25" />
                 </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0" x:Name="pageTitle" VerticalAlignment="Center" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
+                <Button BorderThickness="0" Command="{Binding GotoLink}">
+                    <Button.Content>
+                        <TextBlock Grid.Row="0" x:Name="pageTitle" VerticalAlignment="Center" Style="{StaticResource SubheaderTextStyle}" Text="{Binding Title}" TextWrapping="Wrap" />
+                    </Button.Content>
+                </Button>
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="submitted"/>
                     <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="by" Margin="5,0,0,0"/>
-                    <TextBlock Style="{StaticResource TitleTextStyle}" Text="{Binding Author}" Margin="5,0,0,0" />
+                    <Button BorderThickness="0" Margin="0,-5,0,0" Padding="0" Command="{Binding GotoUserDetails}">
+                        <Button.Content>
+                            <TextBlock Foreground="Goldenrod" Style="{StaticResource TitleTextStyle}" Text="{Binding Author}"/>
+                        </Button.Content>
+                    </Button>
+                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="to"/>
+                    <Button BorderThickness="0" Margin="0,-5,0,0" Padding="0" Command="{Binding GotoSubreddit}">
+                        <Button.Content>
+                            <TextBlock Foreground="Goldenrod" Style="{StaticResource TitleTextStyle}" Text="{Binding Subreddit}"/>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal">

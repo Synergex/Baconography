@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Messages;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
@@ -170,54 +171,9 @@ namespace BaconographyPortable.ViewModel
             vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
         }
 
-        //Subreddit:
-        private static Regex _subredditRegex = new Regex("/r/[a-zA-Z0-9_]+/?");
-
-        //Comments page:
-        private static Regex _commentsPageRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
-
-        //Comment:
-        private static Regex _commentRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
-
-        private static async void GotoLinkImpl(LinkViewModel vm)
+        private static void GotoLinkImpl(LinkViewModel vm)
         {
-            if (_commentsPageRegex.IsMatch(vm.Url))
-            {
-                var targetLinkThing = await vm._redditService.GetLinkByUrl(vm.Url);
-                if (targetLinkThing != null)
-                {
-                    var typedLinkThing = new TypedThing<Link>(targetLinkThing);
-                    await vm._baconProvider.GetService<IOfflineService>().StoreHistory(typedLinkThing.Data.Permalink);
-                    vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
-                }
-                else
-                {
-                    vm._navigationService.Navigate(vm._dynamicViewLocator.LinkedWebView, new NavigateToUrlMessage { TargetUrl = vm.Url, Title = vm.Url });
-                }
-            }
-            else if (_subredditRegex.IsMatch(vm.Url))
-            {
-                var nameIndex = vm.Url.LastIndexOf("/r/");
-                var subredditName = vm.Url.Substring(nameIndex + 3);
-
-                var subreddit = await vm._redditService.GetSubreddit(subredditName);
-
-                vm._navigationService.Navigate(vm._dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = subreddit });
-            }
-            else
-            {
-                await vm._baconProvider.GetService<IOfflineService>().StoreHistory(vm._linkThing.Data.Url);
-                var imageResults = await vm._imagesService.GetImagesFromUrl(vm._linkThing.Data.Title, vm._linkThing.Data.Url);
-                if (imageResults != null && imageResults.Count() > 0)
-                {
-                    vm._navigationService.Navigate(vm._dynamicViewLocator.LinkedPictureView, imageResults);
-                }
-                else
-                {
-                    //its not an image url we can understand so whatever it is just show it in the browser
-                    vm._navigationService.Navigate(vm._dynamicViewLocator.LinkedWebView, new NavigateToUrlMessage { TargetUrl = vm._linkThing.Data.Url, Title = vm._linkThing.Data.Title });
-                }
-            }
+            UtilityCommandImpl.GotoLinkImpl(vm.Url);
         }
     }
 }

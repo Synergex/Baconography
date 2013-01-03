@@ -48,6 +48,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Add in RES style keyboard shortcuts
 *   Integrate Animated gif renderer (Windows 8 Xaml doesnt allow animated gif's in the Image control)
 *   Get it on Windows Phone 8
+*   Implement inline renderer for videos
 
 # License
 Copyright (c) 2012 Synergex International Corporation

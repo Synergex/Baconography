@@ -37,34 +37,38 @@ namespace BaconographyW8BackgroundTask
             DateTime start = DateTime.Now;
             var posts = await baconProvider.GetService<IRedditService>().GetPostsBySubreddit("/", 20);
 
-            var liveTileService = baconProvider.GetService<ILiveTileService>();
-            _imagesService = baconProvider.GetService<IImagesService>();
-            //baconProvider.GetService<ISettingsService>().PreferImageLinksForTiles;
-            var linkComparer = new LinkComparer(true);
-
-            SortedSet<Tuple<string, string, TypedThing<Link>>> sortedLinks = new SortedSet<Tuple<string, string, TypedThing<Link>>>(linkComparer);
-
-            foreach (var link in posts.Data.Children)
-                sortedLinks.Add(await MapLink(link));
-
-            foreach (var linkTpl in sortedLinks)
+            if (baconProvider.GetService<ISettingsService>().IsOnline())
             {
-                try
+
+                var liveTileService = baconProvider.GetService<ILiveTileService>();
+                _imagesService = baconProvider.GetService<IImagesService>();
+                //baconProvider.GetService<ISettingsService>().PreferImageLinksForTiles;
+                var linkComparer = new LinkComparer(true);
+
+                SortedSet<Tuple<string, string, TypedThing<Link>>> sortedLinks = new SortedSet<Tuple<string, string, TypedThing<Link>>>(linkComparer);
+
+                foreach (var link in posts.Data.Children)
+                    sortedLinks.Add(await MapLink(link));
+
+                foreach (var linkTpl in sortedLinks)
                 {
-                    await liveTileService.MaybeCreateTile(linkTpl);
-                }
-                catch
-                {
-                }
-            }
-            var liveTilesFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync("liveTiles");
-            if (liveTilesFolder != null)
-            {
-                foreach (var file in await liveTilesFolder.GetFilesAsync())
-                {
-                    if (file.DateCreated.LocalDateTime < start)
+                    try
                     {
-                        await file.DeleteAsync();
+                        await liveTileService.MaybeCreateTile(linkTpl);
+                    }
+                    catch
+                    {
+                    }
+                }
+                var liveTilesFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.GetFolderAsync("liveTiles");
+                if (liveTilesFolder != null)
+                {
+                    foreach (var file in await liveTilesFolder.GetFilesAsync())
+                    {
+                        if (file.DateCreated.LocalDateTime < start)
+                        {
+                            await file.DeleteAsync();
+                        }
                     }
                 }
             }

@@ -32,6 +32,7 @@ namespace BaconographyW8
                 ServiceLocator.Current.GetInstance<ContentPreferencesViewModel>();
                 ServiceLocator.Current.GetInstance<RedditPickerViewModel>();
                 ServiceLocator.Current.GetInstance<SearchQueryViewModel>();
+                SimpleIoc.Default.Register<IDynamicViewLocator>(() => _baconProvider.GetService<IDynamicViewLocator>());
             }
         }
 
@@ -59,9 +60,10 @@ namespace BaconographyW8
 
             if (DesignMode.DesignModeEnabled)
             {
+                var dynamicViewLocator = new DynamicViewLocator();
                 var baconProvider = new BaconProvider();
                 baconProvider.Initialize(null).Wait();
-                baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
+                baconProvider.AddService(typeof(IDynamicViewLocator), dynamicViewLocator);
                 Initialize(baconProvider);
             }
         }

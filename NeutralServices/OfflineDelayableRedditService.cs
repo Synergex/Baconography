@@ -13,67 +13,158 @@ namespace Baconography.NeutralServices
 {
     class OfflineDelayableRedditService : RedditService
     {
-        public override async void AddComment(string parentId, string content)
+        public override async Task AddComment(string parentId, string content)
         {
-            if (_settingsService.IsOnline())
-                base.AddComment(parentId, content);
-            else
-                await _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddComment(parentId, content);
+                else
+                    await _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } }).Start();
+            }
             
+
         }
 
-        public override async void AddMessage(string recipient, string subject, string message)
+        public override async Task AddMessage(string recipient, string subject, string message)
         {
-            if (_settingsService.IsOnline())
-                base.AddMessage(recipient, subject, message);
-            else
-                await _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddMessage(recipient, subject, message);
+                else
+                    await _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } }).Start();
+            }
         }
 
-        public override async void AddPost(string kind, string url, string subreddit, string title)
+        public override async Task AddPost(string kind, string url, string subreddit, string title)
         {
-            if (_settingsService.IsOnline())
-                base.AddPost(kind, url, subreddit, title);
-            else
-                await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
-                { 
-                    { "kind", kind }, 
-                    { "url", url }, 
-                    { "subreddit", subreddit }, 
-                    { "title", title } 
-                });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddPost(kind, url, subreddit, title);
+                else
+                    await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
+                    { 
+                        { "kind", kind }, 
+                        { "url", url }, 
+                        { "subreddit", subreddit }, 
+                        { "title", title } 
+                    });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
+                    { 
+                        { "kind", kind }, 
+                        { "url", url }, 
+                        { "subreddit", subreddit }, 
+                        { "title", title } 
+                    }).Start();
+            }
         }
 
-        public override async void AddVote(string thingId, int direction)
+        public override async Task AddVote(string thingId, int direction)
         {
-            if (_settingsService.IsOnline())
-                base.AddVote(thingId, direction);
-            else
-                await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddVote(thingId, direction);
+                else
+                    await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } }).Start();
+            }
         }
 
-        public override async void AddSubredditSubscription(string subreddit, bool unsub)
+        public override async Task AddSubredditSubscription(string subreddit, bool unsub)
         {
-            if (_settingsService.IsOnline())
-                base.AddSubredditSubscription(subreddit, unsub);
-            else
-                await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddSubredditSubscription(subreddit, unsub);
+                else
+                    await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } }).Start();
+            }
         }
 
-        public override async void AddSavedThing(string thingId)
+        public override async Task AddSavedThing(string thingId)
         {
-            if (_settingsService.IsOnline())
-                base.AddSavedThing(thingId);
-            else
-                await _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddSavedThing(thingId);
+                else
+                    await _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } }).Start();
+            }
         }
 
-        public override async void AddReportOnThing(string thingId)
+        public override async Task AddReportOnThing(string thingId)
         {
-            if (_settingsService.IsOnline())
-                base.AddReportOnThing(thingId);
-            else
-                await _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } });
+            try
+            {
+                if (_settingsService.IsOnline())
+                    await base.AddReportOnThing(thingId);
+                else
+                    await _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } }).Start();
+            }
         }
 
         ThreadPoolTimer _queueTimer;
@@ -81,48 +172,54 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                var actionTpl = await _offlineService.DequeueAction();
-                if (actionTpl != null)
+                if (_settingsService.IsOnline())
                 {
-                    switch (actionTpl.Item1)
+                    var actionTpl = await _offlineService.DequeueAction();
+                    if (actionTpl != null)
                     {
-                        case "AddComment":
-                            {
-                                base.AddComment(actionTpl.Item2["parentId"], actionTpl.Item2["content"]);
-                                break;
-                            }
-                        case "AddMessage":
-                            {
-                                base.AddMessage(actionTpl.Item2["recipient"], actionTpl.Item2["subject"], actionTpl.Item2["message"]);
-                                break;
-                            }
-                        case "AddPost":
-                            {
-                                base.AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
-                                break;
-                            }
-                        case "AddVote":
-                            {
-                                base.AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
-                                break;
-                            }
-                        case "AddSubredditSubscription":
-                            {
-                                base.AddSubredditSubscription(actionTpl.Item2["subreddit"], bool.Parse(actionTpl.Item2["direction"]));
-                                break;
-                            }
-                        case "AddSavedThing":
-                            {
-                                base.AddSavedThing(actionTpl.Item2["thingId"]);
-                                break;
-                            }
-                        case "AddReportOnThing":
-                            {
-                                base.AddReportOnThing(actionTpl.Item2["thingId"]);
-                                break;
-                            }
+                        switch (actionTpl.Item1)
+                        {
+                            case "AddComment":
+                                {
+                                    await AddComment(actionTpl.Item2["parentId"], actionTpl.Item2["content"]);
+                                    break;
+                                }
+                            case "AddMessage":
+                                {
+                                    await AddMessage(actionTpl.Item2["recipient"], actionTpl.Item2["subject"], actionTpl.Item2["message"]);
+                                    break;
+                                }
+                            case "AddPost":
+                                {
+                                    await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
+                                    break;
+                                }
+                            case "AddVote":
+                                {
+                                    await AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
+                                    break;
+                                }
+                            case "AddSubredditSubscription":
+                                {
+                                    await AddSubredditSubscription(actionTpl.Item2["subreddit"], bool.Parse(actionTpl.Item2["direction"]));
+                                    break;
+                                }
+                            case "AddSavedThing":
+                                {
+                                    await AddSavedThing(actionTpl.Item2["thingId"]);
+                                    break;
+                                }
+                            case "AddReportOnThing":
+                                {
+                                    await AddReportOnThing(actionTpl.Item2["thingId"]);
+                                    break;
+                                }
+                        }
                     }
                 }
+            }
+            catch (TaskCanceledException)
+            {
             }
             catch (Exception e)
             {

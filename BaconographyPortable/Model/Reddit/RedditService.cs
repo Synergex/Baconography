@@ -260,35 +260,43 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Thing> GetLinkByUrl(string url)
         {
-            url = url + ".json";
-            Listing listing = null;
-            var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
-            if (comments.StartsWith("["))
+            try
             {
-                var listings = JsonConvert.DeserializeObject<Listing[]>(comments);
-                listing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
-                foreach (var combinableListing in listings)
+                url = url + ".json";
+                Listing listing = null;
+                var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
+                if (comments.StartsWith("["))
                 {
-                    listing.Data.Children.AddRange(combinableListing.Data.Children);
-                    listing.Kind = combinableListing.Kind;
-                    listing.Data.After = combinableListing.Data.After;
-                    listing.Data.Before = combinableListing.Data.Before;
+                    var listings = JsonConvert.DeserializeObject<Listing[]>(comments);
+                    listing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
+                    foreach (var combinableListing in listings)
+                    {
+                        listing.Data.Children.AddRange(combinableListing.Data.Children);
+                        listing.Kind = combinableListing.Kind;
+                        listing.Data.After = combinableListing.Data.After;
+                        listing.Data.Before = combinableListing.Data.Before;
+                    }
                 }
-            }
-            else
-                listing = JsonConvert.DeserializeObject<Listing>(comments);
+                else
+                    listing = JsonConvert.DeserializeObject<Listing>(comments);
 
-            var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
-            if (requestedLinkInfo != null)
+                var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
+                if (requestedLinkInfo != null)
+                {
+
+                    var result = MaybeFilterForNSFW(listing);
+
+                    _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
+                    return requestedLinkInfo;
+                }
+                else
+                    return null;
+            }
+            catch(Exception ex)
             {
-
-                var result = MaybeFilterForNSFW(listing);
-
-                _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
-                return requestedLinkInfo;
-            }
-            else
+                _notificationService.CreateErrorNotification(ex);
                 return null;
+            }
         }
 
         public async Task<Listing> GetCommentsOnPost(string subreddit, string permalink, int? limit)
@@ -348,6 +356,14 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        public void AddFlairInfo(string linkId, string opName)
+        {
+            if (!_linkToOpMap.ContainsKey(linkId))
+            {
+                _linkToOpMap.Add(linkId, opName);
+            }
+        }
+
         public async Task<Listing> GetAdditionalFromListing(string baseUrl, string after, int? limit)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 500;
@@ -390,7 +406,7 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
-        public virtual async void AddVote(string thingId, int direction)
+        public virtual async Task AddVote(string thingId, int direction)
         {
             var modhash = await GetCurrentModhash();
 
@@ -404,7 +420,7 @@ namespace BaconographyPortable.Model.Reddit
             var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/vote");
         }
 
-        public virtual async void AddSubredditSubscription(string subreddit, bool unsub)
+        public virtual async Task AddSubredditSubscription(string subreddit, bool unsub)
         {
             var modhash = await GetCurrentModhash();
 
@@ -420,7 +436,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe");
         }
 
-        public virtual async void AddSavedThing(string thingId)
+        public virtual async Task AddSavedThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/save";
@@ -434,7 +450,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async void AddReportOnThing(string thingId)
+        public virtual async Task AddReportOnThing(string thingId)
         {
             var modhash = await GetCurrentModhash();
             var targetUri = "http://www.reddit.com/api/report";
@@ -448,7 +464,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async void AddPost(string kind, string url, string subreddit, string title)
+        public virtual async Task AddPost(string kind, string url, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
 
@@ -465,7 +481,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
-        public virtual async void AddMessage(string recipient, string subject, string message)
+        public virtual async Task AddMessage(string recipient, string subject, string message)
         {
             var modhash = await GetCurrentModhash();
 
@@ -484,7 +500,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
-        public virtual async void AddComment(string parentId, string content)
+        public virtual async Task AddComment(string parentId, string content)
         {
             var modhash = await GetCurrentModhash();
 
