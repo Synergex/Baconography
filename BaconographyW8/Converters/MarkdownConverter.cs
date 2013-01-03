@@ -16,6 +16,7 @@ namespace BaconographyW8.Converters
     public class MarkdownConverter : IValueConverter
     {
         object bindingContext;
+        static int insertionLength = "<LineBreak/>".Length + "</Paragraph>".Length + "<Paragraph>".Length;
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (bindingContext == null)
@@ -37,7 +38,7 @@ namespace BaconographyW8.Converters
                     var markdown = SoldOut.MarkdownToXaml(startingText);
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length == 0) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
+                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
 
                     if (isSame)
                     {
@@ -56,6 +57,19 @@ namespace BaconographyW8.Converters
                             if (lastParagraph != -1)
                             {
                                 markdown = markdown.Substring(0, lastParagraph + "</Paragraph>".Length) + "<Paragraph>" + markdown.Substring(lastParagraph + "</Paragraph>".Length + 1) + "</Paragraph>";
+                            }
+                        }
+
+                        for (int lineBreakPos = markdown.IndexOf("<LineBreak/>", 0); lineBreakPos != -1 && lineBreakPos + "<LineBreak/>".Length + 1 < markdown.Length; lineBreakPos = markdown.IndexOf("<LineBreak/>", lineBreakPos + insertionLength))
+                        {
+                            //unfortnately the renderer doesnt really allow us to  wrap this in a paragrpah properly (For xaml)
+                            if (lineBreakPos > -1)
+                            {
+                                var paragraphEnding = markdown.LastIndexOf("</Paragraph>", lineBreakPos);
+                                if (paragraphEnding != -1)
+                                {
+                                    markdown = markdown.Insert(paragraphEnding + "</Paragraph>".Length, "<Paragraph>").Insert(lineBreakPos + "<Paragraph>".Length + "<LineBreak/>".Length, "</Paragraph>");
+                                }
                             }
                         }
                         var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"using:BaconographyW8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;

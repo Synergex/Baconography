@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button Grid.Row="0" Click="Button_Click_1" Style="{StaticResource ShowPreviewAppBarButtonStyle}"/>
+        <Button Grid.Row="0" Click="Button_Click_1" Style="{StaticResource ShowPreviewAppBarButtonStyle}" Margin="0,-13,0,-13"/>
         <ContentControl Grid.Row="1" MaxWidth="768" x:Name="contentControl"/>
     </Grid>
 </UserControl>

@@ -27,13 +27,14 @@ namespace BaconographyPortable.Services
         Task<Thing> GetLinkByUrl(string url);
         Task<Listing> GetAdditionalFromListing(string baseUrl, string after, int? limit);
         Task<TypedThing<Account>> GetAccountInfo(string accountName);
-        void AddVote(string thingId, int direction);
-        void AddSubredditSubscription(string subreddit, bool unsub);
-        void AddSavedThing(string thingId);
-        void AddReportOnThing(string thingId);
-        void AddPost(string kind, string url, string subreddit, string title);
-        void AddMessage(string recipient, string subject, string message);
-        void AddComment(string parentId, string content);
+        Task AddVote(string thingId, int direction);
+        Task AddSubredditSubscription(string subreddit, bool unsub);
+        Task AddSavedThing(string thingId);
+        Task AddReportOnThing(string thingId);
+        Task AddPost(string kind, string url, string subreddit, string title);
+        Task AddMessage(string recipient, string subject, string message);
+        Task AddComment(string parentId, string content);
+        void AddFlairInfo(string linkId, string opName);
 
         AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit);
     }

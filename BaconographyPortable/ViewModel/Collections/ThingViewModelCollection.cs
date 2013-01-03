@@ -121,12 +121,21 @@ namespace BaconographyPortable.ViewModel.Collections
             return state.ContainsKey("After") || state.ContainsKey("More");
         }
 
-        private Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        private async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
-                return _onlineListingProvider.GetInitialListing(state);
+            {
+                var result = await _onlineListingProvider.GetInitialListing(state);
+                //make sure we arent starting up in offline mode
+                if (_settingsService.IsOnline())
+                {
+                    return result;
+                }
+                else
+                    return await _offlineListingProvider.GetInitialListing(state);
+            }
             else
-                return _offlineListingProvider.GetInitialListing(state);
+                return await _offlineListingProvider.GetInitialListing(state);
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

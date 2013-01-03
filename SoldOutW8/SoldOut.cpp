@@ -340,7 +340,7 @@ rndr_triple_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 static void
 rndr_hrule(struct buf *ob, void *opaque) {
 	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<InlineUIContainer><Line HorizontalAlignment=\"Stretch\" Stretch=\"Fill\"/></InlineUIContainer>\n"); 
+	BUFPUTSL(ob, "<Paragraph><InlineUIContainer><Line HorizontalAlignment=\"Stretch\" Stretch=\"Fill\"/></InlineUIContainer></Paragraph>\n"); 
 }
 
 static int
