@@ -58,7 +58,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<User> Login(string username, string password)
         {
-            var loginUri = "http://www.reddit.com/api/login/" + username;
+            var loginUri = "http://www.reddit.com/api/login";
             var postContent = new Dictionary<string, string>
                 {
                     { "api_type", "json" },
@@ -108,7 +108,13 @@ namespace BaconographyPortable.Model.Reddit
             try
             {
                 var thingStr = await _simpleHttpService.UnAuthedGet(targetUri);
-                return JsonConvert.DeserializeObject<Thing>(thingStr);
+                if(thingStr.StartsWith("{\"kind\": \"Listing\""))
+                {
+                    var listing = JsonConvert.DeserializeObject<Listing>(thingStr);
+                    return listing.Data.Children.First();
+                }
+                else
+                    return JsonConvert.DeserializeObject<Thing>(thingStr);
             }
             catch (Exception ex)
             {
@@ -262,6 +268,7 @@ namespace BaconographyPortable.Model.Reddit
         {
             try
             {
+                var originalUrl = url;
                 url = url + ".json";
                 Listing listing = null;
                 var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
@@ -286,6 +293,7 @@ namespace BaconographyPortable.Model.Reddit
 
                     var result = MaybeFilterForNSFW(listing);
 
+                    ((Link)requestedLinkInfo.Data).Permalink = originalUrl;
                     _lastCommentsOnPostRequest = Tuple.Create(DateTime.Now, ((Link)requestedLinkInfo.Data).Subreddit, ((Link)requestedLinkInfo.Data).Permalink, result);
                     return requestedLinkInfo;
                 }

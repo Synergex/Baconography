@@ -165,7 +165,7 @@ namespace BaconographyW8.PlatformServices
                 if (filename.EndsWith(".gif"))
                     return Enumerable.Empty<Tuple<string, string>>();
 
-                if (filename.EndsWith(".jpg") || filename.EndsWith(".png"))
+                if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg"))
                     return new Tuple<string, string>[] { Tuple.Create(title, url) };
                 else
                 {
@@ -213,7 +213,7 @@ namespace BaconographyW8.PlatformServices
                 if (filename.EndsWith(".gif"))
                     return false;
 
-                if (filename.EndsWith(".jpg") || url.EndsWith(".png"))
+                if (filename.EndsWith(".jpg") || url.EndsWith(".png") || url.EndsWith(".jpeg"))
                     return true;
                 else
                 {

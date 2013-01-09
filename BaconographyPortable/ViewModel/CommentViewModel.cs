@@ -183,17 +183,31 @@ namespace BaconographyPortable.ViewModel
             IsExtended = !IsExtended;
         }
 
-        private void GotoContextImpl()
+        private async void GotoContextImpl()
         {
-            var commentTree = new SelectCommentTreeMessage { RootComment = _comment, Context = 3 };
-            _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
+            try
+            {
+                if (_comment.Data.ParentId == null)
+                    return;
+
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                var linkThing = new TypedThing<Link>(await _redditService.GetThingById(_comment.Data.LinkId));
+                var parentThing = await _redditService.GetLinkByUrl("http://www.reddit.com/" + linkThing.Data.Permalink + _comment.Data.ParentId.Substring(3));
+                var commentTree = new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(parentThing) };
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
+            }
+            catch (Exception ex)
+            {
+                _baconProvider.GetService<INotificationService>().CreateErrorNotification(ex);
+            }
         }
 
         private async void GotoFullLinkImpl()
         {
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var linkThing = await _redditService.GetThingById(_comment.Data.LinkId);
-            var commentTree = new SelectCommentTreeMessage { RootComment = _comment, Context = 3, LinkThing = new TypedThing<Link>(linkThing) };
+            var commentTree = new SelectCommentTreeMessage { Context = 3, LinkThing = new TypedThing<Link>(linkThing) };
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
         }

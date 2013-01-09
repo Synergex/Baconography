@@ -120,7 +120,7 @@ namespace Baconography.NeutralServices.KitaroDB
                     if (i++ > count)
                     {
                         //after type encoding
-                        targetListing.Data.After = "#l" + Encoding.UTF8.GetString(currentRecord, 0, 16);
+                        targetListing.Data.After = Encoding.UTF8.GetString(currentRecord, 0, 16);
                     }
 
                 }while(await cursor.MoveNextAsync());
@@ -164,12 +164,12 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             DBCursor linkCursor;
 
-            if (after != null && after.Length > 2)
+            if (after != null && after.Length > 0)
             {
                 var afterKeyspace = new byte[16];
 
-                for (int i = 0; i < 16 && i < after.Length + 10; i++)
-                    afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
+                for (int i = 0; i < 16 && i < after.Length; i++)
+                    afterKeyspace[i] = (byte)after[i]; //skip ahead past the after type identifier
 
                 linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
             }

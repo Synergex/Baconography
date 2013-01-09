@@ -253,8 +253,17 @@ namespace Baconography.NeutralServices
         public async Task StoreSetting(string name, string value)
         {
             await Initialize();
-
+            var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
+            if (cursor != null)
+            {
+                using (cursor)
+                {
+                    await cursor.DeleteAsync();
+                }
+            }
+            
             await _settingsDb.InsertAsync(name, value);
+           
         }
 
         public async Task<string> GetSetting(string name)
