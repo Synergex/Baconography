@@ -158,6 +158,11 @@
       <Name>BaconographyWP8Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="KitaroDBSDK_WP8, Version=1.1.0.0">
+      <Name>KitaroDB for Windows Phone 8</Name>
+    </SDKReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -118,6 +118,7 @@ namespace BaconographyWP8.PlatformServices
 
         public bool TileExists(string name)
         {
+            return false;
             //return SecondaryTile.Exists("r" + name);
         }
 

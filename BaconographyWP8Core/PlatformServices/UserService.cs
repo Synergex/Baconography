@@ -154,45 +154,45 @@ namespace BaconographyWP8.PlatformServices
                 }
             }
 
-            var passwordVault = new Windows.Security.Credentials.PasswordVault();
-            try
-            {
-                var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-                var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, username, StringComparison.CurrentCultureIgnoreCase) == 0);
-                if (matchingWindowsCredential != null)
-                {
-                    passwordVault.Remove(matchingWindowsCredential);
-                }
-            }
-            catch
-            {
-            }
+            //var passwordVault = new Windows.Security.Credentials.PasswordVault();
+            //try
+            //{
+            //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
+            //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, username, StringComparison.CurrentCultureIgnoreCase) == 0);
+            //    if (matchingWindowsCredential != null)
+            //    {
+            //        passwordVault.Remove(matchingWindowsCredential);
+            //    }
+            //}
+            //catch
+            //{
+            //}
         }
 
         private void AddOrUpdateWindowsCredential(UserCredential existingCredential, string password)
         {
-            var passwordVault = new Windows.Security.Credentials.PasswordVault();
-            try
-            {
-                var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-                var matchingWindowsCredential = windowsCredentials.FirstOrDefault(credential => string.Compare(credential.UserName, existingCredential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
-                if (matchingWindowsCredential != null)
-                {
-                    matchingWindowsCredential.RetrievePassword();
-                    if (matchingWindowsCredential.Password != password)
-                    {
-                        passwordVault.Remove(matchingWindowsCredential);
-                    }
-                    else
-                        passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-                }
-                else
-                    passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-            }
-            catch
-            {
-                passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-            }
+            //var passwordVault = new Windows.Security.Credentials.PasswordVault();
+            //try
+            //{
+            //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
+            //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(credential => string.Compare(credential.UserName, existingCredential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
+            //    if (matchingWindowsCredential != null)
+            //    {
+            //        matchingWindowsCredential.RetrievePassword();
+            //        if (matchingWindowsCredential.Password != password)
+            //        {
+            //            passwordVault.Remove(matchingWindowsCredential);
+            //        }
+            //        else
+            //            passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
+            //    }
+            //    else
+            //        passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
+            //}
+            //catch
+            //{
+            //    passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
+            //}
         }
 
         private Task<List<UserCredential>> _storedCredentials;
@@ -225,20 +225,20 @@ namespace BaconographyWP8.PlatformServices
             else
             {
                 //we dont currently posses a valid login cookie, see if windows has a stored credential we can use for this username
-                var passwordVault = new Windows.Security.Credentials.PasswordVault();
-                try
-                {
-                    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-                    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, credential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
-                    if (matchingWindowsCredential != null)
-                    {
-                        matchingWindowsCredential.RetrievePassword();
-                        return await _redditService.Login(matchingWindowsCredential.UserName, matchingWindowsCredential.Password);
-                    }
-                }
-                catch
-                {
-                }
+                //var passwordVault = new Windows.Security.Credentials.PasswordVault();
+                //try
+                //{
+                //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
+                //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, credential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
+                //    if (matchingWindowsCredential != null)
+                //    {
+                //        matchingWindowsCredential.RetrievePassword();
+                //        return await _redditService.Login(matchingWindowsCredential.UserName, matchingWindowsCredential.Password);
+                //    }
+                //}
+                //catch
+                //{
+                //}
             }
             return null;
         }
