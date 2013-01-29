@@ -93,6 +93,20 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\AlternatingColorConverter.cs" />
+    <Compile Include="Converters\AuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
+    <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\ColorBrightnessConverter.cs" />
+    <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\ExtendedCommentConverter.cs" />
+    <Compile Include="Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Converters\MarkdownConverter.cs" />
+    <Compile Include="Converters\PortableAsyncCollectionConverter.cs" />
+    <Compile Include="Converters\PreviewDataConverter.cs" />
+    <Compile Include="Converters\ReplyConverter.cs" />
+    <Compile Include="Converters\TimeRelationConverter.cs" />
+    <Compile Include="Converters\VisitedLinkConverter.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -103,6 +117,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="StaticCommands.cs" />
+    <Compile Include="ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -157,11 +173,37 @@
       <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
       <Name>BaconographyWP8Core</Name>
     </ProjectReference>
+    <Reference Include="GalaSoft.MvvmLight, Version=4.0.23.23876, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platforms.WP75">
+      <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.Platforms.WP75.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="KitaroDBSDK_WP8, Version=1.1.0.0">
       <Name>KitaroDB for Windows Phone 8</Name>
     </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PlatformServices\" />
+    <Folder Include="View\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
