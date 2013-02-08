@@ -45,7 +45,7 @@
                     <Grid>
                         <TextBlock Text="{Binding Title}" Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
                         <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
-                            <Image Source="{Binding Url}"/>
+                            <Image Source="{Binding ImageSource}"/>
                         </Viewbox>
                     </Grid>
                 </DataTemplate>

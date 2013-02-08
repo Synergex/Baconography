@@ -11,7 +11,7 @@ namespace BaconographyPortable.ViewModel
     {
         public class LinkedPicture
         {
-            public string Url { get; set; }
+            public object ImageSource { get; set; }
             public string Title { get; set; }
             public bool IsAlbum { get; set; }
         }
@@ -66,5 +66,6 @@ namespace BaconographyPortable.ViewModel
                 return Pictures != null && Pictures.Count() > 1;
             }
         }
+        
     }
 }
