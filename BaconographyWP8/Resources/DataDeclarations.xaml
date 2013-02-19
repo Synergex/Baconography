@@ -1,0 +1,30 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:BaconographyPortable.ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:BaconographyWP8.Converters"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:main="clr-namespace:BaconographyWP8"
+    mc:Ignorable="d">
+
+    <main:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
+    <main:StaticCommands x:Key="StaticCommands" />
+
+    <converters:AuthorFlairKindConverter x:Key="authorFlairKindConverter"/>
+    <converters:TimeRelationConverter x:Key="timeRelationConverter"/>
+    <converters:InvertBooleanConverter x:Key="invertBooleanConverter"/>
+    <converters:BooleanVisibilityConverter x:Key="booleanVisibilityConverter"/>
+    <converters:InvertedBooleanVisibilityConverter x:Key="invertBooleanVisibilityConverter"/>
+    <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
+    <converters:DepthColorConverter x:Key="depthColorConverter"/>
+    <converters:IntegerAdditionConverter x:Key="integerAdditionConverter"/>
+    <converters:MarkdownConverter x:Key="markdownConverter"/>
+    <converters:ReplyConverter x:Key="replyConverter"/>
+    <converters:ExtendedCommentConverter x:Key="extendedCommentConverter"/>
+    <converters:PreviewDataConverter x:Key="previewDataConverter"/>
+    <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
+    <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
+
+</ResourceDictionary>

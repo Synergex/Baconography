@@ -93,12 +93,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Common\DataTemplateSelector.cs" />
+    <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
     <Compile Include="Converters\AuthorFlairKindConverter.cs" />
     <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\IntegerAdditonConverter.cs" />
+    <Compile Include="Converters\DepthColorConverter.cs" />
     <Compile Include="Converters\ExtendedCommentConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />
     <Compile Include="Converters\MarkdownConverter.cs" />
@@ -111,6 +115,7 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PlatformServices\DynamicViewLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -119,6 +124,39 @@
     </Compile>
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="View\CommentsView.xaml.cs">
+      <DependentUpon>CommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CommentView.xaml.cs">
+      <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExtendedCommentView.xaml.cs">
+      <DependentUpon>ExtendedCommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ImagePreviewWithButtonView.xaml.cs">
+      <DependentUpon>ImagePreviewWithButtonView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkView.xaml.cs">
+      <DependentUpon>LinkView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MoreCommentsView.xaml.cs">
+      <DependentUpon>MoreCommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PicturePreviewView.xaml.cs">
+      <DependentUpon>PicturePreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\RedditView.xaml.cs">
+      <DependentUpon>RedditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoadIndicatorView.xaml.cs">
+      <DependentUpon>LoadIndicatorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ReplyView.xaml.cs">
+      <DependentUpon>ReplyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\VotableView.xaml.cs">
+      <DependentUpon>VotableView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -128,6 +166,55 @@
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedCommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ImagePreviewWithButtonView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LinkView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MoreCommentsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PicturePreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RedditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoadIndicatorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\DataDeclarations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="View\ReplyView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\VotableView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +260,10 @@
       <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
       <Name>BaconographyWP8Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
+      <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>
+      <Name>SoldOutWP8</Name>
+    </ProjectReference>
     <Reference Include="GalaSoft.MvvmLight, Version=4.0.23.23876, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.dll</HintPath>
@@ -186,6 +277,7 @@
     <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Phone.Controls, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -201,10 +293,7 @@
       <Name>KitaroDB for Windows Phone 8</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PlatformServices\" />
-    <Folder Include="View\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

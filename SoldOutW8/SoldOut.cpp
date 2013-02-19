@@ -6,7 +6,11 @@
 #include <functional>
 #include <cctype>
 
+#ifndef WP8
 using namespace SoldOutW8;
+#else
+using namespace SoldOutWP8;
+#endif
 using namespace Platform;
 
 bool has_ending (std::string const &fullString, std::string const &ending)
@@ -134,7 +138,11 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
+#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -146,7 +154,11 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	}
 	else
 	{
+#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -257,7 +269,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
+#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -270,7 +286,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	else
 	{
 		if (!link || !link->size) return 0;
+#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
+#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);

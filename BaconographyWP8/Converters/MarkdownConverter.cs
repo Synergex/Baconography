@@ -1,5 +1,5 @@
 ﻿using BaconographyPortable.ViewModel;
-using SoldOutW8;
+using SoldOutWP8;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Markup;
 
 namespace BaconographyWP8.Converters
 {
@@ -39,7 +42,7 @@ namespace BaconographyWP8.Converters
 
                     if (isSame)
                     {
-                        var rtb = new RichTextBlock();
+                        var rtb = new RichTextBox();
                         var pp = new Paragraph();
                         pp.Inlines.Add(new Run { Text = startingText } );
                         rtb.Blocks.Add(pp);
@@ -69,14 +72,14 @@ namespace BaconographyWP8.Converters
                                 }
                             }
                         }
-                        var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"using:BaconographyW8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
+						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"clr-namespace:BaconographyWP8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBox>", markdown)) as RichTextBox;
                         uiElement.DataContext = bindingContext;
                         return uiElement;
                     }
                 }
                 catch
                 {
-                    var rtb = new RichTextBlock();
+					var rtb = new RichTextBox();
                     var pp = new Paragraph();
                     pp.Inlines.Add(new Run { Text = value as string });
                     rtb.Blocks.Add(pp);

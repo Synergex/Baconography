@@ -77,10 +77,13 @@ namespace BaconographyWP8.PlatformServices
 
             if (postResult.StatusCode == HttpStatusCode.OK)
             {
-                using (var sr = new StreamReader(postResult.GetResponseStream()))
+                return await Task<string>.Run(() =>
                 {
-                    return sr.ReadToEnd();
-                }
+                    using (var sr = new StreamReader(postResult.GetResponseStream()))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                });
             }
             else
                 throw new Exception(postResult.StatusCode.ToString());
@@ -102,10 +105,13 @@ namespace BaconographyWP8.PlatformServices
 
             if (getResult.StatusCode == HttpStatusCode.OK)
             {
-                using (var sr = new StreamReader(getResult.GetResponseStream()))
-                {
-                    return sr.ReadToEnd();
-                }
+                return await Task<string>.Run(() =>
+                    {
+                        using (var sr = new StreamReader(getResult.GetResponseStream()))
+                        {
+                            return sr.ReadToEnd();
+                        }
+                    });
             }
             else
                 throw new Exception(getResult.StatusCode.ToString());
@@ -130,10 +136,13 @@ namespace BaconographyWP8.PlatformServices
 
             if (getResult.StatusCode == HttpStatusCode.OK)
             {
-                using (var sr = new StreamReader(getResult.GetResponseStream()))
+                return await Task<string>.Run(() =>
                 {
-                    return sr.ReadToEnd();
-                }
+                    using (var sr = new StreamReader(getResult.GetResponseStream()))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                });
             }
             else
                 throw new Exception(getResult.StatusCode.ToString());

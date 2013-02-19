@@ -3,6 +3,7 @@ using BaconographyPortable.ViewModel;
 using BaconographyWP8.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,12 @@ namespace BaconographyWP8.Converters
     {
         IImagesService _imagesService;
         ISystemServices _systemServices;
-        public PreviewDataConverter(IBaconProvider baconProvider)
+        public PreviewDataConverter()
         {
+			var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             _imagesService = baconProvider.GetService<IImagesService>();
             _systemServices = baconProvider.GetService<ISystemServices>();
-        }
+        }	
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -29,13 +31,13 @@ namespace BaconographyWP8.Converters
                 return new PicturePreviewView { DataContext = new PreviewImageViewModelWrapper(_imagesService.GetImagesFromUrl("", tpl.Item2), _systemServices) };
             else
                 return null;
-
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
         }
+		
         public class PreviewImageViewModelWrapper : ViewModelBase
         {
             List<Tuple<string, string>> _finishedImages;

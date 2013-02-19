@@ -30,6 +30,7 @@ namespace BaconographyPortable.Model.Reddit
         public IThingData Data { get; set; }
     }
 
+	[JsonConverter(typeof(TypedThingDataConverter))]
     public class TypedThing<T> : Thing where T : class ,IThingData
     {
         public TypedThing(Thing thing)
@@ -40,6 +41,7 @@ namespace BaconographyPortable.Model.Reddit
             Kind = thing.Kind;
             base.Data = thing.Data;
         }
+		[JsonProperty("data")]
         public new T Data
         {
             get
@@ -51,5 +53,12 @@ namespace BaconographyPortable.Model.Reddit
                 base.Data = value;
             }
         }
+
+		//[JsonConstructor()]
+		public TypedThing(string kind, T data)
+		{
+			base.Kind = kind;
+			base.Data = data;
+		}
     }
 }

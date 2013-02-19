@@ -19,8 +19,11 @@ namespace BaconographyWP8.PlatformServices
 
         public async Task<User> GetUser()
         {
-            if (!_initTask.IsCompleted)
-                await _initTask;
+            //if (!_initTask.IsCompleted)
+            //    await _initTask;
+
+			if(_currentUser == null)
+				_currentUser = CreateAnonUser();
 
             return _currentUser;
         }

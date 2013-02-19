@@ -7,7 +7,7 @@ using System.Windows.Data;
 
 namespace BaconographyWP8.Converters
 {
-    class TimeRelationConverter : IValueConverter
+    public class TimeRelationConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -35,7 +35,7 @@ namespace BaconographyWP8.Converters
         /// <summary>
         /// from Kirk Woll http://stackoverflow.com/questions/4638993/difference-in-months-between-two-dates
         /// </summary>
-        public struct DateTimeSpan
+        internal struct DateTimeSpan
         {
             private readonly int years;
             private readonly int months;

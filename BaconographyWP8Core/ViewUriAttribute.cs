@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BaconographyWP8Core
 {
     [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-    sealed class ViewUriAttribute : Attribute
+    public sealed class ViewUriAttribute : Attribute
     {
         // See the attribute guidelines at 
         //  http://go.microsoft.com/fwlink/?LinkId=85236

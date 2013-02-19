@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,34 +39,41 @@ namespace BaconographyWP8
 
         static ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
+			try
+			{
+				ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
-            SimpleIoc.Default.Register<IBaconProvider>(() => _baconProvider);
+				SimpleIoc.Default.Register<IBaconProvider>(() => _baconProvider);
 
-            SimpleIoc.Default.Register<RedditViewModel>();
-            SimpleIoc.Default.Register<LoginViewModel>();
-            SimpleIoc.Default.Register<LoadIndicatorViewModel>();
-            SimpleIoc.Default.Register<LinkedWebViewModel>();
-            SimpleIoc.Default.Register<SubredditsViewModel>();
-            SimpleIoc.Default.Register<AboutUserViewModel>();
-            SimpleIoc.Default.Register<FileOpenPickerViewModel>();
-            SimpleIoc.Default.Register<SearchResultsViewModel>();
-            SimpleIoc.Default.Register<ContentPreferencesViewModel>();
-            SimpleIoc.Default.Register<RedditPickerViewModel>();
-            SimpleIoc.Default.Register<SearchQueryViewModel>();
-            SimpleIoc.Default.Register<VisitedLinkConverter>();
-            SimpleIoc.Default.Register<VisitedMainLinkConverter>();
-            SimpleIoc.Default.Register<PreviewDataConverter>();
-            
+				SimpleIoc.Default.Register<RedditViewModel>();
+				SimpleIoc.Default.Register<LoginViewModel>();
+				SimpleIoc.Default.Register<LoadIndicatorViewModel>();
+				SimpleIoc.Default.Register<LinkedWebViewModel>();
+				SimpleIoc.Default.Register<SubredditsViewModel>();
+				SimpleIoc.Default.Register<AboutUserViewModel>();
+				SimpleIoc.Default.Register<FileOpenPickerViewModel>();
+				SimpleIoc.Default.Register<SearchResultsViewModel>();
+				SimpleIoc.Default.Register<ContentPreferencesViewModel>();
+				SimpleIoc.Default.Register<RedditPickerViewModel>();
+				SimpleIoc.Default.Register<SearchQueryViewModel>();
+				SimpleIoc.Default.Register<VisitedLinkConverter>();
+				SimpleIoc.Default.Register<VisitedMainLinkConverter>();
+				SimpleIoc.Default.Register<PreviewDataConverter>();
 
-            if (DesignMode.DesignModeEnabled)
-            {
-                var dynamicViewLocator = new DynamicViewLocator();
-                var baconProvider = new BaconProvider();
-                baconProvider.Initialize(null).Wait();
-                baconProvider.AddService(typeof(IDynamicViewLocator), dynamicViewLocator);
-                Initialize(baconProvider);
-            }
+
+				if (DesignerProperties.IsInDesignTool)
+				{
+					var dynamicViewLocator = new DynamicViewLocator();
+					var baconProvider = new BaconProvider();
+					baconProvider.Initialize(null).Wait();
+					baconProvider.AddService(typeof(IDynamicViewLocator), dynamicViewLocator);
+					Initialize(baconProvider);
+				}
+			}
+			catch
+			{
+				System.Diagnostics.Debug.WriteLine("uhh, something happend, ignore it");
+			}
         }
 
         public PreviewDataConverter PreviewData

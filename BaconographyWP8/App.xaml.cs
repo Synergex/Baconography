@@ -3,10 +3,13 @@ using System.Diagnostics;
 using System.Resources;
 using System.Windows;
 using System.Windows.Markup;
-using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BaconographyWP8.Resources;
+using BaconographyPortable.Services;
+using BaconographyWP8.PlatformServices;
+using System.Windows.Controls;
+using System.Windows.Navigation;
 
 namespace BaconographyWP8
 {
@@ -18,6 +21,9 @@ namespace BaconographyWP8
         /// <returns>The root frame of the Phone Application.</returns>
         public static PhoneApplicationFrame RootFrame { get; private set; }
 
+		private BaconProvider _baconProvider;
+		private NavigationServices navigator;
+
         /// <summary>
         /// Constructor for the Application object.
         /// </summary>
@@ -25,6 +31,9 @@ namespace BaconographyWP8
         {
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
+
+			// Bacon-specific initialization
+			InitializeBacon();
 
             // Standard XAML initialization
             InitializeComponent();
@@ -34,6 +43,9 @@ namespace BaconographyWP8
 
             // Language display initialization
             InitializeLanguage();
+
+			navigator = new NavigationServices();
+			navigator.Init(RootFrame);
 
             // Show graphics profiling information while debugging.
             if (Debugger.IsAttached)
@@ -57,10 +69,39 @@ namespace BaconographyWP8
 
         }
 
+		private void InitializeBacon()
+		{
+			if (_baconProvider == null)
+			{
+				_baconProvider = new BaconProvider();
+				_baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
+
+				_baconProvider.Initialize(RootFrame);
+
+				ViewModelLocator.Initialize(_baconProvider);
+			}
+			else
+			{
+				_baconProvider.Initialize(RootFrame);
+			}
+		}
+
         // Code to execute when the application is launching (eg, from Start)
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
+			InitializeBacon();
+
+			if (RootFrame.Content == null)
+			{
+				// When the navigation stack isn't restored navigate to the first page,
+				// configuring the new page by passing required information as a navigation
+				// parameter
+				/*if (!navigator.Navigate(_baconProvider.GetService<IDynamicViewLocator>().RedditView, null))
+				{
+					throw new Exception("Failed to create initial page");
+				}*/
+			}
         }
 
         // Code to execute when the application is activated (brought to foreground)

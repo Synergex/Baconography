@@ -7,12 +7,13 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace BaconographyWP8.Converters
 {
-    class PortableAsyncCollectionConverter : IValueConverter
+    public class PortableAsyncCollectionConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -24,28 +25,26 @@ namespace BaconographyWP8.Converters
             throw new NotImplementedException();
         }
 
-        class PortableAsyncCollectionWrapper : ISupportIncrementalLoading, ICollection, IList, INotifyCollectionChanged, INotifyPropertyChanged
+        class PortableAsyncCollectionWrapper : /*ISupportIncrementalLoading,*/ ICollection, IList, INotifyCollectionChanged, INotifyPropertyChanged
         {
             PortableISupportIncrementalLoad _collection;
             public PortableAsyncCollectionWrapper(PortableISupportIncrementalLoad collection)
             {
                 _collection = collection;
+                _collection.LoadMoreItemsAsync(30).ConfigureAwait(true);
+                //Task.Run(() => _collection.LoadMoreItemsAsync(30));
             }
+
+			public async Task Refresh()
+			{
+				await _collection.LoadMoreItemsAsync(30);
+			}
 
             public bool HasMoreItems
             {
                 get { return _collection.HasMoreItems; }
             }
-
-            public Windows.Foundation.IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
-            {
-                return LoadMoreItemsAsyncImpl(count).AsAsyncOperation();
-            }
-
-            private async Task<LoadMoreItemsResult> LoadMoreItemsAsyncImpl(uint count)
-            {
-                return new LoadMoreItemsResult { Count = (uint)await _collection.LoadMoreItemsAsync(count) };
-            }
+			
 
             public void CopyTo(Array array, int index)
             {

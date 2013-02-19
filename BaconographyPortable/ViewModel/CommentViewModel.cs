@@ -28,7 +28,7 @@ namespace BaconographyPortable.ViewModel
         private bool _isExtended;
         string _linkId;
 
-        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting)
+        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting, int depth = 0)
         {
             _isMinimized = false;
             _comment = new TypedThing<Comment>(comment);
@@ -39,6 +39,7 @@ namespace BaconographyPortable.ViewModel
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _linkId = linkId;
             OddNesting = oddNesting;
+			Depth = depth;
             AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
             _showExtendedView = new RelayCommand(ShowExtendedViewImpl);
             _gotoReply = new RelayCommand(GotoReplyImpl);
@@ -62,6 +63,8 @@ namespace BaconographyPortable.ViewModel
                 return _votable;
             }
         }
+
+		public int Depth { get; set; }
 
         AuthorFlairKind AuthorFlair { get; set; }
 
@@ -235,7 +238,7 @@ namespace BaconographyPortable.ViewModel
                 ReplyData = null;
             else
                 ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
-                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting)));
+                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting, Depth + 1)));
         }
 
     }

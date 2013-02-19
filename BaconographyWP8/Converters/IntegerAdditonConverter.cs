@@ -7,18 +7,24 @@ using System.Windows.Data;
 
 namespace BaconographyWP8.Converters
 {
-    public class InvertBooleanConverter : IValueConverter
+    public class IntegerAdditionConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            bool original = (bool)value;
-            return !original;
+			int original = (int)value;
+			int plusval = 1;
+			if (parameter != null)
+				plusval = (int)parameter;
+			return original + plusval;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            bool original = (bool)value;
-            return !original;
+			int original = (int)value;
+			int plusval = 1;
+			if (parameter != null)
+				plusval = (int)parameter;
+			return original - plusval;
         }
     }
 }

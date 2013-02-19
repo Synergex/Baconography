@@ -57,7 +57,7 @@ namespace BaconographyWP8
                 {
                     _showLogin = new RelayCommand(() =>
                     {
-                        var flyout = new SettingsFlyout();
+                        /*var flyout = new SettingsFlyout();
                         flyout.Content = new LoginView();
                         flyout.HeaderText = "Login";
                         flyout.IsOpen = true;
@@ -74,6 +74,7 @@ namespace BaconographyWP8
 
                         _isTypeToSearch = App.GetSearchKeyboard();
                         App.SetSearchKeyboard(false);
+						 */
                     });
                 }
                 return _showLogin;

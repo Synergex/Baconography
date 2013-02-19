@@ -76,10 +76,14 @@ namespace BaconographyPortable.ViewModel.Collections
             else if (thing.Data is Comment)
             {
                 var oddNesting = false;
-                if(parent is CommentViewModel)
-                    oddNesting = !((CommentViewModel)parent).OddNesting;
+				var depth = 0;
+				if (parent is CommentViewModel)
+				{
+					oddNesting = !((CommentViewModel)parent).OddNesting;
+					depth = ((CommentViewModel)parent).Depth + 1;
+				}
 
-                var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting);
+				var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
                 commentViewModel.Replies = new ObservableCollection<ViewModelBase>(MapListing(((Comment)thing.Data).Replies, commentViewModel));
                 return commentViewModel;
             }

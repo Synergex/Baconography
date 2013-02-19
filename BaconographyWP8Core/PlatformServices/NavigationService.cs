@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyWP8Core;
 using GalaSoft.MvvmLight.Messaging;
@@ -16,7 +17,7 @@ using Windows.System;
 namespace BaconographyWP8.PlatformServices
 {
     //threw on an 's' to avoid naming conflicts in very common namespaces
-    class NavigationServices : INavigationService
+    public class NavigationServices : INavigationService
     {
         Frame _frame;
         public void Init(Frame frame)
@@ -46,7 +47,8 @@ namespace BaconographyWP8.PlatformServices
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-                var targetUri = parameter != null ? new Uri(uriAttribute._targetUri + Uri.EscapeDataString(JsonConvert.SerializeObject(parameter))) : new Uri(uriAttribute._targetUri);
+
+				var targetUri = parameter != null ? new Uri(uriAttribute._targetUri + "?data=" + Uri.EscapeDataString(JsonConvert.SerializeObject(parameter)), UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
                 return _frame.Navigate(targetUri);
             }
             else
