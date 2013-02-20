@@ -124,6 +124,9 @@
     <Compile Include="..\neutralservices\OfflineService.cs">
       <Link>NeutralServices\OfflineService.cs</Link>
     </Compile>
+    <Compile Include="..\NeutralServices\VideoService.cs">
+      <Link>NeutralServices\VideoService.cs</Link>
+    </Compile>
     <Compile Include="Common\Flyout.cs" />
     <Compile Include="Common\SettingsFlyout.cs" />
     <Compile Include="PlatformServices\BaconProvider.cs" />

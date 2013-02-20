@@ -146,7 +146,7 @@ namespace BaconographyW8.Converters
                     else
                     {
                         var result = _finishedImages != null && _finishedImages.Count > _currentPosition ? _finishedImages[_currentPosition].Item2 : "";
-                        return null; ;
+                        return result;
                     }
                 }
             }

@@ -97,6 +97,7 @@
     <Compile Include="Services\ISimpleHttpService.cs" />
     <Compile Include="Services\ISystemServices.cs" />
     <Compile Include="Services\IUserService.cs" />
+    <Compile Include="Services\IVideoService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="ViewModel\SubredditsViewModel.cs" />
     <Compile Include="ViewModel\AboutSubredditViewModel.cs" />
     <Compile Include="ViewModel\VotableViewModel.cs" />
+    <Compile Include="ViewModel\WebVideoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

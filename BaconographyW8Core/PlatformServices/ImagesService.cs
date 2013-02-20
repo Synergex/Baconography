@@ -23,20 +23,23 @@ namespace BaconographyW8.PlatformServices
             localFileName = Path.GetFileName(localFileName);
             
             var destinationFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(localPath, CreationCollisionOption.OpenIfExists);
-            var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.ReplaceExisting);
 
-            BackgroundDownloader backgroundDownloader = new BackgroundDownloader();
-            var download = backgroundDownloader.CreateDownload(fileUri, outFile);
-            try
+            var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.OpenIfExists);
+            if((await outFile.GetBasicPropertiesAsync()).Size == 0)
             {
-                download.CostPolicy = BackgroundTransferCostPolicy.Always;
-                var downloadTask = download.StartAsync();
-                await downloadTask;
-            }
-            catch
-            {
-            }
+                BackgroundDownloader backgroundDownloader = new BackgroundDownloader();
+                var download = backgroundDownloader.CreateDownload(fileUri, outFile);
+                try
+                {
+                    download.CostPolicy = BackgroundTransferCostPolicy.Always;
+                    var downloadTask = download.StartAsync();
+                    await downloadTask;
+                }
+                catch
+                {
+                }
 
+            }
             return outFile;
         }
 

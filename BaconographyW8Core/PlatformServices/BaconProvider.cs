@@ -28,6 +28,7 @@ namespace BaconographyW8.PlatformServices
             var navigationService = new NavigationService();
             var webViewWrapper = new WebViewWrapper();
             var userService = new UserService();
+            var videoService = new VideoService(simpleHttpService, notificationService, settingsService);
 
             _services = new Dictionary<Type, object>
             {
@@ -41,7 +42,8 @@ namespace BaconographyW8.PlatformServices
                 {typeof(ISystemServices), systemServices},
                 {typeof(INavigationService), navigationService},
                 {typeof(IWebViewWrapper), webViewWrapper},
-                {typeof(IUserService), userService}
+                {typeof(IUserService), userService},
+                {typeof(IVideoService), videoService}
             };
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);
@@ -55,6 +57,7 @@ namespace BaconographyW8.PlatformServices
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);
             SimpleIoc.Default.Register<IWebViewWrapper>(() => webViewWrapper);
             SimpleIoc.Default.Register<IUserService>(() => userService);
+            SimpleIoc.Default.Register<IVideoService>(() => videoService);
 
             redditService.Initialize(GetService<ISettingsService>(), 
                 GetService<IOfflineService>(), 
