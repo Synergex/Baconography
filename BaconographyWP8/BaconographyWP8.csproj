@@ -159,6 +159,9 @@
     <Compile Include="View\ReplyView.xaml.cs">
       <DependentUpon>ReplyView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ScalingPictureView.xaml.cs">
+      <DependentUpon>ScalingPictureView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\VotableView.xaml.cs">
       <DependentUpon>VotableView.xaml</DependentUpon>
     </Compile>
@@ -223,6 +226,10 @@
     <Page Include="View\ReplyView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScalingPictureView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\VotableView.xaml">
       <Generator>MSBuild:Compile</Generator>

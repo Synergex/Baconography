@@ -23,13 +23,7 @@
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
-                            <Image x:Name="image" ManipulationDelta="Image_ManipulationDelta" Source="{Binding ImageSource}">
-                                <Image.RenderTransform>
-                                    <CompositeTransform CenterX="100" CenterY="75" />
-                                </Image.RenderTransform>
-                            </Image>
-                        </Viewbox>
+                        <local:ScalingPictureView ImageSource="{Binding ImageSource}" />
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
