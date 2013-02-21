@@ -53,11 +53,12 @@ namespace BaconographyPortable.ViewModel.Collections
             var remainingVMs = MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(200), true)));
+            _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(1000), true)));
         }
 
         IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
         {
+            
             if (listing == null)
                 return Enumerable.Empty<ViewModelBase>();
             else
