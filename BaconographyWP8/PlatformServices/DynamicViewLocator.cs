@@ -22,7 +22,7 @@ namespace BaconographyWP8.PlatformServices
 
         public Type LinkedWebView
         {
-			get { throw new NotImplementedException(); }
+			get { return null; }
         }
 
         public Type CommentsView

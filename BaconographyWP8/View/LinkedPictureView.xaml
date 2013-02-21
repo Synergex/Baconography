@@ -31,11 +31,11 @@
             </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Left" VerticalAlignment="Top"
+                          Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}">
                         <local:PivotCountIndicator 
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
-                            SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
-                            Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                            SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"/>
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.TitleTemplate>

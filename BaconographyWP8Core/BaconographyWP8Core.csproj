@@ -103,6 +103,9 @@
     <Compile Include="..\neutralservices\OfflineService.cs">
       <Link>NeutralServices\OfflineService.cs</Link>
     </Compile>
+    <Compile Include="..\NeutralServices\VideoService.cs">
+      <Link>NeutralServices\VideoService.cs</Link>
+    </Compile>
     <Compile Include="PlatformServices\BaconProvider.cs" />
     <Compile Include="PlatformServices\ImageAPI\Deviantart.cs" />
     <Compile Include="PlatformServices\ImageAPI\Flickr.cs" />

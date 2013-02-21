@@ -4,6 +4,7 @@ using BaconographyPortable.Services;
 using BaconographyWP8Core;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Tasks;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -44,10 +45,18 @@ namespace BaconographyWP8.PlatformServices
 
         public bool Navigate(Type source, object parameter = null)
         {
+			if (parameter is NavigateToUrlMessage)
+			{
+				var targetUri = new Uri((parameter as NavigateToUrlMessage).TargetUrl, UriKind.Absolute);
+				WebBrowserTask webTask = new WebBrowserTask();
+				webTask.Uri = targetUri;
+				webTask.Show();
+				return true;
+			}
+
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-
 				var targetUri = parameter != null ? new Uri(uriAttribute._targetUri + "?data=" + Uri.EscapeDataString(JsonConvert.SerializeObject(parameter)), UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
                 return _frame.Navigate(targetUri);
             }
