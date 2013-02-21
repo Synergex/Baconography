@@ -8,8 +8,7 @@
     xmlns:local="clr-namespace:BaconographyWP8.View"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d" SupportedOrientations="PortraitOrLandscape"
-    OrientationChanged="pageRoot_OrientationChanged">
+    mc:Ignorable="d" SupportedOrientations="PortraitOrLandscape">
     <UserControl.Resources>
         <DataTemplate x:Key="ImagePivotHeaderTemplate">
             <Grid Height="0"/>
@@ -25,7 +24,11 @@
                 <DataTemplate>
                     <Grid>
                         <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
-                            <Image Source="{Binding ImageSource}"/>
+                            <Image x:Name="image" ManipulationDelta="Image_ManipulationDelta" Source="{Binding ImageSource}">
+                                <Image.RenderTransform>
+                                    <CompositeTransform CenterX="100" CenterY="75" />
+                                </Image.RenderTransform>
+                            </Image>
                         </Viewbox>
                     </Grid>
                 </DataTemplate>
