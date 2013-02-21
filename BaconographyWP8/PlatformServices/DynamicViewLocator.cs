@@ -17,7 +17,7 @@ namespace BaconographyWP8.PlatformServices
 
         public Type LinkedPictureView
         {
-			get { throw new NotImplementedException(); }
+			get { return typeof(LinkedPictureView); }
         }
 
         public Type LinkedWebView

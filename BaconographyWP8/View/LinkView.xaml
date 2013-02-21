@@ -41,7 +41,7 @@
 
             <Button Command="{Binding NavigateToComments}" CommandParameter="{Binding}"
                     Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
-                >
+                &gt;
             </Button>
         </Grid>
 

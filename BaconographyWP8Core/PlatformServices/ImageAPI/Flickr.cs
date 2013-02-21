@@ -30,10 +30,13 @@ namespace Baconography.PlatformServices.ImageAPI
                 string jsonResult;
                 using (var response = (await SimpleHttpService.GetResponseAsync(request)))
                 {
-                    using (var sr = new StreamReader(response.GetResponseStream()))
-                    {
-                        jsonResult = sr.ReadToEnd();
-                    }
+					jsonResult = await Task<string>.Run(() =>
+					{
+						using (var sr = new StreamReader(response.GetResponseStream()))
+						{
+							return sr.ReadToEnd();
+						}
+					});
                 }
                 
                 dynamic result = JsonConvert.DeserializeObject(jsonResult);

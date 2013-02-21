@@ -94,6 +94,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\DataTemplateSelector.cs" />
+    <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
     <Compile Include="Converters\AuthorFlairKindConverter.cs" />
@@ -136,6 +137,9 @@
     <Compile Include="View\ImagePreviewWithButtonView.xaml.cs">
       <DependentUpon>ImagePreviewWithButtonView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedPictureView.xaml.cs">
+      <DependentUpon>LinkedPictureView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LinkView.xaml.cs">
       <DependentUpon>LinkView.xaml</DependentUpon>
     </Compile>
@@ -156,6 +160,9 @@
     </Compile>
     <Compile Include="View\VotableView.xaml.cs">
       <DependentUpon>VotableView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PivotCountIndicator.xaml.cs">
+      <DependentUpon>PivotCountIndicator.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +187,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\ImagePreviewWithButtonView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LinkedPictureView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -215,6 +226,10 @@
     <Page Include="View\VotableView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PivotCountIndicator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

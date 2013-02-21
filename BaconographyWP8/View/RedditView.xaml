@@ -6,6 +6,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:res="clr-namespace:BaconographyWP8.Resources"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
@@ -15,19 +16,23 @@
     DataContext="{Binding Reddit, Source={StaticResource Locator}}">
     
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <phone:LongListSelector Name="linksView"
+        <common:FixedLongListSelector Name="linksView"
                 Background="Black"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
+                SelectedItem="{Binding Mode=TwoWay, Path=SelectedLink}"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
                 Loaded="linksView_Loaded">
-            <phone:LongListSelector.ItemTemplate>
+            <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
-                    <local:LinkView  />
+                    <StackPanel>
+                        <local:LinkView  />
+                        <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,0,0,3"/>
+                    </StackPanel>
                 </DataTemplate>
-            </phone:LongListSelector.ItemTemplate>
-        </phone:LongListSelector>
+            </common:FixedLongListSelector.ItemTemplate>
+        </common:FixedLongListSelector>
     </Grid>
 </UserControl>
