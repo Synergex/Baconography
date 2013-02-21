@@ -173,7 +173,15 @@ namespace BaconographyPortable.Model.Reddit
             try
             {
                 var comments = await _simpleHttpService.UnAuthedGet(targetUri);
-                return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                //error page
+                if (comments.ToLower().StartsWith("<!doctype html>"))
+                {
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+                }
+                else
+                {
+                    return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                }
             }
             catch (Exception ex)
             {
@@ -207,6 +215,14 @@ namespace BaconographyPortable.Model.Reddit
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
+
+            if (subreddit == null)
+            {
+                //this isnt the front page, that would be "/"
+                //return empty since there isnt anything here
+                _notificationService.CreateNotification("There doesnt seem to be anything here");
+                return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+            }
 
             var targetUri = string.Format("http://www.reddit.com{0}.json?limit={1}", subreddit, guardedLimit);
             try

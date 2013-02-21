@@ -87,8 +87,16 @@ namespace BaconographyPortable.Common
                 }
                 else
                 {
-                    //its not an image url we can understand so whatever it is just show it in the browser
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
+                    if (videoResults != null)
+                    {
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+                    }
+                    else
+                    {
+                        //its not an image/video url we can understand so whatever it is just show it in the browser
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    }
                 }
             }
         }

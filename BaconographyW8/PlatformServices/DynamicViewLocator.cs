@@ -25,6 +25,11 @@ namespace BaconographyW8.PlatformServices
             get { return typeof(LinkedWebView); }
         }
 
+        public Type LinkedVideoView
+        {
+            get { return typeof(LinkedVideoView); }
+        }
+
         public Type CommentsView
         {
             get { return typeof(CommentsView); }

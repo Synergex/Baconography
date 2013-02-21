@@ -23,20 +23,23 @@ namespace BaconographyW8.PlatformServices
             localFileName = Path.GetFileName(localFileName);
             
             var destinationFolder = await Windows.Storage.ApplicationData.Current.LocalFolder.CreateFolderAsync(localPath, CreationCollisionOption.OpenIfExists);
-            var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.ReplaceExisting);
 
-            BackgroundDownloader backgroundDownloader = new BackgroundDownloader();
-            var download = backgroundDownloader.CreateDownload(fileUri, outFile);
-            try
+            var outFile = await destinationFolder.CreateFileAsync(localFileName, CreationCollisionOption.OpenIfExists);
+            if((await outFile.GetBasicPropertiesAsync()).Size == 0)
             {
-                download.CostPolicy = BackgroundTransferCostPolicy.Always;
-                var downloadTask = download.StartAsync();
-                await downloadTask;
-            }
-            catch
-            {
-            }
+                BackgroundDownloader backgroundDownloader = new BackgroundDownloader();
+                var download = backgroundDownloader.CreateDownload(fileUri, outFile);
+                try
+                {
+                    download.CostPolicy = BackgroundTransferCostPolicy.Always;
+                    var downloadTask = download.StartAsync();
+                    await downloadTask;
+                }
+                catch
+                {
+                }
 
+            }
             return outFile;
         }
 
@@ -162,10 +165,10 @@ namespace BaconographyW8.PlatformServices
 
                 string filename = Path.GetFileName(uri.LocalPath);
 
-                if (filename.EndsWith(".gif"))
-                    return Enumerable.Empty<Tuple<string, string>>();
+                //if (filename.EndsWith(".gif"))
+                //    return Enumerable.Empty<Tuple<string, string>>();
 
-                if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg"))
+                if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg") || filename.EndsWith(".gif"))
                     return new Tuple<string, string>[] { Tuple.Create(title, url) };
                 else
                 {
@@ -210,10 +213,8 @@ namespace BaconographyW8.PlatformServices
                 var uri = new Uri(url);
 
                 string filename = Path.GetFileName(uri.LocalPath);
-                if (filename.EndsWith(".gif"))
-                    return false;
 
-                if (filename.EndsWith(".jpg") || url.EndsWith(".png") || url.EndsWith(".jpeg"))
+                if (filename.EndsWith(".jpg") || url.EndsWith(".png") || url.EndsWith(".jpeg") || url.EndsWith(".gif"))
                     return true;
                 else
                 {
