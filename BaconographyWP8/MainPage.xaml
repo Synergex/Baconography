@@ -77,7 +77,7 @@
         <phone:Pivot Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Padding="0">
             <phone:PivotItem CacheMode="{x:Null}" Header="front page">
                 <Grid>
-                    <local:RedditView />
+                    <local:RedditView x:Name="redditView" />
                 </Grid>
             </phone:PivotItem>
             <phone:PivotItem CacheMode="{x:Null}" Header="funny">

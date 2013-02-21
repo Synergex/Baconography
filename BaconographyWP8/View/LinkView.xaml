@@ -17,37 +17,41 @@
             <ColumnDefinition Width="100" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="35" />
-            <RowDefinition Height="25" />
-            <RowDefinition MinHeight="0"  MaxHeight="800" />
+            
         </Grid.RowDefinitions>
-        <TextBlock Grid.Column="0" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
-        <StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-            <TextBlock FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-            <TextBlock FontSize="15" Text=" by " />
-            <TextBlock FontSize="15" Text="{Binding Author}" />
-            <TextBlock FontSize="15" Text=" in " />
-            <TextBlock FontSize="15" Text="{Binding Subreddit}" />
-        </StackPanel>
+        <Button Grid.Column="0" BorderThickness="0" Margin="0" Padding="0" HorizontalContentAlignment="Left"
+                Command="{Binding NavigateToComments}" CommandParameter="{Binding}" FontFamily="Segoe WP" >
+            <Button.Content>
+                <StackPanel>
+                    <TextBlock  Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <StackPanel Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
+                        <TextBlock FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
+                        <TextBlock FontSize="15" Text=" by " />
+                        <TextBlock FontSize="15" Text="{Binding Author}" />
+                        <TextBlock FontSize="15" Text=" in " />
+                        <TextBlock FontSize="15" Text="{Binding Subreddit}" />
+                    </StackPanel>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+        
 
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
-            <Button BorderThickness="0" Margin="0" Padding="0" Command="{Binding ShowPreview}" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
-                <Button.Content>
-                    <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                    </Border>
-                </Button.Content>
-            </Button>
+            <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
+            </Border>
 
-            <Button Command="{Binding NavigateToComments}" CommandParameter="{Binding}"
+            <Border Height="70" Width="70"
                     Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
-                &gt;
-            </Button>
+                <TextBlock FontFamily="Segoe UI Symbol" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
+            </Border>
         </Grid>
 
+        <!--
         <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
             <ContentControl Content="{Binding PreviewPack, Converter={StaticResource previewDataConverter}}"/>
-        </Grid>
+        </Grid>-->
         
     </Grid>
 

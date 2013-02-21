@@ -24,6 +24,7 @@
     <converters:ReplyConverter x:Key="replyConverter"/>
     <converters:ExtendedCommentConverter x:Key="extendedCommentConverter"/>
     <converters:PreviewDataConverter x:Key="previewDataConverter"/>
+    <converters:LinkGlyphConverter x:Key="linkGlyphConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
 

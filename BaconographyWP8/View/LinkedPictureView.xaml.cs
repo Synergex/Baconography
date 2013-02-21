@@ -53,5 +53,20 @@ namespace BaconographyWP8.View
 			((LinkedPictureViewModel)DataContext).Cleanup();
 		}
 
+		private void pageRoot_OrientationChanged(object sender, OrientationChangedEventArgs e)
+		{
+			PageOrientation orientation = e.Orientation; 
+ 
+			if ((orientation & PageOrientation.Landscape) == PageOrientation.Landscape ) 
+			{ 
+
+			} 
+			else if ((orientation & PageOrientation.Portrait) == PageOrientation.Portrait) 
+			{ 
+
+			} 
+		}
+
+		
     }
 }
