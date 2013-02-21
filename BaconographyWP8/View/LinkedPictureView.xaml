@@ -24,7 +24,7 @@
                 <DataTemplate>
                     <Grid>
                         <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
-                            <Image Source="{Binding Url}"/>
+                            <Image Source="{Binding ImageSource}"/>
                         </Viewbox>
                     </Grid>
                 </DataTemplate>
