@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,16 @@ namespace BaconographyW8.View
         public PicturePreviewView()
         {
             this.InitializeComponent();
+            this.Unloaded += PicturePreviewView_Unloaded;
         }
+
+        void PicturePreviewView_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is BaconographyW8.Converters.PreviewDataConverter.PreviewImageViewModelWrapper)
+            {
+                ((ViewModelBase)DataContext).Cleanup();
+            }
+        }
+        
     }
 }

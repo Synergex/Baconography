@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace BaconographyPortable.Model.Reddit
     {
     }
 
+    [DataContract]
     public class ThingData : IThingData
     {
         [JsonProperty("id")]
@@ -19,7 +21,7 @@ namespace BaconographyPortable.Model.Reddit
         [JsonProperty("name")]
         public string Name { get; set; }
     }
-
+    [DataContract]
     [JsonConverter(typeof(ThingDataConverter))]
     public class Thing
     {
@@ -30,6 +32,8 @@ namespace BaconographyPortable.Model.Reddit
         public IThingData Data { get; set; }
     }
 
+    [DataContract]
+	[JsonConverter(typeof(TypedThingDataConverter))]
     public class TypedThing<T> : Thing where T : class ,IThingData
     {
         public TypedThing(Thing thing)
@@ -40,6 +44,7 @@ namespace BaconographyPortable.Model.Reddit
             Kind = thing.Kind;
             base.Data = thing.Data;
         }
+		[JsonProperty("data")]
         public new T Data
         {
             get
@@ -51,5 +56,12 @@ namespace BaconographyPortable.Model.Reddit
                 base.Data = value;
             }
         }
+
+		//[JsonConstructor()]
+		public TypedThing(string kind, T data)
+		{
+			base.Kind = kind;
+			base.Data = data;
+		}
     }
 }

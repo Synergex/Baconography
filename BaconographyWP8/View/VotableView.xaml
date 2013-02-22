@@ -1,0 +1,47 @@
+﻿<UserControl
+    x:Class="BaconographyWP8.View.VotableView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="50"
+    d:DesignWidth="25">
+
+
+    <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="15" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="15" />
+        </Grid.RowDefinitions>
+        <ToggleButton Grid.Row="0" FontFamily="Segoe UI Symbol" BorderThickness="0"
+                          Foreground="Black" VerticalAlignment="Stretch"
+                          HorizontalAlignment="Stretch">
+            <Grid>
+                <ContentPresenter HorizontalAlignment="Stretch" Margin="-16,-26,0,0" VerticalAlignment="Stretch">
+                    <TextBlock FontSize="16" FontWeight="Medium">
+                                &#xE010;
+                    </TextBlock>
+                </ContentPresenter>
+            </Grid>
+        </ToggleButton>
+        <TextBlock Grid.Row="1" VerticalAlignment="Center">
+                1628
+        </TextBlock>
+        <ToggleButton Grid.Row="2" FontFamily="Segoe UI Symbol" BorderThickness="0"
+                          Foreground="Black" VerticalAlignment="Stretch"
+                          HorizontalAlignment="Stretch">
+            <Grid>
+                <ContentPresenter HorizontalAlignment="Stretch" Margin="-16,-29,0,0" VerticalAlignment="Stretch">
+                    <TextBlock FontSize="16" FontWeight="Medium">
+                                &#xE011;
+                    </TextBlock>
+                </ContentPresenter>
+            </Grid>
+        </ToggleButton>
+    </Grid>
+</UserControl>

@@ -127,7 +127,7 @@ namespace BaconographyW8.PlatformServices
 
         // Generate a tile using the text provided (typically a link title). If an image is provided,
         // we use the correct WinRT template. Otherwise, just the text wrap template.
-        private async Task CreateTile(string text, Uri smallIamge, Uri largeImage)
+        private async Task CreateTile(string text, Uri smallImage, Uri largeImage)
         {
             text = text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&apos;");
 
@@ -143,19 +143,28 @@ namespace BaconographyW8.PlatformServices
             if (largeImage != null)
             {
                 largeImageFile = (await _imagesService.SaveFileFromUriAsync(largeImage, largeImage.LocalPath, "liveTiles")) as StorageFile;
-                var imageProperties = await largeImageFile.Properties.GetImagePropertiesAsync();
-                var imageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
-                largeImageIsTall = imageRatio < .9;
-                largeImageIsWide = imageRatio > 1.34;
+
+                if(largeImageFile != null)
+                {
+                    var imageProperties = await largeImageFile.Properties.GetImagePropertiesAsync();
+                    var imageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
+                    largeImageIsTall = imageRatio < .9;
+                    largeImageIsWide = imageRatio > 1.34;
+                }
             }
 
-            if (smallIamge != null)
+            if (smallImage != null)
             {
-                smallImageFile = (await _imagesService.SaveFileFromUriAsync(smallIamge, smallIamge.LocalPath, "liveTiles")) as StorageFile;
-                var imageProperties = await smallImageFile.Properties.GetImagePropertiesAsync();
-                var smallImageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
-                smallImageIsTall = smallImageRatio < .9;
-                smallImageIsWide = smallImageRatio > 1.34;
+                smallImageFile = (await _imagesService.SaveFileFromUriAsync(smallImage, smallImage.LocalPath, "liveTiles")) as StorageFile;
+
+                if (smallImageFile != null)
+                {
+                    smallImageFile = (await _imagesService.SaveFileFromUriAsync(smallImage, smallImage.LocalPath, "liveTiles")) as StorageFile;
+                    var imageProperties = await smallImageFile.Properties.GetImagePropertiesAsync();
+                    var smallImageRatio = ((double)imageProperties.Width / (double)imageProperties.Height);
+                    smallImageIsTall = smallImageRatio < .9;
+                    smallImageIsWide = smallImageRatio > 1.34;
+                }
             }
 
             string tileXmlString = null;

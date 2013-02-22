@@ -170,33 +170,44 @@ namespace BaconographyPortable.ViewModel
                             if (_settingsService.IsOnline())
                             {
                                 Working = true;
-                                var loggedInUser = await _userService.TryLogin(Username, Password);
-                                if (loggedInUser == null)
+                                try
+                                {
+                                    var loggedInUser = await _userService.TryLogin(Username, Password);
+                                    if (loggedInUser == null)
+                                    {
+                                        HasErrors = true;
+                                        Working = false;
+                                    }
+                                    else
+                                    {
+                                        HasErrors = false;
+                                        Working = false;
+                                        if (IsRememberLogin)
+                                        {
+                                            var newCredentials = new UserCredential
+                                            {
+                                                IsDefault = IsDefaultLogin,
+                                                LoginCookie = loggedInUser.LoginCookie,
+                                                Username = loggedInUser.Username,
+                                                Me = new Thing { Kind = "t2", Data = loggedInUser.Me }
+                                            };
+                                            await _userService.AddStoredCredential(newCredentials, Password);
+                                            //reload credentials
+                                            _credentials = null;
+                                            RaisePropertyChanged("Credentials");
+                                        }
+
+                                        MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
+
+                                    }
+                                }
+                                catch
                                 {
                                     HasErrors = true;
                                     Working = false;
-                                }
-                                else
-                                {
-                                    HasErrors = false;
-                                    Working = false;
-                                    if (IsRememberLogin)
-                                    {
-                                        var newCredentials = new UserCredential
-                                        {
-                                            IsDefault = IsDefaultLogin,
-                                            LoginCookie = loggedInUser.LoginCookie,
-                                            Username = loggedInUser.Username,
-                                            Me = new Thing { Kind = "t2", Data = loggedInUser.Me }
-                                        };
-                                        await _userService.AddStoredCredential(newCredentials, Password);
-                                        //reload credentials
-                                        _credentials = null;
-                                        RaisePropertyChanged("Credentials");
-                                    }
 
-                                    MessengerInstance.Send<CloseSettingsMessage>(new CloseSettingsMessage());
-
+                                    if(!_settingsService.IsOnline())
+                                        _notificationService.CreateNotification("Login functionality not available in offline mode");
                                 }
                             }
                             else

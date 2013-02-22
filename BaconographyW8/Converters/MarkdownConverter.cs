@@ -81,7 +81,12 @@ namespace BaconographyW8.Converters
                 {
                     var rtb = new RichTextBlock();
                     var pp = new Paragraph();
-                    pp.Inlines.Add(new Run { Text = value as string });
+
+                    var semiCleanText = value as string;
+                    if(semiCleanText != null)
+                        semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+
+                    pp.Inlines.Add(new Run { Text = semiCleanText });
                     rtb.Blocks.Add(pp);
                     return rtb;
                 }

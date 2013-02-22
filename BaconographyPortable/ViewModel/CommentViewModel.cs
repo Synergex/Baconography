@@ -28,7 +28,7 @@ namespace BaconographyPortable.ViewModel
         private bool _isExtended;
         string _linkId;
 
-        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting)
+        public CommentViewModel(IBaconProvider baconProvider, Thing comment, string linkId, bool oddNesting, int depth = 0)
         {
             _isMinimized = false;
             _comment = new TypedThing<Comment>(comment);
@@ -39,6 +39,7 @@ namespace BaconographyPortable.ViewModel
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _linkId = linkId;
             OddNesting = oddNesting;
+			Depth = depth;
             AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
             _showExtendedView = new RelayCommand(ShowExtendedViewImpl);
             _gotoReply = new RelayCommand(GotoReplyImpl);
@@ -62,6 +63,8 @@ namespace BaconographyPortable.ViewModel
                 return _votable;
             }
         }
+
+		public int Depth { get; set; }
 
         AuthorFlairKind AuthorFlair { get; set; }
 
@@ -183,17 +186,31 @@ namespace BaconographyPortable.ViewModel
             IsExtended = !IsExtended;
         }
 
-        private void GotoContextImpl()
+        private async void GotoContextImpl()
         {
-            var commentTree = new SelectCommentTreeMessage { RootComment = _comment, Context = 3 };
-            _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
+            try
+            {
+                if (_comment.Data.ParentId == null)
+                    return;
+
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                var linkThing = new TypedThing<Link>(await _redditService.GetThingById(_comment.Data.LinkId));
+                var parentThing = await _redditService.GetLinkByUrl("http://www.reddit.com/" + linkThing.Data.Permalink + _comment.Data.ParentId.Substring(3));
+                var commentTree = new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(parentThing) };
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
+            }
+            catch (Exception ex)
+            {
+                _baconProvider.GetService<INotificationService>().CreateErrorNotification(ex);
+            }
         }
 
         private async void GotoFullLinkImpl()
         {
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var linkThing = await _redditService.GetThingById(_comment.Data.LinkId);
-            var commentTree = new SelectCommentTreeMessage { RootComment = _comment, Context = 3, LinkThing = new TypedThing<Link>(linkThing) };
+            var commentTree = new SelectCommentTreeMessage { Context = 3, LinkThing = new TypedThing<Link>(linkThing) };
             MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _navigationService.Navigate(_dynamicViewLocator.CommentsView, commentTree);
         }
@@ -221,7 +238,7 @@ namespace BaconographyPortable.ViewModel
                 ReplyData = null;
             else
                 ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
-                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting)));
+                            (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting, Depth + 1)));
         }
 
     }

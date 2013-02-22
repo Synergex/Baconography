@@ -18,6 +18,8 @@
     <ValidateXaml>true</ValidateXaml>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -83,6 +85,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\neutralservices\kitarodb\Comments.cs">
+      <Link>NeutralServices\KitaroDB\Comments.cs</Link>
+    </Compile>
+    <Compile Include="..\neutralservices\kitarodb\Links.cs">
+      <Link>NeutralServices\KitaroDB\Links.cs</Link>
+    </Compile>
+    <Compile Include="..\neutralservices\kitarodb\Subreddits.cs">
+      <Link>NeutralServices\KitaroDB\Subreddits.cs</Link>
+    </Compile>
+    <Compile Include="..\neutralservices\kitarodb\Thumbnails.cs">
+      <Link>NeutralServices\KitaroDB\Thumbnails.cs</Link>
+    </Compile>
+    <Compile Include="..\NeutralServices\OfflineDelayableRedditService.cs">
+      <Link>NeutralServices\OfflineDelayableRedditService.cs</Link>
+    </Compile>
+    <Compile Include="..\neutralservices\OfflineService.cs">
+      <Link>NeutralServices\OfflineService.cs</Link>
+    </Compile>
+    <Compile Include="..\NeutralServices\VideoService.cs">
+      <Link>NeutralServices\VideoService.cs</Link>
+    </Compile>
     <Compile Include="PlatformServices\BaconProvider.cs" />
     <Compile Include="PlatformServices\ImageAPI\Deviantart.cs" />
     <Compile Include="PlatformServices\ImageAPI\Flickr.cs" />
@@ -101,6 +124,7 @@
     <Compile Include="PlatformServices\UserService.cs" />
     <Compile Include="PlatformServices\WebViewWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewUriAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaconographyPortable\BaconographyPortable.csproj">
@@ -136,9 +160,15 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="KitaroDBSDK_WP8, Version=1.1.0.0">
+      <Name>KitaroDB for Windows Phone 8</Name>
+    </SDKReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
