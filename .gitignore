@@ -63,6 +63,9 @@ AppPackages/
 *.vspscc
 .builds
 *.dotCover
+*.lastbuildstate
+*.unsuccessfulbuild
+*.tlog
 
 ## NuGet Package Restore
 packages/

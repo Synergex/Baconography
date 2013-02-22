@@ -30,6 +30,10 @@ namespace BaconographyW8.View
         {
             if (showing)
             {
+                if (contentControl.Content != null && contentControl.Content is PicturePreviewView && ((PicturePreviewView)contentControl.Content).DataContext is BaconographyW8.Converters.PreviewDataConverter.PreviewImageViewModelWrapper)
+                {
+                    ((BaconographyW8.Converters.PreviewDataConverter.PreviewImageViewModelWrapper)((PicturePreviewView)contentControl.Content).DataContext).Cleanup();
+                }
                 contentControl.Content = null;
                 showing = false;
             }

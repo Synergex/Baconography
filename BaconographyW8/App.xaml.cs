@@ -5,6 +5,7 @@ using BaconographyW8.Common;
 using BaconographyW8.PlatformServices;
 using BaconographyW8.View;
 using BaconographyW8BackgroundTask;
+using DXRenderInterop;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
@@ -149,6 +150,8 @@ namespace BaconographyW8
             var deferral = e.SuspendingOperation.GetDeferral();
 
             await _baconProvider.GetService<IOfflineService>().Suspend();
+
+            GifRenderer.Suspended = true;
 
             deferral.Complete();
         }

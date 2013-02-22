@@ -36,9 +36,25 @@ namespace BaconographyPortable.Common
         {
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             var navigationService = baconProvider.GetService<INavigationService>();
-            
 
-            if (_commentsPageRegex.IsMatch(str) && !_commentRegex.IsMatch(str))
+            if (_commentRegex.IsMatch(str))
+            {
+                var lastSlash = str.LastIndexOf('/');
+                var commentRoot = str.Remove(lastSlash);
+                var targetLinkThing = await baconProvider.GetService<IRedditService>().GetLinkByUrl(str);
+                await baconProvider.GetService<IOfflineService>().StoreHistory(commentRoot);
+                if (targetLinkThing != null)
+                {
+                    var typedLinkThing = new TypedThing<Link>(targetLinkThing);
+                    typedLinkThing.Data.Permalink = str;
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
+                }
+                else
+                {
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                }
+            }
+            else if (_commentsPageRegex.IsMatch(str))
             {
                 var targetLinkThing = await baconProvider.GetService<IRedditService>().GetLinkByUrl(str);
                 if (targetLinkThing != null)
@@ -87,8 +103,16 @@ namespace BaconographyPortable.Common
                 }
                 else
                 {
-                    //its not an image url we can understand so whatever it is just show it in the browser
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
+                    if (videoResults != null)
+                    {
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+                    }
+                    else
+                    {
+                        //its not an image/video url we can understand so whatever it is just show it in the browser
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    }
                 }
             }
         }

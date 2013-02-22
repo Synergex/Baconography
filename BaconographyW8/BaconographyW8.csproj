@@ -14,6 +14,9 @@
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>BaconographyW8_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <PackageCertificateThumbprint>B012B40554F33FAE8FDCE0E419B0B3F4527D3D05</PackageCertificateThumbprint>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -268,6 +271,8 @@
     <Page Include="View\ImagePreviewWithButtonView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\LinkedPictureView.xaml">
       <SubType>Designer</SubType>
@@ -342,6 +347,10 @@
     <ProjectReference Include="..\BaconographyW8Core\BaconographyW8Core.csproj">
       <Project>{aafe0904-dfe5-4fe8-bffd-3facae48ced9}</Project>
       <Name>BaconographyW8Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DXRenderInterop\DXRenderInterop.vcxproj">
+      <Project>{93f2fa2a-cee4-45cd-88f8-1224f6af2e6f}</Project>
+      <Name>DXRenderInterop</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
       <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>

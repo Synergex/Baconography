@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    >
     
     <Grid>
         <Grid.RowDefinitions>
@@ -27,7 +28,7 @@
         </StackPanel>
         <ProgressRing Grid.Row="2" IsActive="{Binding IsLoading}"/>
         <Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly">
-            <Image Source="{Binding Url}"/>
+            <Image Source="{Binding ImageSource}"/>
         </Viewbox>
     </Grid>
 </UserControl>

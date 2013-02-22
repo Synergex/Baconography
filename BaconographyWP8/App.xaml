@@ -7,7 +7,8 @@
 
     <!--Application Resources-->
     <Application.Resources>
-        <local:LocalizedStrings xmlns:local="clr-namespace:BaconographyWP8" x:Key="LocalizedStrings"/>
+        <!--<local:LocalizedStrings xmlns:local="clr-namespace:BaconographyWP8" x:Key="LocalizedStrings"/>-->
+        <ResourceDictionary Source="Resources/DataDeclarations.xaml"/>
     </Application.Resources>
 
     <Application.ApplicationLifetimeObjects>
