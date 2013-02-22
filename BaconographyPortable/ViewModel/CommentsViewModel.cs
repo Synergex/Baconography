@@ -43,12 +43,13 @@ namespace BaconographyPortable.ViewModel
         public override void Cleanup()
         {
             base.Cleanup();
-            Comments.Clear();
-            Comments.Dispose();
+            if (Comments != null)
+            {
+                Comments.Clear();
+                Comments.Dispose();
+            }
             Comments = null;
             _linkThing = null;
-            //we've just thrown away a very expensive object with lots of unmanaged resources (the view bindings)
-            GC.Collect(3, GCCollectionMode.Forced, false);
         }
 
         private void OnComentTreeSelection(SelectCommentTreeMessage msg)
