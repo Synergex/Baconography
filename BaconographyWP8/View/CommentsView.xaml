@@ -42,11 +42,11 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Column="0" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
                     <StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                        <TextBlock FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <TextBlock FontSize="15" Text=" by " />
-                        <TextBlock FontSize="15" Text="{Binding Author}" />
-                        <TextBlock FontSize="15" Text=" in " />
-                        <TextBlock FontSize="15" Text="{Binding Subreddit}" />
+                        <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
+                        <TextBlock Foreground="Gray" FontSize="15" Text=" by " />
+                        <TextBlock Foreground="Goldenrod" FontSize="15" Text="{Binding Author}" />
+                        <TextBlock Foreground="Gray" FontSize="15" Text=" in " />
+                        <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Subreddit}" />
                     </StackPanel>
 
                     <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">

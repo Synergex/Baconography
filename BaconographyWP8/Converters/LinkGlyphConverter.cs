@@ -2,6 +2,7 @@
 using BaconographyPortable.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,13 +33,32 @@ namespace BaconographyWP8.Converters
 			if (linkViewModel == null)
 				return WebGlyph;
 
-			if (linkViewModel.Subreddit == "videos")
-				return VideoGlyph;
-
 			if (linkViewModel.IsSelfPost)
 				return DetailsGlyph;
 
-			if (linkViewModel.HasThumbnail || linkViewModel.HasPreview)
+			var uri = new Uri(linkViewModel.Url);
+			var filename = Path.GetFileName(uri.LocalPath);
+			var targetHost = uri.DnsSafeHost.ToLower();
+
+			if (linkViewModel.Subreddit == "videos" ||
+				targetHost == "www.youtube.com" ||
+				targetHost == "youtube.com")
+				return VideoGlyph;
+
+			if (targetHost == "www.imgur.com" ||
+				targetHost == "imgur.com" ||
+				targetHost == "i.imgur.com" ||
+				targetHost == "min.us" ||
+				targetHost == "www.quickmeme.com" ||
+				targetHost == "i.qkme.me" ||
+				targetHost == "quickmeme.com" ||
+				targetHost == "qkme.me" ||
+				targetHost == "memecrunch.com" ||
+				targetHost == "flickr.com" ||
+				filename.EndsWith(".jpg") ||
+				filename.EndsWith(".gif") ||
+				filename.EndsWith(".png") ||
+				filename.EndsWith(".jpeg"))
 				return PhotoGlyph;
 
 			return WebGlyph;

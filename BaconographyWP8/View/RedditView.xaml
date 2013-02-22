@@ -24,7 +24,8 @@
                 HorizontalContentAlignment="Stretch"
                 SelectedItem="{Binding Mode=TwoWay, Path=SelectedLink}"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
-                Loaded="linksView_Loaded">
+                Loaded="linksView_Loaded"
+                ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
