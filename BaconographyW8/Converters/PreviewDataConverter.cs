@@ -181,7 +181,7 @@ namespace BaconographyW8.Converters
 
                     RaisePropertyChanged("CurrentPosition");
                     RaisePropertyChanged("Title");
-                    RaisePropertyChanged("Url");
+                    RaisePropertyChanged("ImageSource");
                 }
             }
 
