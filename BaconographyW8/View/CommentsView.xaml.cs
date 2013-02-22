@@ -68,6 +68,9 @@ namespace BaconographyW8.View
             UnregisterShareSourceContract();
             Content = null;
             ((CommentsViewModel)DataContext).Cleanup();
+            DataContext = null;
+            //we've just thrown away a very expensive object with lots of unmanaged resources (the view bindings)
+            GC.Collect(3, GCCollectionMode.Forced, false);
         }
 
         /// <summary>

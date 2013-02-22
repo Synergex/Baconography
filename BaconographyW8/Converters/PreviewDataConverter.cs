@@ -61,7 +61,7 @@ namespace BaconographyW8.Converters
                 base.Cleanup();
                 foreach (GifRenderer img in _imageSources.Values)
                     img.Visible = false;
-                
+                _imageSources.Clear();
             }
 
             private async Task<byte[]> DownloadImageFromWebsiteAsync(string url)

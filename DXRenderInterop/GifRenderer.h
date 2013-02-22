@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <wincodec.h>
-
+#include <collection.h>
 #include "windows.ui.xaml.media.dxinterop.h"
 
 namespace DXRenderInterop
@@ -35,6 +35,7 @@ namespace DXRenderInterop
 		uint32_t delay;
 		DISPOSAL_METHODS disposal;
 		Microsoft::WRL::ComPtr<ID2D1Bitmap> rawFrame;
+		Microsoft::WRL::ComPtr<ID2D1Bitmap> preRendered;
 		CComPtr<IWICBitmapFrameDecode> decodeFrame;
 	};
 
@@ -48,10 +49,48 @@ namespace DXRenderInterop
 			bool get() { return _timer->IsEnabled; }
 			void set(bool value) 
 			{ 
+				unsigned int index = 0;
 				if(value && !_timer->IsEnabled)
+				{
+					_activeRenderers->Append(this);
 					_timer->Start();
+				}
 				else if(!value && _timer->IsEnabled)
+				{
+					if(_activeRenderers->IndexOf(this, &index))
+					{
+						_activeRenderers->RemoveAt(index);
+					}
 					_timer->Stop();
+					_sisNative->SetDevice(nullptr);
+					_d2dContext->SetTarget(nullptr);
+					_d2dContext = nullptr;
+					_sisNative = nullptr;
+					_gifDecoder = nullptr;
+					_frames.clear();
+				}
+			}
+		}
+
+		static property bool Suspended
+		{
+			bool get() { return _suspended;}
+			void set(bool value) 
+			{ 
+				_suspended = value; 
+				if(_suspended == true)
+				{
+					for(auto renderer : _activeRenderers)
+						renderer->_timer->Stop();
+				}
+				else
+				{
+					for(auto renderer : _activeRenderers)
+					{
+						if(renderer->Visible)
+							renderer->_timer->Start();
+					}
+				}
 			}
 		}
 
@@ -60,21 +99,19 @@ namespace DXRenderInterop
 			Visible = false;
 		}
     private:
+
+
 		void RenderFrame(Platform::Object^ sender, Platform::Object^ arg);
-		GifRenderer(CComPtr<IWICBitmapDecoder>& gifDecoder, CComPtr<IWICImagingFactory>& wicFactory, D2D1::ColorF& backgroundColor, UINT width, UINT height, int loopCount, bool hasLoop);
-		static IStream* createIStreamFromArray(const Platform::Array<std::uint8_t>^ data);
+		GifRenderer(CComPtr<IWICBitmapDecoder>& gifDecoder, D2D1::ColorF& backgroundColor, UINT width, UINT height, int loopCount, bool hasLoop);
+		static void createIStreamFromArray(const Platform::Array<std::uint8_t>^ data, IStream** result);
 
         void CreateDeviceResources();
-
+		static bool _suspended;
+		static Platform::Collections::Vector<GifRenderer^>^  _activeRenderers;
 		Microsoft::WRL::ComPtr<ISurfaceImageSourceNative>   _sisNative;
-        // Direct3D device
-        Microsoft::WRL::ComPtr<ID3D11Device>                _d3dDevice;
-
-        // Direct2D objects
-        Microsoft::WRL::ComPtr<ID2D1Device>                 _d2dDevice;
+        
         Microsoft::WRL::ComPtr<ID2D1DeviceContext>          _d2dContext;
 		CComPtr<IWICBitmapDecoder>							_gifDecoder;
-		CComPtr<IWICImagingFactory>							_wicFactory;
 		Windows::UI::Xaml::DispatcherTimer^					_timer;
 
         int                                                 _width;
@@ -89,7 +126,7 @@ namespace DXRenderInterop
 		void DrawRawFrame(GifFrame& frame);
 		void BeginDraw(Windows::Foundation::Rect updateRect);
         void BeginDraw()    { BeginDraw(Windows::Foundation::Rect(0, 0, (float)_width, (float)_height)); }
-        void EndDraw();
+		void EndDraw();
 
         void SetDpi(float dpi);
 
