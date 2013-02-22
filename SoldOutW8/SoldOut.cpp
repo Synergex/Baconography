@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <cctype>
+#include <ppl.h>
 
 #ifndef WP8
 using namespace SoldOutW8;
@@ -12,6 +13,7 @@ using namespace SoldOutW8;
 using namespace SoldOutWP8;
 #endif
 using namespace Platform;
+using namespace Concurrency;
 
 bool has_ending (std::string const &fullString, std::string const &ending)
 {
@@ -437,20 +439,25 @@ static const unsigned int snudown_default_md_flags =
 	MKDEXT_STRIKETHROUGH |
 	MKDEXT_TABLES;
 
+critical_section markdownCriticalSection;
+sd_markdown* markdownProcessor = nullptr;
+
 Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 {
 	try
 	{
+		critical_section::scoped_lock markdownLock(markdownCriticalSection);
 		auto ib = bufnew(1024);
 		auto ob = bufnew(64);
 
 		toBufString(source, ib);
 
-		auto markdownProc = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
+		if(markdownProcessor == nullptr)
+			markdownProcessor = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
 
-		sd_markdown_render(ob, ib->data, ib->size, markdownProc);
+		sd_markdown_render(ob, ib->data, ib->size, markdownProcessor);
 
-		sd_markdown_free(markdownProc);
+		//sd_markdown_free(markdownProc);
 
 		auto result = toPlatformString((char*)ob->data, ob->size);
 
