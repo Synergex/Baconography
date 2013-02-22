@@ -52,6 +52,11 @@ namespace DXRenderInterop
 				unsigned int index = 0;
 				if(value && !_timer->IsEnabled)
 				{
+					if(_d2dContext == nullptr)
+					{
+						reinterpret_cast<IUnknown*>(this)->QueryInterface(IID_PPV_ARGS(&_sisNative));
+						this->CreateDeviceResources();
+					}
 					_activeRenderers->Append(this);
 					_timer->Start();
 				}
@@ -61,9 +66,12 @@ namespace DXRenderInterop
 					{
 						_activeRenderers->RemoveAt(index);
 					}
-					_timer->Stop();
-					_sisNative->SetDevice(nullptr);
-					_d2dContext->SetTarget(nullptr);
+					if(_timer != nullptr)
+						_timer->Stop();
+					if(_sisNative != nullptr)
+						_sisNative->SetDevice(nullptr);
+					if(_d2dContext != nullptr)
+						_d2dContext->SetTarget(nullptr);
 					_d2dContext = nullptr;
 					_sisNative = nullptr;
 					_gifDecoder = nullptr;
@@ -83,14 +91,14 @@ namespace DXRenderInterop
 					for(auto renderer : _activeRenderers)
 						renderer->_timer->Stop();
 				}
-				else
+				/*else
 				{
 					for(auto renderer : _activeRenderers)
 					{
 						if(renderer->Visible)
 							renderer->_timer->Start();
 					}
-				}
+				}*/
 			}
 		}
 

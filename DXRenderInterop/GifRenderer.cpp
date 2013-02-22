@@ -610,12 +610,19 @@ void GifRenderer::DrawRawFrame(GifFrame& frame)
 
 void GifRenderer::RenderFrame(Platform::Object^ sender, Platform::Object^ arg)
 {
-	
 	//fill the image with background color
 	//draw all frames marked as 'background'
 	//draw next frame
 	//wait 'next frame's delay
-	
+
+
+	//we're dead stop trying
+	if(_sisNative == nullptr)
+	{
+		_timer->Stop();
+		return;
+	}
+
 	Windows::Foundation::TimeSpan nextFrameIn = { _frames[_currentFrame].delay * 1000 };
 
 	if(nextFrameIn.Duration == 0)
