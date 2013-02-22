@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit
 {
+    [DataContract]
     public class Listing
     {
         [JsonProperty("kind")]
@@ -15,6 +17,7 @@ namespace BaconographyPortable.Model.Reddit
         public ListingData Data { get; set; }
     }
 
+    [DataContract]
     public class ListingData
     {
         [JsonProperty("modhash")]
