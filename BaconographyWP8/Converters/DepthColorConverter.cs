@@ -13,7 +13,7 @@ namespace BaconographyWP8.Converters
 {
     public class DepthColorConverter : IValueConverter
     {
-		static SolidColorBrush zero = Application.Current.Resources["PhoneChromeBrush"] as SolidColorBrush;
+		static SolidColorBrush zero = new SolidColorBrush(System.Windows.Media.Colors.Gray);
 		static SolidColorBrush one = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 98, 170, 42));
         static SolidColorBrush two = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 172, 43, 80));
 		static SolidColorBrush three = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 191, 84, 48));

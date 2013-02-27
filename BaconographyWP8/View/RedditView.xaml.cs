@@ -28,8 +28,6 @@ namespace BaconographyWP8.View
 			{
 				ViewModelLocator locator = new ViewModelLocator();
 				_viewModel = (RedditViewModel)locator.Reddit;
-				if (linksView != null)
-					linksView.ItemRealized += linksView_ItemRealized;
 			}
 			catch
 			{
@@ -50,6 +48,11 @@ namespace BaconographyWP8.View
 					}
 				}
 			}
+		}
+
+		void linksView_ItemUnrealized(object sender, ItemRealizationEventArgs e)
+		{
+			var height = e.Container.ActualHeight;
 		}
 
 		public static DependencyObject GetScrollViewer(DependencyObject o)

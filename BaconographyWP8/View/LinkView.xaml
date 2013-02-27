@@ -25,11 +25,11 @@
                 <StackPanel>
                     <TextBlock  Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
                     <StackPanel Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                        <TextBlock FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <TextBlock FontSize="15" Text=" by " />
-                        <TextBlock FontSize="15" Text="{Binding Author}" />
-                        <TextBlock FontSize="15" Text=" in " />
-                        <TextBlock FontSize="15" Text="{Binding Subreddit}" />
+                        <TextBlock FontSize="15" Foreground="Gray" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
+                        <TextBlock FontSize="15" Foreground="Gray" Text=" by " />
+                        <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
+                        <TextBlock FontSize="15" Foreground="Gray" Text=" in " />
+                        <TextBlock FontSize="15" Foreground="Gray" Text="{Binding Subreddit}" />
                     </StackPanel>
                 </StackPanel>
             </Button.Content>
@@ -38,7 +38,17 @@
 
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
             <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
+                <Grid>
+                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
+                    <Border Padding="1" Margin="0,0,0,0"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        <Border.Background>
+                            <SolidColorBrush Color="Black" Opacity="0.4" />
+                        </Border.Background>
+                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="18"
+                               Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
+                    </Border>
+                </Grid>
             </Border>
 
             <Border Height="70" Width="70"
