@@ -72,7 +72,11 @@ namespace BaconographyWP8.Converters
                                 }
                             }
                         }
-						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"clr-namespace:BaconographyWP8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBox>", markdown)) as RichTextBox;
+                        //xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"clr-namespace:BaconographyWP8.View\"
+
+                        //var markdown2 = "<Paragraph>Reminds me of <InlineUIContainer><Button><Button.Content>this</Button.Content></Button></InlineUIContainer></Paragraph>";
+
+                        var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:common=\"clr-namespace:BaconographyWP8.Common\" xmlns:view=\"clr-namespace:BaconographyWP8.View\">{0}</RichTextBox>", markdown)) as RichTextBox;
                         uiElement.DataContext = bindingContext;
                         return uiElement;
                     }

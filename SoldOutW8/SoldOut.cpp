@@ -137,14 +137,11 @@ static int
 rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque) {
 
 	if (!link || !link->size) return 0;
+#ifndef WP8
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -156,11 +153,7 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	}
 	else
 	{
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -168,6 +161,12 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
 	}
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><common:MarkdownButton Url=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></InlineUIContainer>");
+#endif
+
 	return 1; 
 }
 
@@ -268,14 +267,12 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque) {
 static int
 rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque) 
 {
+
+#ifndef WP8
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -288,11 +285,7 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	else
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -300,6 +293,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 		if (content && content->size) bufput(ob, content->data, content->size);
 		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
 	}
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><common:MarkdownButton Url=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></InlineUIContainer>");
+#endif
 	return 1;  
 }
 
