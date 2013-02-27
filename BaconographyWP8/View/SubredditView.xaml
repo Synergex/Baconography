@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="BaconographyWP8.View.SubredditView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="85" d:DesignWidth="480">
+
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" MinWidth="460">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="125" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition MinHeight="25" MaxHeight="46" />
+            <RowDefinition Height="25" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
+                Background="White" BorderThickness="0" Padding="0" Margin="0"
+                VerticalAlignment="Center">
+            <Image 
+               Source="{Binding HeaderImage}" MaxHeight="50" MaxWidth="125" Height="{Binding HeaderImageHeight}"
+               Width="{Binding HeaderImageWidth}" HorizontalAlignment="Center" Margin="0"
+               VerticalAlignment="Center"/>
+        </Border>
+
+        <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal">
+            <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding DisplayName}"/>
+        </StackPanel>
+
+        <TextBlock Grid.Column="2" Grid.Row="1" FontSize="15" Text="{Binding PublicDescription}"
+                   TextWrapping="Wrap" LineHeight="20"/>
+
+        <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal">
+            <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Subscribers}" />
+            <TextBlock FontSize="13" Foreground="Gray" Text="subscribers, a community for " Margin="5,0,0,0"/>
+            <TextBlock FontSize="13" Foreground="Gray" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="1,0,0,0" />
+        </StackPanel>
+
+    </Grid>
+</UserControl>

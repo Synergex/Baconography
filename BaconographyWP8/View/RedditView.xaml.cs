@@ -11,6 +11,7 @@ using BaconographyPortable.ViewModel;
 using System.Windows.Media;
 using BaconographyWP8Core;
 using BaconographyWP8.Converters;
+using BaconographyWP8.Common;
 
 namespace BaconographyWP8.View
 {
@@ -24,20 +25,13 @@ namespace BaconographyWP8.View
 		public RedditView()
 		{
 			this.InitializeComponent();
-			try
-			{
-				ViewModelLocator locator = new ViewModelLocator();
-				_viewModel = (RedditViewModel)locator.Reddit;
-			}
-			catch
-			{
-
-			}
+			_viewModel = DataContext as RedditViewModel;
 			
 		}
 
 		void linksView_ItemRealized(object sender, ItemRealizationEventArgs e)
 		{
+			var linksView = sender as FixedLongListSelector;
 			if (linksView.ItemsSource != null && linksView.ItemsSource.Count >= _offsetKnob)
 			{
 				if (e.ItemKind == LongListSelectorItemKind.Item)
@@ -82,6 +76,7 @@ namespace BaconographyWP8.View
 		{
 			try
 			{
+				var linksView = sender as FixedLongListSelector;
 				var scrollViewer = GetScrollViewer(linksView) as ScrollViewer;
 				if (scrollViewer != null)
 					scrollViewer.ScrollToVerticalOffset(_scrollViewOffset);
@@ -95,6 +90,7 @@ namespace BaconographyWP8.View
 
 		public void button_Click(object sender, RoutedEventArgs e)
 		{
+			var linksView = sender as FixedLongListSelector;
 			var collection = linksView.ItemsSource as PortableAsyncCollectionConverter;
 			if (collection != null)
 				collection = null;
@@ -102,6 +98,7 @@ namespace BaconographyWP8.View
 
 		private void OnRefresh(object sender, RoutedEventArgs e)
 		{
+			var linksView = sender as FixedLongListSelector;
 			var scrollViewer = GetScrollViewer(linksView) as ScrollViewer;
 			_scrollViewOffset = 0;
 			scrollViewer.ScrollToVerticalOffset(0);

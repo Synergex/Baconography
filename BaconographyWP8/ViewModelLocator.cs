@@ -24,6 +24,7 @@ namespace BaconographyWP8
                 _baconProvider = baconProvider;
 
                 //ensure we exist
+				ServiceLocator.Current.GetInstance<MainPageViewModel>();
                 ServiceLocator.Current.GetInstance<RedditViewModel>();
                 ServiceLocator.Current.GetInstance<LinkedWebViewModel>();
                 ServiceLocator.Current.GetInstance<LoginViewModel>();
@@ -50,11 +51,13 @@ namespace BaconographyWP8
 				SimpleIoc.Default.Register<LoadIndicatorViewModel>();
 				SimpleIoc.Default.Register<LinkedWebViewModel>();
 				SimpleIoc.Default.Register<SubredditsViewModel>();
+				SimpleIoc.Default.Register<SubredditSelectorViewModel>();
 				SimpleIoc.Default.Register<AboutUserViewModel>();
 				SimpleIoc.Default.Register<FileOpenPickerViewModel>();
 				SimpleIoc.Default.Register<SearchResultsViewModel>();
 				SimpleIoc.Default.Register<ContentPreferencesViewModel>();
 				SimpleIoc.Default.Register<RedditPickerViewModel>();
+				SimpleIoc.Default.Register<MainPageViewModel>();
 				SimpleIoc.Default.Register<SearchQueryViewModel>();
 				SimpleIoc.Default.Register<VisitedLinkConverter>();
 				SimpleIoc.Default.Register<VisitedMainLinkConverter>();
@@ -104,9 +107,17 @@ namespace BaconographyWP8
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<RedditViewModel>();
+                return new RedditViewModel(_baconProvider);
             }
         }
+
+		public MainPageViewModel MainPage
+		{
+			get
+			{
+				return ServiceLocator.Current.GetInstance<MainPageViewModel>();
+			}
+		}
 
         public CommentsViewModel Comments
         {
@@ -147,6 +158,14 @@ namespace BaconographyWP8
                 return ServiceLocator.Current.GetInstance<SubredditsViewModel>();
             }
         }
+
+		public SubredditSelectorViewModel SubredditSelector
+		{
+			get
+			{
+				return ServiceLocator.Current.GetInstance<SubredditSelectorViewModel>();
+			}
+		}
 
         public AboutUserViewModel UserDetails
         {

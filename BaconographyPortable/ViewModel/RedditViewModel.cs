@@ -41,6 +41,16 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
         }
 
+		public void DetachSubredditMessage()
+		{
+			MessengerInstance.Unregister<SelectSubredditMessage>(this);
+		}
+
+		public void AssignSubreddit(SelectSubredditMessage message)
+		{
+			OnSubredditChanged(message);
+		}
+
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
             LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
@@ -70,7 +80,7 @@ namespace BaconographyPortable.ViewModel
                 SelectedLink = null;
                 RefreshLinks();
 
-                Heading = string.Format("{0}: {1}", _selectedSubreddit.Data.Url, _selectedSubreddit.Data.DisplayName);
+				Heading = _selectedSubreddit.Data.DisplayName;
 
                 RaisePropertyChanged("DisplayingSubreddit");
                 var currentUser = await _userService.GetUser();

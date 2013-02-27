@@ -38,7 +38,9 @@ namespace BaconographyWP8.Converters
                     var markdown = SoldOut.MarkdownToXaml(startingText);
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
+					var noWhiteStartingText = startingText.Replace(" ", "").Replace("\n", "");
+					var noWhiteMarkdown = markdown.Replace(" ", "").Replace("\n", "").Replace("<paragraph>", "");
+					var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(noWhiteStartingText, 0, noWhiteMarkdown, 0, noWhiteStartingText.Length) == 0;
 
                     if (isSame)
                     {
@@ -76,7 +78,7 @@ namespace BaconographyWP8.Converters
 
                         //var markdown2 = "<Paragraph>Reminds me of <InlineUIContainer><Button><Button.Content>this</Button.Content></Button></InlineUIContainer></Paragraph>";
 
-                        var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:common=\"clr-namespace:BaconographyWP8.Common\" xmlns:view=\"clr-namespace:BaconographyWP8.View\">{0}</RichTextBox>", markdown)) as RichTextBox;
+						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:common=\"clr-namespace:BaconographyWP8.Common;assembly=BaconographyWP8\">{0}</RichTextBox>", markdown)) as RichTextBox;
                         uiElement.DataContext = bindingContext;
                         return uiElement;
                     }

@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="BaconographyWP8.View.SubredditSelectorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="480"
+    DataContext="{Binding SubredditSelector, Source={StaticResource Locator}}">
+    
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" MinWidth="460">
+        
+        <common:FixedLongListSelector
+            BorderThickness="0" VerticalAlignment="Stretch" 
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            HorizontalContentAlignment="Stretch"
+            SelectedItem="{Binding Mode=TwoWay, Path=SelectedSubreddit}"
+            ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}">
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0,0,0,7">
+                        <local:SubredditView />
+                        <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+            <common:FixedLongListSelector.ListHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,0,0,7">
+                        Select a subreddit from below to add it to your swipe list.
+                    </TextBlock>
+                </DataTemplate>
+            </common:FixedLongListSelector.ListHeaderTemplate>
+        </common:FixedLongListSelector>
+    </Grid>
+</UserControl>

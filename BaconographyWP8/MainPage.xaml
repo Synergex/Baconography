@@ -8,24 +8,30 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:resources="clr-namespace:BaconographyWP8.Resources"
     xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="True">
+    shell:SystemTray.IsVisible="True"
+    DataContext="{Binding MainPage, Source={StaticResource Locator}}">
     <phone:PhoneApplicationPage.Resources>
-        <DataTemplate x:Key="PivotHeaderTemplate">
-            <Grid/>
+        <DataTemplate x:Key="Type:RedditViewModel">
+            <local:RedditView DataContext="{Binding}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:SubredditSelectorViewModel">
+            <local:SubredditSelectorView/>
         </DataTemplate>
     </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
+        
 
         <!-- LOCALIZATION NOTE:
             To localize the displayed strings copy their values to appropriately named
@@ -70,19 +76,32 @@
         -->
 
         <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,5,0,5">
+        <!--<StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,5,0,5">
             <TextBlock x:Name="SortType" Text="HOT" Style="{StaticResource PhoneTextNormalStyle}" Margin="12,0"/>
-        </StackPanel>
+        </StackPanel>-->
 
-        <phone:Pivot Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Padding="0">
-            <phone:PivotItem CacheMode="{x:Null}" Header="front page">
-                <Grid>
-                    <local:RedditView x:Name="redditView" />
-                </Grid>
-            </phone:PivotItem>
-            <phone:PivotItem CacheMode="{x:Null}" Header="funny">
-                <Grid/>
-            </phone:PivotItem>
+        <phone:Pivot x:Name="pivot" 
+                     ItemsSource="{Binding PivotItems}"
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Padding="0">
+            <phone:Pivot.TitleTemplate>
+                <DataTemplate>
+                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <local:PivotCountIndicator 
+                            ItemsCount="{Binding ElementName=pivot, Path=Items.Count}"
+                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>
+                    </Grid>
+                </DataTemplate>
+            </phone:Pivot.TitleTemplate>
+            <phone:Pivot.HeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource pageHeadingConverter}}" />
+                </DataTemplate>
+            </phone:Pivot.HeaderTemplate>
+            <phone:Pivot.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Content="{Binding}" />
+                </DataTemplate>
+            </phone:Pivot.ItemTemplate>
         </phone:Pivot>
 
         <!--ContentPanel - place additional content here-->
@@ -95,5 +114,14 @@
             Before shipping remove this XAML and the image itself.-->
         <!--<Image Source="/Assets/AlignmentGrid.png" VerticalAlignment="Top" Height="800" Width="480" Margin="0,-32,0,0" Grid.Row="0" Grid.RowSpan="2" IsHitTestVisible="False" />-->
     </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
+                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
 
 </phone:PhoneApplicationPage>

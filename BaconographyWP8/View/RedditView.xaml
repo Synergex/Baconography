@@ -12,9 +12,8 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="800" d:DesignWidth="480"
-    DataContext="{Binding Reddit, Source={StaticResource Locator}}">
-    
+    d:DesignHeight="800" d:DesignWidth="480">
+   
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
                 Background="Black"
