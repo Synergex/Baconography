@@ -55,5 +55,25 @@ namespace BaconographyWP8.Common
 			var button = (MarkdownButton)d;
 			button.Url = (string)e.NewValue;
 		}
+
+		public static readonly DependencyProperty TextProperty =
+			DependencyProperty.Register(
+				"Text",
+				typeof(string),
+				typeof(MarkdownButton),
+				new PropertyMetadata(null, OnTextChanged)
+			);
+
+		public string Text
+		{
+			get { return (string)GetValue(TextProperty); }
+			set { SetValue(TextProperty, value); }
+		}
+
+		private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var button = (MarkdownButton)d;
+			button.Text = (string)e.NewValue;
+		}
 	}
 }
