@@ -29,6 +29,7 @@
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
                             SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
                             Visibility="{Binding Path=DataContext.IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <local:LoadIndicatorView />
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.TitleTemplate>

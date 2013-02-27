@@ -96,6 +96,7 @@
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\MarkdownButton.cs" />
+    <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
     <Compile Include="Converters\AuthorFlairKindConverter.cs" />

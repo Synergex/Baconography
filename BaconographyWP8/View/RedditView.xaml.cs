@@ -38,7 +38,8 @@ namespace BaconographyWP8.View
 				{
 					if ((e.Container.Content as LinkViewModel).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
-						_viewModel.Links.LoadMoreItemsAsync(30);
+						if (_viewModel != null)
+							_viewModel.Links.LoadMoreItemsAsync(30);
 					}
 				}
 			}

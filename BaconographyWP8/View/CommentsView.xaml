@@ -28,8 +28,9 @@
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" Background="{StaticResource PhoneChromeBrush}">
-        <ScrollViewer Margin="0,0,0,0" HorizontalAlignment="Left">
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+        <local:LoadIndicatorView />
+        <ScrollViewer Margin="0,20,0,0" HorizontalAlignment="Left">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">                
                 <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="360" />

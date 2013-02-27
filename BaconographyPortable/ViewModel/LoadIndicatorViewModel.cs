@@ -62,7 +62,7 @@ namespace BaconographyPortable.ViewModel
             if (_running == 0)
             {
                 ProgressBarVisibility = false;
-                _systemServices.StopTimer(_dispatcherTimerHandle);
+				_systemServices.StopTimer(obj);
             }
         }
     }

@@ -10,7 +10,7 @@
     d:DesignWidth="400"
     DataContext="{Binding LoadIndicator, Source={StaticResource Locator}}">
 
-    <Grid Height="20">
-        <ProgressBar IsIndeterminate="True" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource booleanVisibilityConverter}}"/>
+    <Grid Height="20" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource booleanVisibilityConverter}}">
+        <ProgressBar IsIndeterminate="{Binding ProgressBarVisibility}"/>
     </Grid>
 </UserControl>
