@@ -24,13 +24,13 @@ namespace BaconographyPortable.Common
         }
 
         //Subreddit:
-        private static Regex _subredditRegex = new Regex("/r/[a-zA-Z0-9_]+/?");
+		private static Regex _subredditRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/?");
 
         //Comments page:
-        private static Regex _commentsPageRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+		private static Regex _commentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
         //Comment:
-        private static Regex _commentRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+		private static Regex _commentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
         public static async void GotoLinkImpl(string str)
         {

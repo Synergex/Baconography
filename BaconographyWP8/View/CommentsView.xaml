@@ -13,6 +13,7 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True"
     DataContext="{Binding Comments, Source={StaticResource Locator}}">
 
     <UserControl.Resources>

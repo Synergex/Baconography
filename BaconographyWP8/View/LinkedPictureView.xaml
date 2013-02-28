@@ -24,7 +24,8 @@
             </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
+                          MinWidth="430">
                         <local:PivotCountIndicator Height="30"
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
                             SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"

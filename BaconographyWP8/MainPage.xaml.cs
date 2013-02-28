@@ -37,12 +37,9 @@ namespace BaconographyWP8
 				//_selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
 				//Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
 			}
+
 			if (isNewInstance)
-			{
-				var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
-				mpvm.LoadSubreddits();
 				isNewInstance = false;
-			}
 		}
 
 
