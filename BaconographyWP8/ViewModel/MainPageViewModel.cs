@@ -46,6 +46,8 @@ namespace BaconographyPortable.ViewModel
 			PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
 			Subreddits = new List<TypedThing<Subreddit>>();
+
+			LoadSubreddits();
         }
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
