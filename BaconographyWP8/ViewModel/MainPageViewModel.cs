@@ -6,6 +6,7 @@ using BaconographyPortable.ViewModel.Collections;
 using BaconographyWP8.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,8 @@ namespace BaconographyPortable.ViewModel
 			redditVM.DetachSubredditMessage();
 			PivotItems.Add(redditVM);
 			PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+
+			Subreddits = new List<TypedThing<Subreddit>>();
         }
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
@@ -51,7 +54,31 @@ namespace BaconographyPortable.ViewModel
 			newReddit.DetachSubredditMessage();
 			newReddit.AssignSubreddit(message);
 			PivotItems.Insert(PivotItems.Count - 1, newReddit);
+			Subreddits.Add(message.Subreddit);
         }
+
+		public async void  SaveSubreddits()
+		{
+			var serializedSubreddits = JsonConvert.SerializeObject(Subreddits);
+			await _offlineService.StoreSetting("pivotsubreddits", serializedSubreddits);
+		}
+
+		public async void LoadSubreddits()
+		{
+			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
+			var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
+			if (subreddits != null)
+			{
+				foreach (var sub in subreddits)
+				{
+					var message = new SelectSubredditMessage();
+					message.Subreddit = sub;
+					OnSubredditChanged(message);
+				}
+			}
+		}
+
+		public List<TypedThing<Subreddit>> Subreddits;
 
 		public RedditViewModelCollection PivotItems { get; private set; }
 

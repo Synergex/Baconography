@@ -20,7 +20,7 @@ namespace BaconographyWP8.View
 	{
 		RedditViewModel _viewModel;
 		int _offsetKnob = 7;
-		double _scrollViewOffset = 0;
+		object lastItem;
 
 		public RedditView()
 		{
@@ -31,6 +31,7 @@ namespace BaconographyWP8.View
 
 		void linksView_ItemRealized(object sender, ItemRealizationEventArgs e)
 		{
+			lastItem = e.Container.Content;
 			var linksView = sender as FixedLongListSelector;
 			if (linksView.ItemsSource != null && linksView.ItemsSource.Count >= _offsetKnob)
 			{
@@ -50,38 +51,13 @@ namespace BaconographyWP8.View
 			var height = e.Container.ActualHeight;
 		}
 
-		public static DependencyObject GetScrollViewer(DependencyObject o)
-		{
-			// Return the DependencyObject if it is a ScrollViewer
-			if (o is ScrollViewer)
-			{ return o; }
-
-			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(o); i++)
-			{
-				var child = VisualTreeHelper.GetChild(o, i);
-
-				var result = GetScrollViewer(child);
-				if (result == null)
-				{
-					continue;
-				}
-				else
-				{
-					return result;
-				}
-			}
-			return null;
-		}
-
 		void linksView_Loaded(object sender, RoutedEventArgs e)
 		{
 			try
 			{
-				var linksView = sender as FixedLongListSelector;
-				var scrollViewer = GetScrollViewer(linksView) as ScrollViewer;
-				if (scrollViewer != null)
-					scrollViewer.ScrollToVerticalOffset(_scrollViewOffset);
-				linksView.Loaded -= linksView_Loaded;
+				//var linksView = sender as FixedLongListSelector;
+				//linksView.Loaded -= linksView_Loaded;
+				//linksView.ScrollTo(lastItem);
 			}
 			catch
 			{
@@ -100,9 +76,6 @@ namespace BaconographyWP8.View
 		private void OnRefresh(object sender, RoutedEventArgs e)
 		{
 			var linksView = sender as FixedLongListSelector;
-			var scrollViewer = GetScrollViewer(linksView) as ScrollViewer;
-			_scrollViewOffset = 0;
-			scrollViewer.ScrollToVerticalOffset(0);
 		}
 	}
 }
