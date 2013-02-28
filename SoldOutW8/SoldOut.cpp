@@ -61,9 +61,7 @@ url::url(const std::string& url_s)
 bool is_url_known_image(uint8_t* ptr, size_t length)
 {
 	std::string str((char*)ptr, length);
-	if(has_ending(str, ".gif"))
-		return false;
-	else if(has_ending(str, ".jpg") || has_ending(str, ".png"))
+	if(has_ending(str, ".jpg") || has_ending(str, ".png") || has_ending(str, ".gif"))
 		return true;
 	else
 	{
