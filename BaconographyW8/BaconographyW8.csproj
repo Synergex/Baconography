@@ -165,6 +165,9 @@
     <Compile Include="View\LinkedPictureView.xaml.cs">
       <DependentUpon>LinkedPictureView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedVideoView.xaml.cs">
+      <DependentUpon>LinkedVideoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LinkedWebView.xaml.cs">
       <DependentUpon>LinkedWebView.xaml</DependentUpon>
     </Compile>
@@ -277,6 +280,10 @@
     <Page Include="View\LinkedPictureView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedVideoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\LinkedWebView.xaml">
       <SubType>Designer</SubType>
