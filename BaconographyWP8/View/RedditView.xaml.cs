@@ -81,7 +81,6 @@ namespace BaconographyWP8.View
 		private void FixedLongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var list = sender as FixedLongListSelector;
-			list.ClearSelection();
 		}
 	}
 }
