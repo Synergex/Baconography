@@ -9,7 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="75"
-    d:DesignWidth="480">
+    d:DesignWidth="480"
+    x:Name="controlRoot">
 
     <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
@@ -37,25 +38,34 @@
         
 
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
-            <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                <Grid>
-                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                    <Border Padding="1" Margin="0,0,0,0"
-                            HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                        <Border.Background>
-                            <SolidColorBrush Color="Black" Opacity="0.4" />
-                        </Border.Background>
-                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="18"
-                               Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
-                    </Border>
-                </Grid>
-            </Border>
+            <Button BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center"
+                    Command="{Binding GotoLink}" CommandParameter="{Binding}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Margin="0,0,0,0">
+                            <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                                <Grid>
+                                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
+                                    <Border Padding="1" Margin="0,0,0,0"
+                                            HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="Black" Opacity="0.4" />
+                                        </Border.Background>
+                                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="18"
+                                                   Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
 
-            <Border Height="70" Width="70"
-                    Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
-                <TextBlock FontFamily="Segoe UI Symbol" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
-            </Border>
+                            <Border Height="70" Width="70"
+                                    Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                                <TextBlock FontFamily="Segoe UI Symbol" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
 
         <!--

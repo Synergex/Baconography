@@ -21,7 +21,6 @@
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
-                SelectedItem="{Binding Mode=TwoWay, Path=SelectedLink}"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
                 Loaded="linksView_Loaded" SelectionChanged="FixedLongListSelector_SelectionChanged"
                 ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
