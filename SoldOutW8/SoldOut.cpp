@@ -296,6 +296,11 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 #else
 		BUFPUTSL(ob, "<InlineUIContainer><common:MarkdownButton Url=\"");
 		lus_attr_escape(ob, link->data, link->size);
+		if (content && content->size)
+		{
+			BUFPUTSL(ob, "\" Text=\"");
+			bufput(ob, content->data, content->size);
+		}
 		BUFPUTSL(ob, "\"/></InlineUIContainer>");
 #endif
 	return 1;  

@@ -95,7 +95,6 @@
     </Compile>
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
-    <Compile Include="Common\MarkdownButton.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
@@ -149,6 +148,9 @@
     </Compile>
     <Compile Include="View\LinkView.xaml.cs">
       <DependentUpon>LinkView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\MarkdownButton.xaml.cs">
+      <DependentUpon>MarkdownButton.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MoreCommentsView.xaml.cs">
       <DependentUpon>MoreCommentsView.xaml</DependentUpon>
@@ -213,6 +215,10 @@
     <Page Include="View\LinkView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Common\MarkdownButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MoreCommentsView.xaml">
       <Generator>MSBuild:Compile</Generator>
