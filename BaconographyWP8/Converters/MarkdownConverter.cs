@@ -78,6 +78,11 @@ namespace BaconographyWP8.Converters
 
                         //var markdown2 = "<Paragraph>Reminds me of <InlineUIContainer><Button><Button.Content>this</Button.Content></Button></InlineUIContainer></Paragraph>";
 
+                        if (!markdown.Contains("<Paragraph>"))
+                        {
+                            markdown = "<Paragraph>" + markdown + "</Paragraph>";
+                        }
+
 						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:common=\"clr-namespace:BaconographyWP8.Common;assembly=BaconographyWP8\">{0}</RichTextBox>", markdown)) as RichTextBox;
                         uiElement.DataContext = bindingContext;
                         return uiElement;

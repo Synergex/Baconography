@@ -136,13 +136,17 @@ namespace BaconographyPortable.ViewModel.Collections
             }
         }
 
-        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent)
+        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
             var remainingVMs = await MapListing(initialListing, parent);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => RunUILoad(ref remainingVMs, targetCollection ?? this, obj), new TimeSpan(200), true)));
+            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
+                {
+                    RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
+                    (targetCollection ?? this).Remove(removeMe);
+                }, new TimeSpan(200), true)));
         }
 
         public void Dispose()

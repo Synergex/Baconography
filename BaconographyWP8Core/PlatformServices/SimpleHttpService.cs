@@ -41,7 +41,7 @@ namespace BaconographyWP8.PlatformServices
         public static Task<Stream> GetRequestStreamAsync(HttpWebRequest request)
         {
             var taskComplete = new TaskCompletionSource<Stream>();
-            request.BeginGetResponse(asyncResponse =>
+            request.BeginGetRequestStream(asyncResponse =>
             {
                 try
                 {

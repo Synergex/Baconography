@@ -17,8 +17,8 @@ namespace BaconographyPortable.ViewModel
         string _targetName;
         string _subreddit;
         CommentViewModel _parent;
-        Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase> _loadMore;
-        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase> loadMore, CommentViewModel parent)
+        Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> _loadMore;
+        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent)
         {
             _loadMore = loadMore;
             _parent = parent;
@@ -36,8 +36,7 @@ namespace BaconographyPortable.ViewModel
         private void TriggerLoadImpl()
         {
             Loading = true;
-            _loadMore(_ids, _parent.Replies, _parent);
-            _parent.Replies.Remove(this);
+            _loadMore(_ids, _parent != null ? _parent.Replies : null, _parent, this);
         }
 
         public int Count { get; private set; }

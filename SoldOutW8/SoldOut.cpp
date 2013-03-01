@@ -406,6 +406,7 @@ const struct sd_callbacks mkd_xaml = {
 
 Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
 {
+	static std::wstring result;
 	if (src == nullptr || sourceLength == 0)
 		return nullptr;
 			
@@ -413,9 +414,13 @@ Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
 	//also its not actually possible to predetermine the size
 	//as char16 just means the potential blocks are 16bits but remain chainable into a single char
 	auto length = sourceLength;
-	std::wstring result(length, 0);
-	mbstowcs(&result[0], src, length);
-	return ref new Platform::String(result.c_str(), (unsigned int)result.size());
+	result.resize(length);
+	auto realLength = mbstowcs(&result[0], src, length);
+	auto platformResult = ref new Platform::String(result.c_str(), (unsigned int)realLength);
+	
+	result.resize(0);
+
+	return platformResult;
 }
 
 static void toBufString(Platform::String^ src, buf* target)
@@ -442,28 +447,41 @@ static const unsigned int snudown_default_md_flags =
 
 critical_section markdownCriticalSection;
 sd_markdown* markdownProcessor = nullptr;
+buf* g_ob = nullptr;
+buf* g_ib = nullptr;
 
 Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 {
 	try
 	{
 		critical_section::scoped_lock markdownLock(markdownCriticalSection);
-		auto ib = bufnew(1024);
-		auto ob = bufnew(64);
+		if(g_ob == nullptr)
+		{
+			g_ob = bufnew(64 * 1024);
+		}
 
-		toBufString(source, ib);
+		if(g_ib == nullptr)
+		{
+			g_ib = bufnew(64 * 1024);
+		}
+
+
+		toBufString(source, g_ib);
 
 		if(markdownProcessor == nullptr)
 			markdownProcessor = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
 
-		sd_markdown_render(ob, ib->data, ib->size, markdownProcessor);
+		sd_markdown_render(g_ob, g_ib->data, g_ib->size, markdownProcessor);
 
 		//sd_markdown_free(markdownProc);
 
-		auto result = toPlatformString((char*)ob->data, ob->size);
+		auto result = toPlatformString((char*)g_ob->data, g_ob->size);
 
-		bufrelease(ib);
-		bufrelease(ob);
+		g_ob->size = 0;
+		g_ib->size = 0;
+
+		//bufrelease(ib);
+		//bufrelease(ob);
 		return result;
 	}
 	catch(...)
