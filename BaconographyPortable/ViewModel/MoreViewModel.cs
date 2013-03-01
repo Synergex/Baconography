@@ -18,13 +18,14 @@ namespace BaconographyPortable.ViewModel
         string _subreddit;
         CommentViewModel _parent;
         Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> _loadMore;
-        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent)
+        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent, int depth)
         {
             _loadMore = loadMore;
             _parent = parent;
             _ids = ids;
             _targetName = targetName;
             _subreddit = subreddit;
+			Depth = depth;
             Count = _ids.Count();
             //TODO use the targetname to determine the kind for now its always going to be comments but
             //that might change in the future
@@ -41,6 +42,7 @@ namespace BaconographyPortable.ViewModel
 
         public int Count { get; private set; }
         public string Kind { get; private set; }
+		public int Depth { get; set; }
         bool _loading;
         public bool Loading
         {
