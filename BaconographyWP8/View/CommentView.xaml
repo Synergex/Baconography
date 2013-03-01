@@ -21,7 +21,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid HorizontalAlignment="Left" Margin="0">
+    <Grid HorizontalAlignment="Left" Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="7" />
             <ColumnDefinition Width="*" />
@@ -67,6 +67,7 @@
                 </Button.Content>
             </Button>
         </Grid>
+        <!--
         <StackPanel Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
             <Border BorderThickness="0" Height="1"/>
             <ItemsControl Margin="7,0,0,0" ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Left" 
@@ -88,5 +89,6 @@
                 </ItemsControl.Template>
             </ItemsControl>
         </StackPanel>
+        -->
     </Grid>
 </UserControl>

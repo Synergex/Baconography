@@ -1,0 +1,92 @@
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.ViewModel;
+using BaconographyPortable.ViewModel.Collections;
+using GalaSoft.MvvmLight;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Data;
+
+namespace BaconographyWP8.Converters
+{
+	public class FlattenCommentsCollectionConverter : IValueConverter
+    {
+		private ObservableCollection<ViewModelBase> Comments;
+		private CommentViewModelCollection originalCollection;
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+			originalCollection = value as CommentViewModelCollection;
+			originalCollection.CollectionChanged += Comment_CollectionChanged;
+			Comments = new ObservableCollection<ViewModelBase>();
+			foreach (var child in originalCollection)
+			{
+				VisitAddChildren(child);
+				
+			}
+
+			return Comments;
+        }
+
+		private void VisitAddChildren(ViewModelBase vm, int index = -1)
+		{
+			if (index < 0)
+				Comments.Add(vm);
+			else
+				Comments.Insert(index, vm);
+
+			if (vm is CommentViewModel)
+			{
+				var comment = vm as CommentViewModel;
+				//comment.Replies.CollectionChanged += Comment_CollectionChanged;
+				foreach (ViewModelBase child in comment.Replies)
+				{
+					VisitAddChildren(child, index < 0 ? -1 : index + 1);
+				}	
+			}
+		}
+
+		private void Comment_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			CommentViewModelCollection collection = sender as CommentViewModelCollection;
+			if (sender == originalCollection)
+			{
+				foreach (ViewModelBase vm in e.NewItems)
+				{
+					VisitAddChildren(vm, Comments.Count);
+				}
+				return;
+			}
+
+			for (int i = Comments.Count - 1; i > 0; i--)
+			{
+				if (Comments[i] is CommentViewModel)
+				{
+					var comment = Comments[i] as CommentViewModel;
+					if (comment.Replies == sender)
+					{
+						foreach (ViewModelBase vm in e.NewItems)
+						{
+							VisitAddChildren(vm, i + 1);
+						}
+					}
+				}
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+		
+    }
+    
+}

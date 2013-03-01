@@ -103,6 +103,8 @@
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\DepthMarginConverter.cs" />
+    <Compile Include="Converters\FlattenCommentsAsyncCollectionConverter.cs" />
     <Compile Include="Converters\PageHeadingConverter.cs" />
     <Compile Include="Converters\LinkGlyphConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
@@ -151,6 +153,9 @@
     </Compile>
     <Compile Include="Common\MarkdownButton.xaml.cs">
       <DependentUpon>MarkdownButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoginView.xaml.cs">
+      <DependentUpon>LoginView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MoreCommentsView.xaml.cs">
       <DependentUpon>MoreCommentsView.xaml</DependentUpon>
@@ -219,6 +224,10 @@
     <Page Include="Common\MarkdownButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoginView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\MoreCommentsView.xaml">
       <Generator>MSBuild:Compile</Generator>
