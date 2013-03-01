@@ -19,6 +19,7 @@
     <converters:InvertedBooleanVisibilityConverter x:Key="invertBooleanVisibilityConverter"/>
     <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
     <converters:DepthColorConverter x:Key="depthColorConverter"/>
+    <converters:DepthMarginConverter x:Key="depthMarginConverter"/>
     <converters:IntegerAdditionConverter x:Key="integerAdditionConverter"/>
     <converters:MarkdownConverter x:Key="markdownConverter"/>
     <converters:ReplyConverter x:Key="replyConverter"/>
@@ -27,5 +28,6 @@
     <converters:PageHeadingConverter x:Key="pageHeadingConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
+    <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
 
 </ResourceDictionary>
