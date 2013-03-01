@@ -45,7 +45,7 @@ namespace BaconographyWP8.Converters
 			if (vm is CommentViewModel)
 			{
 				var comment = vm as CommentViewModel;
-				//comment.Replies.CollectionChanged += Comment_CollectionChanged;
+				comment.Replies.CollectionChanged += Comment_CollectionChanged;
 				foreach (ViewModelBase child in comment.Replies)
 				{
 					VisitAddChildren(child, index < 0 ? -1 : index + 1);
@@ -55,30 +55,74 @@ namespace BaconographyWP8.Converters
 
 		private void Comment_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			CommentViewModelCollection collection = sender as CommentViewModelCollection;
-			if (sender == originalCollection)
+			if (e.Action == NotifyCollectionChangedAction.Add)
 			{
-				foreach (ViewModelBase vm in e.NewItems)
+				if (sender == originalCollection)
 				{
-					VisitAddChildren(vm, Comments.Count);
+					foreach (ViewModelBase vm in e.NewItems)
+					{
+						VisitAddChildren(vm, Comments.Count);
+					}
 				}
-				return;
-			}
-
-			for (int i = Comments.Count - 1; i > 0; i--)
-			{
-				if (Comments[i] is CommentViewModel)
+				else
 				{
-					var comment = Comments[i] as CommentViewModel;
-					if (comment.Replies == sender)
+					int index = 0;
+					ObservableCollection<ViewModelBase> collection = sender as ObservableCollection<ViewModelBase>;
+
+					// Find the previous element of the triggering collection
+					CommentViewModel previousItem = null;
+
+					if (collection.Count > 1)
+						previousItem = collection[collection.Count - 2] as CommentViewModel;
+
+					if (previousItem != null)
+					{
+						// If we have the previous item, find its last child
+						var lastChild = GetLastChild(previousItem);
+						index = Comments.IndexOf(lastChild);
+					}
+					else
+					{
+						// Otherwise, use our parent's index
+						for (int i = Comments.Count - 1; i > 0; i--)
+						{
+							if (Comments[i] is CommentViewModel)
+							{
+								var comment = Comments[i] as CommentViewModel;
+								if (comment.Replies == sender)
+								{
+									index = i;
+									break;
+								}
+							}
+						}
+					}
+
+					if (index > 0)
 					{
 						foreach (ViewModelBase vm in e.NewItems)
 						{
-							VisitAddChildren(vm, i + 1);
+							VisitAddChildren(vm, index + 1);
 						}
 					}
 				}
 			}
+			else if (e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				foreach (ViewModelBase oldItem in e.OldItems)
+				{
+					Comments.Remove(oldItem);
+				}
+			}
+		}
+
+		public CommentViewModel GetLastChild(CommentViewModel vm)
+		{
+			if (vm.Replies.Count == 0)
+				return vm;
+
+			CommentViewModel lastChild = vm.Replies[vm.Replies.Count - 1] as CommentViewModel;
+			return GetLastChild(lastChild);
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

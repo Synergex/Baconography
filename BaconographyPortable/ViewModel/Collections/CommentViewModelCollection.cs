@@ -75,7 +75,12 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             if (thing.Data is More)
             {
-                return new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel);
+				var depth = 0;
+				if (parent is CommentViewModel)
+				{
+					depth = ((CommentViewModel)parent).Depth + 1;
+				}
+				return new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
             }
             else if (thing.Data is Comment)
             {
