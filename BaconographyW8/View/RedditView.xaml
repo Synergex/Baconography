@@ -174,9 +174,7 @@
                     <Button Style="{StaticResource UnsubscribeAppBarButtonStyle}" 
                             Command="{Binding UnsubscribeSubreddit}" CommandParameter="{Binding}"
                             Visibility="{Binding Subscribed, Converter={StaticResource booleanVisibilityConverter}}"/>
-                    <Button Style="{StaticResource SubmitAppBarButtonStyle}" 
-                            Command="{Binding SubmitToSubreddit}" CommandParameter="{Binding}"
-                            Visibility="{Binding DisplayingSubreddit, Converter={StaticResource booleanVisibilityConverter}}"/>
+                    
                     <Button Style="{StaticResource RefreshAppBarButtonStyle}" 
                             Command="{Binding RefreshRedditView}" CommandParameter="{Binding}"
                             Visibility="Visible" Click="OnRefresh"/>

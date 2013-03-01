@@ -404,11 +404,14 @@ const struct sd_callbacks mkd_xaml = {
 	NULL,
 	NULL};
 
-Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
+void toPlatformString(const char* src, uint32_t sourceLength, wchar_t*& destination, uint32_t& destinationLength)
 {
 	static std::wstring result;
 	if (src == nullptr || sourceLength == 0)
-		return nullptr;
+	{
+		destination = nullptr;
+		destinationLength = 0;
+	}
 			
 	//get the length first so we dont have to double allocate
 	//also its not actually possible to predetermine the size
@@ -416,22 +419,19 @@ Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
 	auto length = sourceLength;
 	result.resize(length);
 	auto realLength = mbstowcs(&result[0], src, length);
-	auto platformResult = ref new Platform::String(result.c_str(), (unsigned int)realLength);
-	
-	result.resize(0);
-
-	return platformResult;
+	destination = &result[0];
+	destinationLength = realLength;
 }
 
-static void toBufString(Platform::String^ src, buf* target)
+static void toBufString(wchar_t* src, uint32_t srcLength, buf* target)
 {
 	if(src == nullptr)
 	{
 		return;
 	}
-	int length = src->Length() * 2;
+	int length = srcLength * 2;
 	bufgrow(target, length);
-	length = wcstombs((char*)target->data, src->Data(), length) ;
+	length = wcstombs((char*)target->data, src, length) ;
 	if(length == -1)
 		target->size = 0;
 	else
@@ -450,8 +450,13 @@ sd_markdown* markdownProcessor = nullptr;
 buf* g_ob = nullptr;
 buf* g_ib = nullptr;
 
-Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
+//on wp8 we get OOM if we use platform::string so just pin on the way in and return a pointer into our static wstring on the way out
+//additionally we've gone to great lengths to prevent memory allocation from occuring during markdown processing, it should grow to memory consumption
+//of the largest single markdown operation and then stay there
+VarPtr SoldOut::MarkdownToXaml(VarPtr source, std::uint32_t sourceLength)
 {
+	std::uint32_t destinationLength;
+	wchar_t* destination;
 	try
 	{
 		critical_section::scoped_lock markdownLock(markdownCriticalSection);
@@ -466,7 +471,7 @@ Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 		}
 
 
-		toBufString(source, g_ib);
+		toBufString((wchar_t*)(void*)source, sourceLength, g_ib);
 
 		if(markdownProcessor == nullptr)
 			markdownProcessor = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
@@ -475,18 +480,18 @@ Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
 
 		//sd_markdown_free(markdownProc);
 
-		auto result = toPlatformString((char*)g_ob->data, g_ob->size);
+		toPlatformString((char*)g_ob->data, g_ob->size, destination, destinationLength);
 
 		g_ob->size = 0;
 		g_ib->size = 0;
-
+		return (VarPtr)destination;
 		//bufrelease(ib);
 		//bufrelease(ob);
-		return result;
+		//return result;
 	}
 	catch(...)
 	{
 
 	}
-	return nullptr;
+	return 0;
 }

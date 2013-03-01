@@ -17,7 +17,7 @@ namespace BaconographyWP8.Converters
     {
         object bindingContext;
         static int insertionLength = "<LineBreak/>".Length + "</Paragraph>".Length + "<Paragraph>".Length;
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        unsafe public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (bindingContext == null)
             {
@@ -35,7 +35,14 @@ namespace BaconographyWP8.Converters
                 try
                 {
                     var startingText = value as string;
-                    var markdown = SoldOut.MarkdownToXaml(startingText);
+                    string markdown = null;
+                    fixed (char* textPtr = startingText)
+                    {
+                        var markdownPtr = SoldOut.MarkdownToXaml((uint)textPtr, (uint)startingText.Length);
+                        if (markdownPtr != 0)
+                            markdown = new string((char*)markdownPtr);
+                    }
+                    
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
 					var noWhiteStartingText = startingText.Replace(" ", "").Replace("\n", "");
@@ -90,11 +97,10 @@ namespace BaconographyWP8.Converters
                 }
                 catch
                 {
-					var rtb = new RichTextBox();
-                    var pp = new Paragraph();
-                    pp.Inlines.Add(new Run { Text = value as string });
-                    rtb.Blocks.Add(pp);
-                    return rtb;
+                    var semiCleanText = value as string;
+                    if (semiCleanText != null)
+                        semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+                    return new TextBlock { Text = semiCleanText };
                 }
             }
             else

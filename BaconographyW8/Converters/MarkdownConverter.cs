@@ -17,7 +17,7 @@ namespace BaconographyW8.Converters
     {
         object bindingContext;
         static int insertionLength = "<LineBreak/>".Length + "</Paragraph>".Length + "<Paragraph>".Length;
-        public object Convert(object value, Type targetType, object parameter, string language)
+        unsafe public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (bindingContext == null)
             {
@@ -35,7 +35,13 @@ namespace BaconographyW8.Converters
                 try
                 {
                     var startingText = value as string;
-                    var markdown = SoldOut.MarkdownToXaml(startingText);
+                    string markdown = null;
+                    fixed (char* textPtr = startingText)
+                    {
+                        var markdownPtr = SoldOut.MarkdownToXaml((uint)textPtr, (uint)startingText.Length);
+                        if(markdownPtr != 0)
+                            markdown = new string((char*)markdownPtr);
+                    }
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
                     var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
