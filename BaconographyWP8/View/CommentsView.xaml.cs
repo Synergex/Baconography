@@ -28,32 +28,46 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			if (this.State != null && this.State.ContainsKey("SelectedCommentTreeMessage"))
+			if (e.NavigationMode == NavigationMode.Back)
 			{
-				_selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
-				Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
+
 			}
-			else if (this.NavigationContext.QueryString["data"] != null)
+			else
 			{
-				var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
-				var deserializedObject = JsonConvert.DeserializeObject<SelectCommentTreeMessage>(unescapedData);
-				if (deserializedObject is SelectCommentTreeMessage)
+				if (this.State != null && this.State.ContainsKey("SelectedCommentTreeMessage"))
 				{
-					_selectedCommentTree = deserializedObject as SelectCommentTreeMessage;
+					_selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
 					Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
 				}
-			}
+				else if (this.NavigationContext.QueryString["data"] != null)
+				{
+					var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+					var deserializedObject = JsonConvert.DeserializeObject<SelectCommentTreeMessage>(unescapedData);
+					if (deserializedObject is SelectCommentTreeMessage)
+					{
+						_selectedCommentTree = deserializedObject as SelectCommentTreeMessage;
+						Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
+					}
+				}
 
-			RegisterShareSourceContract();
+				RegisterShareSourceContract();
+			}
 		}
 
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
-			this.State["SelectedCommentTreeMessage"] = _selectedCommentTree;
-			UnregisterShareSourceContract();
-			Content = null;
-			((CommentsViewModel)DataContext).Cleanup();
+			if (e.NavigationMode != NavigationMode.Back)
+			{
+
+			}
+			else
+			{
+				this.State["SelectedCommentTreeMessage"] = _selectedCommentTree;
+				UnregisterShareSourceContract();
+				Content = null;
+				((CommentsViewModel)DataContext).Cleanup();
+			}
 		}
 
 		/// <summary>
