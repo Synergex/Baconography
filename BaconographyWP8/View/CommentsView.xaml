@@ -30,61 +30,59 @@
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" Background="{StaticResource PhoneChromeBrush}">
         <local:LoadIndicatorView VerticalAlignment="Top" />
-        <ScrollViewer Margin="0,20,0,0" HorizontalAlignment="Left">
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">                
-                <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="360" />
-                        <ColumnDefinition Width="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                        <RowDefinition Height="25" />
-                        <RowDefinition MinHeight="0"  MaxHeight="800" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
-                    <StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                        <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <TextBlock Foreground="Gray" FontSize="15" Text=" by " />
-                        <TextBlock Foreground="Goldenrod" FontSize="15" Text="{Binding Author}" />
-                        <TextBlock Foreground="Gray" FontSize="15" Text=" in " />
-                        <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Subreddit}" />
-                    </StackPanel>
 
-                    <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
-                        <Button BorderThickness="0" Margin="0" Padding="0" Command="{Binding ShowPreview}" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
-                            <Button.Content>
-                                <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                                </Border>
-                            </Button.Content>
-                        </Button>
+        <common:FixedLongListSelector Margin="0,20,0,0" HorizontalAlignment="Stretch"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Path=Comments}">
+                <!-- For endless scroll
+                    ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
+                -->
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+            <common:FixedLongListSelector.ListHeader>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MinHeight="35" />
+                            <RowDefinition Height="25" />
+                            <RowDefinition MinHeight="0"  MaxHeight="800" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
+                            <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
+                            <TextBlock Foreground="Gray" FontSize="15" Text=" by " />
+                            <TextBlock Foreground="Goldenrod" FontSize="15" Text="{Binding Author}" />
+                            <TextBlock Foreground="Gray" FontSize="15" Text=" in " />
+                            <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Subreddit}" />
+                        </StackPanel>
+
+                        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
+                            <Button BorderThickness="0" Margin="0" Padding="0" Command="{Binding ShowPreview}" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
+                                <Button.Content>
+                                    <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
+                                        <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
+                                    </Border>
+                                </Button.Content>
+                            </Button>
+                        </Grid>
+
                     </Grid>
-
-                </Grid>
-                <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
-                    <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
-                </Border>
-
-                <ItemsControl Margin="0" ItemsSource="{Binding Path=Comments}" HorizontalAlignment="Left" 
-                              HorizontalContentAlignment="Left">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel HorizontalAlignment="Left" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.Template>
-                        <ControlTemplate>
-                            <ItemsPresenter HorizontalAlignment="Left" />
-                        </ControlTemplate>
-                    </ItemsControl.Template>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+                    <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
+                        <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
+                    </Border>
+                </StackPanel>
+            </common:FixedLongListSelector.ListHeader>
+            
+        </common:FixedLongListSelector>
     </Grid>
 </phone:PhoneApplicationPage>
