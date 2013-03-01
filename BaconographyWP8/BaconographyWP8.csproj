@@ -105,7 +105,7 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
-    <Compile Include="Converters\FlattenCommentsAsyncCollectionConverter.cs" />
+    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
     <Compile Include="Converters\PageHeadingConverter.cs" />
     <Compile Include="Converters\LinkGlyphConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
