@@ -22,7 +22,8 @@
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             HorizontalContentAlignment="Stretch"
             SelectedItem="{Binding Mode=TwoWay, Path=SelectedSubreddit}"
-            ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}">
+            ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
+            ListHeader="{Binding}">
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="0,0,0,7">
@@ -33,9 +34,20 @@
             </common:FixedLongListSelector.ItemTemplate>
             <common:FixedLongListSelector.ListHeaderTemplate>
                 <DataTemplate>
-                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,0,0,7">
-                        Select a subreddit from below to add it to your swipe list.
-                    </TextBlock>
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,3">
+                            Enter a subreddit:
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
+                                     x:Name="manualBox" Text="{Binding Text, Mode=TwoWay}" />
+                            <Button Content="Submit" x:Name="submitButton"
+                                    Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,7">
+                            Or select a subreddit from below to add it to your list.
+                        </TextBlock>
+                    </StackPanel>    
                 </DataTemplate>
             </common:FixedLongListSelector.ListHeaderTemplate>
         </common:FixedLongListSelector>
