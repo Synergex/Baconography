@@ -12,7 +12,7 @@
     <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
         <ViewportControl x:Name="viewport" 
                 ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
-                             ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
+                ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
             <Canvas x:Name="canvas">
 
                 <!--Use ImageConverter defined as a static resource in App.xaml to convert a byte array to a BitmapImage-->

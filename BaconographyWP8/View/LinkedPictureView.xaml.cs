@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -29,7 +30,10 @@ namespace BaconographyWP8.View
         public LinkedPictureView()
         {
             this.InitializeComponent();
+			_imageOrigins = new Dictionary<object, string>();
         }
+
+		private Dictionary<object, string> _imageOrigins;
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
@@ -46,7 +50,8 @@ namespace BaconographyWP8.View
 					_pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
 				}
 			}
-			DataContext = _pictureViewModel;
+			if (DataContext == null)
+				DataContext = _pictureViewModel;
 		}
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -54,6 +59,44 @@ namespace BaconographyWP8.View
 			this.State["PictureViewModel"] = _pictureViewModel;
 			Content = null;
 			((LinkedPictureViewModel)DataContext).Cleanup();
+		}
+
+		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
+		{
+			if (e.Item != null)
+			{
+				e.Item.Visibility = System.Windows.Visibility.Visible;
+
+				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
+
+				if (context != null && _imageOrigins.ContainsKey(e.Item))
+				{
+					context.ImageSource = _imageOrigins[e.Item];
+				}
+			}
+		}
+
+		private void albumPivot_UnloadingPivotItem(object sender, PivotItemEventArgs e)
+		{
+			if (e.Item != null)
+			{
+				e.Item.Visibility = System.Windows.Visibility.Collapsed;
+
+				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
+
+				if (context != null)
+				{	
+					if (context.ImageSource is string)
+					{
+						if (!_imageOrigins.ContainsKey(e.Item))
+						{
+							_imageOrigins.Add(e.Item, context.ImageSource as String);
+						}
+
+						context.ImageSource = null;
+					}
+				}
+			}
 		}
 		
     }
