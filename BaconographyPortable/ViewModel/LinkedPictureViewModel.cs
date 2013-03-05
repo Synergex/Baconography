@@ -9,9 +9,21 @@ namespace BaconographyPortable.ViewModel
 {
     public class LinkedPictureViewModel : ViewModelBase
     {
-        public class LinkedPicture
+        public class LinkedPicture : ViewModelBase
         {
-            public object ImageSource { get; set; }
+			private object _imageSource;
+            public object ImageSource
+			{
+				get
+				{
+					return _imageSource;
+				}
+				set
+				{
+					_imageSource = value;
+					RaisePropertyChanged("ImageSource");
+				}
+			}
             public string Title { get; set; }
             public bool IsAlbum { get; set; }
         }

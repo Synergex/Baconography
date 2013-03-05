@@ -40,7 +40,15 @@ namespace BaconographyWP8.View
 		public object ImageSource
 		{
 			get { return GetValue(ImageSourceProperty); }
-			set { SetValue(ImageSourceProperty, value); }
+			set
+			{
+				if (value == null)
+				{
+					this._bitmap.UriSource = null;
+					this._bitmap = null;
+				}
+				SetValue(ImageSourceProperty, value);
+			}
 		}
 
 		/// <summary>
@@ -49,7 +57,6 @@ namespace BaconographyWP8.View
 		public ScalingPictureView()
 		{
 			InitializeComponent();
-			
 		}
 
 		private static void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

@@ -14,11 +14,14 @@
 
         <phone:Pivot Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Margin="0" Padding="0" x:Name="albumPivot"
-                     ItemsSource="{Binding Path=Pictures}" >
+                     ItemsSource="{Binding Path=Pictures}"
+                     LoadingPivotItem="albumPivot_LoadingPivotItem"
+                     UnloadingPivotItem="albumPivot_UnloadingPivotItem">
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <local:ScalingPictureView ImageSource="{Binding ImageSource}" />
+                        <local:ScalingPictureView
+                            ImageSource="{Binding ImageSource, Mode=TwoWay}" />
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
