@@ -12,6 +12,7 @@ using BaconographyPortable.Services;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.ViewModel;
 using Newtonsoft.Json;
+using BaconographyWP8.View;
 
 namespace BaconographyWP8
 {
@@ -51,6 +52,12 @@ namespace BaconographyWP8
 				mpvm.SaveSubreddits();
 			}
 			//this.State["SelectedCommentTreeMessage"] = _selectedCommentTree;
+		}
+
+		private void MenuLogin_Click(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(LoginPageView), null);
 		}
 
         // Sample code for building a localized ApplicationBar

@@ -99,6 +99,7 @@ namespace BaconographyWP8.PlatformServices
             var existingCredential = currentCredentials.FirstOrDefault(credential => credential.Username == newCredential.Username);
             if (existingCredential != null)
             {
+				var lastCookie = existingCredential.LoginCookie;
                 //we already exist in the credentials, just update our login token and password (if its set)
                 if (existingCredential.LoginCookie != newCredential.LoginCookie ||
                     existingCredential.IsDefault != newCredential.IsDefault)
@@ -126,7 +127,7 @@ namespace BaconographyWP8.PlatformServices
                 }
                 if (!string.IsNullOrWhiteSpace(password))
                 {
-                    AddOrUpdateWindowsCredential(existingCredential, password);
+					AddOrUpdateWindowsCredential(existingCredential, password, lastCookie);
                 }
             }
             else
@@ -140,6 +141,7 @@ namespace BaconographyWP8.PlatformServices
         public async Task RemoveStoredCredential(string username)
         {
             var userInfoDb = await GetUserInfoDB();
+			List<string> lastCookies = new List<string>();
             //go find the one we're updating and actually do it
             var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
             if (userCredentialsCursor != null)
@@ -151,51 +153,50 @@ namespace BaconographyWP8.PlatformServices
                         var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
                         if (credential.Username == username)
                         {
+							lastCookies.Add(credential.LoginCookie);
                             await userCredentialsCursor.DeleteAsync();
                         }
                     } while (await userCredentialsCursor.MoveNextAsync());
                 }
             }
 
-            //var passwordVault = new Windows.Security.Credentials.PasswordVault();
-            //try
-            //{
-            //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-            //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, username, StringComparison.CurrentCultureIgnoreCase) == 0);
-            //    if (matchingWindowsCredential != null)
-            //    {
-            //        passwordVault.Remove(matchingWindowsCredential);
-            //    }
-            //}
-            //catch
-            //{
-            //}
+			var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+			if (passwordCursor != null)
+			{
+				using (passwordCursor)
+				{
+					do
+					{
+						var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
+						if (lastCookies.Contains(passwordData.LastCookie))
+						{
+							await passwordCursor.DeleteAsync();
+						}
+					} while (await passwordCursor.MoveNextAsync());
+				}
+			}
         }
 
-        private void AddOrUpdateWindowsCredential(UserCredential existingCredential, string password)
+        private async void AddOrUpdateWindowsCredential(UserCredential existingCredential, string password, string lastCookie)
         {
-            //var passwordVault = new Windows.Security.Credentials.PasswordVault();
-            //try
-            //{
-            //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-            //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(credential => string.Compare(credential.UserName, existingCredential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
-            //    if (matchingWindowsCredential != null)
-            //    {
-            //        matchingWindowsCredential.RetrievePassword();
-            //        if (matchingWindowsCredential.Password != password)
-            //        {
-            //            passwordVault.Remove(matchingWindowsCredential);
-            //        }
-            //        else
-            //            passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-            //    }
-            //    else
-            //        passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-            //}
-            //catch
-            //{
-            //    passwordVault.Add(new Windows.Security.Credentials.PasswordCredential("Baconography", existingCredential.Username, password));
-            //}
+			var userInfoDb = await GetUserInfoDB();
+			var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+			if (passwordCursor != null)
+			{
+				using (passwordCursor)
+				{
+					do
+					{
+						var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
+						if (lastCookie == passwordData.LastCookie)
+						{
+							var newPassData = new PasswordData { Password = password, LastCookie = existingCredential.LoginCookie };
+							await passwordCursor.UpdateAsync(JsonConvert.SerializeObject(newPassData));
+							break;
+						}
+					} while (await passwordCursor.MoveNextAsync());
+				}
+			}
         }
 
         private Task<List<UserCredential>> _storedCredentials;
@@ -220,6 +221,7 @@ namespace BaconographyWP8.PlatformServices
 
         private async Task<User> LoginWithCredentials(UserCredential credential)
         {
+			var originalCookie = credential.LoginCookie;
             if (await _redditService.CheckLogin(credential.LoginCookie))
             {
                 var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
@@ -228,20 +230,29 @@ namespace BaconographyWP8.PlatformServices
             else
             {
                 //we dont currently posses a valid login cookie, see if windows has a stored credential we can use for this username
-                //var passwordVault = new Windows.Security.Credentials.PasswordVault();
-                //try
-                //{
-                //    var windowsCredentials = passwordVault.FindAllByResource("Baconography");
-                //    var matchingWindowsCredential = windowsCredentials.FirstOrDefault(windowsCredential => string.Compare(windowsCredential.UserName, credential.Username, StringComparison.CurrentCultureIgnoreCase) == 0);
-                //    if (matchingWindowsCredential != null)
-                //    {
-                //        matchingWindowsCredential.RetrievePassword();
-                //        return await _redditService.Login(matchingWindowsCredential.UserName, matchingWindowsCredential.Password);
-                //    }
-                //}
-                //catch
-                //{
-                //}
+				var userInfoDb = await GetUserInfoDB();
+				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+				if (passwordCursor != null)
+				{
+					using (passwordCursor)
+					{
+						do
+						{
+							try
+							{
+								var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
+								if (credential.LoginCookie == passwordData.LastCookie)
+								{
+									return await _redditService.Login(credential.Username, passwordData.Password);
+								}
+							}
+							catch
+							{
+
+							}
+						} while (await passwordCursor.MoveNextAsync());
+					}
+				}
             }
             return null;
         }
@@ -287,5 +298,11 @@ namespace BaconographyWP8.PlatformServices
             }
             return _userInfoDb;
         }
+
+		private class PasswordData
+		{
+			public string LastCookie { get; set; }
+			public string Password { get; set; }
+		}
     }
 }

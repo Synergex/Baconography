@@ -1,0 +1,81 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="BaconographyWP8.View.LoginPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="True"
+    DataContext="{Binding Login, Source={StaticResource Locator}}">
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <!--Pivot Control-->
+        <phone:Pivot Title="BACONOGRAPHY > LOGIN">
+            <!--Pivot item one-->
+            <phone:PivotItem Header="new">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="USERNAME"/>
+                        <TextBox Margin="5,0,5,0"
+                            Text="{Binding Mode=TwoWay, Path=Username}" />
+                        <TextBlock FontWeight="SemiBold" Text="PASSWORD"/>
+                        <PasswordBox Margin="5,0,5,0"
+                            Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}" />
+                        <CheckBox Margin="5,0,5,0" Content="save this login"
+                            IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
+                        <CheckBox Margin="5,0,5,0" Content="login automatically"
+                            IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
+                    
+                        <Button Content="submit"
+                            Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                            Command="{Binding DoLogin}"/>
+                        <Border Margin="0,20,0,0" Visibility="{Binding HasErrors, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                            <TextBlock Foreground="Red" HorizontalAlignment="Center" Text="Login Failed: incorrect username or password"/>
+                        </Border>
+                    </StackPanel>
+                    <HyperlinkButton VerticalAlignment="Bottom"
+                                     NavigateUri="http://www.reddit.com/register"
+                                     Padding="10">
+                        Need an account? Click here to register
+                    </HyperlinkButton>
+                </Grid>
+            </phone:PivotItem>
+
+            <!--Pivot item two-->
+            <phone:PivotItem Header="saved">
+                <Grid>
+                    <StackPanel Margin="0,0,0,20" Orientation="Vertical" Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
+                        <TextBlock>Currently logged in as</TextBlock>
+                        <TextBlock Margin="14,7,0,7" Text="{Binding CurrentUserName}"/>
+                        <common:FixedLongListSelector
+                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                            SelectedItem="{Binding Mode=TwoWay,Path=SelectedCredential}"
+                            ItemsSource="{Binding Path=Credentials}"
+                            HorizontalAlignment="Stretch">
+                            <common:FixedLongListSelector.ListHeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="Stored Credentials" />
+                                </DataTemplate>
+                            </common:FixedLongListSelector.ListHeaderTemplate>
+                            <common:FixedLongListSelector.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Margin="10,0,0,0" Text="{Binding}"/>
+                                </DataTemplate>
+                            </common:FixedLongListSelector.ItemTemplate>
+                        </common:FixedLongListSelector>
+                    </StackPanel>
+                </Grid>
+            </phone:PivotItem>
+        </phone:Pivot>
+    </Grid>
+    
+</phone:PhoneApplicationPage>

@@ -97,6 +97,7 @@
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
+    <Compile Include="Common\WatermarkTextBox.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
     <Compile Include="Converters\AuthorFlairKindConverter.cs" />
     <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
@@ -153,6 +154,9 @@
     </Compile>
     <Compile Include="Common\MarkdownButton.xaml.cs">
       <DependentUpon>MarkdownButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoginPageView.xaml.cs">
+      <DependentUpon>LoginPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
@@ -222,6 +226,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Common\MarkdownButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoginPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
