@@ -3,6 +3,7 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Model.Reddit.ListingHelpers;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
+using BaconographyWP8.Messages;
 using BaconographyWP8.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -40,6 +41,7 @@ namespace BaconographyPortable.ViewModel
 
 			MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
+			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			PivotItems = new RedditViewModelCollection(_baconProvider);
 			var redditVM = new RedditViewModel(_baconProvider);
 			redditVM.DetachSubredditMessage();
@@ -50,6 +52,29 @@ namespace BaconographyPortable.ViewModel
 
 			LoadSubreddits();
         }
+
+		private void OnCloseSubreddit(CloseSubredditMessage message)
+		{
+			string heading = message.Heading;
+			if (message.Subreddit != null)
+			{
+				heading = message.Subreddit.Data.Name;
+			}
+
+			if (!String.IsNullOrEmpty(message.Heading) &&
+				heading != "The front page of this device")
+			{
+				var match = PivotItems.FirstOrDefault(vmb => vmb is RedditViewModel && (vmb as RedditViewModel).Heading == heading);
+				if (match != null)
+				{
+					var subreddit = (match as RedditViewModel).SelectedSubreddit;
+					PivotItems.Remove(match);
+					RaisePropertyChanged("PivotItems");
+					Subreddits.Remove(subreddit);
+					RaisePropertyChanged("Subreddits");
+				}
+			}
+		}
 
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{

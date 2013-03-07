@@ -222,6 +222,14 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public TypedThing<Subreddit> SelectedSubreddit
+		{
+			get
+			{
+				return _selectedSubreddit;
+			}
+		}
+
         private string _heading;
         public string Heading
         {

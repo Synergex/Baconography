@@ -82,7 +82,8 @@
 
         <phone:Pivot x:Name="pivot" 
                      ItemsSource="{Binding PivotItems}"
-                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Padding="0">
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Margin="0" Padding="0">
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid Height="30" MinWidth="430" HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -117,10 +118,10 @@
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True">
+        <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged">
             <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
-                <shell:ApplicationBarMenuItem Text="login" Click="MenuLogin_Click"/>
+                <shell:ApplicationBarMenuItem Text="login"/>
+                <shell:ApplicationBarMenuItem Text="close subreddit"/>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
