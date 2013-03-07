@@ -38,6 +38,7 @@ namespace BaconographyPortable.ViewModel
             _offlineService = baconProvider.GetService<IOfflineService>();
             _settingsService = baconProvider.GetService<ISettingsService>();
 
+			MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			PivotItems = new RedditViewModelCollection(_baconProvider);
 			var redditVM = new RedditViewModel(_baconProvider);
@@ -49,6 +50,17 @@ namespace BaconographyPortable.ViewModel
 
 			LoadSubreddits();
         }
+
+		private void OnUserLoggedIn(UserLoggedInMessage message)
+		{
+			bool wasLoggedIn = LoggedIn;
+			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+			if (wasLoggedIn != _loggedIn)
+			{
+				if (PivotItems[0] != null)
+					(PivotItems[0] as RedditViewModel).RefreshLinks();
+			}
+		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
         {
@@ -77,6 +89,24 @@ namespace BaconographyPortable.ViewModel
 					message.Subreddit = sub;
 					OnSubredditChanged(message);
 				}
+			}
+		}
+
+		private bool _loggedIn;
+		public bool LoggedIn
+		{
+			get
+			{
+				return _loggedIn;
+			}
+			set
+			{
+				_loggedIn = value;
+				try
+				{
+					RaisePropertyChanged("LoggedIn");
+				}
+				catch { }
 			}
 		}
 

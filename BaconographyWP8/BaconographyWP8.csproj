@@ -97,7 +97,6 @@
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
-    <Compile Include="Common\WatermarkTextBox.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
     <Compile Include="Converters\AuthorFlairKindConverter.cs" />
     <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
@@ -132,6 +131,7 @@
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
     <Compile Include="ViewModel\Collections\RedditViewModelCollection.cs" />
+    <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
     <Compile Include="View\CommentsView.xaml.cs">
@@ -157,9 +157,6 @@
     </Compile>
     <Compile Include="View\LoginPageView.xaml.cs">
       <DependentUpon>LoginPageView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\LoginView.xaml.cs">
-      <DependentUpon>LoginView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MoreCommentsView.xaml.cs">
       <DependentUpon>MoreCommentsView.xaml</DependentUpon>
@@ -232,10 +229,6 @@
     <Page Include="View\LoginPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\LoginView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\MoreCommentsView.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -8,6 +8,8 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BaconographyWP8Core;
+using BaconographyWP8.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 
 namespace BaconographyWP8.View
 {
@@ -17,6 +19,21 @@ namespace BaconographyWP8.View
 		public LoginPageView()
 		{
 			InitializeComponent();
+		}
+
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			var vm = ServiceLocator.Current.GetInstance<LoginPageViewModel>() as LoginPageViewModel;
+			if (vm != null)
+			{
+				if (!String.IsNullOrEmpty(vm.CurrentUserName))
+				{
+					pivot.SelectedIndex = 1;
+				}
+
+				vm.LoadCredentials();
+			}
+			base.OnNavigatedTo(e);
 		}
 	}
 }

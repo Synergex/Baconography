@@ -95,107 +95,132 @@ namespace BaconographyWP8.PlatformServices
         {
             var userInfoDb = await GetUserInfoDB();
 
-            var currentCredentials = await StoredCredentials();
-            var existingCredential = currentCredentials.FirstOrDefault(credential => credential.Username == newCredential.Username);
-            if (existingCredential != null)
-            {
-				var lastCookie = existingCredential.LoginCookie;
-                //we already exist in the credentials, just update our login token and password (if its set)
-                if (existingCredential.LoginCookie != newCredential.LoginCookie ||
-                    existingCredential.IsDefault != newCredential.IsDefault)
-                {
-                    existingCredential.LoginCookie = newCredential.LoginCookie;
-                    existingCredential.IsDefault = newCredential.IsDefault;
+			try
+			{
+				var currentCredentials = await StoredCredentials();
+				var existingCredential = currentCredentials.FirstOrDefault(credential => credential.Username == newCredential.Username);
+				if (existingCredential != null)
+				{
+					var lastCookie = existingCredential.LoginCookie;
+					//we already exist in the credentials, just update our login token and password (if its set)
+					if (existingCredential.LoginCookie != newCredential.LoginCookie ||
+						existingCredential.IsDefault != newCredential.IsDefault)
+					{
+						existingCredential.LoginCookie = newCredential.LoginCookie;
+						existingCredential.IsDefault = newCredential.IsDefault;
 
-                    //go find the one we're updating and actually do it
-                    var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-                    if (userCredentialsCursor != null)
-                    {
-                        using (userCredentialsCursor)
-                        {
-                            do
-                            {
-                                var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-                                if (credential.Username == newCredential.Username)
-                                {
-                                    await userCredentialsCursor.UpdateAsync(JsonConvert.SerializeObject(existingCredential));
-                                    break;
-                                }
-                            } while (await userCredentialsCursor.MoveNextAsync());
-                        }
-                    }
-                }
-                if (!string.IsNullOrWhiteSpace(password))
-                {
-					AddOrUpdateWindowsCredential(existingCredential, password, lastCookie);
-                }
-            }
-            else
-            {
-                await userInfoDb.InsertAsync("credentials", JsonConvert.SerializeObject(newCredential));
-                //force a re-get of the credentials next time someone wants them
-                _storedCredentials = null;
-            }
+						//go find the one we're updating and actually do it
+						var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
+						if (userCredentialsCursor != null)
+						{
+							using (userCredentialsCursor)
+							{
+								do
+								{
+									var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
+									if (credential.Username == newCredential.Username)
+									{
+										await userCredentialsCursor.UpdateAsync(JsonConvert.SerializeObject(existingCredential));
+										break;
+									}
+								} while (await userCredentialsCursor.MoveNextAsync());
+							}
+						}
+					}
+					if (!string.IsNullOrWhiteSpace(password))
+					{
+						AddOrUpdateWindowsCredential(existingCredential, password, lastCookie);
+					}
+				}
+				else
+				{
+					await userInfoDb.InsertAsync("credentials", JsonConvert.SerializeObject(newCredential));
+					var newPassData = new PasswordData { Password = password, LastCookie = newCredential.LoginCookie };
+					await userInfoDb.InsertAsync("passwords", JsonConvert.SerializeObject(newPassData));
+					//force a re-get of the credentials next time someone wants them
+					_storedCredentials = null;
+				}
+			}
+			catch
+			{
+				//let it fail
+			}
         }
 
         public async Task RemoveStoredCredential(string username)
         {
-            var userInfoDb = await GetUserInfoDB();
-			List<string> lastCookies = new List<string>();
-            //go find the one we're updating and actually do it
-            var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-            if (userCredentialsCursor != null)
-            {
-                using (userCredentialsCursor)
-                {
-                    do
-                    {
-                        var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-                        if (credential.Username == username)
-                        {
-							lastCookies.Add(credential.LoginCookie);
-                            await userCredentialsCursor.DeleteAsync();
-                        }
-                    } while (await userCredentialsCursor.MoveNextAsync());
-                }
-            }
-
-			var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
-			if (passwordCursor != null)
+			try
 			{
-				using (passwordCursor)
+				var userInfoDb = await GetUserInfoDB();
+				List<string> lastCookies = new List<string>();
+				//go find the one we're updating and actually do it
+				var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
+				if (userCredentialsCursor != null)
 				{
-					do
+					using (userCredentialsCursor)
 					{
-						var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
-						if (lastCookies.Contains(passwordData.LastCookie))
+						do
 						{
-							await passwordCursor.DeleteAsync();
-						}
-					} while (await passwordCursor.MoveNextAsync());
+							var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
+							if (credential.Username == username)
+							{
+								lastCookies.Add(credential.LoginCookie);
+								await userCredentialsCursor.DeleteAsync();
+							}
+						} while (await userCredentialsCursor.MoveNextAsync());
+					}
+				}
+
+				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+				if (passwordCursor != null)
+				{
+					using (passwordCursor)
+					{
+						do
+						{
+							var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
+							if (lastCookies.Contains(passwordData.LastCookie))
+							{
+								await passwordCursor.DeleteAsync();
+							}
+						} while (await passwordCursor.MoveNextAsync());
+					}
 				}
 			}
+			catch
+			{
+				//let it fail
+			}
+
         }
 
         private async void AddOrUpdateWindowsCredential(UserCredential existingCredential, string password, string lastCookie)
         {
 			var userInfoDb = await GetUserInfoDB();
-			var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
-			if (passwordCursor != null)
+			try
 			{
-				using (passwordCursor)
+
+				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+				if (passwordCursor != null)
 				{
-					do
+					using (passwordCursor)
 					{
-						var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
-						if (lastCookie == passwordData.LastCookie)
+						do
 						{
-							var newPassData = new PasswordData { Password = password, LastCookie = existingCredential.LoginCookie };
-							await passwordCursor.UpdateAsync(JsonConvert.SerializeObject(newPassData));
-							break;
-						}
-					} while (await passwordCursor.MoveNextAsync());
+							var passwordData = JsonConvert.DeserializeObject<PasswordData>(passwordCursor.GetString());
+							if (lastCookie == passwordData.LastCookie)
+							{
+								var newPassData = new PasswordData { Password = password, LastCookie = existingCredential.LoginCookie };
+								await passwordCursor.UpdateAsync(JsonConvert.SerializeObject(newPassData));
+								break;
+							}
+						} while (await passwordCursor.MoveNextAsync());
+					}
 				}
+			}
+			catch
+			{
+				//let it fail
 			}
         }
 
@@ -226,6 +251,7 @@ namespace BaconographyWP8.PlatformServices
             {
                 var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
                 loggedInUser.Me = await _redditService.GetMe(loggedInUser);
+				return loggedInUser;
             }
             else
             {
@@ -301,7 +327,9 @@ namespace BaconographyWP8.PlatformServices
 
 		private class PasswordData
 		{
+			[JsonProperty("lastcookie")]
 			public string LastCookie { get; set; }
+			[JsonProperty("password")]
 			public string Password { get; set; }
 		}
     }

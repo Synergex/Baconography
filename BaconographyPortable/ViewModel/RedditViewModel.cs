@@ -131,7 +131,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        private void RefreshLinks()
+        public void RefreshLinks()
         {
             _links = null;
             RaisePropertyChanged("Links");

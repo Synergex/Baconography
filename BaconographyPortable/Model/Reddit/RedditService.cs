@@ -70,7 +70,7 @@ namespace BaconographyPortable.Model.Reddit
 
             var jsonResult = loginResult.Item1;
             var loginResultThing = JsonConvert.DeserializeObject<LoginJsonThing>(jsonResult);
-            if (loginResultThing.Json == null ||
+			if (loginResultThing == null || loginResultThing.Json == null ||
                 (loginResultThing.Json.Errors != null && loginResultThing.Json.Errors.Length != 0))
             {
                 _notificationService.CreateNotification(string.Format("Failed to login as User:{0}", username));
