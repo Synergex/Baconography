@@ -74,28 +74,6 @@ namespace BaconographyPortable.ViewModel
 					RaisePropertyChanged("Subreddits");
 				}
 			}
-			else if (!String.IsNullOrEmpty(message.Heading))
-			{
-				// How the hell are you closing the front page?
-				var matches = PivotItems.Where(vmb => vmb is RedditViewModel && (vmb as RedditViewModel).Heading == heading);
-				if (matches != null)
-				{
-					bool first = true;
-					foreach (var match in matches)
-					{
-						if (first)
-							first = false;
-						else
-						{
-							var subreddit = (match as RedditViewModel).SelectedSubreddit;
-							PivotItems.Remove(match);
-							RaisePropertyChanged("PivotItems");
-							Subreddits.Remove(subreddit);
-							RaisePropertyChanged("Subreddits");
-						}
-					}
-				}
-			}
 		}
 
 		private void OnUserLoggedIn(UserLoggedInMessage message)
@@ -132,9 +110,12 @@ namespace BaconographyPortable.ViewModel
 			{
 				foreach (var sub in subreddits)
 				{
-					var message = new SelectSubredditMessage();
-					message.Subreddit = sub;
-					OnSubredditChanged(message);
+					if (sub.Data != null && sub.Data.Id != null)
+					{
+						var message = new SelectSubredditMessage();
+						message.Subreddit = sub;
+						OnSubredditChanged(message);
+					}
 				}
 			}
 		}
