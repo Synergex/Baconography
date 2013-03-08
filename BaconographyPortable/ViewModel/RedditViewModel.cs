@@ -131,7 +131,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        private void RefreshLinks()
+        public void RefreshLinks()
         {
             _links = null;
             RaisePropertyChanged("Links");
@@ -221,6 +221,14 @@ namespace BaconographyPortable.ViewModel
                 return _selectedSubreddit != null;
             }
         }
+
+		public TypedThing<Subreddit> SelectedSubreddit
+		{
+			get
+			{
+				return _selectedSubreddit;
+			}
+		}
 
         private string _heading;
         public string Heading

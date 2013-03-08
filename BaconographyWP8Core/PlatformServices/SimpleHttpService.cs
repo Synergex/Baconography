@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,11 +69,11 @@ namespace BaconographyWP8.PlatformServices
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
             request.ContentType = contentType;
             request.ContentLength = data.Length;
+			request.CookieContainer = new CookieContainer();
+			if (!string.IsNullOrEmpty(cookie))
+				request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
             using (var requestStream = (await GetRequestStreamAsync(request))) { requestStream.Write(data, 0, data.Length); }
-
-            if (!string.IsNullOrEmpty(cookie))
-                request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
             var postResult = await GetResponseAsync(request);
 
@@ -97,6 +99,7 @@ namespace BaconographyWP8.PlatformServices
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+			request.CookieContainer = new CookieContainer();
 
             if (!string.IsNullOrEmpty(cookie))
                 request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
@@ -109,7 +112,8 @@ namespace BaconographyWP8.PlatformServices
                     {
                         using (var sr = new StreamReader(getResult.GetResponseStream()))
                         {
-                            return sr.ReadToEnd();
+							var result = sr.ReadToEnd();
+                            return result;
                         }
                     });
             }
@@ -117,10 +121,53 @@ namespace BaconographyWP8.PlatformServices
                 throw new Exception(getResult.StatusCode.ToString());
         }
 
-        public Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
+        public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
         {
-            //TODO: implement me
-            throw new NotImplementedException();
+			//limit requests to once every 500 milliseconds
+			await ThrottleRequests();
+
+			StringBuilder dataBuilder = new StringBuilder();
+			bool first = true;
+			var stringData = string.Join("&", urlEncodedData.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
+			byte[] data = Encoding.UTF8.GetBytes(stringData);
+
+			HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+			request.Method = "POST";
+			request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+			request.ContentType = "application/x-www-form-urlencoded";
+			request.ContentLength = data.Length;
+			var container = new CookieContainer();
+			request.CookieContainer = container;
+			//request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", "", "/", "reddit.com"));
+
+			using (var requestStream = (await GetRequestStreamAsync(request))) { requestStream.Write(data, 0, data.Length); }
+
+			var postResult = await GetResponseAsync(request);
+
+			if (postResult.StatusCode == HttpStatusCode.OK)
+			{
+				return await Task<Tuple<string, Dictionary<string, string>>>.Run(() =>
+				{
+					using (var sr = new StreamReader(postResult.GetResponseStream()))
+					{
+						container.GetCookies(new Uri("http://www.reddit.com", UriKind.Absolute));
+						string loginCookie = "";
+						var jsonResult = sr.ReadToEnd();
+						var loginResultThing = JsonConvert.DeserializeObject<LoginJsonThing>(jsonResult);
+						if (loginResultThing != null && loginResultThing.Json != null &&
+							(loginResultThing.Json.Errors == null || loginResultThing.Json.Errors.Length == 0))
+						{
+							loginCookie = HttpUtility.UrlEncode(loginResultThing.Json.Data.Cookie);
+						}
+						if (!String.IsNullOrEmpty(loginCookie))
+							return Tuple.Create(jsonResult, new Dictionary<string, string> { { "reddit_session", loginCookie } });
+						else
+							return Tuple.Create<string, Dictionary<string, string>>(jsonResult, null);
+					}
+				});
+			}
+			else
+				throw new Exception(postResult.StatusCode.ToString());
         }
 
         public async Task<string> UnAuthedGet(string uri)

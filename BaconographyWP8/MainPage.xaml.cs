@@ -12,6 +12,10 @@ using BaconographyPortable.Services;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.ViewModel;
 using Newtonsoft.Json;
+using BaconographyWP8.View;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
+using BaconographyWP8.Messages;
 
 namespace BaconographyWP8
 {
@@ -26,17 +30,12 @@ namespace BaconographyWP8
 			isNewInstance = true;
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
+
+			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
         }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			if (this.State != null && this.State.ContainsKey("SelectedCommentTreeMessage"))
-			{
-				
-				
-				//_selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
-				//Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
-			}
 
 			if (isNewInstance)
 				isNewInstance = false;
@@ -50,7 +49,65 @@ namespace BaconographyWP8
 				var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
 				mpvm.SaveSubreddits();
 			}
-			//this.State["SelectedCommentTreeMessage"] = _selectedCommentTree;
+		}
+
+		private string loginItemText = "login";
+		private void OnUserLoggedIn(UserLoggedInMessage message)
+		{
+			bool loggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+
+			if (loggedIn)
+			{
+				loginItemText = "switch user / logout";
+			}
+			else
+			{
+				loginItemText = "login";
+			}
+		}
+
+		private void MenuLogin_Click(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(LoginPageView), null);
+		}
+
+		private void MenuClose_Click(object sender, EventArgs e)
+		{
+			var item = pivot.SelectedItem as RedditViewModel;
+			if (item == null)
+				return;
+
+			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = item.Heading });
+		}
+
+		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
+		{
+			if (e.IsMenuVisible)
+			{
+				var appBarMenu = sender as ApplicationBar;
+
+				if (appBarMenu != null)
+				{
+					appBarMenu.MenuItems.Clear();
+
+					var login = new ApplicationBarMenuItem();
+					login.Text = loginItemText;
+					login.Click += MenuLogin_Click;
+
+					var close = new ApplicationBarMenuItem();
+					close.Text = "close subreddit";
+					close.Click += MenuClose_Click;
+					close.IsEnabled = false;
+
+					var item = pivot.SelectedItem as RedditViewModel;
+					if (item != null && item.Heading != "The front page of this device")
+						close.IsEnabled = true;
+
+					appBarMenu.MenuItems.Add(login);
+					appBarMenu.MenuItems.Add(close);
+				}
+			}
 		}
 
         // Sample code for building a localized ApplicationBar

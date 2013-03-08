@@ -2,6 +2,7 @@
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Converters;
 using BaconographyWP8.PlatformServices;
+using BaconographyWP8.ViewModel;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 using System;
@@ -27,7 +28,7 @@ namespace BaconographyWP8
 				ServiceLocator.Current.GetInstance<MainPageViewModel>();
                 ServiceLocator.Current.GetInstance<RedditViewModel>();
                 ServiceLocator.Current.GetInstance<LinkedWebViewModel>();
-                ServiceLocator.Current.GetInstance<LoginViewModel>();
+				ServiceLocator.Current.GetInstance<LoginPageViewModel>();
                 ServiceLocator.Current.GetInstance<AboutUserViewModel>();
                 ServiceLocator.Current.GetInstance<FileOpenPickerViewModel>();
                 ServiceLocator.Current.GetInstance<SearchResultsViewModel>();
@@ -47,7 +48,7 @@ namespace BaconographyWP8
 				SimpleIoc.Default.Register<IBaconProvider>(() => _baconProvider);
 
 				SimpleIoc.Default.Register<RedditViewModel>();
-				SimpleIoc.Default.Register<LoginViewModel>();
+				SimpleIoc.Default.Register<LoginPageViewModel>();
 				SimpleIoc.Default.Register<LoadIndicatorViewModel>();
 				SimpleIoc.Default.Register<LinkedWebViewModel>();
 				SimpleIoc.Default.Register<SubredditsViewModel>();
@@ -143,11 +144,11 @@ namespace BaconographyWP8
             }
         }
 
-        public LoginViewModel Login
+		public LoginPageViewModel Login
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<LoginViewModel>();
+                return ServiceLocator.Current.GetInstance<LoginPageViewModel>();
             }
         }
 
