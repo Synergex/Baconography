@@ -101,7 +101,7 @@ namespace BaconographyWP8
 					close.IsEnabled = false;
 
 					var item = pivot.SelectedItem as RedditViewModel;
-					if (item != null && item.Heading != "The front page of this device")
+					if (item != null && pivot.SelectedIndex != 0)
 						close.IsEnabled = true;
 
 					appBarMenu.MenuItems.Add(login);
