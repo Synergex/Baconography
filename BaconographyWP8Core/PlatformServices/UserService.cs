@@ -3,12 +3,14 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight.Messaging;
 using KitaroDB;
+using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
@@ -247,11 +249,21 @@ namespace BaconographyWP8.PlatformServices
         private async Task<User> LoginWithCredentials(UserCredential credential)
         {
 			var originalCookie = credential.LoginCookie;
-            if (await _redditService.CheckLogin(credential.LoginCookie))
+            if (!string.IsNullOrWhiteSpace(credential.LoginCookie))
             {
                 var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
-                loggedInUser.Me = await _redditService.GetMe(loggedInUser);
-				return loggedInUser;
+                ThreadPool.RunAsync(async (o) =>
+                {
+                    await Task.Delay(10000);
+                    try
+                    {
+                        loggedInUser.Me = await _redditService.GetMe(loggedInUser);
+                    }
+                    catch { }
+                    if (loggedInUser.Me == null)
+                        ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification(string.Format("Failed to login with user {0}", credential.Username));
+                });
+                return loggedInUser;
             }
             else
             {

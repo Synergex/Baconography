@@ -280,8 +280,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="BaconographyWP8_2013_03_01_09_55_18.sap" />
-    <None Include="BaconographyWP8_2013_03_12_16_49_12.sap" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>

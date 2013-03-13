@@ -58,15 +58,32 @@ namespace Baconography.NeutralServices
                     } while (await historyCursor.MoveNextAsync());
                 }
             }
+
+            _settingsCache = new Dictionary<string, string>();
+            //load all of the settings up front so we dont spend so much time going back and forth
+            var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
+            if (cursor != null)
+            {
+                using (cursor)
+                {
+                    do
+                    {
+                        _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                    } while (await cursor.MoveNextAsync());
+                }
+            }
         }
 
         public Task Initialize()
         {
-            lock (this)
+            if (_instanceTask == null)
             {
-                if (_instanceTask == null)
+                lock (this)
                 {
-                    _instanceTask = InitializeImpl();
+                    if (_instanceTask == null)
+                    {
+                        _instanceTask = InitializeImpl();
+                    }
                 }
             }
             return _instanceTask;
@@ -250,11 +267,16 @@ namespace Baconography.NeutralServices
             await Initialize();
         }
 
+        private Dictionary<string, string> _settingsCache;
         public async Task StoreSetting(string name, string value)
         {
             try
             {
                 await Initialize();
+                if (_settingsCache.ContainsKey(name))
+                {
+                    _settingsCache.Add(name, value);
+                }
                 var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
                 if (cursor != null)
                 {
@@ -281,7 +303,9 @@ namespace Baconography.NeutralServices
             {
                 await Initialize();
 
-                return await _settingsDb.GetAsync(name);
+                string result = null;
+                _settingsCache.TryGetValue(name, out result);
+                return result;
             }
             catch (Exception ex)
             {
