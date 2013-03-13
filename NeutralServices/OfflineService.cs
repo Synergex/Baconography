@@ -273,9 +273,13 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
-                if (_settingsCache.ContainsKey(name))
+                if (!_settingsCache.ContainsKey(name))
                 {
                     _settingsCache.Add(name, value);
+                }
+                else
+                {
+                    _settingsCache[name] = value;
                 }
                 var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
                 if (cursor != null)
