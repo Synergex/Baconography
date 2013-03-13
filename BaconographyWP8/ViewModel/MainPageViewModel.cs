@@ -43,14 +43,11 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			PivotItems = new RedditViewModelCollection(_baconProvider);
-			var redditVM = new RedditViewModel(_baconProvider);
-			redditVM.DetachSubredditMessage();
-			PivotItems.Add(redditVM);
-			PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+			
 
 			Subreddits = new List<TypedThing<Subreddit>>();
 
-			LoadSubreddits();
+			
         }
 
 		private void OnCloseSubreddit(CloseSubredditMessage message)
@@ -82,9 +79,11 @@ namespace BaconographyPortable.ViewModel
 			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
 			if (wasLoggedIn != _loggedIn)
 			{
-				if (PivotItems[0] != null)
+                if (PivotItems.Count > 0 && PivotItems[0] != null)
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
 			}
+
+            LoadSubreddits();
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
@@ -92,11 +91,14 @@ namespace BaconographyPortable.ViewModel
 			var newReddit = new RedditViewModel(_baconProvider);
 			newReddit.DetachSubredditMessage();
 			newReddit.AssignSubreddit(message);
-			PivotItems.Insert(PivotItems.Count - 1, newReddit);
+            if (PivotItems.Count > 0)
+                PivotItems.Insert(PivotItems.Count - 1, newReddit);
+            else
+                PivotItems.Add(newReddit);
 			Subreddits.Add(message.Subreddit);
         }
 
-		public async void  SaveSubreddits()
+		public async Task SaveSubreddits()
 		{
 			var serializedSubreddits = JsonConvert.SerializeObject(Subreddits);
 			await _offlineService.StoreSetting("pivotsubreddits", serializedSubreddits);
@@ -104,20 +106,25 @@ namespace BaconographyPortable.ViewModel
 
 		public async void LoadSubreddits()
 		{
+            var redditVM = new RedditViewModel(_baconProvider);
+            redditVM.DetachSubredditMessage();
+            PivotItems.Add(redditVM);
+            PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
 			var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
-			if (subreddits != null)
-			{
-				foreach (var sub in subreddits)
-				{
-					if (sub.Data != null && sub.Data.Id != null)
-					{
-						var message = new SelectSubredditMessage();
-						message.Subreddit = sub;
-						OnSubredditChanged(message);
-					}
-				}
-			}
+            if (subreddits != null)
+            {
+                
+                foreach (var sub in subreddits)
+                {
+                    if (sub.Data != null && sub.Data.Id != null)
+                    {
+                        var message = new SelectSubredditMessage();
+                        message.Subreddit = sub;
+                        OnSubredditChanged(message);
+                    }
+                }
+            }
 		}
 
 		private bool _loggedIn;

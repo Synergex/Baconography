@@ -42,13 +42,10 @@ namespace BaconographyWP8
 		}
 
 
-		protected override void OnNavigatedFrom(NavigationEventArgs e)
+		protected override async void OnNavigatedFrom(NavigationEventArgs e)
 		{
-			if (e.NavigationMode != NavigationMode.Back)
-			{
-				var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
-				mpvm.SaveSubreddits();
-			}
+			var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
+			await mpvm.SaveSubreddits();
 		}
 
 		private string loginItemText = "login";
