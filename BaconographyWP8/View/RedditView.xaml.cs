@@ -18,15 +18,12 @@ namespace BaconographyWP8.View
 	[ViewUri("/View/RedditView.xaml")]
 	public partial class RedditView : UserControl
 	{
-		RedditViewModel _viewModel;
 		int _offsetKnob = 7;
 		object lastItem;
 
 		public RedditView()
 		{
 			this.InitializeComponent();
-			_viewModel = DataContext as RedditViewModel;
-			
 		}
 
 		void linksView_ItemRealized(object sender, ItemRealizationEventArgs e)
@@ -39,8 +36,9 @@ namespace BaconographyWP8.View
 				{
 					if ((e.Container.Content as LinkViewModel).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
-						if (_viewModel != null)
-							_viewModel.Links.LoadMoreItemsAsync(30);
+                        var viewModel = DataContext as RedditViewModel;
+                        if (viewModel != null)
+                            viewModel.Links.LoadMoreItemsAsync(30);
 					}
 				}
 			}
