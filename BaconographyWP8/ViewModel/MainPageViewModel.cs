@@ -26,6 +26,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
+        bool _initialLoad = true;
 
 
 		public MainPageViewModel(IBaconProvider baconProvider)
@@ -83,7 +84,11 @@ namespace BaconographyPortable.ViewModel
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
 			}
 
-            LoadSubreddits();
+            if (_initialLoad)
+            {
+                _initialLoad = false;
+                LoadSubreddits();
+            }
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
@@ -111,17 +116,20 @@ namespace BaconographyPortable.ViewModel
             PivotItems.Add(redditVM);
             PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
-			var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
-            if (subreddits != null)
+            if (serializedSubreddits != null)
             {
-                
-                foreach (var sub in subreddits)
+                var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
+                if (subreddits != null)
                 {
-                    if (sub.Data != null && sub.Data.Id != null)
+
+                    foreach (var sub in subreddits)
                     {
-                        var message = new SelectSubredditMessage();
-                        message.Subreddit = sub;
-                        OnSubredditChanged(message);
+                        if (sub.Data != null && sub.Data.Id != null)
+                        {
+                            var message = new SelectSubredditMessage();
+                            message.Subreddit = sub;
+                            OnSubredditChanged(message);
+                        }
                     }
                 }
             }

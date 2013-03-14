@@ -16,10 +16,14 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
-        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Task<Listing>> GetInitialListing(Dictionary<object, object> state)
         {
-            state["SubscribedSubreddits"] = await _redditService.GetSubscribedSubreddits();
-            return await _redditService.GetSubreddits(null);
+            Func<Task<Listing>> realWork = async () =>
+                {
+                    state["SubscribedSubreddits"] = await _redditService.GetSubscribedSubreddits();
+                    return await _redditService.GetSubreddits(null);
+                };
+            return Tuple.Create<Task<Listing>, Task<Listing>>(null, realWork());
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Baconography.NeutralServices
@@ -42,6 +43,7 @@ namespace Baconography.NeutralServices
 
             _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history.ism", DBCreateFlags.None);
             _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings.ism", DBCreateFlags.None);
+            _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs.ism", DBCreateFlags.None);
 
             //get our initial action queue state
             var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock);
@@ -96,6 +98,7 @@ namespace Baconography.NeutralServices
         DB _historyDb;
         DB _actionsDb;
         DB _thumbnailsDb;
+        DB _blobStoreDb;
         HashSet<string> _clickHistory = new HashSet<string>();
 
         public async Task Clear()
@@ -253,18 +256,63 @@ namespace Baconography.NeutralServices
         public async Task StoreOrderedThings(string key, IEnumerable<Thing> things)
         {
             await Initialize();
-
+            try
+            {
+                var thingsArray = things.ToArray();
+                var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray)));
+                var cursor = await _blobStoreDb.SeekAsync(DBReadFlags.NoLock);
+                if (cursor != null)
+                {
+                    cursor.Dispose();
+                    await _blobStoreDb.UpdateAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
+                }
+                else
+                {
+                    await _blobStoreDb.InsertAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
+                }
+            }
+            catch
+            {
+            }
         }
 
         public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
         {
             await Initialize();
-            return null;
+            bool badElement = false;
+            try
+            {
+                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
+                if (gottenBlob != null)
+                {
+                    var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                    var decompressedBytes = compressor.Decompress(gottenBlob.ToArray());
+                    return JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                }
+            }
+            catch
+            {
+                badElement = true;
+            }
+
+            if (badElement)
+            {
+                try
+                {
+                    await _blobStoreDb.DeleteAsync(Encoding.UTF8.GetBytes(key));
+                }
+                catch
+                {
+                }
+            }
+            return Enumerable.Empty<Thing>();
         }
 
         public async Task StoreOrderedThings(IListingProvider listingProvider)
         {
             await Initialize();
+            
         }
 
         private Dictionary<string, string> _settingsCache;
