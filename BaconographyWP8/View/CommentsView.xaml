@@ -14,6 +14,7 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True"
+                            SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
     DataContext="{Binding Comments, Source={StaticResource Locator}}">
 
     <UserControl.Resources>
@@ -46,10 +47,10 @@
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>
             <common:FixedLongListSelector.ListHeader>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                    <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                    <Grid MinHeight="65" HorizontalAlignment="Stretch" MinWidth="460" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="360" />
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="100" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
