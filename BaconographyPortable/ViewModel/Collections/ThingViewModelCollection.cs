@@ -1,7 +1,9 @@
 ﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,27 +132,38 @@ namespace BaconographyPortable.ViewModel.Collections
                 if (initTpl.Item1 != null)
                 {
                     var initCached = await initTpl.Item1;
-                    _baconProvider.GetService<ISystemServices>().StartTimer(async (o1, o2) =>
-                        {
-                            Listing targetListing = null;
-                            try
-                            {
-                                targetListing = await initTpl.Item2;
-                            }
-                            catch
-                            {
-                            }
-                            if(targetListing == null || !_settingsService.IsOnline())
-                                targetListing = await _offlineListingProvider.GetInitialListing(state).Item2;
 
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(1000);
+                        Listing target = null;
+                        try
+                        {
+                            target = await initTpl.Item2;
+                        }
+                        catch
+                        {
+                        }
+                        if (target == null || !_settingsService.IsOnline())
+                            target = await _offlineListingProvider.GetInitialListing(state).Item2;
+                        return target;
+                    }).ContinueWith((result) =>
+                        {
+                            var targetListing = result.Result;
+                            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                             if (targetListing != null)
                             {
                                 Clear();
                                 foreach (var newVm in MapListing(targetListing, state))
                                     Add(newVm);
                             }
-                            _baconProvider.GetService<ISystemServices>().StopTimer(o1);
-                        }, TimeSpan.Zero, true);
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                    //_baconProvider.GetService<ISystemServices>().StartTimer(async (o1, o2) =>
+                    //    {
+                            
+                    //        _baconProvider.GetService<ISystemServices>().StopTimer(o1);
+                    //    }, TimeSpan.Zero, true);
                     return initCached;
                 }
                 else

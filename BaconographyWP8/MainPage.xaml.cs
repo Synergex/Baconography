@@ -51,7 +51,7 @@ namespace BaconographyWP8
 		private string loginItemText = "login";
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{
-			bool loggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+			bool loggedIn = message.CurrentUser != null && message.CurrentUser.Username != null;
 
 			if (loggedIn)
 			{
