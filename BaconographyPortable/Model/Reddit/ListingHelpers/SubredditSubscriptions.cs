@@ -17,7 +17,12 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
-        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Task<Listing>> GetInitialListing(Dictionary<object, object> state)
+        {
+            return Tuple.Create<Task<Listing>, Task<Listing>>(null, UncachedLoad());
+        }
+
+        private async Task<Listing> UncachedLoad()
         {
             var user = await _userService.GetUser();
             if (user != null && user.Me != null)

@@ -125,17 +125,48 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             if (_settingsService.IsOnline())
             {
-                var result = await _onlineListingProvider.GetInitialListing(state);
-                //make sure we arent starting up in offline mode
-                if (_settingsService.IsOnline())
+                var initTpl = _onlineListingProvider.GetInitialListing(state);
+                
+                if (initTpl.Item1 != null)
                 {
-                    return result;
+                    var initCached = await initTpl.Item1;
+                    _baconProvider.GetService<ISystemServices>().StartTimer(async (o1, o2) =>
+                        {
+                            Listing targetListing = null;
+                            try
+                            {
+                                targetListing = await initTpl.Item2;
+                            }
+                            catch
+                            {
+                            }
+                            if(targetListing == null || !_settingsService.IsOnline())
+                                targetListing = await _offlineListingProvider.GetInitialListing(state).Item2;
+
+                            if (targetListing != null)
+                            {
+                                Clear();
+                                foreach (var newVm in MapListing(targetListing, state))
+                                    Add(newVm);
+                            }
+                            _baconProvider.GetService<ISystemServices>().StopTimer(o1);
+                        }, TimeSpan.Zero, true);
+                    return initCached;
                 }
                 else
-                    return await _offlineListingProvider.GetInitialListing(state);
+                {
+                    var result = await initTpl.Item2;
+                    //make sure we arent starting up in offline mode
+                    if (_settingsService.IsOnline())
+                    {
+                        return result;
+                    }
+                    else
+                        return await _offlineListingProvider.GetInitialListing(state).Item2;
+                }
             }
             else
-                return await _offlineListingProvider.GetInitialListing(state);
+                return await _offlineListingProvider.GetInitialListing(state).Item2;
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

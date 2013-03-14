@@ -49,7 +49,7 @@ namespace BaconographyPortable.ViewModel.Collections
         async Task RunInitialLoad(object c)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetInitialListing(_state);
+            var initialListing = await _listingProvider.GetInitialListing(_state).Item2;
             var remainingVMs = await MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);

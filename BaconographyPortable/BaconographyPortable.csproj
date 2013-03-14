@@ -51,6 +51,19 @@
     <Compile Include="Messages\SelectSubredditMessage.cs" />
     <Compile Include="Messages\SelectUserAccountMessage.cs" />
     <Compile Include="Messages\UserLoggedInMessage.cs" />
+    <Compile Include="Model\Compression\CompressionService.cs" />
+    <Compile Include="Model\Compression\CRC.cs" />
+    <Compile Include="Model\Compression\ICoder.cs" />
+    <Compile Include="Model\Compression\LZMA\LzmaBase.cs" />
+    <Compile Include="Model\Compression\LZMA\LzmaDecoder.cs" />
+    <Compile Include="Model\Compression\LZMA\LzmaEncoder.cs" />
+    <Compile Include="Model\Compression\LZ\IMatchFinder.cs" />
+    <Compile Include="Model\Compression\LZ\LzBinTree.cs" />
+    <Compile Include="Model\Compression\LZ\LzInWindow.cs" />
+    <Compile Include="Model\Compression\LZ\LzOutWindow.cs" />
+    <Compile Include="Model\Compression\RangeCoder\RangeCoder.cs" />
+    <Compile Include="Model\Compression\RangeCoder\RangeCoderBit.cs" />
+    <Compile Include="Model\Compression\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
@@ -87,6 +100,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\ICompressionService.cs" />
     <Compile Include="Services\IDynamicViewLocator.cs" />
     <Compile Include="Services\IImagesService.cs" />
     <Compile Include="Services\ILiveTileService.cs" />

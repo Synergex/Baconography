@@ -26,6 +26,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
+        bool _initialLoad = true;
 
 
 		public MainPageViewModel(IBaconProvider baconProvider)
@@ -83,7 +84,11 @@ namespace BaconographyPortable.ViewModel
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
 			}
 
-            LoadSubreddits();
+            if (_initialLoad)
+            {
+                _initialLoad = false;
+                LoadSubreddits();
+            }
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
