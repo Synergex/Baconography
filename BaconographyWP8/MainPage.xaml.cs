@@ -41,11 +41,19 @@ namespace BaconographyWP8
 				isNewInstance = false;
 		}
 
-
 		protected override async void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
 			await mpvm.SaveSubreddits();
+		}
+
+		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
+		{
+			if (e.Orientation == PageOrientation.Landscape)
+				SystemTray.IsVisible = false;
+			else
+				SystemTray.IsVisible = true;
+			base.OnOrientationChanged(e);
 		}
 
 		private string loginItemText = "login";
