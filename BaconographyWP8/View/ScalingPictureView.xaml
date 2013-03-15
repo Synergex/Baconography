@@ -18,7 +18,7 @@
                 <!--Use ImageConverter defined as a static resource in App.xaml to convert a byte array to a BitmapImage-->
                 <Image x:Name="ImageReceived" Source="{Binding Path=ImageSource}" 
                            CacheMode="BitmapCache" RenderTransformOrigin="0,0"
-                           ImageOpened="OnImageOpened">
+                           ImageOpened="OnImageOpened" MaxWidth="2048">
                     <Image.RenderTransform>
                         <ScaleTransform x:Name="xform"/>
                     </Image.RenderTransform>

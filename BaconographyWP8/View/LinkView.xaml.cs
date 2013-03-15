@@ -1,4 +1,5 @@
 ﻿
+using BaconographyPortable.ViewModel;
 using BaconographyWP8Core;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,38 @@ namespace BaconographyWP8.View
         {
 			this.InitializeComponent();
         }
+
+		private void TitleButton_Hold(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var vm = this.DataContext as LinkViewModel;
+			vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
+		}
+
+		private void TitleButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var vm = this.DataContext as LinkViewModel;
+			vm.GotoComments();
+		}
+
+		public static readonly DependencyProperty DisplaySubredditProperty =
+			DependencyProperty.Register(
+				"DisplaySubreddit",
+				typeof(bool),
+				typeof(LinkView),
+				new PropertyMetadata(false, OnDisplaySubredditChanged)
+			);
+
+		private static void OnDisplaySubredditChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var link = (LinkView)d;
+			link.DisplaySubreddit = (bool)e.NewValue;
+		}
+
+		public bool DisplaySubreddit
+		{
+			get { return (bool)GetValue(DisplaySubredditProperty); }
+			set { SetValue(DisplaySubredditProperty, value); }
+		}
+
     }
 }

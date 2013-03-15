@@ -20,6 +20,7 @@
     <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
     <converters:DepthColorConverter x:Key="depthColorConverter"/>
     <converters:DepthMarginConverter x:Key="depthMarginConverter"/>
+    <converters:VoteColorConverter x:Key="voteColorConverter"/>
     <converters:IntegerAdditionConverter x:Key="integerAdditionConverter"/>
     <converters:MarkdownConverter x:Key="markdownConverter"/>
     <converters:ReplyConverter x:Key="replyConverter"/>

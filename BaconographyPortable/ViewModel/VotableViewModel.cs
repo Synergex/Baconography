@@ -32,6 +32,18 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public int LikeStatus
+		{
+			get
+			{
+				if (Like)
+					return 1;
+				if (Dislike)
+					return -1;
+				return 0;
+			}
+		}
+
         public bool Like
         {
             get
@@ -52,6 +64,7 @@ namespace BaconographyPortable.ViewModel
                     RaisePropertyChanged("Like");
                     RaisePropertyChanged("Dislike");
                     RaisePropertyChanged("TotalVotes");
+					RaisePropertyChanged("LikeStatus");
                 }
             }
         }
@@ -75,6 +88,7 @@ namespace BaconographyPortable.ViewModel
                     RaisePropertyChanged("Like");
                     RaisePropertyChanged("Dislike");
                     RaisePropertyChanged("TotalVotes");
+					RaisePropertyChanged("LikeStatus");
                 }
             }
         }
