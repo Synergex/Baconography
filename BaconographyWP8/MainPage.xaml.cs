@@ -86,6 +86,12 @@ namespace BaconographyWP8
 			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = item.Heading });
 		}
 
+		private void MenuSettings_Click(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(SettingsPageView), null);
+		}
+
 		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
 		{
 			if (e.IsMenuVisible)
@@ -109,8 +115,13 @@ namespace BaconographyWP8
 					if (item != null && pivot.SelectedIndex != 0)
 						close.IsEnabled = true;
 
+					var settings = new ApplicationBarMenuItem();
+					settings.Text = "settings";
+					settings.Click += MenuSettings_Click;
+
 					appBarMenu.MenuItems.Add(login);
 					appBarMenu.MenuItems.Add(close);
+					appBarMenu.MenuItems.Add(settings);
 				}
 			}
 		}

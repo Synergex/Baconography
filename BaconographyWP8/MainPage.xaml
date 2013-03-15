@@ -127,6 +127,7 @@
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="login"/>
                 <shell:ApplicationBarMenuItem Text="close subreddit"/>
+                <shell:ApplicationBarMenuItem Text="settings"/>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>

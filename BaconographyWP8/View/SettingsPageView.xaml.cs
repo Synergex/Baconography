@@ -15,27 +15,12 @@ using BaconographyWP8.Common;
 
 namespace BaconographyWP8.View
 {
-	[ViewUri("/View/LoginPageView.xaml")]
-	public partial class LoginPageView : PhoneApplicationPage
+	[ViewUri("/View/SettingsPageView.xaml")]
+	public partial class SettingsPageView : PhoneApplicationPage
 	{
-		public LoginPageView()
+		public SettingsPageView()
 		{
 			InitializeComponent();
-		}
-
-		protected override void OnNavigatedTo(NavigationEventArgs e)
-		{
-			var vm = ServiceLocator.Current.GetInstance<LoginPageViewModel>() as LoginPageViewModel;
-			if (vm != null)
-			{
-				if (!String.IsNullOrEmpty(vm.CurrentUserName))
-				{
-					pivot.SelectedIndex = 1;
-				}
-
-				vm.LoadCredentials();
-			}
-			base.OnNavigatedTo(e);
 		}
 
 		private void HyperlinkButton_Click(object sender, RoutedEventArgs e)

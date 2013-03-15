@@ -94,6 +94,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
@@ -142,6 +143,9 @@
     </Compile>
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingsPageView.xaml.cs">
+      <DependentUpon>SettingsPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ExtendedCommentView.xaml.cs">
       <DependentUpon>ExtendedCommentView.xaml</DependentUpon>
@@ -206,6 +210,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SettingsPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
