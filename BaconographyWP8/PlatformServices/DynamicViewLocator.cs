@@ -59,5 +59,10 @@ namespace BaconographyWP8.PlatformServices
 		{
 			get { throw new NotImplementedException(); }
 		}
+
+		public Type MainView
+		{
+			get { return typeof(MainPage); }
+		}
     }
 }

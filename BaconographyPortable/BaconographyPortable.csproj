@@ -49,6 +49,7 @@
     <Compile Include="Messages\SearchQueryMessage.cs" />
     <Compile Include="Messages\SelectCommentTreeMessage.cs" />
     <Compile Include="Messages\SelectSubredditMessage.cs" />
+    <Compile Include="Messages\SelectTemporaryRedditMessage.cs" />
     <Compile Include="Messages\SelectUserAccountMessage.cs" />
     <Compile Include="Messages\UserLoggedInMessage.cs" />
     <Compile Include="Model\Compression\CompressionService.cs" />

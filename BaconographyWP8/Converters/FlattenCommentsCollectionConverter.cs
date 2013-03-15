@@ -121,7 +121,7 @@ namespace BaconographyWP8.Converters
 
 		public CommentViewModel GetLastChild(CommentViewModel vm)
 		{
-			if (vm.Replies.Count == 0)
+			if (vm.Replies == null || vm.Replies.Count == 0)
 				return vm;
 
 			CommentViewModel lastChild = vm.Replies[vm.Replies.Count - 1] as CommentViewModel;

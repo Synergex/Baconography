@@ -2,6 +2,7 @@
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyWP8Core;
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
@@ -52,6 +53,17 @@ namespace BaconographyWP8.PlatformServices
 				webTask.Uri = targetUri;
 				webTask.Show();
 				return true;
+			}
+
+			if (parameter is SelectSubredditMessage)
+			{
+				var viewLocator = SimpleIoc.Default.GetService(typeof(IDynamicViewLocator)) as IDynamicViewLocator;
+				source = viewLocator.MainView;
+				var temp = parameter as SelectSubredditMessage;
+				parameter = new SelectTemporaryRedditMessage
+					{
+						Subreddit = temp.Subreddit
+					};
 			}
 
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;

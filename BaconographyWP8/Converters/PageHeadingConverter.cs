@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.ViewModel;
+using BaconographyWP8.ViewModel;
 using Microsoft.Phone.Controls;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,12 @@ namespace BaconographyWP8.Converters
         {
 			if (value is SubredditSelectorViewModel)
 				return "new";
+
+			if (value is TemporaryRedditViewModel)
+			{
+				var trvm = value as TemporaryRedditViewModel;
+				return "*" + trvm.RedditViewModel.Heading.ToLower();
+			}
 
 			if (value is RedditViewModel)
 			{
