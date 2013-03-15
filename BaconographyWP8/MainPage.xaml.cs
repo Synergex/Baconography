@@ -46,13 +46,11 @@ namespace BaconographyWP8
 				SystemTray.IsVisible = true;
 
 			if (orientation == PageOrientation.LandscapeRight)
-			{
 				LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
-			}
+			else if (orientation == PageOrientation.LandscapeLeft)
+				LayoutRoot.Margin = new Thickness(0, 0, 35, 0);
 			else
-			{
 				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
-			}
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
