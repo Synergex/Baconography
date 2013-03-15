@@ -115,22 +115,22 @@ namespace BaconographyPortable.ViewModel
             redditVM.DetachSubredditMessage();
             PivotItems.Add(redditVM);
             PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
-			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
-            if (serializedSubreddits != null)
-            {
-                var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
-                if (subreddits != null)
-                {
 
-                    foreach (var sub in subreddits)
-                    {
-                        if (sub.Data != null && sub.Data.Id != null)
-                        {
-                            var message = new SelectSubredditMessage();
-                            message.Subreddit = sub;
-                            OnSubredditChanged(message);
-                        }
-                    }
+			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
+			if (serializedSubreddits == null)
+				return;
+
+			var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
+            if (subreddits == null)
+				return;
+                
+            foreach (var sub in subreddits)
+            {
+                if (sub.Data != null && sub.Data.Id != null)
+                {
+                    var message = new SelectSubredditMessage();
+                    message.Subreddit = sub;
+                    OnSubredditChanged(message);
                 }
             }
 		}
