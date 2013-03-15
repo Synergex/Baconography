@@ -104,6 +104,7 @@
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
     <Compile Include="Converters\PageHeadingConverter.cs" />

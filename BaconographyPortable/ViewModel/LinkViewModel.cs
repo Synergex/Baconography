@@ -22,6 +22,7 @@ namespace BaconographyPortable.ViewModel
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
         bool _isPreviewShown;
+		bool _isExtendedOptionsShown;
 
         public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
         {
@@ -32,7 +33,9 @@ namespace BaconographyPortable.ViewModel
             _imagesService = _baconProvider.GetService<IImagesService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _isPreviewShown = false;
+			_isExtendedOptionsShown = false;
             ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
+			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
         }
 
         VotableViewModel _votable;
@@ -149,6 +152,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public bool IsExtendedOptionsShown
+		{
+			get
+			{
+				return _isExtendedOptionsShown;
+			}
+			set
+			{
+				_isExtendedOptionsShown = value;
+				RaisePropertyChanged("IsExtendedOptionsShown");
+			}
+		}
+
         public Tuple<bool, string> PreviewPack
         {
             get
@@ -164,7 +180,12 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<LinkViewModel> _gotoLink = new RelayCommand<LinkViewModel>(GotoLinkImpl);
 
         public RelayCommand ShowPreview { get; set; }
+		public RelayCommand ShowExtendedOptions { get; set; }
 
+		public void GotoComments()
+		{
+			NavigateToCommentsImpl(this);
+		}
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {

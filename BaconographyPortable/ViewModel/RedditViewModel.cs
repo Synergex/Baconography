@@ -246,6 +246,16 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public bool IsFrontPage
+		{
+			get
+			{
+				if (_selectedSubreddit == null || _selectedSubreddit.Data.Url == "/")
+					return true;
+				return false;
+			}
+		}
+
         public bool IsPinned
         {
             get

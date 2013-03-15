@@ -11,34 +11,74 @@
     d:DesignHeight="75"
     d:DesignWidth="480"
     x:Name="controlRoot">
+    
+    <UserControl.Resources>
+        <Style x:Key="RoundButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent">
+                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="White" StrokeThickness="2"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="RoundToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid Background="Transparent">
+                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="White" StrokeThickness="2"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
-    <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
+    <Grid MinHeight="65" HorizontalAlignment="Stretch" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="100" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            
+            <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
-        <Button Grid.Column="0" BorderThickness="0" Margin="0" Padding="0" HorizontalContentAlignment="Left"
-                Command="{Binding NavigateToComments}" CommandParameter="{Binding}" FontFamily="Segoe WP" >
+        <Button Grid.Column="0" Grid.Row="0" BorderThickness="0" Margin="0" Padding="0" HorizontalContentAlignment="Left"
+                FontFamily="Segoe WP" Tap="TitleButton_Tap" Hold="TitleButton_Hold">
             <Button.Content>
                 <StackPanel>
-                    <TextBlock  Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
-                    <StackPanel Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                        <TextBlock FontSize="15" Foreground="Gray" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <TextBlock FontSize="15" Foreground="Gray" Text=" by " />
-                        <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
-                        <TextBlock FontSize="15" Foreground="Gray" Text=" in " />
-                        <TextBlock FontSize="15" Foreground="Gray" Text="{Binding Subreddit}" />
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="0,3,0,0">
+                        <TextBlock FontSize="16" Text="{Binding Path=Votable.TotalVotes}"
+                                   Foreground="{Binding Path=Votable.LikeStatus, Converter={StaticResource voteColorConverter}}"/>
+                        <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" - " />
+                        <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource booleanVisibilityConverter}}">
+                            <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" in " />
+                            <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                            <TextBlock FontSize="15" Foreground="Gray" Text=" by " />
+                            <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
+                        </StackPanel>
                     </StackPanel>
+                    <Border BorderThickness="0" Visibility="{Binding IsExtendedOptionsShown, Converter={StaticResource booleanVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource booleanVisibilityConverter}}">
+                            <TextBlock FontSize="15" Foreground="Gray" Text="by " />
+                            <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Button.Content>
         </Button>
-        
 
-        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
-            <Button BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center"
+        <Grid Grid.Column="1" Grid.Row="0"  Height="70" Width="70">
+            <Button BorderThickness="0" Height="70" Width="70" Margin="0,0,5,0" VerticalAlignment="Center"
                     Command="{Binding GotoLink}" CommandParameter="{Binding}">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
@@ -68,11 +108,61 @@
             </Button>
         </Grid>
 
-        <!--
-        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
-            <ContentControl Content="{Binding PreviewPack, Converter={StaticResource previewDataConverter}}"/>
-        </Grid>-->
-        
+        <Grid Grid.ColumnSpan="2" Grid.Row="1"
+                Margin="20,10,0,0" MinWidth="430" HorizontalAlignment="Stretch"
+                Visibility="{Binding IsExtendedOptionsShown, Converter={StaticResource booleanVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="4" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ToggleButton Grid.Row="0" Grid.Column="0"
+                    FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="40" Height="40"
+                    Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+                    Command="{Binding Path=Votable.ToggleUpvote}" CommandParameter="{Binding Votable}"
+                    IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,4,0,0" Text="Upvote" FontSize="14" HorizontalAlignment="Center" />
+
+            <ToggleButton Grid.Row="0" Grid.Column="1"
+                    FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="40" Height="40"
+                    Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+                    Command="{Binding Path=Votable.ToggleDownvote}" CommandParameter="{Binding Votable}"
+                    IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}">
+                <ToggleButton.RenderTransform>
+                    <RotateTransform Angle="180" CenterX="20" CenterY="20" />
+                </ToggleButton.RenderTransform>
+            </ToggleButton>
+            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,4,0,0" Text="Downvote" FontSize="14" HorizontalAlignment="Center" />
+
+            <Button Grid.Row="0" Grid.Column="2"
+                    FontFamily="Segoe UI Symbol" FontSize="14"
+                    Width="40" Height="40"
+                    Content="{Binding CommentCount}" Style="{StaticResource RoundButtonStyle}"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,4,0,0" Text="Comments" FontSize="14" HorizontalAlignment="Center" />
+
+            <Button Grid.Row="0" Grid.Column="3"
+                    FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="40" Height="40"
+                    Content="&#xE113;" Style="{StaticResource RoundButtonStyle}"/>
+            <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,4,0,0" Text="Save" FontSize="14" HorizontalAlignment="Center" />
+
+            <Button Grid.Row="0" Grid.Column="4"
+                    FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="40" Height="40"
+                    Content="&#xE106;" Style="{StaticResource RoundButtonStyle}"/>
+            <TextBlock Grid.Row="2" Grid.Column="4" Margin="0,4,0,0" Text="Hide" FontSize="14" HorizontalAlignment="Center" />
+        </Grid>
+
     </Grid>
 
 </UserControl>
