@@ -147,10 +147,11 @@
             <Button Grid.Row="0" Grid.Column="2"
                     FontFamily="Segoe UI Symbol" FontSize="14"
                     Width="40" Height="40"
-                    Content="{Binding CommentCount}" Style="{StaticResource RoundButtonStyle}"/>
+                    Content="{Binding CommentCount}" Style="{StaticResource RoundButtonStyle}"
+                    Command="{Binding NavigateToComments}" CommandParameter="{Binding}"/>
             <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,4,0,0" Text="Comments" FontSize="14" HorizontalAlignment="Center" />
 
-            <Button Grid.Row="0" Grid.Column="3"
+            <!--<Button Grid.Row="0" Grid.Column="3"
                     FontFamily="Segoe UI Symbol" FontSize="16"
                     Width="40" Height="40"
                     Content="&#xE113;" Style="{StaticResource RoundButtonStyle}"/>
@@ -161,6 +162,7 @@
                     Width="40" Height="40"
                     Content="&#xE106;" Style="{StaticResource RoundButtonStyle}"/>
             <TextBlock Grid.Row="2" Grid.Column="4" Margin="0,4,0,0" Text="Hide" FontSize="14" HorizontalAlignment="Center" />
+            -->
         </Grid>
 
     </Grid>
