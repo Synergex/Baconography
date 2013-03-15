@@ -45,11 +45,14 @@ namespace BaconographyWP8.Converters
 			if (vm is CommentViewModel)
 			{
 				var comment = vm as CommentViewModel;
-				comment.Replies.CollectionChanged += Comment_CollectionChanged;
-				foreach (ViewModelBase child in comment.Replies)
+				if (comment.Replies != null)
 				{
-					VisitAddChildren(child, index < 0 ? -1 : index + 1);
-				}	
+					comment.Replies.CollectionChanged += Comment_CollectionChanged;
+					foreach (ViewModelBase child in comment.Replies)
+					{
+						VisitAddChildren(child, index < 0 ? -1 : index + 1);
+					}
+				}
 			}
 		}
 
