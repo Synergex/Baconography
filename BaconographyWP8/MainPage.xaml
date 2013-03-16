@@ -23,6 +23,9 @@
         <DataTemplate x:Key="Type:SubredditSelectorViewModel">
             <local:SubredditSelectorView/>
         </DataTemplate>
+        <DataTemplate x:Key="Type:TemporaryRedditViewModel">
+            <local:TemporaryRedditView DataContext="{Binding}"/>
+        </DataTemplate>
     </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -53,29 +56,6 @@
             attributes to be drawn from the .resx file that matches the
             CurrentUICulture of the app at run time.
          -->
-        <!--
-        <Grid Grid.RowSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left" Background="Aqua" Height="800" Width="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="67"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="100"/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Background="Azure" />
-            <Grid Grid.Row="1" Background="Beige"/>
-            <Grid Grid.Row="2" Background="Bisque"/>
-            <Grid Grid.Row="3" Background="Azure"/>
-            <Grid Grid.Row="4" Background="Beige"/>
-            <Grid Grid.Row="5" Background="Bisque"/>
-            <Grid Grid.Row="6" Background="Azure"/>
-            <Grid Grid.Row="7" Background="Beige"/>
-        </Grid>
-        -->
 
         <!--TitlePanel contains the name of the application and page title-->
         <!--<StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,5,0,5">
@@ -127,6 +107,7 @@
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="login"/>
                 <shell:ApplicationBarMenuItem Text="close subreddit"/>
+                <shell:ApplicationBarMenuItem Text="settings"/>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>

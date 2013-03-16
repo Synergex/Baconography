@@ -16,36 +16,91 @@ using BaconographyWP8.View;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyPortable.Messages;
 using BaconographyWP8.Messages;
+using BaconographyWP8Core;
+using BaconographyWP8.ViewModel;
 
 namespace BaconographyWP8
 {
+	[ViewUri("/MainPage.xaml")]
     public partial class MainPage : PhoneApplicationPage
     {
-		bool isNewInstance;
 
         // Constructor
         public MainPage()
         {
             InitializeComponent();
-			isNewInstance = true;
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
 
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
+			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
         }
+
+		private void AdjustForOrientation(PageOrientation orientation)
+		{
+			if (orientation == PageOrientation.Landscape
+				|| orientation == PageOrientation.LandscapeLeft
+				|| orientation == PageOrientation.LandscapeRight)
+				SystemTray.IsVisible = false;
+			else
+				SystemTray.IsVisible = true;
+
+			if (orientation == PageOrientation.LandscapeRight)
+				LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
+			else if (orientation == PageOrientation.LandscapeLeft)
+				LayoutRoot.Margin = new Thickness(0, 0, 35, 0);
+			else
+				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
+		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
+			this.AdjustForOrientation(this.Orientation);
 
-			if (isNewInstance)
-				isNewInstance = false;
+			if (e.NavigationMode == NavigationMode.Back)
+			{
+
+			}
+			else if (e.NavigationMode == NavigationMode.New)
+			{
+				if (this.NavigationContext.QueryString.ContainsKey("data"))
+				{
+					var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+					var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
+					if (deserializedObject is SelectTemporaryRedditMessage)
+					{
+						Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
+					}
+				}
+			}
 		}
-
 
 		protected override async void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
 			await mpvm.SaveSubreddits();
+		}
+
+		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
+		{
+			AdjustForOrientation(e.Orientation);
+
+			base.OnOrientationChanged(e);
+		}
+
+		private void OnSelectIndexMessage(SelectIndexMessage message)
+		{
+			if (message.TypeContext == typeof(MainPageViewModel))
+			{
+				if (message.Index < pivot.Items.Count && message.Index >= 0)
+				{
+					pivot.SelectedIndex = message.Index;
+				}
+				else if (message.Index == -1)
+				{
+					pivot.SelectedIndex = pivot.Items.Count - 1;
+				}
+			}
 		}
 
 		private string loginItemText = "login";
@@ -71,11 +126,32 @@ namespace BaconographyWP8
 
 		private void MenuClose_Click(object sender, EventArgs e)
 		{
-			var item = pivot.SelectedItem as RedditViewModel;
-			if (item == null)
+			var rvm = pivot.SelectedItem as RedditViewModel;
+			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+			if (rvm != null)
+			{
+				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = rvm.Heading });
+			}
+			else if (trvm != null)
+			{
+				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.RedditViewModel.Heading });
+			}
+		}
+
+		private void MenuSave_Click(object sender, EventArgs e)
+		{
+			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+			if (trvm == null)
 				return;
 
-			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = item.Heading });
+			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.RedditViewModel.Heading });
+			Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = trvm.RedditViewModel.SelectedSubreddit });
+		}
+
+		private void MenuSettings_Click(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(SettingsPageView), null);
 		}
 
 		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
@@ -97,12 +173,30 @@ namespace BaconographyWP8
 					close.Click += MenuClose_Click;
 					close.IsEnabled = false;
 
-					var item = pivot.SelectedItem as RedditViewModel;
-					if (item != null && pivot.SelectedIndex != 0)
+					var rvm = pivot.SelectedItem as RedditViewModel;
+					if (rvm != null && pivot.SelectedIndex != 0)
 						close.IsEnabled = true;
 
-					appBarMenu.MenuItems.Add(login);
+					ApplicationBarMenuItem save = null;
+					var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+					if (trvm != null)
+					{
+						close.IsEnabled = true;
+						save = new ApplicationBarMenuItem();
+						save.Text = "save subreddit";
+						save.Click += MenuSave_Click;
+					}
+
+					var settings = new ApplicationBarMenuItem();
+					settings.Text = "settings";
+					settings.Click += MenuSettings_Click;
+
 					appBarMenu.MenuItems.Add(close);
+					if (save != null)
+						appBarMenu.MenuItems.Add(save);
+					appBarMenu.MenuItems.Add(login);
+					appBarMenu.MenuItems.Add(settings);
+
 				}
 			}
 		}

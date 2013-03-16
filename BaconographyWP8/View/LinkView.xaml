@@ -151,6 +151,13 @@
                     Command="{Binding NavigateToComments}" CommandParameter="{Binding}"/>
             <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,4,0,0" Text="Comments" FontSize="14" HorizontalAlignment="Center" />
 
+            <Button Grid.Row="0" Grid.Column="3"
+                    FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="40" Height="40"
+                    Content="&#xE167;" Style="{StaticResource RoundButtonStyle}"
+                    Command="{Binding GotoLink}" CommandParameter="{Binding}"/>
+            <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,4,0,0" Text="Link" FontSize="14" HorizontalAlignment="Center" />
+
             <!--<Button Grid.Row="0" Grid.Column="3"
                     FontFamily="Segoe UI Symbol" FontSize="16"
                     Width="40" Height="40"

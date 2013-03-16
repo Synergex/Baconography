@@ -59,5 +59,10 @@ namespace BaconographyW8.PlatformServices
         {
             get { return typeof(AboutUserView); }
         }
+
+		public Type MainView
+		{
+			get { return RedditView; }
+		}
     }
 }

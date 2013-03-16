@@ -44,11 +44,12 @@
                             <TextBlock Foreground="Red" HorizontalAlignment="Center" Text="Login Failed: incorrect username or password"/>
                         </Border>
                     </StackPanel>
-                    <HyperlinkButton VerticalAlignment="Bottom"
-                                     NavigateUri="http://www.reddit.com/register"
-                                     Padding="10">
+                    <common:ContextDataButton VerticalAlignment="Bottom"
+                                     ContextData="http://www.reddit.com/register"
+                                     Padding="10"
+                                     Click="HyperlinkButton_Click">
                         Need an account? Click here to register
-                    </HyperlinkButton>
+                    </common:ContextDataButton>
                 </Grid>
             </phone:PivotItem>
 
