@@ -78,9 +78,9 @@ namespace BaconographyPortable.ViewModel.Collections
         private Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
-                return _onlineListingProvider.GetInitialListing(state).Item2;
+                return _onlineListingProvider.GetInitialListing(state).Item2();
             else
-                return _offlineListingProvider.GetInitialListing(state).Item2;
+                return _offlineListingProvider.GetInitialListing(state).Item2();
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

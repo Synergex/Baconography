@@ -17,9 +17,9 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
-        public Tuple<Task<Listing>, Task<Listing>> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Task<Listing>>(null,_redditService.Search(_query, 20));
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _redditService.Search(_query, 20));
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

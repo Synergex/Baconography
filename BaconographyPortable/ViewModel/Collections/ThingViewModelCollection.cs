@@ -128,58 +128,59 @@ namespace BaconographyPortable.ViewModel.Collections
             if (_settingsService.IsOnline())
             {
                 var initTpl = _onlineListingProvider.GetInitialListing(state);
-                
+
+                var initCache = await initTpl.Item1;
                 if (initTpl.Item1 != null)
                 {
-                    var initCached = await initTpl.Item1;
-
                     Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                     Task.Run(async () =>
                     {
-                        await Task.Delay(1000);
                         Listing target = null;
                         try
                         {
-                            target = await initTpl.Item2;
+                            await Task.Delay(1000);
+                            target = await initTpl.Item2();
                         }
                         catch
                         {
                         }
                         if (target == null || !_settingsService.IsOnline())
-                            target = await _offlineListingProvider.GetInitialListing(state).Item2;
+                            target = await _offlineListingProvider.GetInitialListing(state).Item2();
                         return target;
-                    }).ContinueWith((result) =>
+                    }).ContinueWith(async (result) =>
                         {
                             var targetListing = result.Result;
                             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                             if (targetListing != null)
                             {
-                                Clear();
-                                foreach (var newVm in MapListing(targetListing, state))
-                                    Add(newVm);
+                                var mappedListing = MapListing(targetListing, state).ToArray();
+                                for (int i = 0; i < mappedListing.Length; i++)
+                                {
+                                    if (this.Count > i)
+                                        this[i] = mappedListing[i];
+                                    else
+                                        Add(mappedListing[i]);
+                                }
+
+
                             }
                         }, TaskScheduler.FromCurrentSynchronizationContext());
-                    //_baconProvider.GetService<ISystemServices>().StartTimer(async (o1, o2) =>
-                    //    {
-                            
-                    //        _baconProvider.GetService<ISystemServices>().StopTimer(o1);
-                    //    }, TimeSpan.Zero, true);
-                    return initCached;
+                    return initCache;
                 }
                 else
                 {
-                    var result = await initTpl.Item2;
+                    var result = await initTpl.Item2();
                     //make sure we arent starting up in offline mode
                     if (_settingsService.IsOnline())
                     {
                         return result;
                     }
                     else
-                        return await _offlineListingProvider.GetInitialListing(state).Item2;
+                        return await _offlineListingProvider.GetInitialListing(state).Item2();
                 }
             }
             else
-                return await _offlineListingProvider.GetInitialListing(state).Item2;
+                return await _offlineListingProvider.GetInitialListing(state).Item2();
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
