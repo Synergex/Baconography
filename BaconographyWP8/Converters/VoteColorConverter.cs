@@ -14,7 +14,6 @@ namespace BaconographyWP8.Converters
 {
     public class VoteColorConverter : IValueConverter
     {
-		static SolidColorBrush neutral = new SolidColorBrush(System.Windows.Media.Colors.White);
 		static SolidColorBrush upvote = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 154, 00));
 		static SolidColorBrush downvote = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 85, 77, 216));
 
@@ -27,10 +26,10 @@ namespace BaconographyWP8.Converters
 					return upvote;
 				if (val == -1)
 					return downvote;
-				return neutral;
+				return (SolidColorBrush)Application.Current.Resources["PhoneForegroundBrush"]; 
 			}
 
-			return neutral;
+			return (SolidColorBrush)Application.Current.Resources["PhoneForegroundBrush"];
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

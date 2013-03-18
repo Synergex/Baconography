@@ -17,7 +17,6 @@
    
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
-                Background="Black"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
