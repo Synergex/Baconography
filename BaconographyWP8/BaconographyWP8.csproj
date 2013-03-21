@@ -97,6 +97,7 @@
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
+    <Compile Include="Common\InvertedBackgroundBorder.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Converters\AlternatingColorConverter.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\InvertBrushConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
@@ -140,6 +142,9 @@
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
     <Compile Include="ViewModel\TemporaryRedditViewModel.cs" />
+    <Compile Include="View\AboutUserView.xaml.cs">
+      <DependentUpon>AboutUserView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\CommentsView.xaml.cs">
       <DependentUpon>CommentsView.xaml</DependentUpon>
     </Compile>
@@ -208,6 +213,9 @@
     </ApplicationDefinition>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AboutUserView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CommentsView.xaml">

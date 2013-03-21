@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using System.Threading;
 using Microsoft.Phone.Info;
+using System.Windows.Media;
 
 namespace BaconographyWP8
 {

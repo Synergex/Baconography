@@ -18,7 +18,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid Background="Transparent">
-                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="White" StrokeThickness="2"/>
+                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="{StaticResource PhoneForegroundBrush}" StrokeThickness="2"/>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
                         </Grid>
                     </ControlTemplate>
@@ -30,7 +30,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
                         <Grid Background="Transparent">
-                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="White" StrokeThickness="2"/>
+                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="{StaticResource PhoneForegroundBrush}" StrokeThickness="2"/>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
                         </Grid>
                     </ControlTemplate>
@@ -86,12 +86,12 @@
                             <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
                                 <Grid>
                                     <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                                    <Border Padding="1" Margin="0,0,0,0"
-                                            HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                    <Border Padding="1" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                         <Border.Background>
                                             <SolidColorBrush Color="Black" Opacity="0.4" />
                                         </Border.Background>
                                         <TextBlock FontFamily="Segoe UI Symbol" FontSize="18"
+                                                   Foreground="White"
                                                    Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
                                     </Border>
                                 </Grid>

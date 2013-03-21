@@ -20,8 +20,8 @@
             <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0" Padding="0" Margin="0,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}"
                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="DarkOrange" Text="Load more comments" Margin="0,0,0,0" />
-                    <TextBlock Foreground="DarkOrange" Text="{Binding CountString}" Margin="5,0,0,0" />
+                    <TextBlock Style="{StaticResource PhoneTextAccentStyle}" Text="Load more comments" Margin="0,0,0,0" />
+                    <TextBlock Style="{StaticResource PhoneTextAccentStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
                 </StackPanel>
             </Button>
             <ProgressBar  Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" 
