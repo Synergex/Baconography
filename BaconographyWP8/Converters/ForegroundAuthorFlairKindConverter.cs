@@ -11,23 +11,24 @@ using Windows.UI;
 
 namespace BaconographyWP8.Converters
 {
-    public class AuthorFlairKindConverter : IValueConverter
+    public class ForegroundAuthorFlairKindConverter : IValueConverter
     {
-        SolidColorBrush bg_none = new SolidColorBrush(Colors.Transparent);
-        SolidColorBrush bg_mod = new SolidColorBrush(Colors.Red);
-        SolidColorBrush bg_op = new SolidColorBrush(Colors.Orange);
+		SolidColorBrush fg_none = Utility.GetColorFromHexa("#FFDAA520");
+		SolidColorBrush fg_mod = new SolidColorBrush(Colors.White);
+		SolidColorBrush fg_op = new SolidColorBrush(Colors.Black);
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
 			var kind = (AuthorFlairKind)value;
+
 			switch (kind)
 			{
 				case AuthorFlairKind.OriginalPoster:
-					return bg_op;
+					return fg_op;
 				case AuthorFlairKind.Moderator:
-					return bg_mod;
+					return fg_mod;
 				case AuthorFlairKind.None:
-					return bg_none;
+					return fg_none;
 			}
             return null;
         }

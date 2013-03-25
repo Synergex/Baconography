@@ -37,8 +37,8 @@
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
-                        <Border Margin="0,0,0,0" BorderThickness="0" Padding="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
-                            <TextBlock Foreground="Goldenrod" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
+                        <Border Padding="1,0,1,0" Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
+                            <TextBlock Foreground="{Binding PosterFlair, Converter={StaticResource fgAuthorFlairKindConverter}}" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
                         </Border>
                         <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Path=Votable.TotalVotes}" Margin="5,2,0,0" />
                         <TextBlock Foreground="Gray" FontSize="15" Text="points" Margin="5,2,0,0" />

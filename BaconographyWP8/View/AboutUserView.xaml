@@ -1,0 +1,74 @@
+﻿<phone:PhoneApplicationPage x:Class="BaconographyWP8.View.AboutUserView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"
+    mc:Ignorable="d"
+    shell:SystemTray.IsVisible="True"
+    DataContext="{Binding UserDetails, Source={StaticResource Locator}}">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="Type:CommentViewModel">
+            <local:CommentView/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <local:LinkView/>
+        </DataTemplate>
+        <DataTemplate x:Key="typedTemplateSelector">
+            <common:TypedTemplateSelector Content="{Binding}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
+        <local:LoadIndicatorView VerticalAlignment="Top" />
+
+        <common:FixedLongListSelector Margin="10,20,0,0" HorizontalAlignment="Stretch"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Path=Things, Converter={StaticResource portableAsyncCollectionConverter}}"
+                ItemRealized="linksView_ItemRealized">
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+            <common:FixedLongListSelector.ListHeader>
+                <Grid Margin="0,0,0,12" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="250" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" FontSize="22"
+                               HorizontalAlignment="Left" Text="{Binding UserName}" />
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                        <StackPanel VerticalAlignment="Top" Orientation="Horizontal">
+                            <TextBlock FontSize="15" Text="redditor since " />
+                            <TextBlock FontSize="15" Text="{Binding Age, Converter={StaticResource timeRelationConverter}}" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top" Orientation="Horizontal">
+                            <TextBlock FontSize="15" Text="{Binding LinkKarma}" />
+                            <TextBlock FontSize="15" Text=" link karma" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top" Orientation="Horizontal">
+                            <TextBlock FontSize="15" Text="{Binding CommentKarma}" />
+                            <TextBlock FontSize="15" Text=" comment karma" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+                
+            </common:FixedLongListSelector.ListHeader>
+
+        </common:FixedLongListSelector>
+    </Grid>
+
+</phone:PhoneApplicationPage>

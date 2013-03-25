@@ -13,6 +13,7 @@
     <main:StaticCommands x:Key="StaticCommands" />
 
     <converters:AuthorFlairKindConverter x:Key="authorFlairKindConverter"/>
+    <converters:ForegroundAuthorFlairKindConverter x:Key="fgAuthorFlairKindConverter"/>
     <converters:TimeRelationConverter x:Key="timeRelationConverter"/>
     <converters:InvertBooleanConverter x:Key="invertBooleanConverter"/>
     <converters:BooleanVisibilityConverter x:Key="booleanVisibilityConverter"/>
