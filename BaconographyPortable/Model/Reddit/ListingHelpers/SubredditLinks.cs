@@ -22,9 +22,9 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _subredditId = subredditId;
         }
 
-        public Tuple<Task<Listing>, Task<Listing>> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Task<Listing>>(GetCachedListing(), GetUncachedListing());
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), GetUncachedListing);
         }
 
         private async Task<Listing> GetUncachedListing()
@@ -32,7 +32,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             var resultListing = await _redditService.GetPostsBySubreddit(_subreddit, null);
             //doesnt need to be awaited let it run in the background
             
-            _offlineService.StoreOrderedThings("links:" + _subreddit, resultListing.Data.Children);
+            await _offlineService.StoreOrderedThings("links:" + _subreddit, resultListing.Data.Children);
             return resultListing;
 
         }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
@@ -93,32 +94,33 @@ namespace BaconographyWP8.PlatformServices
 
         public async Task<string> SendGet(string cookie, string uri)
         {
-            //limit requests to once every 500 milliseconds
-            await ThrottleRequests();
+            
+                    //limit requests to once every 500 milliseconds
+                    await ThrottleRequests();
 
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
-            request.Method = "GET";
-            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
-			request.CookieContainer = new CookieContainer();
+                    HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+                    request.Method = "GET";
+                    request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+                    request.CookieContainer = new CookieContainer();
 
-            if (!string.IsNullOrEmpty(cookie))
-                request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
+                    if (!string.IsNullOrEmpty(cookie))
+                        request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
-            var getResult = await GetResponseAsync(request);
+                    var getResult = await GetResponseAsync(request);
 
-            if (getResult.StatusCode == HttpStatusCode.OK)
-            {
-                return await Task<string>.Run(() =>
+                    if (getResult.StatusCode == HttpStatusCode.OK)
                     {
-                        using (var sr = new StreamReader(getResult.GetResponseStream()))
+                        return await Task<string>.Run(() =>
                         {
-							var result = sr.ReadToEnd();
-                            return result;
-                        }
-                    });
-            }
-            else
-                throw new Exception(getResult.StatusCode.ToString());
+                            using (var sr = new StreamReader(getResult.GetResponseStream()))
+                            {
+                                var result = sr.ReadToEnd();
+                                return result;
+                            }
+                        });
+                    }
+                    else
+                        throw new Exception(getResult.StatusCode.ToString());
         }
 
         public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
@@ -127,7 +129,6 @@ namespace BaconographyWP8.PlatformServices
 			await ThrottleRequests();
 
 			StringBuilder dataBuilder = new StringBuilder();
-			bool first = true;
 			var stringData = string.Join("&", urlEncodedData.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
 			byte[] data = Encoding.UTF8.GetBytes(stringData);
 

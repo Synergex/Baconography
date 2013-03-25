@@ -7,9 +7,12 @@ using KitaroDB;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace Baconography.NeutralServices
 {
@@ -255,16 +258,17 @@ namespace Baconography.NeutralServices
 
         public async Task StoreOrderedThings(string key, IEnumerable<Thing> things)
         {
-            await Initialize();
             try
             {
+                await Initialize();
                 var thingsArray = things.ToArray();
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray)));
-                var cursor = await _blobStoreDb.SeekAsync(DBReadFlags.NoLock);
-                if (cursor != null)
+                //var compressedBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray));
+
+                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
+                if (gottenBlob != null)
                 {
-                    cursor.Dispose();
                     await _blobStoreDb.UpdateAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
                 }
                 else
@@ -272,12 +276,18 @@ namespace Baconography.NeutralServices
                     await _blobStoreDb.InsertAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                Debug.WriteLine(ex.ToString());
             }
         }
 
-        public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
+        public Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
+        {
+            return RetrieveOrderedThingsBG(key);
+        }
+
+        private async Task<IEnumerable<Thing>> RetrieveOrderedThingsBG(string key)
         {
             await Initialize();
             bool badElement = false;
@@ -288,7 +298,9 @@ namespace Baconography.NeutralServices
                 {
                     var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                     var decompressedBytes = compressor.Decompress(gottenBlob.ToArray());
-                    return JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                    //var decompressedBytes = gottenBlob.ToArray();
+                    IEnumerable<Thing> result = JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                    return result;
                 }
             }
             catch

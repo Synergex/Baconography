@@ -100,7 +100,7 @@ namespace BaconographyWP8.Converters
                     var semiCleanText = value as string;
                     if (semiCleanText != null)
                         semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
-                    return new TextBlock { Text = semiCleanText };
+                    return new TextBlock { Text = semiCleanText, TextWrapping = TextWrapping.Wrap };
                 }
             }
             else

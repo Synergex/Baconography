@@ -1,7 +1,9 @@
 ﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,47 +128,59 @@ namespace BaconographyPortable.ViewModel.Collections
             if (_settingsService.IsOnline())
             {
                 var initTpl = _onlineListingProvider.GetInitialListing(state);
-                
+
+                var initCache = await initTpl.Item1;
                 if (initTpl.Item1 != null)
                 {
-                    var initCached = await initTpl.Item1;
-                    _baconProvider.GetService<ISystemServices>().StartTimer(async (o1, o2) =>
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    Task.Run(async () =>
+                    {
+                        Listing target = null;
+                        try
                         {
-                            Listing targetListing = null;
-                            try
-                            {
-                                targetListing = await initTpl.Item2;
-                            }
-                            catch
-                            {
-                            }
-                            if(targetListing == null || !_settingsService.IsOnline())
-                                targetListing = await _offlineListingProvider.GetInitialListing(state).Item2;
-
+                            await Task.Delay(1000);
+                            target = await initTpl.Item2();
+                        }
+                        catch
+                        {
+                        }
+                        if (target == null || !_settingsService.IsOnline())
+                            target = await _offlineListingProvider.GetInitialListing(state).Item2();
+                        return target;
+                    }).ContinueWith(async (result) =>
+                        {
+                            var targetListing = result.Result;
+                            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                             if (targetListing != null)
                             {
-                                Clear();
-                                foreach (var newVm in MapListing(targetListing, state))
-                                    Add(newVm);
+                                var mappedListing = MapListing(targetListing, state).ToArray();
+                                for (int i = 0; i < mappedListing.Length; i++)
+                                {
+                                    if (this.Count > i)
+                                        this[i] = mappedListing[i];
+                                    else
+                                        Add(mappedListing[i]);
+                                }
+
+
                             }
-                            _baconProvider.GetService<ISystemServices>().StopTimer(o1);
-                        }, TimeSpan.Zero, true);
-                    return initCached;
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                    return initCache;
                 }
                 else
                 {
-                    var result = await initTpl.Item2;
+                    var result = await initTpl.Item2();
                     //make sure we arent starting up in offline mode
                     if (_settingsService.IsOnline())
                     {
                         return result;
                     }
                     else
-                        return await _offlineListingProvider.GetInitialListing(state).Item2;
+                        return await _offlineListingProvider.GetInitialListing(state).Item2();
                 }
             }
             else
-                return await _offlineListingProvider.GetInitialListing(state).Item2;
+                return await _offlineListingProvider.GetInitialListing(state).Item2();
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

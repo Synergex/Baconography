@@ -16,34 +16,34 @@ namespace BaconographyPortable.Model.Compression
             string mf = "bt4";
             Int32 dictionary = 1 << 23;
             Int32 posStateBits = 2;
-            Int32 litContextBits = 3; // for normal files
+            Int32 litContextBits = 2; // for normal files
             // UInt32 litContextBits = 0; // for 32-bit data
             Int32 litPosBits = 0;
             // UInt32 litPosBits = 2; // for 32-bit data
             Int32 algorithm = 2;
             Int32 numFastBytes = 128;
             CoderPropID[] propIDs = 
-				{
-					CoderPropID.DictionarySize,
-					CoderPropID.PosStateBits,
-					CoderPropID.LitContextBits,
-					CoderPropID.LitPosBits,
-					CoderPropID.Algorithm,
-					CoderPropID.NumFastBytes,
-					CoderPropID.MatchFinder,
-					CoderPropID.EndMarker
-				};
+                {
+                    CoderPropID.DictionarySize,
+                    CoderPropID.PosStateBits,
+                    CoderPropID.LitContextBits,
+                    CoderPropID.LitPosBits,
+                    CoderPropID.Algorithm,
+                    CoderPropID.NumFastBytes,
+                    CoderPropID.MatchFinder,
+                    CoderPropID.EndMarker
+                };
             object[] properties = 
-				{
-					(Int32)(dictionary),
-					(Int32)(posStateBits),
-					(Int32)(litContextBits),
-					(Int32)(litPosBits),
-					(Int32)(algorithm),
-					(Int32)(numFastBytes),
-					mf,
-					true
-				};
+                {
+                    (Int32)(dictionary),
+                    (Int32)(posStateBits),
+                    (Int32)(litContextBits),
+                    (Int32)(litPosBits),
+                    (Int32)(algorithm),
+                    (Int32)(numFastBytes),
+                    mf,
+                    true
+                };
             var encoder = new SevenZip.Compression.LZMA.Encoder();
             encoder.SetCoderProperties(propIDs, properties);
 
@@ -77,7 +77,7 @@ namespace BaconographyPortable.Model.Compression
             }
             long compressedSize = inStream.Length - inStream.Position;
 
-            
+
             decoder.Code(inStream, outStream, compressedSize, outSize, null);
             return outStream.ToArray();
         }
