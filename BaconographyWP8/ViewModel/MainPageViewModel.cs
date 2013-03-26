@@ -12,6 +12,7 @@ using GalaSoft.MvvmLight.Messaging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,21 +47,36 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<SelectTemporaryRedditMessage>(this, OnSelectTemporarySubreddit);
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
+			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
 			PivotItems = new RedditViewModelCollection(_baconProvider);
-			
 
-			Subreddits = new List<TypedThing<Subreddit>>();
+
+			Subreddits = new ObservableCollection<TypedThing<Subreddit>>();
         }
+
+		private void OnReorderSubreddit(ReorderSubredditMessage message)
+		{
+			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null);
+			for (int i = Subreddits.Count - 1; i >= 0 ; i--)
+			{
+				var pivot = redditVMs.FirstOrDefault(rvm => rvm.Heading == Subreddits[i].Data.DisplayName);
+				if (pivot != null)
+				{
+					PivotItems.Remove(pivot);
+					PivotItems.Insert(1, pivot);
+				}
+			}
+		}
 
 		private void OnCloseSubreddit(CloseSubredditMessage message)
 		{
 			string heading = message.Heading;
 			if (message.Subreddit != null)
 			{
-				heading = message.Subreddit.Data.Name;
+				heading = message.Subreddit.Data.DisplayName;
 			}
 
-			if (!String.IsNullOrEmpty(message.Heading) &&
+			if (!String.IsNullOrEmpty(heading) &&
 				heading != "The front page of this device")
 			{
 				var match = PivotItems.FirstOrDefault(vmb => vmb is TemporaryRedditViewModel && (vmb as TemporaryRedditViewModel).RedditViewModel.Heading == heading);
@@ -77,7 +93,7 @@ namespace BaconographyPortable.ViewModel
 						var subreddit = (match as RedditViewModel).SelectedSubreddit;
 						PivotItems.Remove(match);
 						RaisePropertyChanged("PivotItems");
-						Subreddits.Remove(subreddit);
+						_subreddits.Remove(subreddit);
 						RaisePropertyChanged("Subreddits");
 					}
 				}
@@ -126,7 +142,8 @@ namespace BaconographyPortable.ViewModel
                 PivotItems.Insert(PivotItems.Count - 1, newReddit);
             else
                 PivotItems.Add(newReddit);
-			Subreddits.Add(message.Subreddit);
+			_subreddits.Add(message.Subreddit);
+			RaisePropertyChanged("Subreddits");
 			RaisePropertyChanged("PivotItems");
 			Messenger.Default.Send<SelectIndexMessage>(
 				new SelectIndexMessage
@@ -195,7 +212,19 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		public List<TypedThing<Subreddit>> Subreddits;
+		public ObservableCollection<TypedThing<Subreddit>> _subreddits;
+		public ObservableCollection<TypedThing<Subreddit>> Subreddits
+		{
+			get
+			{
+				return _subreddits;
+			}
+			set
+			{
+				_subreddits = value;
+				RaisePropertyChanged("Subreddits");
+			}
+		}
 
 		public RedditViewModelCollection PivotItems { get; private set; }
 

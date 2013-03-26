@@ -33,13 +33,25 @@
                 <DataTemplate>
                     <Grid Margin="0,0,0,12" Height="70" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="15" />
                             <ColumnDefinition Width="130" />
-                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="15" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <!--<Rectangle Stroke="Gray" StrokeThickness="1" Grid.ColumnSpan="7" StrokeDashArray="4 4" />-->
+                        
+                        <Button FontFamily="Segoe UI Symbol" FontSize="16"
+                                Padding="2" BorderThickness="0"
+                                Width="60" Height="60"
+                                Foreground="Gray"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Content="&#xE10A;"
+                                DataContext="{Binding}"
+                                Tap="CloseButton_Tap" />
 
-                        <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
+                        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
                         Background="White" BorderThickness="0" Padding="0" Margin="5,0,0,0"
                         VerticalAlignment="Center">
                             <Image 
@@ -48,7 +60,7 @@
                             VerticalAlignment="Center"/>
                         </Border>
 
-                        <TextBlock VerticalAlignment="Center" Grid.Column="2" FontSize="20" FontWeight="SemiBold" Text="{Binding Path=TypedData.DisplayName}"/>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="4" FontSize="20" FontWeight="SemiBold" Text="{Binding Path=TypedData.DisplayName}"/>
                     </Grid>
                 </DataTemplate>
             </common:ReorderListBox.ItemTemplate>
