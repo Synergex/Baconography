@@ -154,6 +154,12 @@ namespace BaconographyWP8
 			_navigationService.Navigate(typeof(SettingsPageView), null);
 		}
 
+		private void MenuSort_Click(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(SortSubredditPageView), null);
+		}
+
 		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
 		{
 			if (e.IsMenuVisible)
@@ -187,6 +193,10 @@ namespace BaconographyWP8
 						save.Click += MenuSave_Click;
 					}
 
+					var sort = new ApplicationBarMenuItem();
+					sort.Text = "sort subreddits";
+					sort.Click += MenuSort_Click;
+
 					var settings = new ApplicationBarMenuItem();
 					settings.Text = "settings";
 					settings.Click += MenuSettings_Click;
@@ -194,6 +204,8 @@ namespace BaconographyWP8
 					appBarMenu.MenuItems.Add(close);
 					if (save != null)
 						appBarMenu.MenuItems.Add(save);
+					if (pivot.Items.Count > 3)
+						appBarMenu.MenuItems.Add(sort);
 					appBarMenu.MenuItems.Add(login);
 					appBarMenu.MenuItems.Add(settings);
 

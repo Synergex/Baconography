@@ -97,6 +97,8 @@
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
+    <Compile Include="Common\ReorderListBox.cs" />
+    <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
     <Compile Include="Common\Utility.cs" />
@@ -127,6 +129,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\CloseSubredditMessage.cs" />
+    <Compile Include="Messages\ReorderSubredditMessage.cs" />
     <Compile Include="Messages\SelectIndexMessage.cs" />
     <Compile Include="PlatformServices\DynamicViewLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -150,6 +153,9 @@
     </Compile>
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SortSubredditPageView.xaml.cs">
+      <DependentUpon>SortSubredditPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SettingsPageView.xaml.cs">
       <DependentUpon>SettingsPageView.xaml</DependentUpon>
@@ -223,6 +229,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SortSubredditPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

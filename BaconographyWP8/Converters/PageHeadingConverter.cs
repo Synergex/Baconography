@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.ViewModel;
 using BaconographyWP8.ViewModel;
 using Microsoft.Phone.Controls;
 using System;
@@ -35,6 +36,12 @@ namespace BaconographyWP8.Converters
 					return "front page";
 				else
 					return rvm.Heading.ToLower();
+			}
+
+			if (value is TypedThing<Subreddit>)
+			{
+				var tts = value as TypedThing<Subreddit>;
+				return tts.Data.Title;
 			}
 
 			return "";
