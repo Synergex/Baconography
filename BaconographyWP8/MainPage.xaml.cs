@@ -193,19 +193,24 @@ namespace BaconographyWP8
 						save.Click += MenuSave_Click;
 					}
 
-					var sort = new ApplicationBarMenuItem();
-					sort.Text = "sort subreddits";
-					sort.Click += MenuSort_Click;
+					var manage = new ApplicationBarMenuItem();
+					manage.Text = "manage subreddits";
+					manage.Click += MenuSort_Click;
+					if (pivot.Items.Count > 2)
+						manage.IsEnabled = true;
+					else
+						manage.IsEnabled = false;
 
 					var settings = new ApplicationBarMenuItem();
 					settings.Text = "settings";
 					settings.Click += MenuSettings_Click;
 
-					appBarMenu.MenuItems.Add(close);
 					if (save != null)
+					{
 						appBarMenu.MenuItems.Add(save);
-					if (pivot.Items.Count > 3)
-						appBarMenu.MenuItems.Add(sort);
+						appBarMenu.MenuItems.Add(close);
+					}
+					appBarMenu.MenuItems.Add(manage);
 					appBarMenu.MenuItems.Add(login);
 					appBarMenu.MenuItems.Add(settings);
 

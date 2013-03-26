@@ -105,8 +105,10 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged">
             <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="save subreddit" IsEnabled="False"/>
+                <shell:ApplicationBarMenuItem Text="close subreddit" IsEnabled="False"/>
+                <shell:ApplicationBarMenuItem Text="manage subreddit" IsEnabled="False"/>
                 <shell:ApplicationBarMenuItem Text="login"/>
-                <shell:ApplicationBarMenuItem Text="close subreddit"/>
                 <shell:ApplicationBarMenuItem Text="settings"/>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
