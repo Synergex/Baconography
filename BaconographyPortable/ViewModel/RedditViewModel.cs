@@ -39,6 +39,7 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
+			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
         }
 
 		public void DetachSubredditMessage()
@@ -64,6 +65,14 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("IsOnline");
             }
         }
+
+		private async void OnSubredditRefreshed(RefreshSubredditMessage message)
+		{
+			if (this.SelectedSubreddit == message.Subreddit)
+			{
+				RefreshLinks();
+			}
+		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
         {

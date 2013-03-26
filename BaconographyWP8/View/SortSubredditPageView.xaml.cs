@@ -17,6 +17,9 @@ using System.Windows.Media;
 using BaconographyWP8.Messages;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyPortable.Model.Reddit;
+using System.Threading;
+using Microsoft.Phone.Reactive;
+using BaconographyPortable.Messages;
 
 namespace BaconographyWP8.View
 {
@@ -42,6 +45,24 @@ namespace BaconographyWP8.View
 			var subreddit = button.DataContext as TypedThing<Subreddit>;
 			if (subreddit != null)
 				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Subreddit = subreddit });
+
+			if (subredditList.Items.Count == 1)
+			{
+				Scheduler.Dispatcher.Schedule(GoBack, TimeSpan.FromSeconds(1.5));
+			}
+		}
+
+		private void RefreshButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var button = sender as Button;
+			var subreddit = button.DataContext as TypedThing<Subreddit>;
+			if (subreddit != null)
+				Messenger.Default.Send<RefreshSubredditMessage>(new RefreshSubredditMessage { Subreddit = subreddit });
+		}
+
+		private void GoBack()
+		{
+			ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
 		}
 	}
 }
