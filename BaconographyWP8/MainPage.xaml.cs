@@ -18,6 +18,7 @@ using BaconographyPortable.Messages;
 using BaconographyWP8.Messages;
 using BaconographyWP8Core;
 using BaconographyWP8.ViewModel;
+using System.Threading.Tasks;
 
 namespace BaconographyWP8
 {
@@ -75,10 +76,16 @@ namespace BaconographyWP8
 			}
 		}
 
-		protected override async void OnNavigatedFrom(NavigationEventArgs e)
+		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
-			await mpvm.SaveSubreddits();
+
+			var saveTask = mpvm.SaveSubreddits();
+
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                Task.WaitAll(saveTask);
+            }
 		}
 
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
