@@ -131,9 +131,9 @@ namespace BaconographyPortable.ViewModel.Collections
             {
                 var initTpl = _onlineListingProvider.GetInitialListing(state);
 
-                var initCache = await initTpl.Item1;
                 if (initTpl.Item1 != null)
                 {
+					var initCache = await initTpl.Item1;
                     Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                     Task.Run(async () =>
                     {
