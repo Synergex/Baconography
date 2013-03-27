@@ -11,33 +11,6 @@
     d:DesignHeight="75"
     d:DesignWidth="480"
     x:Name="controlRoot">
-    
-    <UserControl.Resources>
-        <Style x:Key="RoundButtonStyle" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid Background="Transparent">
-                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="{StaticResource PhoneForegroundBrush}" StrokeThickness="2"/>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="RoundToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Grid Background="Transparent">
-                            <Ellipse HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="{StaticResource PhoneForegroundBrush}" StrokeThickness="2"/>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
 
     <Grid MinHeight="65" HorizontalAlignment="Stretch" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
