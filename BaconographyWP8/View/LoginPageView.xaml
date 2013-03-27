@@ -26,10 +26,12 @@
                     <StackPanel>
                         <TextBlock FontWeight="SemiBold" Text="USERNAME"/>
                         <TextBox Margin="5,0,5,0"
-                            Text="{Binding Mode=TwoWay, Path=Username}" />
+                            Text="{Binding Mode=TwoWay, Path=Username}"
+                            KeyDown="Username_KeyDown"/>
                         <TextBlock FontWeight="SemiBold" Text="PASSWORD"/>
                         <PasswordBox Margin="5,0,5,0"
-                            Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}" />
+                            x:Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}"
+                            KeyDown="Password_KeyDown"/>
                         <CheckBox Margin="5,0,5,0" Content="save this login"
                             IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
                         <CheckBox Margin="5,0,5,0" Content="login automatically"

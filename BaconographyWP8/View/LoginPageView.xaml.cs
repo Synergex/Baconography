@@ -47,5 +47,25 @@ namespace BaconographyWP8.View
 				_navigationService.NavigateToExternalUri(new Uri((string)hyperlinkButton.ContextData));
 			}
 		}
+
+		private void Password_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == System.Windows.Input.Key.Enter)
+			{
+				this.Focus();
+				var loginVM = this.DataContext as LoginPageViewModel;
+				if (loginVM != null)
+					loginVM.DoLogin.Execute(null);
+			}
+		}
+
+		private void Username_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == System.Windows.Input.Key.Enter ||
+				e.Key == System.Windows.Input.Key.Tab)
+			{
+				passwordBox.Focus();
+			}
+		}
 	}
 }
