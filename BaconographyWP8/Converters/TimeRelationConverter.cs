@@ -12,19 +12,21 @@ namespace BaconographyWP8.Converters
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             var currentTime = DateTime.UtcNow;
+			if (((DateTime)value).Year == 1)
+				return "the dawn of reddit";
             var timeDifference = DateTimeSpan.CompareDates(currentTime, (DateTime)value);
             if (timeDifference.Years > 0)
-                return string.Format("{0} Year{1} ago", timeDifference.Years, timeDifference.Years > 1 ? "s" : "");
+                return string.Format("{0} year{1} ago", timeDifference.Years, timeDifference.Years > 1 ? "s" : "");
             else if (timeDifference.Months > 0)
-                return string.Format("{0} Month{1} ago", timeDifference.Months, timeDifference.Months > 1 ? "s" : "");
+                return string.Format("{0} month{1} ago", timeDifference.Months, timeDifference.Months > 1 ? "s" : "");
             else if (timeDifference.Days > 0)
-                return string.Format("{0} Day{1} ago", timeDifference.Days, timeDifference.Days > 1 ? "s" : "");
+                return string.Format("{0} day{1} ago", timeDifference.Days, timeDifference.Days > 1 ? "s" : "");
             else if (timeDifference.Hours > 0)
-                return string.Format("{0} Hour{1} ago", timeDifference.Hours, timeDifference.Hours > 1 ? "s" : "");
+                return string.Format("{0} hour{1} ago", timeDifference.Hours, timeDifference.Hours > 1 ? "s" : "");
             else if (timeDifference.Minutes > 0)
-                return string.Format("{0} Minute{1} ago", timeDifference.Minutes, timeDifference.Minutes > 1 ? "s" : "");
+                return string.Format("{0} minute{1} ago", timeDifference.Minutes, timeDifference.Minutes > 1 ? "s" : "");
             else
-                return "Just Now";
+                return "just now";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

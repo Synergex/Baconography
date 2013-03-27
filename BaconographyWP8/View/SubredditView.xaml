@@ -39,7 +39,7 @@
 
         <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal">
             <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Subscribers}" />
-            <TextBlock FontSize="13" Foreground="Gray" Text="subscribers, a community for " Margin="5,0,0,0"/>
+            <TextBlock FontSize="13" Foreground="Gray" Text="subscribers, here since " Margin="5,0,0,0"/>
             <TextBlock FontSize="13" Foreground="Gray" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="1,0,0,0" />
         </StackPanel>
 
