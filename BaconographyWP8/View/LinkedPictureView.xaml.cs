@@ -43,7 +43,7 @@ namespace BaconographyWP8.View
 			}
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
-				var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+				var unescapedData = this.NavigationContext.QueryString["data"];
 				var deserializedObject = JsonConvert.DeserializeObject<IEnumerable<Tuple<string, string>>>(unescapedData);
 				if (deserializedObject != null)
 				{

@@ -69,8 +69,18 @@ namespace BaconographyWP8.PlatformServices
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-				var targetUri = parameter != null ? new Uri(uriAttribute._targetUri + "?data=" + Uri.EscapeDataString(JsonConvert.SerializeObject(parameter)), UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
-                return _frame.Navigate(targetUri);
+				var data = JsonConvert.SerializeObject(parameter);
+				var stringUri = uriAttribute._targetUri + "?data=" + data;
+				var escapedUri = Uri.EscapeUriString(stringUri);
+				if (Uri.IsWellFormedUriString(escapedUri, UriKind.Relative))
+				{
+					var targetUri = parameter != null ? new Uri(escapedUri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
+					return _frame.Navigate(targetUri);
+				}
+				else
+				{
+					throw new NotImplementedException("Handle a bad URI");
+				}
             }
             else
             {
