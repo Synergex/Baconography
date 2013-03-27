@@ -76,18 +76,6 @@ namespace BaconographyWP8
 			}
 		}
 
-		protected override void OnNavigatedFrom(NavigationEventArgs e)
-		{
-			var mpvm = ServiceLocator.Current.GetInstance<MainPageViewModel>() as MainPageViewModel;
-
-			var saveTask = mpvm.SaveSubreddits();
-
-            if (e.NavigationMode == NavigationMode.Back)
-            {
-                Task.WaitAll(saveTask);
-            }
-		}
-
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
 		{
 			AdjustForOrientation(e.Orientation);

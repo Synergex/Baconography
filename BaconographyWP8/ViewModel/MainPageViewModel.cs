@@ -50,11 +50,10 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
 			PivotItems = new RedditViewModelCollection(_baconProvider);
 
-
-			Subreddits = new ObservableCollection<TypedThing<Subreddit>>();
+			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
         }
 
-		private void OnReorderSubreddit(ReorderSubredditMessage message)
+		private async void OnReorderSubreddit(ReorderSubredditMessage message)
 		{
 			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null);
 			for (int i = Subreddits.Count - 1; i >= 0 ; i--)
@@ -68,7 +67,7 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		private void OnCloseSubreddit(CloseSubredditMessage message)
+		private async void OnCloseSubreddit(CloseSubredditMessage message)
 		{
 			string heading = message.Heading;
 			if (message.Subreddit != null)
@@ -132,7 +131,12 @@ namespace BaconographyPortable.ViewModel
 			);
 		}
 
-        private async void OnSubredditChanged(SelectSubredditMessage message)
+		private async void OnSubredditChanged(SelectSubredditMessage message)
+		{
+			await ChangeSubreddit(message);
+		}
+
+        private async Task ChangeSubreddit(SelectSubredditMessage message, bool fireSubredditsChanged = true)
         {
 			var newReddit = new RedditViewModel(_baconProvider);
 			newReddit.DetachSubredditMessage();
@@ -142,7 +146,8 @@ namespace BaconographyPortable.ViewModel
             else
                 PivotItems.Add(newReddit);
 			_subreddits.Add(message.Subreddit);
-			RaisePropertyChanged("Subreddits");
+			if (fireSubredditsChanged)
+				RaisePropertyChanged("Subreddits");
 			RaisePropertyChanged("PivotItems");
 			Messenger.Default.Send<SelectIndexMessage>(
 				new SelectIndexMessage
@@ -179,7 +184,7 @@ namespace BaconographyPortable.ViewModel
                 {
                     var message = new SelectSubredditMessage();
                     message.Subreddit = sub;
-                    OnSubredditChanged(message);
+					ChangeSubreddit(message, false);
                 }
             }
 
@@ -221,6 +226,7 @@ namespace BaconographyPortable.ViewModel
 			{
 				_subreddits = value;
 				RaisePropertyChanged("Subreddits");
+				Task.WaitAll(SaveSubreddits());
 			}
 		}
 
