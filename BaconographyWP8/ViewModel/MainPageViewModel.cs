@@ -63,7 +63,7 @@ namespace BaconographyPortable.ViewModel
 				if (pivot != null)
 				{
 					PivotItems.Remove(pivot);
-					PivotItems.Insert(1, pivot);
+					PivotItems.Insert(0, pivot);
 				}
 			}
 		}
@@ -76,8 +76,7 @@ namespace BaconographyPortable.ViewModel
 				heading = message.Subreddit.Data.DisplayName;
 			}
 
-			if (!String.IsNullOrEmpty(heading) &&
-				heading != "The front page of this device")
+			if (!String.IsNullOrEmpty(heading))
 			{
 				var match = PivotItems.FirstOrDefault(vmb => vmb is TemporaryRedditViewModel && (vmb as TemporaryRedditViewModel).RedditViewModel.Heading == heading);
 				if (match != null)
@@ -106,7 +105,7 @@ namespace BaconographyPortable.ViewModel
 			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
 			if (wasLoggedIn != _loggedIn)
 			{
-                if (PivotItems.Count > 0 && PivotItems[0] != null)
+                if (PivotItems.Count > 0 && PivotItems[0] != null && PivotItems[0] is RedditViewModel)
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
 			}
 
@@ -162,18 +161,17 @@ namespace BaconographyPortable.ViewModel
 
 		public async void LoadSubreddits()
 		{
-            var redditVM = new RedditViewModel(_baconProvider);
-            redditVM.DetachSubredditMessage();
-            PivotItems.Add(redditVM);
             PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+			List<TypedThing<Subreddit>> subreddits = null;
 
 			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
-			if (serializedSubreddits == null)
-				return;
+			if (serializedSubreddits != null)
+			{
+				subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
+			}
 
-			var subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
-            if (subreddits == null)
-				return;
+			if (subreddits == null || subreddits.Count == 0)
+				subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
                 
             foreach (var sub in subreddits)
             {

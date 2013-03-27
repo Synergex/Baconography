@@ -73,7 +73,7 @@ namespace BaconographyPortable.ViewModel
 			if (String.IsNullOrEmpty(subredditName))
 				return;
 
-			if (subredditName.Contains('/'))
+			if (subredditName.Contains('/') && subredditName != "/")
 				subredditName = subredditName.Substring(subredditName.LastIndexOf('/') + 1);
 
 			var _redditService = ServiceLocator.Current.GetInstance<IRedditService>();

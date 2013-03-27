@@ -203,7 +203,7 @@ namespace BaconographyWP8
 					var manage = new ApplicationBarMenuItem();
 					manage.Text = "manage subreddits";
 					manage.Click += MenuSort_Click;
-					if (pivot.Items.Count > 2)
+					if (pivot.Items.Count > 1)
 						manage.IsEnabled = true;
 					else
 						manage.IsEnabled = false;

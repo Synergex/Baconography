@@ -52,6 +52,10 @@ namespace BaconographyPortable.Model.Reddit.Converters
                                 case "more":
                                     targetThing.Data = new More();
                                     break;
+								case null:
+									targetThing.Kind = "t5";
+									targetThing.Data = new Subreddit();
+									break;
                                 default:
                                     throw new NotImplementedException();
                             }
@@ -60,7 +64,7 @@ namespace BaconographyPortable.Model.Reddit.Converters
                     case "data":
                         {
                             reader.Read(); //move to inner object
-                            serializer.Populate(reader, targetThing.Data);
+							serializer.Populate(reader, targetThing.Data);
                             break;
                         }
                     default:
@@ -134,6 +138,11 @@ namespace BaconographyPortable.Model.Reddit.Converters
 								case "more":
 									targetThing.Data = new More();
 									dataType = typeof(More);
+									break;
+								case null:
+									targetThing.Kind = "t5";
+									targetThing.Data = new Subreddit();
+									dataType = typeof(Subreddit);
 									break;
 								default:
 									throw new NotImplementedException();

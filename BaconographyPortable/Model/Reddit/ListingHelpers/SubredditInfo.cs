@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit.ListingHelpers
 {
-    class SubredditInfo : IListingProvider
+    public class SubredditInfo : IListingProvider
     {
         IRedditService _redditService;
         IOfflineService _offlineService;
@@ -40,10 +40,20 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
                     .Where(str => str != null));
         }
 
+		public static Thing GetFrontPageThing()
+		{
+			Thing frontPage = new Thing();
+			frontPage.Data = new Subreddit { DisplayName = "front page", Url = "/", Name = "/", Id="/", Subscribers = 5678123 };
+			frontPage.Kind = "t5";
+			return frontPage;
+		}
+
         private async Task<Listing> GetCachedListing(Dictionary<object, object> state)
         {
             state["SubscribedSubreddits"] = HashifyListing(await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username));
             var things = await _offlineService.RetrieveOrderedThings("reddits:");
+			if (things.Count() == 0)
+				things = new List<Thing>() { GetFrontPageThing() };
             return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
         }
 
@@ -69,6 +79,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
                 state["SubscribedSubreddits"] = new HashSet<string>();
 
             var subreddits = await _redditService.GetSubreddits(null);
+			subreddits.Data.Children.Insert(0, GetFrontPageThing());
 
             await _offlineService.StoreOrderedThings("reddits:", subreddits.Data.Children.Take(20));
             return subreddits;
