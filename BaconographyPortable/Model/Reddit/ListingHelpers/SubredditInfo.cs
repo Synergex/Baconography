@@ -43,7 +43,8 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 		public static Thing GetFrontPageThing()
 		{
 			Thing frontPage = new Thing();
-			frontPage.Data = new Subreddit { DisplayName = "front page", Url = "/", Name = "/", Id="/", Subscribers = 5678123 };
+			frontPage.Data = new Subreddit { DisplayName = "front page", Url = "/", Name = "/", Id="/", Subscribers = 5678123,
+											 HeaderImage = "/Assets/reddit.png", PublicDescription = "The front page of this device." };
 			frontPage.Kind = "t5";
 			return frontPage;
 		}

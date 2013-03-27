@@ -325,6 +325,7 @@
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\ApplicationIcon.png" />
     <Content Include="Assets\ApplicationIconSmall.png" />
+    <Content Include="Assets\reddit.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
