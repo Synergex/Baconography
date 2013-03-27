@@ -76,6 +76,7 @@
     <Compile Include="Model\Reddit\Comment.cs" />
     <Compile Include="Model\Reddit\Converters\ThingDataConverter.cs" />
     <Compile Include="Model\Reddit\Converters\UnixTimeConverter.cs" />
+    <Compile Include="Model\Reddit\Advertisement.cs" />
     <Compile Include="Model\Reddit\Flair.cs" />
     <Compile Include="Model\Reddit\ICreated.cs" />
     <Compile Include="Model\Reddit\IListingProvider.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Services\IVideoService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
+    <Compile Include="ViewModel\AdvertisementViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />

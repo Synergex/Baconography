@@ -80,42 +80,44 @@ namespace BaconographyPortable.ViewModel.Collections
 
         protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
-            if (thing.Data is Link)
-                return new LinkViewModel(thing, _baconProvider);
-            else if (thing.Data is Comment)
-                return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
-            else if (thing.Data is Subreddit)
-            {
-                var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
-                    ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
-                    false;
-                return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
-            }
-            else if (thing.Data is More)
-            {
-                //multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
-                object moreState;
-                if (state.TryGetValue("More", out moreState))
-                {
-                    //sometimes they give us duplicates make sure we remove them right away
-                    var moreList = moreState as IEnumerable<string>;
-                    if (moreList != null)
-                    {
-                        state["More"] = moreList.Concat(((More)thing.Data).Children)
-                            .Distinct()
-                            .ToList();
-                    }
-                    else
-                    {
-                        state["More"] = ((More)thing.Data).Children
-                            .Distinct()
-                            .ToList();
-                    }
-                }
-                return null;
-            }
-            else
-                throw new NotImplementedException();
+			if (thing.Data is Link)
+				return new LinkViewModel(thing, _baconProvider);
+			else if (thing.Data is Comment)
+				return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
+			else if (thing.Data is Subreddit)
+			{
+				var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
+					((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
+					false;
+				return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
+			}
+			else if (thing.Data is More)
+			{
+				//multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
+				object moreState;
+				if (state.TryGetValue("More", out moreState))
+				{
+					//sometimes they give us duplicates make sure we remove them right away
+					var moreList = moreState as IEnumerable<string>;
+					if (moreList != null)
+					{
+						state["More"] = moreList.Concat(((More)thing.Data).Children)
+							.Distinct()
+							.ToList();
+					}
+					else
+					{
+						state["More"] = ((More)thing.Data).Children
+							.Distinct()
+							.ToList();
+					}
+				}
+				return null;
+			}
+			else if (thing.Data is Advertisement)
+				return new AdvertisementViewModel(_baconProvider);
+			else
+				throw new NotImplementedException();
         }
 
         protected override bool HasAdditional(Dictionary<object, object> state)

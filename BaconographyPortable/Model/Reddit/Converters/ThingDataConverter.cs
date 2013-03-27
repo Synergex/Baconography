@@ -52,6 +52,9 @@ namespace BaconographyPortable.Model.Reddit.Converters
                                 case "more":
                                     targetThing.Data = new More();
                                     break;
+								case "ad":
+									targetThing.Data = new Advertisement();
+									break;
 								case null:
 									targetThing.Kind = "t5";
 									targetThing.Data = new Subreddit();
@@ -138,6 +141,10 @@ namespace BaconographyPortable.Model.Reddit.Converters
 								case "more":
 									targetThing.Data = new More();
 									dataType = typeof(More);
+									break;
+								case "ad":
+									targetThing.Data = new Advertisement();
+									dataType = typeof(Advertisement);
 									break;
 								case null:
 									targetThing.Kind = "t5";

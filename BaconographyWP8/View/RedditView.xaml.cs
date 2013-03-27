@@ -34,7 +34,7 @@ namespace BaconographyWP8.View
 			{
 				if (e.ItemKind == LongListSelectorItemKind.Item)
 				{
-					if ((e.Container.Content as LinkViewModel).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
+					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
                         var viewModel = DataContext as RedditViewModel;
                         if (viewModel != null)

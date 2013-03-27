@@ -227,9 +227,9 @@ namespace BaconographyPortable.Model.Reddit
             var targetUri = string.Format("http://www.reddit.com{0}.json?limit={1}", subreddit, guardedLimit);
             try
             {
-                var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
-                var newListing = JsonConvert.DeserializeObject<Listing>(comments);
-                return MaybeFilterForNSFW(newListing);
+                var links = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+				var newListing = JsonConvert.DeserializeObject<Listing>(links);
+				return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
             }
             catch (Exception ex)
             {
@@ -264,7 +264,7 @@ namespace BaconographyPortable.Model.Reddit
                     Data = new ListingData { Children = JsonConvert.DeserializeObject<JsonThing>(result).Json.Data.Things }
                 };
 
-                return MaybeFilterForNSFW(newListing);
+                return (MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing)));
             }
             catch (Exception ex)
             {
@@ -580,6 +580,17 @@ namespace BaconographyPortable.Model.Reddit
             else
                 return FilterForNSFW(source);
         }
+
+		private Listing MaybeInjectAdvertisements(Listing source)
+		{
+			int count = source.Data.Children.Count;
+			for (int i = 9; i < count; i += 10)
+			{
+				var thing = new Thing { Data = new Advertisement(), Kind = "ad" };
+				source.Data.Children.Insert(i, thing);
+			}
+			return source;
+		}
 
         private Listing FilterForNSFW(Listing source)
         {
