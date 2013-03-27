@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -70,11 +71,11 @@ namespace BaconographyWP8.PlatformServices
             if (uriAttribute != null)
             {
 				var data = JsonConvert.SerializeObject(parameter);
-				var stringUri = uriAttribute._targetUri + "?data=" + data;
-				var escapedUri = Uri.EscapeUriString(stringUri);
-				if (Uri.IsWellFormedUriString(escapedUri, UriKind.Relative))
+				var uri = uriAttribute._targetUri + "?data=" + HttpUtility.UrlEncode(data);
+
+				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
 				{
-					var targetUri = parameter != null ? new Uri(escapedUri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
+					var targetUri = parameter != null ? new Uri(uri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
 					return _frame.Navigate(targetUri);
 				}
 				else

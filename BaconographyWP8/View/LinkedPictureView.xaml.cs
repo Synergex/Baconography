@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -43,7 +44,7 @@ namespace BaconographyWP8.View
 			}
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
-				var unescapedData = this.NavigationContext.QueryString["data"];
+				var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
 				var deserializedObject = JsonConvert.DeserializeObject<IEnumerable<Tuple<string, string>>>(unescapedData);
 				if (deserializedObject != null)
 				{
