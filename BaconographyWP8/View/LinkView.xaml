@@ -27,23 +27,31 @@
                 <StackPanel>
                     <TextBlock FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
                     <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="0,3,0,0">
-                        <TextBlock FontSize="16" Text="{Binding Path=Votable.TotalVotes}"
-                                   Foreground="{Binding Path=Votable.LikeStatus, Converter={StaticResource voteColorConverter}}"/>
-                        <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" - " />
+                        <TextBlock Foreground="OrangeRed" FontSize="13" Margin="0,0,0,0"
+                                   FontFamily="Segoe UI Symbol" Text="&#xE110; "
+                                   Visibility="{Binding Path=Votable.Like, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <TextBlock Foreground="LightSkyBlue" FontSize="13" Margin="0,0,0,0"
+                                   FontFamily="Segoe UI Symbol" Text=" &#xE110;"
+                                   Visibility="{Binding Path=Votable.Dislike, Converter={StaticResource booleanVisibilityConverter}}">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform Angle="180" CenterX="9" CenterY="9" />
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
                         <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource booleanVisibilityConverter}}">
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" in " />
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="15" Foreground="Gray" Text=" by " />
                             <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
                         </StackPanel>
                     </StackPanel>
                     <Border BorderThickness="0" Visibility="{Binding IsExtendedOptionsShown, Converter={StaticResource booleanVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock FontSize="15" Foreground="Gray" Text="by " />
-                            <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" Text="{Binding Path=Votable.TotalVotes}"
+                                Foreground="{Binding Path=Votable.LikeStatus, Converter={StaticResource voteColorConverter}}" />
+                            <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" points" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
