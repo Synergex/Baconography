@@ -40,7 +40,8 @@
                         </TextBlock>
                         <StackPanel Orientation="Horizontal">
                             <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
-                                     x:Name="manualBox" Text="{Binding Text, Mode=TwoWay}" />
+                                     x:Name="manualBox" Text="{Binding Text, Mode=TwoWay}"
+                                     KeyDown="manualBox_KeyDown"/>
                             <Button Content="Submit" x:Name="submitButton"
                                     Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}" />
                         </StackPanel>
