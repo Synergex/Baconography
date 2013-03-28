@@ -30,6 +30,7 @@ namespace BaconographyPortable.ViewModel
         IOfflineService _offlineService;
         ISettingsService _settingsService;
         bool _initialLoad = true;
+        WeakReference<Task> _subredditSavingTask;
 
 
 		public MainPageViewModel(IBaconProvider baconProvider)
@@ -51,6 +52,21 @@ namespace BaconographyPortable.ViewModel
 			PivotItems = new RedditViewModelCollection(_baconProvider);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
+            _subreddits.CollectionChanged += _subreddits_CollectionChanged;
+        }
+
+        void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (!_initialLoad)
+            {
+                Task currentTask;
+                if (_subredditSavingTask != null && _subredditSavingTask.TryGetTarget(out currentTask))
+                {
+                    currentTask.ContinueWith(async (o) => await SaveSubreddits());
+                }
+                else
+                    _subredditSavingTask = new WeakReference<Task>(SaveSubreddits());
+            }
         }
 
 		private async void OnReorderSubreddit(ReorderSubredditMessage message)
@@ -98,7 +114,7 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		private void OnUserLoggedIn(UserLoggedInMessage message)
+		private async void OnUserLoggedIn(UserLoggedInMessage message)
 		{
 			bool wasLoggedIn = LoggedIn;
 			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
@@ -110,8 +126,8 @@ namespace BaconographyPortable.ViewModel
 
             if (_initialLoad)
             {
+                await LoadSubreddits();
                 _initialLoad = false;
-                LoadSubreddits();
             }
 		}
 
@@ -160,30 +176,24 @@ namespace BaconographyPortable.ViewModel
 
 		public async Task SaveSubreddits()
 		{
-			var serializedSubreddits = JsonConvert.SerializeObject(Subreddits);
-			await _offlineService.StoreSetting("pivotsubreddits", serializedSubreddits);
+            await _offlineService.StoreOrderedThings("pivotsubreddits", Subreddits);
 		}
 
-		public async void LoadSubreddits()
+		public async Task LoadSubreddits()
 		{
+            var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits");
+
             PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
-			List<TypedThing<Subreddit>> subreddits = null;
 
-			var serializedSubreddits = await _offlineService.GetSetting("pivotsubreddits");
-			if (serializedSubreddits != null)
-			{
-				subreddits = JsonConvert.DeserializeObject<List<TypedThing<Subreddit>>>(serializedSubreddits);
-			}
-
-			if (subreddits == null || subreddits.Count == 0)
+			if (subreddits == null || subreddits.Count() == 0)
 				subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
                 
             foreach (var sub in subreddits)
             {
-                if (sub.Data != null && sub.Data.Id != null)
+                if (sub.Data is Subreddit && ((Subreddit)sub.Data).Id != null)
                 {
                     var message = new SelectSubredditMessage();
-                    message.Subreddit = sub;
+                    message.Subreddit = new TypedThing<Subreddit>(sub);
 					ChangeSubreddit(message, false);
                 }
             }
@@ -226,7 +236,6 @@ namespace BaconographyPortable.ViewModel
 			{
 				_subreddits = value;
 				RaisePropertyChanged("Subreddits");
-				Task.WaitAll(SaveSubreddits());
 			}
 		}
 

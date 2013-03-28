@@ -102,7 +102,7 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return _linkThing.Data.Title.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+                return _linkThing.Data.Title.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim();
             }
         }
 

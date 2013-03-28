@@ -46,7 +46,7 @@ namespace BaconographyWP8.View
 			if (subreddit != null)
 				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Subreddit = subreddit });
 
-			if (subredditList.Items.Count == 1)
+			if (subredditList.Items.Count == 0)
 			{
 				Scheduler.Dispatcher.Schedule(GoBack, TimeSpan.FromSeconds(1.5));
 			}

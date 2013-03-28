@@ -71,7 +71,7 @@ namespace BaconographyPortable.ViewModel.Collections
 
         protected override bool HasAdditional(Dictionary<object, object> state)
         {
-            return state.ContainsKey("After");
+            return state.ContainsKey("After") && state["After"] is string;
         }
 
 
