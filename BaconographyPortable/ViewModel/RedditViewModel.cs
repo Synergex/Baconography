@@ -297,6 +297,17 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string Url
+        {
+            get
+            {
+                if (_selectedSubreddit == null)
+                    return "/";
+                else
+                    return _selectedSubreddit.Data.Url;
+            }
+        }
+
         public static RelayCommand<RedditViewModel> ShowSubreddits { get { return _showSubreddits; } }
         public static RelayCommand<RedditViewModel> PinReddit { get { return _pinReddit; } }
         public static RelayCommand<RedditViewModel> UnpinReddit { get { return _unpinReddit; } }

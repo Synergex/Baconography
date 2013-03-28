@@ -49,7 +49,7 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<SelectTemporaryRedditMessage>(this, OnSelectTemporarySubreddit);
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
-			PivotItems = new RedditViewModelCollection(_baconProvider);
+			_pivotItems = new RedditViewModelCollection(_baconProvider);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
             _subreddits.CollectionChanged += _subreddits_CollectionChanged;
@@ -69,7 +69,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-		private async void OnReorderSubreddit(ReorderSubredditMessage message)
+		private void OnReorderSubreddit(ReorderSubredditMessage message)
 		{
 			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null);
 			for (int i = Subreddits.Count - 1; i >= 0 ; i--)
@@ -83,7 +83,7 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		private async void OnCloseSubreddit(CloseSubredditMessage message)
+		private void OnCloseSubreddit(CloseSubredditMessage message)
 		{
 			string heading = message.Heading;
 			if (message.Subreddit != null)
@@ -131,21 +131,45 @@ namespace BaconographyPortable.ViewModel
             }
 		}
 
-		private async void OnSelectTemporarySubreddit(SelectTemporaryRedditMessage message)
+		private void OnSelectTemporarySubreddit(SelectTemporaryRedditMessage message)
 		{
-			var newReddit = new TemporaryRedditViewModel(_baconProvider);
-			newReddit.RedditViewModel.DetachSubredditMessage();
-			newReddit.RedditViewModel.AssignSubreddit(message);
-			PivotItems.Add(newReddit);
-			RaisePropertyChanged("PivotItems");
-			Messenger.Default.Send<SelectIndexMessage>(
-				new SelectIndexMessage
-				{
-					TypeContext = typeof(MainPageViewModel),
-					Index = PivotItems.Count - 1
-				}
-			);
+            int indexToPosition;
+            bool foundExisting = FindSubredditMessageIndex(message, out indexToPosition);
+
+            if (!foundExisting)
+            {
+                var newReddit = new TemporaryRedditViewModel(_baconProvider);
+                newReddit.RedditViewModel.DetachSubredditMessage();
+                newReddit.RedditViewModel.AssignSubreddit(message);
+                PivotItems.Add(newReddit);
+                indexToPosition = PivotItems.Count - 1;
+            }
 		}
+
+        public bool FindSubredditMessageIndex(SelectTemporaryRedditMessage message, out int indexToPosition)
+        {
+            indexToPosition = 0;
+            foreach (var vm in PivotItems)
+            {
+                if (vm is RedditViewModel)
+                {
+                    if (((RedditViewModel)vm).Url == message.Subreddit.Data.Url)
+                    {
+                        return true;
+                    }
+
+                }
+                else if (vm is TemporaryRedditViewModel)
+                {
+                    if (((TemporaryRedditViewModel)vm).RedditViewModel.Url == message.Subreddit.Data.Url)
+                    {
+                        return true;
+                    }
+                }
+                indexToPosition++;
+            }
+            return false;
+        }
 
 		private async void OnSubredditChanged(SelectSubredditMessage message)
 		{
@@ -162,16 +186,19 @@ namespace BaconographyPortable.ViewModel
             else
                 PivotItems.Add(newReddit);
 			_subreddits.Add(message.Subreddit);
-			if (fireSubredditsChanged)
-				RaisePropertyChanged("Subreddits");
-			RaisePropertyChanged("PivotItems");
-			Messenger.Default.Send<SelectIndexMessage>(
-				new SelectIndexMessage
-				{
-					TypeContext = typeof(MainPageViewModel),
-					Index = PivotItems.Count - 2
-				}
-			);
+            RaisePropertyChanged("PivotItems");
+            if (fireSubredditsChanged)
+            {
+                RaisePropertyChanged("Subreddits");
+
+                Messenger.Default.Send<SelectIndexMessage>(
+                    new SelectIndexMessage
+                    {
+                        TypeContext = typeof(MainPageViewModel),
+                        Index = PivotItems.Count - 2
+                    }
+                );
+            }
         }
 
 		public async Task SaveSubreddits()
@@ -239,7 +266,14 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		public RedditViewModelCollection PivotItems { get; private set; }
+        private RedditViewModelCollection _pivotItems;
+        public RedditViewModelCollection PivotItems
+        {
+            get
+            {
+                return _pivotItems;
+            }
+        }
 
     }
 }

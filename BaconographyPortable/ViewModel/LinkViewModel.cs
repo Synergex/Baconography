@@ -130,6 +130,14 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string Id
+        {
+            get
+            {
+                return _linkThing.Data.Id;
+            }
+        }
+
         public bool HasPreview
         {
             get
