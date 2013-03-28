@@ -28,19 +28,37 @@ namespace BaconographyWP8.Converters
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
-			var linkViewModel = value as LinkViewModel;
+			string subreddit = "";
+			string targetHost = "";
+			string filename = "";
+			Uri uri = null;
 
-			if (linkViewModel == null)
-				return WebGlyph;
+			if (value is LinkViewModel)
+			{
+				var linkViewModel = value as LinkViewModel;
 
-			if (linkViewModel.IsSelfPost)
-				return DetailsGlyph;
+				if (linkViewModel.IsSelfPost)
+					return DetailsGlyph;
 
-			var uri = new Uri(linkViewModel.Url);
-			var filename = Path.GetFileName(uri.LocalPath);
-			var targetHost = uri.DnsSafeHost.ToLower();
+				uri = new Uri(linkViewModel.Url);
+				filename = Path.GetFileName(uri.LocalPath);
+				targetHost = uri.DnsSafeHost.ToLower();
+				subreddit = linkViewModel.Subreddit;
+			}
+			else if (value is CommentsViewModel)
+			{
+				var commentsViewModel = value as CommentsViewModel;
 
-			if (linkViewModel.Subreddit == "videos" ||
+				if (commentsViewModel.IsSelfPost)
+					return DetailsGlyph;
+
+				uri = new Uri(commentsViewModel.Url);
+				filename = Path.GetFileName(uri.LocalPath);
+				targetHost = uri.DnsSafeHost.ToLower();
+				subreddit = commentsViewModel.Subreddit;
+			}
+
+			if (subreddit == "videos" ||
 				targetHost == "www.youtube.com" ||
 				targetHost == "youtube.com")
 				return VideoGlyph;

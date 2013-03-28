@@ -120,6 +120,30 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public bool IsSelfPost
+		{
+			get
+			{
+				return _linkThing.Data.IsSelf;
+			}
+		}
+
+		public bool HasThumbnail
+		{
+			get
+			{
+				return !string.IsNullOrWhiteSpace(Thumbnail) && Thumbnail != "self" && Thumbnail != "nsfw" && Thumbnail != "default";
+			}
+		}
+
+		public string Thumbnail
+		{
+			get
+			{
+				return _linkThing.Data.Thumbnail;
+			}
+		}
+
         public bool IsSelf
         {
             get
