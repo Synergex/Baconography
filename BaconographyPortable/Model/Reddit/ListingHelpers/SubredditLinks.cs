@@ -32,7 +32,8 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             var resultListing = await _redditService.GetPostsBySubreddit(_subreddit, null);
             //doesnt need to be awaited let it run in the background
             
-            await _offlineService.StoreOrderedThings("links:" + _subreddit, resultListing.Data.Children);
+            if(resultListing != null && resultListing.Data.Children != null && resultListing.Data.Children.Count > 0)
+                await _offlineService.StoreOrderedThings("links:" + _subreddit, resultListing.Data.Children);
             return resultListing;
 
         }
