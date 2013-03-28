@@ -175,12 +175,36 @@ namespace BaconographyPortable.ViewModel
 
         public RelayCommand<LinkViewModel> NavigateToComments { get { return _navigateToComments; } }
         public RelayCommand<LinkViewModel> GotoLink { get { return _gotoLink; } }
+		public RelayCommand<LinkViewModel> GotoSubreddit { get { return _gotoSubreddit; } }
+		public RelayCommand<LinkViewModel> GotoUserDetails { get { return _gotoUserDetails; } }
 
         static RelayCommand<LinkViewModel> _navigateToComments = new RelayCommand<LinkViewModel>(NavigateToCommentsImpl);
         static RelayCommand<LinkViewModel> _gotoLink = new RelayCommand<LinkViewModel>(GotoLinkImpl);
+		static RelayCommand<LinkViewModel> _gotoSubreddit = new RelayCommand<LinkViewModel>(GotoSubredditStatic);
+		static RelayCommand<LinkViewModel> _gotoUserDetails = new RelayCommand<LinkViewModel>(GotoUserStatic);
 
         public RelayCommand ShowPreview { get; set; }
 		public RelayCommand ShowExtendedOptions { get; set; }
+
+		private static void GotoSubredditStatic(LinkViewModel vm)
+		{
+			vm.GotoSubredditImpl();
+		}
+
+		private static void GotoUserStatic(LinkViewModel vm)
+		{
+			vm.GotoUserImpl();
+		}
+
+		private async void GotoSubredditImpl()
+        {
+            _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
+        }
+
+		private void GotoUserImpl()
+        {
+            UtilityCommandImpl.GotoUserDetails(_linkThing.Data.Author);
+        }
 
 		public void GotoComments()
 		{

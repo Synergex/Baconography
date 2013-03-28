@@ -37,6 +37,16 @@
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
+                        <TextBlock Foreground="OrangeRed" FontSize="13" Margin="5,3,0,0"
+                                   FontFamily="Segoe UI Symbol" Text="&#xE110; "
+                                   Visibility="{Binding Path=Votable.Like, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <TextBlock Foreground="LightSkyBlue" FontSize="13" Margin="5,3,0,0"
+                                   FontFamily="Segoe UI Symbol" Text=" &#xE110;"
+                                   Visibility="{Binding Path=Votable.Dislike, Converter={StaticResource booleanVisibilityConverter}}">
+                            <TextBlock.RenderTransform>
+                               <RotateTransform Angle="180" CenterX="9" CenterY="9" />
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
                         <Border Padding="1,0,1,0" Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
                             <TextBlock Foreground="{Binding PosterFlair, Converter={StaticResource fgAuthorFlairKindConverter}}" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
                         </Border>
