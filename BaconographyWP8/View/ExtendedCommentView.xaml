@@ -12,13 +12,62 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel Orientation="Horizontal">
-        <ToggleButton Padding="3,0,3,0" IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}" FontFamily="Marlett" FontSize="20" FontWeight="ExtraBold" Content="&#8593;" BorderThickness="0" />
-        <ToggleButton Padding="3,0,3,0" IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}"  FontFamily="Marlett" FontSize="20" FontWeight="ExtraBold" Content="&#8595;" BorderThickness="0" />
+    <Grid Margin="0,10,0,0" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="70" />
+            <ColumnDefinition Width="*" MinWidth="70"/>
+            <ColumnDefinition Width="*" MinWidth="70"/>
+            <ColumnDefinition Width="*" MinWidth="70"/>
+            <ColumnDefinition Width="*" MinWidth="70"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="4" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <ToggleButton Grid.Column="0" Grid.Row="0"
+            FontFamily="Segoe UI Symbol" FontSize="14"
+            Width="40" Height="40"
+            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+            Command="{Binding Path=Votable.ToggleUpvote}" CommandParameter="{Binding Votable}"
+            IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,4,0,0" Text="Upvote" FontSize="14" HorizontalAlignment="Center" />
+        
+        <ToggleButton Grid.Column="1" Grid.Row="0"
+            FontFamily="Segoe UI Symbol" FontSize="14"
+            Width="40" Height="40"
+            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+            Command="{Binding Path=Votable.ToggleDownvote}" CommandParameter="{Binding Votable}"
+            IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}">
+            <ToggleButton.RenderTransform>
+                <RotateTransform Angle="180" CenterX="20" CenterY="20" />
+            </ToggleButton.RenderTransform>
+        </ToggleButton>
+        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,4,0,0" Text="Downvote" FontSize="14" HorizontalAlignment="Center" />
+        
+        <Button Grid.Column="2" Grid.Row="0"
+            FontFamily="Segoe UI Symbol" FontSize="13"
+            Width="40" Height="40"
+            Content="&#xE165;" Style="{StaticResource RoundButtonStyle}"
+            Command="{Binding GotoReply}"/>
+        <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
+
+        <Button Grid.Column="3" Grid.Row="0"
+            FontFamily="Segoe UI Symbol" FontSize="13"
+            Width="40" Height="40"
+            Content="&#xE1DE;" Style="{StaticResource RoundButtonStyle}"
+            Command="{Binding Report}"/>
+        <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,4,0,0" Text="Report" FontSize="14" HorizontalAlignment="Center" />
+
+        <Button Grid.Column="4" Grid.Row="0"
+            FontFamily="Segoe UI Symbol" FontSize="14"
+            Width="40" Height="40"
+            Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
+            Command="{Binding GotoUserDetails}"/>
+        <TextBlock Grid.Row="2" Grid.Column="4" Margin="0,4,0,0" Text="User" FontSize="14" HorizontalAlignment="Center" />
+
         <!--<Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding GotoContext}">parent</Button>-->
-        <Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding Report}">report</Button>
-        <Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding Save}">save</Button>
-        <Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding GotoReply}">reply</Button>
-        <Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding GotoUserDetails}">user</Button>        
-    </StackPanel>
+        <!--<Button FontSize="16" BorderThickness="0" Margin="0,0,0,0" Padding="3,0,3,0" Command="{Binding Save}">save</Button>-->
+    </Grid>
 </UserControl>
