@@ -29,7 +29,6 @@ namespace BaconographyWP8
                 ServiceLocator.Current.GetInstance<RedditViewModel>();
                 ServiceLocator.Current.GetInstance<LinkedWebViewModel>();
 				ServiceLocator.Current.GetInstance<LoginPageViewModel>();
-                ServiceLocator.Current.GetInstance<AboutUserViewModel>();
                 ServiceLocator.Current.GetInstance<FileOpenPickerViewModel>();
                 ServiceLocator.Current.GetInstance<SearchResultsViewModel>();
                 ServiceLocator.Current.GetInstance<ContentPreferencesViewModel>();
@@ -172,7 +171,7 @@ namespace BaconographyWP8
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<AboutUserViewModel>();
+                return new AboutUserViewModel(_baconProvider);
             }
         }
 
