@@ -58,7 +58,8 @@
             </Button>
             <ContentPresenter Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left"
                               Margin="3,0,0,0"/>
-            <ContentControl Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
+            <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
+                Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
             <ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
         </StackPanel>
         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource booleanVisibilityConverter}}">
