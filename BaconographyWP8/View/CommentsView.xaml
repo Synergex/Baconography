@@ -48,6 +48,8 @@
             </common:FixedLongListSelector.ItemTemplate>
             <common:FixedLongListSelector.ListHeader>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                    <local:LinkView DisplaySubreddit="True" DataContext="{Binding Link}" />
+                    <!--
                     <Grid MinHeight="65" HorizontalAlignment="Stretch" MinWidth="460" Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="10" />
@@ -100,6 +102,7 @@
                         </Grid>
 
                     </Grid>
+                    -->
                     <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
