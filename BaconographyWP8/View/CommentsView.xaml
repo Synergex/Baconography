@@ -49,60 +49,6 @@
             <common:FixedLongListSelector.ListHeader>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                     <local:LinkView DisplaySubreddit="True" DataContext="{Binding Link}" />
-                    <!--
-                    <Grid MinHeight="65" HorizontalAlignment="Stretch" MinWidth="460" Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="10" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="100" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="35" />
-                            <RowDefinition Height="25" />
-                            <RowDefinition MinHeight="0"  MaxHeight="800" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="1" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
-                        <StackPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                            <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                            <TextBlock Foreground="Gray" FontSize="15" Text=" by " />
-                            <TextBlock Foreground="Goldenrod" FontSize="15" Text="{Binding Author}" />
-                            <TextBlock Foreground="Gray" FontSize="15" Text=" in " />
-                            <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Subreddit}" />
-                        </StackPanel>
-
-                        <Grid Grid.Column="2" Grid.Row="0"  Height="70" Width="70">
-                            <Button BorderThickness="0" Height="70" Width="70" Margin="0,0,5,0" VerticalAlignment="Center"
-                                Command="{Binding GotoLink}" CommandParameter="{Binding}">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Grid Margin="0,0,0,0">
-                                            <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                                                <Grid>
-                                                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                                                    <Border Padding="1" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                                        <Border.Background>
-                                                            <SolidColorBrush Color="Black" Opacity="0.4" />
-                                                        </Border.Background>
-                                                        <TextBlock FontFamily="Segoe UI Symbol" FontSize="18"
-                                                             Foreground="White"
-                                                             Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
-                                                    </Border>
-                                                </Grid>
-                                            </Border>
-
-                                            <Border Height="70" Width="70"
-                                                Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
-                                                <TextBlock FontFamily="Segoe UI Symbol" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                    Text="{Binding Converter={StaticResource linkGlyphConverter}}" />
-                                            </Border>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </Grid>
-
-                    </Grid>
-                    -->
                     <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
