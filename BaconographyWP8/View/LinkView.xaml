@@ -26,6 +26,12 @@
             <Button.Content>
                 <StackPanel>
                     <TextBlock FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
+                        <TextBlock FontSize="18"  Foreground="Goldenrod" Text="{Binding Author}" />
+                        <TextBlock Margin="8,2,0,0" Foreground="Gray"
+                            FontSize="16" Text="{Binding Path=Votable.TotalVotes}"/>
+                        <TextBlock Margin="0,2,0,0" FontSize="16" Foreground="Gray" VerticalAlignment="Center" Text=" points" />
+                    </StackPanel>
                     <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="0,3,0,0">
                         <TextBlock Foreground="OrangeRed" FontSize="13" Margin="0,0,0,0"
                                    FontFamily="Segoe UI Symbol" Text="&#xE110; "
@@ -43,17 +49,11 @@
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock FontSize="15" Foreground="Gray" Text=" by " />
-                            <TextBlock FontSize="15" Foreground="Goldenrod" Text="{Binding Author}" />
+                            <TextBlock Margin="8,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="(" />
+                            <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Domain}" />
+                            <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=")" />
                         </StackPanel>
                     </StackPanel>
-                    <Border BorderThickness="0" Visibility="{Binding IsExtendedOptionsShown, Converter={StaticResource booleanVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock FontSize="16" Text="{Binding Path=Votable.TotalVotes}"
-                                Foreground="{Binding Path=Votable.LikeStatus, Converter={StaticResource voteColorConverter}}" />
-                            <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" points" />
-                        </StackPanel>
-                    </Border>
                 </StackPanel>
             </Button.Content>
         </Button>

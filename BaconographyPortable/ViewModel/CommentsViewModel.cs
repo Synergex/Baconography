@@ -88,6 +88,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		private LinkViewModel _linkViewModel = null;
+		public LinkViewModel Link
+		{
+			get
+			{
+				if (_linkViewModel == null)
+				{
+					_linkViewModel = new LinkViewModel(_linkThing, _baconProvider);
+				}
+				return _linkViewModel;
+			}
+		}
+
         public string Title
         {
             get

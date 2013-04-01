@@ -25,13 +25,35 @@ namespace BaconographyWP8.View
 		private void TitleButton_Hold(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var vm = this.DataContext as LinkViewModel;
-			vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
+			if (!InComments)
+				vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
 		}
 
 		private void TitleButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var vm = this.DataContext as LinkViewModel;
-			vm.GotoComments();
+			if (!InComments)
+				vm.GotoComments();
+		}
+
+		public static readonly DependencyProperty InCommentsProperty =
+			DependencyProperty.Register(
+				"DisplaySubreddit",
+				typeof(bool),
+				typeof(LinkView),
+				new PropertyMetadata(false, OnInCommentsChanged)
+			);
+
+		private static void OnInCommentsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var link = (LinkView)d;
+			link.InComments = (bool)e.NewValue;
+		}
+
+		public bool InComments
+		{
+			get { return (bool)GetValue(InCommentsProperty); }
+			set { SetValue(InCommentsProperty, value); }
 		}
 
 		public static readonly DependencyProperty DisplaySubredditProperty =
