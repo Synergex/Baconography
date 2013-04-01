@@ -188,20 +188,6 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-		private bool _inComments = false;
-		public bool InComments
-		{
-			get
-			{
-				return _inComments;
-			}
-			set
-			{
-				_inComments = value;
-				RaisePropertyChanged("InComments");
-			}
-		}
-
         public Tuple<bool, string> PreviewPack
         {
             get

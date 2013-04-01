@@ -48,7 +48,7 @@
             </common:FixedLongListSelector.ItemTemplate>
             <common:FixedLongListSelector.ListHeader>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                    <local:LinkView DisplaySubreddit="True" DataContext="{Binding Link}" />
+                    <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding Link}" />
                     <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
