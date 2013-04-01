@@ -138,7 +138,7 @@ namespace BaconographyPortable.ViewModel
 				if (_domain == null)
 				{
 					_domain = (new Uri(Url)).Host.TrimStart(new char[] { 'w', '.' });
-					if (_domain == "reddit.com")
+					if (_domain == "reddit.com" && Url.ToLower().Contains(Subreddit.ToLower()))
 						_domain = "self." + Subreddit.ToLower();
 				}
 				return _domain;
