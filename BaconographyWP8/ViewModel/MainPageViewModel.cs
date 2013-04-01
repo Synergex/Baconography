@@ -146,7 +146,7 @@ namespace BaconographyPortable.ViewModel
             }
 		}
 
-        public bool FindSubredditMessageIndex(SelectTemporaryRedditMessage message, out int indexToPosition)
+        public bool FindSubredditMessageIndex(SelectSubredditMessage message, out int indexToPosition)
         {
             indexToPosition = 0;
             foreach (var vm in PivotItems)
@@ -171,22 +171,30 @@ namespace BaconographyPortable.ViewModel
             return false;
         }
 
-		private async void OnSubredditChanged(SelectSubredditMessage message)
+		private void OnSubredditChanged(SelectSubredditMessage message)
 		{
-			await ChangeSubreddit(message);
+			ChangeSubreddit(message);
 		}
 
-        private async Task ChangeSubreddit(SelectSubredditMessage message, bool fireSubredditsChanged = true)
+        private void ChangeSubreddit(SelectSubredditMessage message, bool fireSubredditsChanged = true)
         {
-			var newReddit = new RedditViewModel(_baconProvider);
-			newReddit.DetachSubredditMessage();
-			newReddit.AssignSubreddit(message);
-            if (PivotItems.Count > 0)
-                PivotItems.Insert(PivotItems.Count - 1, newReddit);
-            else
-                PivotItems.Add(newReddit);
-			_subreddits.Add(message.Subreddit);
-            RaisePropertyChanged("PivotItems");
+            int indexToPosition;
+            bool foundExisting = FindSubredditMessageIndex(message, out indexToPosition);
+
+            if (!foundExisting)
+            {
+                var newReddit = new RedditViewModel(_baconProvider);
+                newReddit.DetachSubredditMessage();
+                newReddit.AssignSubreddit(message);
+                if (PivotItems.Count > 0)
+                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                else
+                    PivotItems.Add(newReddit);
+                _subreddits.Add(message.Subreddit);
+                RaisePropertyChanged("PivotItems");
+                indexToPosition = PivotItems.Count - 2;
+            }
+
             if (fireSubredditsChanged)
             {
                 RaisePropertyChanged("Subreddits");
@@ -195,7 +203,7 @@ namespace BaconographyPortable.ViewModel
                     new SelectIndexMessage
                     {
                         TypeContext = typeof(MainPageViewModel),
-                        Index = PivotItems.Count - 2
+                        Index = indexToPosition
                     }
                 );
             }
