@@ -141,7 +141,10 @@ namespace BaconographyPortable.ViewModel
                 var newReddit = new TemporaryRedditViewModel(_baconProvider);
                 newReddit.RedditViewModel.DetachSubredditMessage();
                 newReddit.RedditViewModel.AssignSubreddit(message);
-                PivotItems.Add(newReddit);
+                if (PivotItems.Count > 0)
+                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                else
+                    PivotItems.Add(newReddit);
                 indexToPosition = PivotItems.Count - 1;
             }
 		}
