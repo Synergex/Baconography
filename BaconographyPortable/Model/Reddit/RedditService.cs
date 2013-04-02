@@ -58,7 +58,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<User> Login(string username, string password)
         {
-            var loginUri = "http://www.reddit.com/api/login";
+            var loginUri = "https://ssl.reddit.com/api/login";
             var postContent = new Dictionary<string, string>
                 {
                     { "api_type", "json" },
