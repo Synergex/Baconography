@@ -54,8 +54,12 @@ namespace BaconographyWP8.View
 			{
 				this.Focus();
 				var loginVM = this.DataContext as LoginPageViewModel;
-				if (loginVM != null)
-					loginVM.DoLogin.Execute(null);
+                if (loginVM != null)
+                {
+                    //this keydown seems to happen before the vm gets updates
+                    loginVM.Password = this.passwordBox.Password;
+                    loginVM.DoLogin.Execute(null);
+                }
 			}
 		}
 
