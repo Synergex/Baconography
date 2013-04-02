@@ -38,7 +38,7 @@ namespace BaconographyWP8.View
 
 		public static readonly DependencyProperty InCommentsProperty =
 			DependencyProperty.Register(
-				"DisplaySubreddit",
+				"InComments",
 				typeof(bool),
 				typeof(LinkView),
 				new PropertyMetadata(false, OnInCommentsChanged)
