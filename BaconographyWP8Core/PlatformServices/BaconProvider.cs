@@ -5,6 +5,7 @@ using GalaSoft.MvvmLight.Ioc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace BaconographyWP8.PlatformServices
     {
         public BaconProvider()
         {
+            WebRequest.RegisterPrefix("http://", SharpGIS.WebRequestCreator.GZip);
+            WebRequest.RegisterPrefix("https://", SharpGIS.WebRequestCreator.GZip);
+
             var redditService = new OfflineDelayableRedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
