@@ -31,6 +31,7 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Optional filtering of NSFW content
 *   Use the imgur api (and the other domains supported by RES) to download and display images/albums directly
 *   On WinRT Show images inline RES style (including gifs), for links as well as comments
+*   Get it on Windows Phone 8
 
 # Things left on the Todo list
 *   keep track of links that have already been shown in never ending reddit, don't show them further down
