@@ -229,5 +229,14 @@ namespace Baconography.NeutralServices
             //the content requests when the user is actively browsing around
             _queueTimer = ThreadPoolTimer.CreateTimer(async (timerParam) => await RunQueue(timerParam), new TimeSpan(0, 0, 2));
         }
+
+        Task<Listing> _subredditsListing;
+        public override Task<Listing> GetSubreddits(int? limit)
+        {
+            if (_subredditsListing == null)
+                _subredditsListing = base.GetSubreddits(limit);
+
+            return _subredditsListing;
+        }
     }
 }

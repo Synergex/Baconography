@@ -141,7 +141,7 @@ namespace BaconographyPortable.Model.Reddit
             
         }
 
-        public async Task<Listing> GetSubreddits(int? limit)
+        public virtual async Task<Listing> GetSubreddits(int? limit)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
@@ -176,7 +176,7 @@ namespace BaconographyPortable.Model.Reddit
                 //error page
                 if (comments.ToLower().StartsWith("<!doctype html>"))
                 {
-                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
                 }
                 else
                 {

@@ -201,24 +201,28 @@ namespace BaconographyWP8.PlatformServices
         static DateTime _lastRequestMade = new DateTime();
 
         //dont hammer reddit!
+        //Make no more than thirty requests per minute. This allows some burstiness to your requests, 
+        //but keep it sane. On average, we should see no more than one request every two seconds from you.
+        //the above statement is from the reddit api docs, but its not quite true, there are some api's that have logging 
+        //set for 15 requests in 30 seconds, so we can allow some burstiness but it must fit in the 15 requests/30 seconds rule
         public static async Task ThrottleRequests()
         {
             var offset = DateTime.Now - _lastRequestMade;
-            if (offset.TotalMilliseconds < 2000)
+            if (offset.TotalMilliseconds < 1000)
             {
-                await Task.Delay(2000 - (int)offset.TotalMilliseconds);
+                await Task.Delay(1000 - (int)offset.TotalMilliseconds);
             }
 
-            if (_requestSetCount > 30)
+            if (_requestSetCount > 15)
             {
                 var overallOffset = DateTime.Now - _priorRequestSet;
 
-                if (overallOffset.TotalSeconds < 60)
+                if (overallOffset.TotalSeconds < 30)
                 {
-                    await Task.Delay((60 - (int)overallOffset.TotalSeconds) * 1000);
-                    _requestSetCount = 0;
-                    _priorRequestSet = DateTime.Now;
+                    await Task.Delay((30 - (int)overallOffset.TotalSeconds) * 1000);
                 }
+                _requestSetCount = 0;
+                _priorRequestSet = DateTime.Now;
             }
             _requestSetCount++;
 

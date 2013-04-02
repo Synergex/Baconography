@@ -316,8 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="BaconographyWP8_2013_04_02_09_02_35.sap" />
-    <None Include="BaconographyWP8_2013_04_02_09_03_07.sap" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
@@ -327,6 +325,7 @@
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\ApplicationIcon.png" />
     <Content Include="Assets\ApplicationIconSmall.png" />
+    <Content Include="Assets\BaconographyKitaroPlug.png" />
     <Content Include="Assets\reddit.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
