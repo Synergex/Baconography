@@ -34,6 +34,7 @@ namespace BaconographyPortable.ViewModel
 
             MessengerInstance.Register<SelectCommentTreeMessage>(this, OnComentTreeSelection);
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
+			MessengerInstance.Register<ToggleCommentTreeMessage>(this, OnToggleCommentTreeMessage);
 
             _gotoLink = new RelayCommand(GotoLinkImpl);
             _gotoSubreddit = new RelayCommand(GotoSubredditImpl);
@@ -57,7 +58,36 @@ namespace BaconographyPortable.ViewModel
             LoadLink(msg.LinkThing, msg.RootComment);
         }
 
-        private void OnConnectionStatusChanged(ConnectionStatusMessage connection)
+		private void OnToggleCommentTreeMessage(ToggleCommentTreeMessage msg)
+		{
+			int minimizeChange = msg.CommentViewModel.IsMinimized ? 1 : -1;
+
+			for (int i = 0; i < Comments.Count; i++)
+			{
+				if (Comments[i] == msg.CommentViewModel)
+				{
+					ApplyTreeMinimizeDepthChange(Comments[i] as CommentViewModel, minimizeChange);
+					break;
+				}
+			}
+		}
+
+		private void ApplyTreeMinimizeDepthChange(CommentViewModel comment, int change)
+		{
+			foreach (var reply in comment.Replies)
+			{
+				if (reply is MoreViewModel)
+					(reply as MoreViewModel).MinimizedDepth += change;
+				else if (reply is CommentViewModel)
+				{
+					var childComment = reply as CommentViewModel;
+					childComment.MinimizedDepth += change;
+					ApplyTreeMinimizeDepthChange(childComment, change);
+				}
+			}
+		}
+
+		private void OnConnectionStatusChanged(ConnectionStatusMessage connection)
         {
             if (IsOnline != connection.IsOnline)
             {

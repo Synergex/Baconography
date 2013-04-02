@@ -14,6 +14,7 @@ using BaconographyPortable.ViewModel;
 using Windows.ApplicationModel.DataTransfer;
 using Newtonsoft.Json;
 using BaconographyPortable.Model.Reddit;
+using BaconographyWP8.Messages;
 
 namespace BaconographyWP8.View
 {
