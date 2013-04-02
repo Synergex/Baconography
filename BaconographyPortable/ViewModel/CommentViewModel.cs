@@ -5,6 +5,7 @@ using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -114,9 +115,24 @@ namespace BaconographyPortable.ViewModel
             set
             {
                 _isMinimized = value;
+				Messenger.Default.Send<ToggleCommentTreeMessage>(new ToggleCommentTreeMessage { CommentViewModel = this });
                 RaisePropertyChanged("IsMinimized");
             }
         }
+
+		private int _minimizedDepth = 0;
+		public int MinimizedDepth
+		{
+			get
+			{
+				return _minimizedDepth;
+			}
+			set
+			{
+				_minimizedDepth = value;
+				RaisePropertyChanged("MinimizedDepth");
+			}
+		}
 
         public bool IsExtended
         {

@@ -10,7 +10,8 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
     <Grid HorizontalAlignment="Stretch" MinWidth="430" MinHeight="40"
-          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}">
+          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}"
+          Visibility="{Binding MinimizedDepth, Converter={StaticResource commentVisibilityConverter}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="7" />
             <ColumnDefinition Width="*" />

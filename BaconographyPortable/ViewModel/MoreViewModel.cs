@@ -68,6 +68,20 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		private int _minimizedDepth = 0;
+		public int MinimizedDepth
+		{
+			get
+			{
+				return _minimizedDepth;
+			}
+			set
+			{
+				_minimizedDepth = value;
+				RaisePropertyChanged("MinimizedDepth");
+			}
+		}
+
         RelayCommand _triggerLoad;
         public RelayCommand TriggerLoad
         {

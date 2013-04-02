@@ -19,6 +19,7 @@
     <converters:InvertBooleanConverter x:Key="invertBooleanConverter"/>
     <converters:BooleanVisibilityConverter x:Key="booleanVisibilityConverter"/>
     <converters:InvertedBooleanVisibilityConverter x:Key="invertBooleanVisibilityConverter"/>
+    <converters:CommentVisibilityConverter x:Key="commentVisibilityConverter"/>
     <converters:AlternatingColorConverter x:Key="alternatingColorConverter"/>
     <converters:DepthColorConverter x:Key="depthColorConverter"/>
     <converters:DepthMarginConverter x:Key="depthMarginConverter"/>

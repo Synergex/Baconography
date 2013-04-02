@@ -14,7 +14,7 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True"
-                            SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
+    SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
     DataContext="{Binding Comments, Source={StaticResource Locator}}">
 
     <UserControl.Resources>
@@ -37,7 +37,8 @@
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}">
+                ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}"
+                x:Name="commentList">
                 <!-- For endless scroll
                     ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
                 -->

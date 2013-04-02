@@ -10,7 +10,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    x:Name="controlRoot">
 
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
@@ -21,7 +22,9 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid HorizontalAlignment="Left" Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}">
+    <Grid HorizontalAlignment="Left"
+          Visibility="{Binding MinimizedDepth, Converter={StaticResource commentVisibilityConverter}}"
+          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="7" />
             <ColumnDefinition Width="*" />
@@ -36,7 +39,8 @@
                     Command="{Binding ShowExtendedView}" HorizontalContentAlignment="Left">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
-                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
+                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2"
+                                Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
                         <TextBlock Foreground="OrangeRed" FontSize="13" Margin="5,3,0,0"
                                    FontFamily="Segoe UI Symbol" Text="&#xE110; "
                                    Visibility="{Binding Path=Votable.Like, Converter={StaticResource booleanVisibilityConverter}}"/>
@@ -67,7 +71,8 @@
                     HorizontalContentAlignment="Left">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
-                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[+]</Button>
+                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2"
+                                Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[+]</Button>
                         <Border Margin="0,0,0,0" BorderThickness="0" Padding="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
                             <TextBlock FontStyle="Italic" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
                         </Border>
