@@ -130,8 +130,10 @@ namespace BaconographyPortable.ViewModel
             //if we only had a single line return the selection span as the modified position of just the original text
             //if we had multiple lines the selection span should be the entire replace string block
 
+            if (string.IsNullOrEmpty(startText))
+                startPosition = endPosition = 0;
             
-            var selectedText = startText != null && startText.Length > 0 ? startText.Substring(startPosition, endPosition - startPosition) : "";
+            var selectedText = string.IsNullOrEmpty(startText) ? "" : startText.Substring(startPosition, endPosition - startPosition);
 
             string splitter = "\n";
             if (selectedText.Contains("\r\n"))
@@ -139,8 +141,8 @@ namespace BaconographyPortable.ViewModel
                 splitter = "\r\n";
             }
 
-            var preText = startPosition == 0 ? "" : startText.Substring(0, startPosition);
-            var postText = (startText == null || endPosition == startText.Length) ? "" : startText.Substring(endPosition + 1);
+            var preText = (string.IsNullOrEmpty(startText) || startPosition == 0) ? "" : startText.Substring(0, startPosition);
+            var postText = (string.IsNullOrEmpty(startText) || endPosition == startText.Length) ? "" : startText.Substring(endPosition + 1);
 
             var selectedTextLines = selectedText.Split(new string[] { splitter }, StringSplitOptions.None);
             if (selectedTextLines.Length > 1)
