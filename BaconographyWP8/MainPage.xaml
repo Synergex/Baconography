@@ -30,14 +30,6 @@
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
         <!-- LOCALIZATION NOTE:
             To localize the displayed strings copy their values to appropriately named
             keys in the app's neutral language resource file (AppResources.resx) then
@@ -65,9 +57,10 @@
         <phone:Pivot x:Name="pivot" 
                      ItemsSource="{Binding PivotItems}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0" Padding="0"
-                     Grid.Column="0"
-                     Grid.Row="0">
+                     Margin="0" Padding="0">
+            <phone:Pivot.CacheMode>
+                <BitmapCache/>
+            </phone:Pivot.CacheMode>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid Height="30" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">

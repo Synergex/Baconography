@@ -14,7 +14,6 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="800" d:DesignWidth="480"
     x:Name="controlRoot">
-   
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
                 BorderThickness="0" VerticalAlignment="Stretch" 
