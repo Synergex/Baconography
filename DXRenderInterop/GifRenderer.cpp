@@ -202,7 +202,7 @@ GifRenderer::GifRenderer(CComPtr<IWICBitmapDecoder>& gifDecoder,
 	_currentFrame = 0;
 	_timer = ref new Windows::UI::Xaml::DispatcherTimer();
 	_activeRenderers->Append(this);
-	Windows::Foundation::TimeSpan nextFrameIn = { 10 * 10000 };
+	Windows::Foundation::TimeSpan nextFrameIn = { 100 * 10000};
 	_timer->Interval = nextFrameIn;
 	_timer->Tick += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &GifRenderer::RenderFrame);
 }
@@ -330,9 +330,9 @@ void GifRenderer::GetRawFrame(GifFrame& frame, CComPtr<IWICBitmapFrameDecode>& f
             // This will defeat the purpose of using zero delay intermediate frames in 
             // order to preserve compatibility. If this is removed, the zero delay 
             // intermediate frames will not be visible.
-            if (frame.delay < 90)
+            if (frame.delay < 20)
             {
-                frame.delay = 90;
+                frame.delay = 100;
             }
         }
     }
@@ -623,7 +623,8 @@ void GifRenderer::RenderFrame(Platform::Object^ sender, Platform::Object^ arg)
 		return;
 	}
 
-	Windows::Foundation::TimeSpan nextFrameIn = { _frames[_currentFrame].delay * 2200 };
+	Windows::Foundation::TimeSpan nextFrameIn;
+	nextFrameIn.Duration = _frames[_currentFrame].delay * 10000;
 
 	if(nextFrameIn.Duration == 0)
 	{
