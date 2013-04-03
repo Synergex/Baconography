@@ -80,7 +80,9 @@ namespace BaconographyPortable.ViewModel.Collections
 				{
 					depth = ((CommentViewModel)parent).Depth + 1;
 				}
-				return new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
+				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
+				more.Parent = parent as CommentViewModel;
+				return more;
             }
             else if (thing.Data is Comment)
             {
@@ -94,6 +96,7 @@ namespace BaconographyPortable.ViewModel.Collections
 
 				var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
                 commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Comment)thing.Data).Replies, commentViewModel));
+				commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
             else

@@ -23,7 +23,7 @@
     </UserControl.Resources>
 
     <Grid HorizontalAlignment="Left"
-          Visibility="{Binding MinimizedDepth, Converter={StaticResource commentVisibilityConverter}}"
+          Visibility="{Binding IsVisible, Converter={StaticResource booleanVisibilityConverter}}"
           Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="7" />
