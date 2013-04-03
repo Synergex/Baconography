@@ -25,7 +25,11 @@
                 FontFamily="Segoe WP" Tap="TitleButton_Tap" Hold="TitleButton_Hold">
             <Button.Content>
                 <StackPanel>
-                    <TextBlock FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
+                    <TextBlock FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap">
+                        <TextBlock.Foreground>
+                            <Binding Path="Url" Converter="{StaticResource visitedMainLinkConverter}"/>
+                        </TextBlock.Foreground>
+                    </TextBlock>
                     <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
                         <TextBlock FontSize="18"  Foreground="Goldenrod" Text="{Binding Author}" />
                         <TextBlock Margin="8,2,0,0" Foreground="Gray"

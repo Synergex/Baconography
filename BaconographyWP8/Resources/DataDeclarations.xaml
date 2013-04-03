@@ -29,6 +29,7 @@
     <converters:ReplyConverter x:Key="replyConverter"/>
     <converters:ExtendedCommentConverter x:Key="extendedCommentConverter"/>
     <converters:LinkGlyphConverter x:Key="linkGlyphConverter"/>
+    <converters:VisitedMainLinkConverter x:Key="visitedMainLinkConverter"/>
     <converters:PageHeadingConverter x:Key="pageHeadingConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
