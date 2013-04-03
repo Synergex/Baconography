@@ -202,7 +202,7 @@ GifRenderer::GifRenderer(CComPtr<IWICBitmapDecoder>& gifDecoder,
 	_currentFrame = 0;
 	_timer = ref new Windows::UI::Xaml::DispatcherTimer();
 	_activeRenderers->Append(this);
-	Windows::Foundation::TimeSpan nextFrameIn = { 90 * 1000 };
+	Windows::Foundation::TimeSpan nextFrameIn = { 10 * 10000 };
 	_timer->Interval = nextFrameIn;
 	_timer->Tick += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &GifRenderer::RenderFrame);
 }
@@ -623,7 +623,7 @@ void GifRenderer::RenderFrame(Platform::Object^ sender, Platform::Object^ arg)
 		return;
 	}
 
-	Windows::Foundation::TimeSpan nextFrameIn = { _frames[_currentFrame].delay * 1000 };
+	Windows::Foundation::TimeSpan nextFrameIn = { _frames[_currentFrame].delay * 2200 };
 
 	if(nextFrameIn.Duration == 0)
 	{
