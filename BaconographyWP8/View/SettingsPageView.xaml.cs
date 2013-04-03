@@ -21,6 +21,7 @@ namespace BaconographyWP8.View
 		public SettingsPageView()
 		{
 			InitializeComponent();
+			//version.Text
 		}
 
 		private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
