@@ -47,6 +47,14 @@
             <phone:PivotItem Header="about">
                 <Grid>
                     <StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontSize="24">
+                                Baconography
+                            </TextBlock>
+                            <TextBlock FontSize="24" x:Name="version"
+                                       Text="v1.0" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <Border Height="8" />
                         <TextBlock Margin="10,0,0,0" FontSize="22"
                                    HorizontalAlignment="Left" TextWrapping="Wrap">
                             Baconography is developed and maintained by a small team at Synergex International Corporation.
