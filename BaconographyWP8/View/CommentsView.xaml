@@ -15,7 +15,8 @@
     d:DesignHeight="480" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True"
     SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
-    DataContext="{Binding Comments, Source={StaticResource Locator}}">
+    DataContext="{Binding Comments, Source={StaticResource Locator}}"
+    x:Name="controlRoot">
 
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
@@ -27,104 +28,38 @@
         <DataTemplate x:Key="typedTemplateSelector">
             <common:TypedTemplateSelector Content="{Binding}" />
         </DataTemplate>
+
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" Background="{StaticResource PhoneChromeBrush}">
         <local:LoadIndicatorView VerticalAlignment="Top" />
 
-        <common:FixedLongListSelector Margin="0,20,0,0" HorizontalAlignment="Stretch"
+        <ListBox Margin="0,20,0,0" HorizontalAlignment="Stretch"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}"
                 x:Name="commentList">
-                <!-- For endless scroll
-                    ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
-                -->
-            <common:FixedLongListSelector.ItemTemplate>
+
+            <ListBox.ItemTemplate>
                 <DataTemplate>
                     <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
                 </DataTemplate>
-            </common:FixedLongListSelector.ItemTemplate>
-            <common:FixedLongListSelector.ListHeader>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                    <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding Link}" />
-                    <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="10" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="4" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="10" />
-                        </Grid.RowDefinitions>
+            </ListBox.ItemTemplate>
 
-                        <ToggleButton Grid.Row="1" Grid.Column="0"
-                            FontFamily="Segoe UI Symbol" FontSize="16"
-                            Width="40" Height="40"
-                            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
-                            Command="{Binding Path=Votable.ToggleUpvote}" CommandParameter="{Binding Votable}"
-                            IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,4,0,0" Text="Upvote" FontSize="14" HorizontalAlignment="Center" />
-
-                        <ToggleButton Grid.Row="1" Grid.Column="1"
-                            FontFamily="Segoe UI Symbol" FontSize="16"
-                            Width="40" Height="40"
-                            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
-                            Command="{Binding Path=Votable.ToggleDownvote}" CommandParameter="{Binding Votable}"
-                            IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}">
-                            <ToggleButton.RenderTransform>
-                                <RotateTransform Angle="180" CenterX="20" CenterY="20" />
-                            </ToggleButton.RenderTransform>
-                        </ToggleButton>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,4,0,0" Text="Downvote" FontSize="14" HorizontalAlignment="Center" />
-
-                        <Button Grid.Row="1" Grid.Column="2"
-                            FontFamily="Segoe UI Symbol" FontSize="14"
-                            Width="40" Height="40"
-                            Command="{Binding GotoReply}" CommandParameter="{Binding}"
-                            Content="&#xE165;" Style="{StaticResource RoundButtonStyle}" />
-                        <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
-
-                        <Button Grid.Row="1" Grid.Column="3"
-                            FontFamily="Segoe UI Symbol" FontSize="16"
-                            Width="40" Height="40"
-                            Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
-                            Command="{Binding GotoUserDetails}" CommandParameter="{Binding}"/>
-                        <TextBlock Grid.Row="3" Grid.Column="3" Margin="0,4,0,0" Text="User" FontSize="14" HorizontalAlignment="Center" />
-
-                        <Button Grid.Row="1" Grid.Column="4"
-                            FontFamily="Segoe UI Symbol" FontSize="16"
-                            Width="40" Height="40"
-                            Content="&#xE12F;" Style="{StaticResource RoundButtonStyle}"
-                            Command="{Binding GotoSubreddit}" CommandParameter="{Binding}"/>
-                        <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Subreddit" FontSize="14" HorizontalAlignment="Center" />
-
-                        <!--
-                        <Button Grid.Row="1" Grid.Column="4"
-                            FontFamily="Segoe UI Symbol" FontSize="14"
-                            Width="40" Height="40"
-                            Content="&#xE1CF;" Style="{StaticResource RoundButtonStyle}"
-                            IsEnabled="False"/>
-                        <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Save" FontSize="14" HorizontalAlignment="Center" 
-                                   Foreground="{StaticResource PhoneDisabledBrush}"/>
-                        -->
-
-                    </Grid>
-                    <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
-                        <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
-                    </Border>
-                    <ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
-                </StackPanel>
-            </common:FixedLongListSelector.ListHeader>
-            
-        </common:FixedLongListSelector>
+            <ListBox.Template>
+                <ControlTemplate TargetType="ListBox">
+                    <ScrollViewer x:Name="ScrollViewer" DataContext="{Binding}">
+                        <ScrollViewer.Content>
+                            <StackPanel>
+                                <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding Link}" />
+                                <ItemsPresenter/>
+                            </StackPanel>
+                        </ScrollViewer.Content>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ListBox.Template>
+        </ListBox>
     </Grid>
 </phone:PhoneApplicationPage>

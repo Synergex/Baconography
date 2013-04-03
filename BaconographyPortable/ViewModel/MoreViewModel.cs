@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -68,17 +69,26 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-		private int _minimizedDepth = 0;
-		public int MinimizedDepth
+		public void Touch()
+		{
+			RaisePropertyChanged("IsVisible");
+		}
+
+		public CommentViewModel Parent
+		{
+			get;
+			set;
+		}
+
+		public bool IsVisible
 		{
 			get
 			{
-				return _minimizedDepth;
-			}
-			set
-			{
-				_minimizedDepth = value;
-				RaisePropertyChanged("MinimizedDepth");
+				if (Parent != null)
+				{
+					return Parent.IsVisible ? !Parent.IsMinimized : false;
+				}
+				return true;
 			}
 		}
 
