@@ -31,7 +31,7 @@ namespace BaconographyWP8.View
 		{
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-
+                
 			}
 			else
 			{
@@ -65,9 +65,9 @@ namespace BaconographyWP8.View
 			else
 			{
 				this.State["SelectedCommentTreeMessage"] = _selectedCommentTree;
-				UnregisterShareSourceContract();
-				Content = null;
-				((CommentsViewModel)DataContext).Cleanup();
+				//UnregisterShareSourceContract();
+				//Content = null;
+				//((CommentsViewModel)DataContext).Cleanup();
 			}
 		}
 

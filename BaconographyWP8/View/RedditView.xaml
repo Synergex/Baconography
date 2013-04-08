@@ -21,7 +21,6 @@
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
-                Loaded="linksView_Loaded" SelectionChanged="FixedLongListSelector_SelectionChanged"
                 ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>

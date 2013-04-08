@@ -84,19 +84,23 @@ namespace BaconographyPortable.ViewModel.Collections
 				more.Parent = parent as CommentViewModel;
 				return more;
             }
+            else if (thing.Data is Link)
+            {
+                return new LinkViewModel(thing, _baconProvider);
+            }
             else if (thing.Data is Comment)
             {
                 var oddNesting = false;
-				var depth = 0;
-				if (parent is CommentViewModel)
-				{
-					oddNesting = !((CommentViewModel)parent).OddNesting;
-					depth = ((CommentViewModel)parent).Depth + 1;
-				}
+                var depth = 0;
+                if (parent is CommentViewModel)
+                {
+                    oddNesting = !((CommentViewModel)parent).OddNesting;
+                    depth = ((CommentViewModel)parent).Depth + 1;
+                }
 
-				var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
+                var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
                 commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Comment)thing.Data).Replies, commentViewModel));
-				commentViewModel.Parent = parent as CommentViewModel;
+                commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
             else

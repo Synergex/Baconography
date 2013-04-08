@@ -13,6 +13,10 @@
     d:DesignWidth="400"
     x:Name="controlRoot">
 
+    <UserControl.CacheMode>
+        <BitmapCache/>
+    </UserControl.CacheMode>
+
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
             <local:CommentView/>
