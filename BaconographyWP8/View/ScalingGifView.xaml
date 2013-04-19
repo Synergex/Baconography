@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="BaconographyWP8.View.ScalingGifView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:imagetools="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="480" d:DesignWidth="480" x:Name="viewPanel">
+
+    <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <ViewportControl x:Name="viewport" 
+                ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
+                ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
+            <Canvas x:Name="canvas">
+                <imagetools:AnimatedImage
+                    Source="{Binding ImageSource, Converter={StaticResource imageConverter}}"
+                    CacheMode="BitmapCache"  RenderTransformOrigin="0,0"
+                    LoadingCompleted="OnImageOpened"
+                    AnimationMode="Repeat" Stretch="UniformToFill"
+                    x:Name="image">
+                    <imagetools:AnimatedImage.RenderTransform>
+                        <ScaleTransform x:Name="xform" />
+                    </imagetools:AnimatedImage.RenderTransform>
+                </imagetools:AnimatedImage>
+            </Canvas>
+        </ViewportControl>
+    </Grid>
+</UserControl>

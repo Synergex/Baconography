@@ -8,6 +8,7 @@
     xmlns:converters="clr-namespace:BaconographyWP8.Converters"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:main="clr-namespace:BaconographyWP8"
+    xmlns:imagetools="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
     mc:Ignorable="d">
 
     <main:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
@@ -34,6 +35,7 @@
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
+    <imagetools:ImageConverter x:Key="imageConverter"/>
 
     <!-- (c) Copyright 2010 Microsoft Corporation.
         This source is subject to the Microsoft Public License (MS-PL).

@@ -97,6 +97,7 @@
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
+    <Compile Include="Common\ImageTypeSelector.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
     <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
@@ -154,6 +155,9 @@
     </Compile>
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ScalingGifView.xaml.cs">
+      <DependentUpon>ScalingGifView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SortSubredditPageView.xaml.cs">
       <DependentUpon>SortSubredditPageView.xaml</DependentUpon>
@@ -232,6 +236,10 @@
     <Page Include="View\CommentView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SortSubredditPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -358,6 +366,18 @@
     <ProjectReference Include="..\BaconographyWP8Core\BaconographyWP8Core.csproj">
       <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
       <Name>BaconographyWP8Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj">
+      <Project>{30BEDEDE-3224-49FA-9340-8A82447619CB}</Project>
+      <Name>ImageTools.Controls.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.IO.Gif.Phone\ImageTools.IO.Gif.Phone.csproj">
+      <Project>{58E343B0-5342-4266-8F2E-E1D0554B9D11}</Project>
+      <Name>ImageTools.IO.Gif.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Phone\ImageTools.Phone.csproj">
+      <Project>{5876DA9E-C3DF-4D27-835F-DF998658CB6E}</Project>
+      <Name>ImageTools.Phone</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
       <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>

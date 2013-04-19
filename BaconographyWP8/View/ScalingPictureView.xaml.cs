@@ -11,6 +11,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.ComponentModel;
 
+using ImageTools.IO;
+using ImageTools.IO.Gif;
+using ImageTools;
+using ImageTools.Controls;
+using System.Windows.Media;
+using BaconographyWP8.PlatformServices;
+using System.Threading.Tasks;
+using System.IO;
+using BaconographyPortable.ViewModel;
+using GalaSoft.MvvmLight;
+
 namespace BaconographyWP8.View
 {
 	public partial class ScalingPictureView : UserControl
@@ -47,6 +58,8 @@ namespace BaconographyWP8.View
 					this._bitmap.UriSource = null;
 					this._bitmap = null;
 				}
+//				if (!_isAssigned)
+//					AsyncLoadImageHeader();
 				SetValue(ImageSourceProperty, value);
 			}
 		}
@@ -56,6 +69,7 @@ namespace BaconographyWP8.View
 		/// </summary>
 		public ScalingPictureView()
 		{
+			Decoders.AddDecoder<GifDecoder>();
 			InitializeComponent();
 		}
 
@@ -64,6 +78,35 @@ namespace BaconographyWP8.View
 			var image = (ScalingPictureView)d;
 			image.ImageSource = e.NewValue;
 		}
+
+		/*
+		private async void AsyncLoadImageHeader()
+		{
+			var apiURL = this.ImageSource as string;
+			var request = HttpWebRequest.CreateHttp(apiURL);
+			byte[] result;
+			using (var response = (await SimpleHttpService.GetResponseAsync(request)))
+			{
+				result = await Task<byte[]>.Run(() =>
+				{
+					byte[] buffer = new byte[11];
+					response.GetResponseStream().Read(buffer, 0, 11);
+					return buffer;
+				});
+			}
+
+			_isAssigned = true;
+
+			GifDecoder decoder = new GifDecoder();
+			if (decoder.IsSupportedFileFormat(result))
+			{
+				staticImage.Visibility = Visibility.Collapsed;
+				animatedImage.Visibility = Visibility.Collapsed;
+				var converter = new ImageConverter();
+				animatedImage.Source = converter.Convert((DataContext as LinkedPictureViewModel.LinkedPicture).ImageSource, null, null, null) as ExtendedImage;
+				animatedImage.ApplyTemplate();
+			}
+		}*/
 
 		/// <summary>
 		/// Either the user has manipulated the image or the size of the viewport has changed. We only
@@ -98,7 +141,7 @@ namespace BaconographyWP8.View
 		/// <param name="e"></param>
 		void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
 		{
-			if (e.PinchManipulation != null)
+			if (e.PinchManipulation != null && image != null)
 			{
 				e.Handled = true;
 
@@ -106,9 +149,9 @@ namespace BaconographyWP8.View
 				{
 					_pinching = true;
 					Point center = e.PinchManipulation.Original.Center;
-					_relativeMidpoint = new Point(center.X / ImageReceived.ActualWidth, center.Y / ImageReceived.ActualHeight);
+					_relativeMidpoint = new Point(center.X / image.ActualWidth, center.Y / image.ActualHeight);
 
-					var xform = ImageReceived.TransformToVisual(viewport);
+					var xform = image.TransformToVisual(viewport);
 					_screenMidpoint = xform.Transform(center);
 				}
 
@@ -139,7 +182,7 @@ namespace BaconographyWP8.View
 		/// </summary>
 		void OnImageOpened(object sender, RoutedEventArgs e)
 		{
-			_bitmap = (BitmapImage)ImageReceived.Source;
+			_bitmap = (BitmapImage)image.Source;
 
 			// Set scale to the minimum, and then save it.
 			_scale = 0;
@@ -157,10 +200,16 @@ namespace BaconographyWP8.View
 		/// <param name="center"></param>
 		void ResizeImage(bool center)
 		{
-			if (_coercedScale != 0 && _bitmap != null)
+			if (_coercedScale != 0)
 			{
-				double newWidth = canvas.Width = Math.Round(_bitmap.PixelWidth * _coercedScale);
-				double newHeight = canvas.Height = Math.Round(_bitmap.PixelHeight * _coercedScale);
+				double newWidth;
+				double newHeight;
+				if (_bitmap != null)
+				{
+					newWidth = canvas.Width = Math.Round(_bitmap.PixelWidth * _coercedScale);
+					newHeight = canvas.Height = Math.Round(_bitmap.PixelHeight * _coercedScale);
+				}
+				else return;
 
 				xform.ScaleX = xform.ScaleY = _coercedScale;
 
@@ -191,13 +240,17 @@ namespace BaconographyWP8.View
 		/// <param name="recompute">Will recompute the min max scale if true.</param>
 		void CoerceScale(bool recompute)
 		{
-			if (recompute && _bitmap != null && viewport != null)
+			if (recompute && viewport != null)
 			{
 				// Calculate the minimum scale to fit the viewport
-				double minX = viewport.ActualWidth / _bitmap.PixelWidth;
-				double minY = viewport.ActualHeight / _bitmap.PixelHeight;
-
-				_minScale = Math.Min(minX, minY);
+				if (_bitmap != null)
+				{
+					double minX = viewport.ActualWidth / _bitmap.PixelWidth;
+					double minY = viewport.ActualHeight / _bitmap.PixelHeight;
+					_minScale = Math.Min(minX, minY);
+					if (_minScale == 0.0)
+						_minScale = 1.0;
+				}		
 			}
 
 			_coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));

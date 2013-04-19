@@ -1,0 +1,56 @@
+﻿<navigation:Page x:Class="ImageTools.Demos.Views.Files" 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ImageTools.Demos.Views"
+    xmlns:it="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls" 
+    xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
+	xmlns:system="clr-namespace:System;assembly=mscorlib" 
+    xmlns:navigation="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Navigation"
+    mc:Ignorable="d"
+    d:DesignWidth="640" d:DesignHeight="480">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <TextBlock Style="{StaticResource HeaderTextStyle}" Text="files" />
+            <TextBlock Style="{StaticResource ContentTextStyle}" Text="Load images from a file using a dialog or save the view." />
+        </StackPanel>
+
+        <Border Style="{StaticResource MenuStyle}" Grid.Row="1" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource MenuButtonStyle}" Content="Load Image" Click="LoadImageButton_Click" />
+                <Button Style="{StaticResource MenuButtonStyle}" Content="Save Screen" Click="SaveScreenButton_Click" Margin="5,0,0,0" />
+                <Rectangle Style="{StaticResource MenuDividerStyle}" />
+                <Button Style="{StaticResource MenuButtonStyle}" Content="Scan Barcode" Click="ScanBarcodeButton_Click" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" x:Name="Area">
+            <it:AnimatedImage x:Name="Image" Stretch="Uniform" AutoSize="False" />
+
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                Foreground="White" Opacity="0.5"
+                FontSize="30" 
+                FontWeight="Bold" Text="This is a watermark" />
+        </Grid>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Margin="5,0,0,0">
+            <TextBlock Margin="2" Text="Format:" />
+            <TextBox x:Name="BarcodeFormatTextBox" IsReadOnly="True" />
+            <TextBlock Margin="2" Text="Text:" />
+            <TextBox x:Name="BarcodeTextTextBox" IsReadOnly="True" />
+        </StackPanel>
+    </Grid>
+</navigation:Page>
