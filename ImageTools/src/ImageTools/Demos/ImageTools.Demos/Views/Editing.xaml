@@ -1,0 +1,84 @@
+﻿<navigation:Page x:Class="ImageTools.Demos.Views.Editing" 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ImageTools.Demos.Views"
+    xmlns:it="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls" 
+    xmlns:toolkit="http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit"
+	xmlns:system="clr-namespace:System;assembly=mscorlib" 
+    xmlns:navigation="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Navigation"
+    mc:Ignorable="d"
+    d:DesignWidth="640" 
+    d:DesignHeight="480">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="150" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <TextBlock Style="{StaticResource HeaderTextStyle}" Text="image editor"  />
+            <TextBlock Style="{StaticResource ContentTextStyle}" Text="Use the editor control and filters to write a small image editor." />
+        </StackPanel>
+
+        <Border Style="{StaticResource MenuStyle}" Grid.Row="1" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Scaling: " VerticalAlignment="Center"/>
+
+                <Button Style="{StaticResource MenuButtonStyle}" Content="+" Width="30" Margin="0,0,2,0" Name="ScaleInButton" Click="ScaleInButton_Click" />
+                <Button Style="{StaticResource MenuButtonStyle}" Content="-" Width="30" Margin="0,0,2,0" Name="ScaleOutButton" Click="ScaleOutButton_Click" />
+
+                <Button Style="{StaticResource MenuButtonStyle}" Content="Scale Page" Name="ScalePageButton" Click="ScalePageButton_Click" />
+
+                <Rectangle Style="{StaticResource MenuDividerStyle}" />
+                
+                <ComboBox x:Name="SelectionModeComboBox" SelectedIndex="0" Width="140" SelectionChanged="SelectionModeComboBox_SelectionChanged">
+                    <system:String>Free Selection</system:String>
+                    <system:String>Fixed Size</system:String>
+                    <system:String>Fixed Ratio</system:String>
+                </ComboBox>
+
+                <StackPanel x:Name="SelectionSizesArea" Orientation="Horizontal">
+                    <TextBox x:Name="SelectionWidthTextBox" Text="2" IsEnabled="false" Width="50" Margin="12,0,0,0"/>
+                    <TextBlock Text=" x " VerticalAlignment="Center" />
+                    <TextBox x:Name="SelectionHeightTextBox" Text="1" IsEnabled="false" Width="50"/>
+                    <TextBlock Text=" px" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <Rectangle Style="{StaticResource MenuDividerStyle}" />
+                
+                <CheckBox x:Name="MoveSelectionCheckBox" Content="Move" VerticalContentAlignment="Top" VerticalAlignment="Center" IsChecked="False"/>
+            </StackPanel>
+        </Border>
+
+        <it:ImageEditorContainer x:Name="Container" Grid.Row="2"
+			MoveSelection="{Binding ElementName=MoveSelectionCheckBox, Mode=OneWay, Path=IsChecked}" 
+			RequiredSelectionHeight="{Binding ElementName=SelectionHeightTextBox, Mode=OneWay, Path=Text}" 
+			RequiredSelectionWidth="{Binding ElementName=SelectionWidthTextBox, Mode=OneWay, Path=Text}" />
+            
+        <Grid Margin="5,0,0,0" Grid.Row="2" Grid.Column="1">
+            <StackPanel>
+                <TextBlock Margin="2" Text="Brightness:" />
+                <Slider x:Name="BrightnessSlider" Minimum="-255" Maximum="255" Value="0" />
+
+                <TextBlock Margin="2" Text="Contrast:" />
+                <Slider x:Name="ContrastSlider" Minimum="-100" Maximum="100" Value="0" />
+
+                <Button Margin="0,4,0,0" Content="Change Colors" Click="ChangeColorsButton_Click" />
+
+                <Button Margin="0,8,0,0" Content="Flip X" Click="FlipHorizontalButton_Click" />
+                <Button Margin="0,2,0,0" Content="Flip Y" Click="FlipVerticalButton_Click" />
+                <Button Margin="0,8,0,0" Content="Rotate Left" Click="RotateCounterClockwiseButton_Click" />
+                <Button Margin="0,2,0,0" Content="Rotate Right" Click="RotateClockwiseButton_Click" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</navigation:Page>

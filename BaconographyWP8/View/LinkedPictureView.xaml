@@ -6,9 +6,24 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" SupportedOrientations="PortraitOrLandscape">
+    
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="Temp">
+            <Grid/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:Gif">
+            <local:ScalingGifView HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  DataContext="{Binding}" ImageSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ImageSource}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:Else">
+            <local:ScalingPictureView HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      DataContext="{Binding}" ImageSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ImageSource}"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
 
     <Grid>
 
@@ -19,10 +34,9 @@
                      UnloadingPivotItem="albumPivot_UnloadingPivotItem">
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <local:ScalingPictureView
-                            ImageSource="{Binding ImageSource, Mode=TwoWay}" />
-                    </Grid>
+                    <common:ImageTypeSelector HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                              Content="{Binding}" />
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>

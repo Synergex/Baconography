@@ -12,7 +12,7 @@ using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class SimpleHttpService : ISimpleHttpService
+    public class SimpleHttpService : ISimpleHttpService
     {
         public Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri)
         {

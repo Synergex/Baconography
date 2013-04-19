@@ -1,0 +1,68 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="ImageTools.Demos.Phone.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:it="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls" 
+    xmlns:itFilter="clr-namespace:ImageTools.Filtering;assembly=ImageTools.Filtering"
+    xmlns:local="clr-namespace:ImageTools.Demos.Phone"
+    mc:Ignorable="d" 
+    d:DesignWidth="480" 
+    d:DesignHeight="768" 
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+    
+    <phone:PhoneApplicationPage.DataContext>
+        <local:MainPageViewModel />
+    </phone:PhoneApplicationPage.DataContext>
+    
+    <phone:PhoneApplicationPage.Resources>
+        <it:ImageConverter x:Key="ImageConverter" />
+    </phone:PhoneApplicationPage.Resources>
+
+    <controls:Pivot Title="ImageTools Demo Application">
+        <controls:PivotItem Header="original">
+            <StackPanel>
+                <it:AnimatedImage Source="{Binding ImageSource, Converter={StaticResource ImageConverter}}" />
+                <TextBlock Text="Original image without a filter." />
+            </StackPanel>
+        </controls:PivotItem>
+        <controls:PivotItem Header="blur">
+            <StackPanel>
+                <it:AnimatedImage Source="{Binding ImageSource, Converter={StaticResource ImageConverter}}">
+                    <it:AnimatedImage.Filter>
+                        <itFilter:GaussianBlur Variance="2.8" />
+                    </it:AnimatedImage.Filter>
+                </it:AnimatedImage>
+                <TextBlock Text="Gaussian blur filter using a variance of 2.8." />
+            </StackPanel>
+        </controls:PivotItem>
+        <controls:PivotItem Header="grayscale">
+            <StackPanel>
+                <it:AnimatedImage Source="{Binding ImageSource, Converter={StaticResource ImageConverter}}">
+                    <it:AnimatedImage.Filter>
+                        <itFilter:GrayscaleBT709 />
+                    </it:AnimatedImage.Filter>
+                </it:AnimatedImage>
+                <TextBlock Text="Grayscale filter." />
+            </StackPanel>
+        </controls:PivotItem>
+        <controls:PivotItem Header="inverter">
+            <StackPanel>
+                <it:AnimatedImage Source="{Binding ImageSource, Converter={StaticResource ImageConverter}}">
+                    <it:AnimatedImage.Filter>
+                        <itFilter:Inverter />
+                    </it:AnimatedImage.Filter>
+                </it:AnimatedImage>
+                <TextBlock Text="Inverted colors." />
+            </StackPanel>
+        </controls:PivotItem>
+    </controls:Pivot>
+</phone:PhoneApplicationPage>

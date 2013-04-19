@@ -1,0 +1,243 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{85CB1C66-7ADD-4BE3-AE21-94DC8B08C943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Filtering", "ImageTools.Filtering\ImageTools.Filtering.csproj", "{FB5B5D68-53D9-4B0A-9D06-018E76106922}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Controls", "ImageTools.Controls\ImageTools.Controls.csproj", "{F67AB944-0489-4DCB-BA32-BD26D175DBB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Png", "ImageTools.IO.Png\ImageTools.IO.Png.csproj", "{A3A3393A-D422-4775-AA2C-7B28998F4817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Bmp", "ImageTools.IO.Bmp\ImageTools.IO.Bmp.csproj", "{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Gif", "ImageTools.IO.Gif\ImageTools.IO.Gif.csproj", "{DB3B4A4D-276C-499E-B828-66A66D2DBED9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Jpeg", "ImageTools.IO.Jpeg\ImageTools.IO.Jpeg.csproj", "{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Utils", "ImageTools.Utils\ImageTools.Utils.csproj", "{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SL4", "SL4", "{A828AF6E-18E4-43DC-963B-2C17DB556784}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Phone", "Phone", "{E107D059-FAF9-4BBD-8480-52B7A3A0AC03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools", "ImageTools\ImageTools.csproj", "{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Demos", "Demos\ImageTools.Demos\ImageTools.Demos.csproj", "{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Demos.Web", "Demos\ImageTools.Demos.Web\ImageTools.Demos.Web.csproj", "{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Phone", "ImageTools.Phone\ImageTools.Phone.csproj", "{5876DA9E-C3DF-4D27-835F-DF998658CB6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Filtering.Phone", "ImageTools.Filtering.Phone\ImageTools.Filtering.Phone.csproj", "{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Controls.Phone", "ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj", "{30BEDEDE-3224-49FA-9340-8A82447619CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Bmp.Phone", "ImageTools.IO.Bmp.Phone\ImageTools.IO.Bmp.Phone.csproj", "{56B4F16D-9C7A-4B09-A20B-1B4C259D303B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Gif.Phone", "ImageTools.IO.Gif.Phone\ImageTools.IO.Gif.Phone.csproj", "{58E343B0-5342-4266-8F2E-E1D0554B9D11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Png.Phone", "ImageTools.IO.Png.Phone\ImageTools.IO.Png.Phone.csproj", "{42CB737F-CC7F-4C39-B318-52D75C89B654}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Utils.Phone", "ImageTools.Utils.Phone\ImageTools.Utils.Phone.csproj", "{F05F81AE-91FD-435D-9AC8-E53980B071A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{46024B08-B3B7-4A11-8C68-8ED9A883A038}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Demos.Phone", "Demos\ImageTools.Demos.Phone\ImageTools.Demos.Phone.csproj", "{4897FDB6-9E98-42D1-B665-AFA73315758E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Jpeg.Phone", "ImageTools.IO.Jpeg.Phone\ImageTools.IO.Jpeg.Phone.csproj", "{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 20
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs08
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ImageTools\\ImageTools.csproj
+		SccProjectTopLevelParentUniqueName1 = ImageTools.sln
+		SccProjectName1 = ImageTools
+		SccLocalPath1 = ImageTools
+		SccProjectUniqueName2 = ImageTools.Filtering\\ImageTools.Filtering.csproj
+		SccProjectTopLevelParentUniqueName2 = ImageTools.sln
+		SccProjectName2 = ImageTools.Filtering
+		SccLocalPath2 = ImageTools.Filtering
+		SccProjectUniqueName3 = ImageTools.Controls\\ImageTools.Controls.csproj
+		SccProjectTopLevelParentUniqueName3 = ImageTools.sln
+		SccProjectName3 = ImageTools.Controls
+		SccLocalPath3 = ImageTools.Controls
+		SccProjectUniqueName4 = ImageTools.IO.Bmp\\ImageTools.IO.Bmp.csproj
+		SccProjectTopLevelParentUniqueName4 = ImageTools.sln
+		SccProjectName4 = ImageTools.IO.Bmp
+		SccLocalPath4 = ImageTools.IO.Bmp
+		SccProjectUniqueName5 = ImageTools.IO.Gif\\ImageTools.IO.Gif.csproj
+		SccProjectTopLevelParentUniqueName5 = ImageTools.sln
+		SccProjectName5 = ImageTools.IO.Gif
+		SccLocalPath5 = ImageTools.IO.Gif
+		SccProjectUniqueName6 = ImageTools.IO.Jpeg\\ImageTools.IO.Jpeg.csproj
+		SccProjectTopLevelParentUniqueName6 = ImageTools.sln
+		SccProjectName6 = ImageTools.IO.Jpeg
+		SccLocalPath6 = ImageTools.IO.Jpeg
+		SccProjectUniqueName7 = ImageTools.Utils\\ImageTools.Utils.csproj
+		SccProjectTopLevelParentUniqueName7 = ImageTools.sln
+		SccProjectName7 = ImageTools.Utils
+		SccLocalPath7 = ImageTools.Utils
+		SccProjectUniqueName8 = Demos\\ImageTools.Demos\\ImageTools.Demos.csproj
+		SccProjectTopLevelParentUniqueName8 = ImageTools.sln
+		SccProjectName8 = Demos/ImageTools.Demos
+		SccLocalPath8 = Demos\\ImageTools.Demos
+		SccProjectUniqueName9 = Demos\\ImageTools.Demos.Web\\ImageTools.Demos.Web.csproj
+		SccProjectTopLevelParentUniqueName9 = ImageTools.sln
+		SccProjectName9 = Demos/ImageTools.Demos.Web
+		SccLocalPath9 = Demos\\ImageTools.Demos.Web
+		SccProjectUniqueName10 = ImageTools.Filtering.Phone\\ImageTools.Filtering.Phone.csproj
+		SccProjectTopLevelParentUniqueName10 = ImageTools.sln
+		SccProjectName10 = ImageTools.Filtering.Phone
+		SccLocalPath10 = ImageTools.Filtering.Phone
+		SccProjectUniqueName11 = ImageTools.Controls.Phone\\ImageTools.Controls.Phone.csproj
+		SccProjectTopLevelParentUniqueName11 = ImageTools.sln
+		SccProjectName11 = ImageTools.Controls.Phone
+		SccLocalPath11 = ImageTools.Controls.Phone
+		SccProjectUniqueName12 = ImageTools.Phone\\ImageTools.Phone.csproj
+		SccProjectTopLevelParentUniqueName12 = ImageTools.sln
+		SccProjectName12 = ImageTools.Phone
+		SccLocalPath12 = ImageTools.Phone
+		SccProjectUniqueName13 = ImageTools.IO.Bmp.Phone\\ImageTools.IO.Bmp.Phone.csproj
+		SccProjectTopLevelParentUniqueName13 = ImageTools.sln
+		SccProjectName13 = ImageTools.IO.Bmp.Phone
+		SccLocalPath13 = ImageTools.IO.Bmp.Phone
+		SccProjectUniqueName14 = ImageTools.IO.Gif.Phone\\ImageTools.IO.Gif.Phone.csproj
+		SccProjectTopLevelParentUniqueName14 = ImageTools.sln
+		SccProjectName14 = ImageTools.IO.Gif.Phone
+		SccLocalPath14 = ImageTools.IO.Gif.Phone
+		SccProjectUniqueName15 = ImageTools.IO.Png.Phone\\ImageTools.IO.Png.Phone.csproj
+		SccProjectTopLevelParentUniqueName15 = ImageTools.sln
+		SccProjectName15 = ImageTools.IO.Png.Phone
+		SccLocalPath15 = ImageTools.IO.Png.Phone
+		SccProjectUniqueName16 = ImageTools.Utils.Phone\\ImageTools.Utils.Phone.csproj
+		SccProjectTopLevelParentUniqueName16 = ImageTools.sln
+		SccProjectName16 = ImageTools.Utils.Phone
+		SccLocalPath16 = ImageTools.Utils.Phone
+		SccProjectUniqueName17 = Demos\\ImageTools.Demos.Phone\\ImageTools.Demos.Phone.csproj
+		SccProjectTopLevelParentUniqueName17 = ImageTools.sln
+		SccProjectName17 = Demos/ImageTools.Demos.Phone
+		SccLocalPath17 = Demos\\ImageTools.Demos.Phone
+		SccProjectUniqueName18 = ImageTools.IO.Png\\ImageTools.IO.Png.csproj
+		SccProjectTopLevelParentUniqueName18 = ImageTools.sln
+		SccProjectName18 = ImageTools.IO.Png
+		SccLocalPath18 = ImageTools.IO.Png
+		SccProjectUniqueName19 = ImageTools.IO.Jpeg.Phone\\ImageTools.IO.Jpeg.Phone.csproj
+		SccProjectTopLevelParentUniqueName19 = ImageTools.sln
+		SccProjectName19 = ImageTools.IO.Jpeg.Phone
+		SccLocalPath19 = ImageTools.IO.Jpeg.Phone
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5876DA9E-C3DF-4D27-835F-DF998658CB6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5876DA9E-C3DF-4D27-835F-DF998658CB6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5876DA9E-C3DF-4D27-835F-DF998658CB6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5876DA9E-C3DF-4D27-835F-DF998658CB6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30BEDEDE-3224-49FA-9340-8A82447619CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30BEDEDE-3224-49FA-9340-8A82447619CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30BEDEDE-3224-49FA-9340-8A82447619CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30BEDEDE-3224-49FA-9340-8A82447619CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56B4F16D-9C7A-4B09-A20B-1B4C259D303B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B4F16D-9C7A-4B09-A20B-1B4C259D303B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B4F16D-9C7A-4B09-A20B-1B4C259D303B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B4F16D-9C7A-4B09-A20B-1B4C259D303B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58E343B0-5342-4266-8F2E-E1D0554B9D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58E343B0-5342-4266-8F2E-E1D0554B9D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58E343B0-5342-4266-8F2E-E1D0554B9D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58E343B0-5342-4266-8F2E-E1D0554B9D11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42CB737F-CC7F-4C39-B318-52D75C89B654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42CB737F-CC7F-4C39-B318-52D75C89B654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42CB737F-CC7F-4C39-B318-52D75C89B654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42CB737F-CC7F-4C39-B318-52D75C89B654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F05F81AE-91FD-435D-9AC8-E53980B071A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F05F81AE-91FD-435D-9AC8-E53980B071A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F05F81AE-91FD-435D-9AC8-E53980B071A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F05F81AE-91FD-435D-9AC8-E53980B071A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4897FDB6-9E98-42D1-B665-AFA73315758E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{85CB1C66-7ADD-4BE3-AE21-94DC8B08C943} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{5876DA9E-C3DF-4D27-835F-DF998658CB6E} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{F40F38E8-FCA9-4C15-A273-E8ABCA42B62E} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{30BEDEDE-3224-49FA-9340-8A82447619CB} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{56B4F16D-9C7A-4B09-A20B-1B4C259D303B} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{58E343B0-5342-4266-8F2E-E1D0554B9D11} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{42CB737F-CC7F-4C39-B318-52D75C89B654} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{F05F81AE-91FD-435D-9AC8-E53980B071A9} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{28DE8628-7857-4C6C-B493-A4DC7C3E7FA0} = {E107D059-FAF9-4BBD-8480-52B7A3A0AC03}
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{A3A3393A-D422-4775-AA2C-7B28998F4817} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{46024B08-B3B7-4A11-8C68-8ED9A883A038} = {A828AF6E-18E4-43DC-963B-2C17DB556784}
+		{4897FDB6-9E98-42D1-B665-AFA73315758E} = {85CB1C66-7ADD-4BE3-AE21-94DC8B08C943}
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1} = {46024B08-B3B7-4A11-8C68-8ED9A883A038}
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C} = {46024B08-B3B7-4A11-8C68-8ED9A883A038}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <assembly>
+    <name>ImageTools</name>
+    <version>1.0.0.0</version>
+    <publickeytoken>fb8ec453a8e30e6c</publickeytoken>
+    <relpath>ImageTools.dll</relpath>
+    <extension downloadUri="ImageTools.zip" />
+  </assembly>
+</manifest>
