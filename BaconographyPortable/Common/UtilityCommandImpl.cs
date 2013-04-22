@@ -125,7 +125,7 @@ namespace BaconographyPortable.Common
 				}
 				else
 				{
-					ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Caanot access user info in offline mode.");
+					ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Cannot access user info in offline mode.");
 				}				
 			}
 			else
