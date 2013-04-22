@@ -348,54 +348,58 @@ namespace ImageTools
         {
             Contract.Requires(stream != null);
 
-            try
-            {
-                if (!stream.CanRead)
-                {
-                    throw new NotSupportedException("Cannot read from the stream.");
-                }
+			try
+			{
+				if (!stream.CanRead)
+				{
+					throw new NotSupportedException("Cannot read from the stream.");
+				}
 
-                if (!stream.CanSeek)
-                {
-                    throw new NotSupportedException("The stream does not support seeking.");
-                }
+				if (!stream.CanSeek)
+				{
+					throw new NotSupportedException("The stream does not support seeking.");
+				}
 
-                var decoders = Decoders.GetAvailableDecoders();
+				var decoders = Decoders.GetAvailableDecoders();
 
-                if (decoders.Count > 0)
-                {
-                    int maxHeaderSize = decoders.Max(x => x.HeaderSize);
-                    if (maxHeaderSize > 0)
-                    {
-                        byte[] header = new byte[maxHeaderSize];
+				if (decoders.Count > 0)
+				{
+					int maxHeaderSize = decoders.Max(x => x.HeaderSize);
+					if (maxHeaderSize > 0)
+					{
+						byte[] header = new byte[maxHeaderSize];
 
-                        stream.Read(header, 0, maxHeaderSize);
-                        stream.Position = 0;
+						stream.Read(header, 0, maxHeaderSize);
+						stream.Position = 0;
 
-                        var decoder = decoders.FirstOrDefault(x => x.IsSupportedFileFormat(header));
-                        if (decoder != null)
-                        {
-                            decoder.Decode(this, stream);
-                            IsLoading = false;
-                        }
-                    }
-                }
+						var decoder = decoders.FirstOrDefault(x => x.IsSupportedFileFormat(header));
+						if (decoder != null)
+						{
+							decoder.Decode(this, stream);
+							IsLoading = false;
+						}
+					}
+				}
 
-                if (IsLoading)
-                {
-                    IsLoading = false;
+				if (IsLoading)
+				{
+					IsLoading = false;
 
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.AppendLine("Image cannot be loaded. Available decoders:");
+					StringBuilder stringBuilder = new StringBuilder();
+					stringBuilder.AppendLine("Image cannot be loaded. Available decoders:");
 
-                    foreach (IImageDecoder decoder in decoders)
-                    {
-                        stringBuilder.AppendLine("-" + decoder);
-                    }
+					foreach (IImageDecoder decoder in decoders)
+					{
+						stringBuilder.AppendLine("-" + decoder);
+					}
 
-                    throw new UnsupportedImageFormatException(stringBuilder.ToString());
-                }
-            }
+					throw new UnsupportedImageFormatException(stringBuilder.ToString());
+				}
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
             finally
             {
                 stream.Dispose();

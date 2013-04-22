@@ -87,7 +87,7 @@ namespace ImageTools.IO.Gif
             int inCode = NullCode; //ÔÚlzwÖÐ£¬Èç¹ûÈÏÊ¶ÁËÒ»¸ö±àÂëËù´ú±íµÄÊý¾Ýentry£¬Ôò½«±àÂë×÷ÎªÏÂÒ»´ÎµÄprefix£¬´Ë´¦inCode´ú±í´«µÝ¸øÏÂÒ»´Î×÷ÎªÇ°×ºµÄ±àÂëÖµ
 
             //ÏÈÉú³ÉÔªÊý¾ÝµÄÇ°×º¼¯ºÏºÍºó×º¼¯ºÏ£¬ÔªÊý¾ÝµÄÇ°×º¾ùÎª0£¬¶øºó×ºÓëÔªÊý¾ÝÏàµÈ£¬Í¬Ê±±àÂëÒ²ÓëÔªÊý¾ÝÏàµÈ
-            for (code = 0; code < clearCode; code++)
+			for (code = 0; code < StackSize; code++)
             {
                 //Ç°×º³õÊ¼Îª0
                 prefix[code] = 0;
