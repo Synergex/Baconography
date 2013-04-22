@@ -28,6 +28,7 @@ namespace BaconographyWP8.View
     {
         //cheating a little bit here but its for the best
         LinkedPictureViewModel _pictureViewModel;
+		PivotItem _currentItem;
         public LinkedPictureView()
         {
             this.InitializeComponent();
@@ -57,9 +58,27 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
-			this.State["PictureViewModel"] = _pictureViewModel;
-			Content = null;
-			((LinkedPictureViewModel)DataContext).Cleanup();
+			try
+			{
+				this.State["PictureViewModel"] = _pictureViewModel;
+				Content = null;
+				if (_currentItem != null)
+				{
+					var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
+
+					if (context.ImageSource is string)
+					{
+						context.ImageSource = null;
+					}
+					context = null;
+					_currentItem = null;
+				}
+				((LinkedPictureViewModel)DataContext).Cleanup();
+			}
+			catch (Exception ex)
+			{
+
+			}
 		}
 
 		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
@@ -74,6 +93,8 @@ namespace BaconographyWP8.View
 				{
 					context.ImageSource = _imageOrigins[e.Item];
 				}
+
+				_currentItem = e.Item;
 			}
 		}
 

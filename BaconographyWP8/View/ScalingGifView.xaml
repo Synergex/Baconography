@@ -17,9 +17,9 @@
                 ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
             <Canvas x:Name="canvas">
                 <imagetools:AnimatedImage
-                    Source="{Binding ImageSource, Converter={StaticResource imageConverter}}"
+                    Source="{Binding ElementName=viewPanel, Path=ImageSource, Converter={StaticResource imageConverter}}"
                     CacheMode="BitmapCache"  RenderTransformOrigin="0,0"
-                    LoadingCompleted="OnImageOpened"
+                    LoadingCompleted="OnImageOpened" LoadingFailed="OnLoadingFailed"
                     AnimationMode="Repeat" Stretch="UniformToFill"
                     x:Name="image">
                     <imagetools:AnimatedImage.RenderTransform>

@@ -120,53 +120,69 @@ namespace ImageTools.IO.Gif
         /// </exception>
         public void Decode(ExtendedImage image, Stream stream)
         {
-            _image  = image;
+			try
+			{
+				_image = image;
 
-            _stream = stream;
-            _stream.Seek(6, SeekOrigin.Current);
+				_stream = stream;
+				_stream.Seek(6, SeekOrigin.Current);
 
-            ReadLogicalScreenDescriptor();
+				ReadLogicalScreenDescriptor();
 
-            if (_logicalScreenDescriptor.GlobalColorTableFlag == true)
-            {
-                _globalColorTable = new byte[_logicalScreenDescriptor.GlobalColorTableSize * 3];
+				if (_logicalScreenDescriptor.GlobalColorTableFlag == true)
+				{
+					_globalColorTable = new byte[_logicalScreenDescriptor.GlobalColorTableSize * 3];
 
-                // Read the global color table from the stream
-                stream.Read(_globalColorTable, 0, _globalColorTable.Length);
-            }
+					// Read the global color table from the stream
+					stream.Read(_globalColorTable, 0, _globalColorTable.Length);
+				}
 
-            int nextFlag = stream.ReadByte();
-            while (nextFlag != -1)
-            {
-                if (nextFlag == ImageLabel)
-                {
-                    ReadFrame();
-                }
-                else if (nextFlag == ExtensionIntroducer)
-                {
-                    int gcl = stream.ReadByte();
-                    switch (gcl)
-                    {
-                        case GraphicControlLabel:
-                            ReadGraphicalControlExtension();
-                            break;
-                        case CommentLabel:
-                            ReadComments();
-                            break;
-                        case ApplicationExtensionLabel:
-                            Skip(12);
-                            break;
-                        case PlainTextLabel:
-                            Skip(13);
-                            break;
-                    }
-                }
-                else if (nextFlag == EndIntroducer)
-                {
-                    break;
-                }
-                nextFlag = stream.ReadByte();
-            }
+				int nextFlag = stream.ReadByte();
+				while (nextFlag != -1)
+				{
+					if (nextFlag == ImageLabel)
+					{
+						ReadFrame();
+					}
+					else if (nextFlag == ExtensionIntroducer)
+					{
+						int gcl = stream.ReadByte();
+						switch (gcl)
+						{
+							case GraphicControlLabel:
+								ReadGraphicalControlExtension();
+								break;
+							case CommentLabel:
+								ReadComments();
+								break;
+							case ApplicationExtensionLabel:
+								Skip(12);
+								break;
+							case PlainTextLabel:
+								Skip(13);
+								break;
+						}
+					}
+					else if (nextFlag == EndIntroducer)
+					{
+						break;
+					}
+					nextFlag = stream.ReadByte();
+				}
+			}
+			catch (Exception e)
+			{
+				this._currentFrame = null;
+				this._globalColorTable = null;
+				this._graphicsControl = null;
+				if (this._image != null)
+					this._image.UriSource = null;
+				this._image = null;
+				this._logicalScreenDescriptor = null;
+				this._stream = null;
+
+				throw new Exception("Gif failed to decode");
+			}
         }
 
         private void ReadGraphicalControlExtension()

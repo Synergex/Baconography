@@ -20,6 +20,8 @@ using System.IO;
 using BaconographyPortable.ViewModel;
 using GalaSoft.MvvmLight;
 using System;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -61,6 +63,15 @@ namespace BaconographyWP8.View
 					image.Stop();
 					image.Dispose();
 				}
+				else if (image.Source == null)
+				{
+					var converter = App.Current.Resources["imageConverter"] as ImageConverter;
+					if (converter != null)
+					{
+						image.Source = (ExtendedImage)converter.Convert(value, null, null, System.Globalization.CultureInfo.CurrentCulture);
+						image.Start();
+					}
+				}
 				SetValue(ImageSourceProperty, value);
 			}
 		}
@@ -78,6 +89,8 @@ namespace BaconographyWP8.View
 		/// </summary>
 		void viewport_ViewportChanged(object sender, System.Windows.Controls.Primitives.ViewportChangedEventArgs e)
 		{
+			
+
 			Size newSize = new Size(viewport.Viewport.Width, viewport.Viewport.Height);
 			if (newSize != _viewportSize)
 			{
@@ -105,7 +118,7 @@ namespace BaconographyWP8.View
 		/// <param name="e"></param>
 		void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
 		{
-			if (e.PinchManipulation != null && image != null)
+			if (e.PinchManipulation != null && image != null && image.Source != null)
 			{
 				e.Handled = true;
 
@@ -149,7 +162,7 @@ namespace BaconographyWP8.View
 		/// <param name="center"></param>
 		void ResizeImage(bool center)
 		{
-			if (_coercedScale != 0)
+			if (_coercedScale != 0 && image != null && image.Source != null)
 			{
 				double newWidth;
 				double newHeight;
@@ -185,7 +198,7 @@ namespace BaconographyWP8.View
 		/// <param name="recompute">Will recompute the min max scale if true.</param>
 		void CoerceScale(bool recompute)
 		{
-			if (recompute && viewport != null)
+			if (recompute && viewport != null && image != null && image.Source != null)
 			{
 				// Calculate the minimum scale to fit the viewport
 				double minX = viewport.ActualWidth / image.Source.PixelWidth;
@@ -210,6 +223,20 @@ namespace BaconographyWP8.View
 			_scale = _coercedScale;
 
 			ResizeImage(true);
+		}
+
+		/// <summary>
+		/// When an animated image is opened and the load fails, kick out to browser
+		/// </summary>
+		private void OnLoadingFailed(object sender, EventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			var pvm = (LinkedPictureViewModel.LinkedPicture)DataContext;
+			if (pvm.ImageSource is string)
+			{
+				_navigationService.GoBack();
+				_navigationService.NavigateToExternalUri(new Uri(pvm.ImageSource as string));
+			}
 		}
 	}
 }

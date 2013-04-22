@@ -330,16 +330,27 @@ namespace ImageTools.Controls
 		/// </summary>
 		public void Dispose()
 		{
-			_image.Source = null;
-			_image = null;
-			_framerefs.Clear();
-			_framerefs = null;
-			_frames.Clear();
-			_frames = null;
-			Source.UriSource = null;
-			Source = null;
-			_animationTimer.Stop();
-			_animationTimer = null;
+			if (_image != null)
+			{
+				_image.Source = null;
+			}
+			if (_framerefs != null)
+			{
+				_framerefs.Clear();
+			}
+			if (_frames != null)
+			{
+				_frames.Clear();
+			}
+			if (Source != null)
+			{
+				Source.UriSource = null;
+				Source = null;
+			}
+			if (_animationTimer != null)
+			{
+				_animationTimer.Stop();
+			}
 		}
 
         /// <summary>
@@ -470,7 +481,7 @@ namespace ImageTools.Controls
 
         private void AnimateImage()
         {
-            if (_animationFrameIndex < _frames.Count)
+            if (_frames != null && _animationFrameIndex < _frames.Count)
             {
                 var currentFrame = _frames[_animationFrameIndex];
 
@@ -543,8 +554,8 @@ namespace ImageTools.Controls
         public void Stop()
         {
             _animationFrameIndex = 0;
-
-            _animationTimer.Stop();
+			if (_animationTimer != null)
+				_animationTimer.Stop();
         }
 
         #endregion
