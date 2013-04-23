@@ -27,7 +27,8 @@ namespace BaconographyWP8.View
 	public sealed partial class LinkedPictureView : PhoneApplicationPage
     {
         //cheating a little bit here but its for the best
-        LinkedPictureViewModel _pictureViewModel;
+		IEnumerable<Tuple<string, string>> _pictureData;
+		LinkedPictureViewModel _pictureViewModel;
 		PivotItem _currentItem;
         public LinkedPictureView()
         {
@@ -39,9 +40,13 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			if (this.State != null && this.State.ContainsKey("PictureViewModel"))
+			if (this.State != null && this.State.ContainsKey("PictureViewModelData"))
 			{
-				_pictureViewModel = this.State["PictureViewModel"] as LinkedPictureViewModel;
+				_pictureData = this.State["PictureViewModelData"] as IEnumerable<Tuple<string, string>>;
+				if (_pictureData != null)
+				{
+					_pictureViewModel = new LinkedPictureViewModel { Pictures = _pictureData.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
+				}
 			}
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
@@ -50,6 +55,7 @@ namespace BaconographyWP8.View
 				if (deserializedObject != null)
 				{
 					_pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
+					_pictureData = deserializedObject;
 				}
 			}
 			if (DataContext == null)
@@ -58,26 +64,29 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
-			try
+			if (e.NavigationMode == NavigationMode.Back)
 			{
-				this.State["PictureViewModel"] = _pictureViewModel;
-				Content = null;
-				if (_currentItem != null)
+				try
 				{
-					var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-					if (context.ImageSource is string)
+					this.State["PictureViewModelData"] = _pictureData;
+					Content = null;
+					if (_currentItem != null)
 					{
-						context.ImageSource = null;
-					}
-					context = null;
-					_currentItem = null;
-				}
-				((LinkedPictureViewModel)DataContext).Cleanup();
-			}
-			catch (Exception ex)
-			{
+						var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
 
+						if (context.ImageSource is string)
+						{
+							context.ImageSource = null;
+						}
+						context = null;
+						_currentItem = null;
+					}
+					((LinkedPictureViewModel)DataContext).Cleanup();
+				}
+				catch (Exception ex)
+				{
+
+				}
 			}
 		}
 
