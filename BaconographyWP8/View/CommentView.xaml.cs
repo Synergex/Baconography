@@ -1,9 +1,13 @@
 ﻿
+using BaconographyPortable.ViewModel;
+using BaconographyWP8.Messages;
 using BaconographyWP8Core;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using Windows.Foundation;
 using Windows.Foundation.Collections;

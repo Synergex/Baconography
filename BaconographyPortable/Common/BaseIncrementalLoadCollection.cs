@@ -40,10 +40,10 @@ namespace BaconographyPortable.Common
 
     public abstract class BaseIncrementalLoadCollection<T> : ObservableCollection<T>, PortableISupportIncrementalLoad
     {
-        private bool _initialLoaded;
+        protected bool _initialLoaded;
 
         //this is to allow a very loose binding of state in the derived classes
-        private Dictionary<object, object> _state = new Dictionary<object,object>();
+        protected Dictionary<object, object> _state = new Dictionary<object,object>();
 
         protected abstract Task<IEnumerable<T>> InitialLoad(Dictionary<object, object> state);
         protected abstract Task<IEnumerable<T>> LoadAdditional(Dictionary<object, object> state);
@@ -57,7 +57,7 @@ namespace BaconographyPortable.Common
             }
         }
 
-        public async Task<int> LoadMoreItemsAsync(uint count)
+        public virtual async Task<int> LoadMoreItemsAsync(uint count)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 

@@ -18,5 +18,6 @@ namespace BaconographyPortable.Services
         Type SubmitToSubredditView { get; }
         Type AboutUserView { get; }
         Type LinkedVideoView { get; }
+		Type MainView { get; }
     }
 }

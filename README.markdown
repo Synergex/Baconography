@@ -30,24 +30,25 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   Launch links in the app or open them in a browser
 *   Optional filtering of NSFW content
 *   Use the imgur api (and the other domains supported by RES) to download and display images/albums directly
-*   Show images inline RES style, for links as well as comments
+*   On WinRT Show images inline RES style (including gifs), for links as well as comments
+*   Get it on Windows Phone 8
 
 # Things left on the Todo list
-*   keep track of links that have already been shown in never ending reddit, don't show them further down
+*   ~~keep track of links that have already been shown in never ending reddit, don't show them further down~~
 *   ~~Get it in the Windows 8 Store~~
 *   ~~Show Images inline RES style~~
 *   ~~Use the imgur api (and the other domains supported by RES) to download and display images/albums directly~~
 *   Use NReadability to generate offline versions of (non image) links
 *   Add drop down tick for 'sort by' in RedditView and CommentsView
-*   If nothing in offline cache when we're in offline mode show a message letting the user know there isnt anything there
+*   ~~If nothing in offline cache when we're in offline mode show a message letting the user know there isnt anything there~~
 *   Implement messaging
 *   Add support for a lockscreen indicator to show messages/replys 
 *   ~~Fix layout for 1/4 and 3/4 snapped view~~
 *   Multi-Reddit selector
 *   Add support for Posting
 *   Add in RES style keyboard shortcuts
-*   Integrate Animated gif renderer (Windows 8 Xaml doesnt allow animated gif's in the Image control)
-*   Get it on Windows Phone 8
+*   ~~Integrate Animated gif renderer (Windows 8 Xaml doesnt allow animated gif's in the Image control)~~
+*   ~~Get it on Windows Phone 8~~
 *   Implement inline renderer for videos
 
 # License

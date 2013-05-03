@@ -1,9 +1,11 @@
 ﻿using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
+using BaconographyW8.Common;
 using BaconographyW8.View;
 using DXRenderInterop;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,14 +58,6 @@ namespace BaconographyW8.Converters
                 MoveForward = new RelayCommand(() => CurrentPosition = _currentPosition + 1);
             }
 
-            public override void Cleanup()
-            {
-                base.Cleanup();
-                foreach (GifRenderer img in _imageSources.Values)
-                    img.Visible = false;
-                _imageSources.Clear();
-            }
-
             private async Task<byte[]> DownloadImageFromWebsiteAsync(string url)
             {
                 try
@@ -90,17 +84,22 @@ namespace BaconographyW8.Converters
             private async void FinishLoad(Task<IEnumerable<Tuple<string, string>>> imagesTask)
             {
                 _finishedImages = new List<Tuple<string, string>>(imagesTask.Result);
-
+                bool hasGifs = false;
                 for(int i = 0; i < _finishedImages.Count; i++)
                 {
-                    //if (_finishedImages[i].Item2.EndsWith(".gif"))
+                    var renderer = GifRenderer.CreateGifRenderer(await DownloadImageFromWebsiteAsync(_finishedImages[i].Item2));
+                    if (renderer != null)
                     {
-                        var renderer = GifRenderer.CreateGifRenderer(await DownloadImageFromWebsiteAsync(_finishedImages[i].Item2));
-                        if(renderer != null)
-                            _imageSources.Add(i, renderer);
+                        _imageSources.Add(i, renderer);
+                        hasGifs = true;
                     }
                 }
-                
+
+
+                if (hasGifs)
+                {
+                    Messenger.Default.Register<PageChangeMessage>(this, OnPageChange);
+                }
 
 
                 IsLoading = false;
@@ -109,6 +108,25 @@ namespace BaconographyW8.Converters
                 RaisePropertyChanged("IsAlbum");
                 RaisePropertyChanged("AlbumSize");
                 CurrentPosition = 0;
+            }
+
+            private void OnPageChange(PageChangeMessage obj)
+            {
+                if (_imageSources.ContainsKey(_currentPosition))
+                {
+                    var gifRenderer = ((GifRenderer)_imageSources[_currentPosition]);
+                    if(gifRenderer.Visible)
+                    {
+                        gifRenderer.Visible = false;
+                        _imageSources.Remove(_currentPosition);
+                        RaisePropertyChanged("ImageSource");
+                    }
+                }
+
+                if (!obj.Forward)
+                {
+                    Messenger.Default.Unregister<PageChangeMessage>(this);
+                }
             }
 
             public int AlbumSize
@@ -162,9 +180,11 @@ namespace BaconographyW8.Converters
                 }
                 set
                 {
+                    
                     if (_imageSources.ContainsKey(_currentPosition))
                     {
-                        ((GifRenderer)_imageSources[_currentPosition]).Visible = false;
+                        if(value != _currentPosition)
+                            ((GifRenderer)_imageSources[_currentPosition]).Visible = false;
                     }
 
                     if (value >= _finishedImages.Count)
@@ -182,6 +202,7 @@ namespace BaconographyW8.Converters
                     RaisePropertyChanged("CurrentPosition");
                     RaisePropertyChanged("Title");
                     RaisePropertyChanged("ImageSource");
+                    
                 }
             }
 

@@ -19,14 +19,17 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
             _subreddit = subreddit;
         }
 
-        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            if (_subreddit != null && _subreddit != "/")
-                return _offlineService.LinksForSubreddit(_subreddit, null);
-            else
-            {
-                return _offlineService.AllLinks(null);
-            }
+            Func<Task<Listing>> result = () =>
+                {
+                    if (_subreddit != null && _subreddit != "/")
+                        return _offlineService.LinksForSubreddit(_subreddit, null);
+                    else
+                        return _offlineService.AllLinks(null);
+                };
+
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, result);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

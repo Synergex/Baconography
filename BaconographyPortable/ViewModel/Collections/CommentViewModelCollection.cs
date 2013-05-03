@@ -49,7 +49,7 @@ namespace BaconographyPortable.ViewModel.Collections
         async Task RunInitialLoad(object c)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetInitialListing(_state);
+            var initialListing = await _listingProvider.GetInitialListing(_state).Item2();
             var remainingVMs = await MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
@@ -75,20 +75,32 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             if (thing.Data is More)
             {
-                return new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel);
+				var depth = 0;
+				if (parent is CommentViewModel)
+				{
+					depth = ((CommentViewModel)parent).Depth + 1;
+				}
+				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
+				more.Parent = parent as CommentViewModel;
+				return more;
+            }
+            else if (thing.Data is Link)
+            {
+                return new LinkViewModel(thing, _baconProvider);
             }
             else if (thing.Data is Comment)
             {
                 var oddNesting = false;
-				var depth = 0;
-				if (parent is CommentViewModel)
-				{
-					oddNesting = !((CommentViewModel)parent).OddNesting;
-					depth = ((CommentViewModel)parent).Depth + 1;
-				}
+                var depth = 0;
+                if (parent is CommentViewModel)
+                {
+                    oddNesting = !((CommentViewModel)parent).OddNesting;
+                    depth = ((CommentViewModel)parent).Depth + 1;
+                }
 
-				var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
+                var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
                 commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Comment)thing.Data).Replies, commentViewModel));
+                commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
             else
@@ -136,13 +148,17 @@ namespace BaconographyPortable.ViewModel.Collections
             }
         }
 
-        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent)
+        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
             var remainingVMs = await MapListing(initialListing, parent);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => RunUILoad(ref remainingVMs, targetCollection ?? this, obj), new TimeSpan(200), true)));
+            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
+                {
+                    RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
+                    (targetCollection ?? this).Remove(removeMe);
+                }, new TimeSpan(200), true)));
         }
 
         public void Dispose()

@@ -57,7 +57,7 @@ namespace BaconographyPortable.ViewModel
             LoadLink(msg.LinkThing, msg.RootComment);
         }
 
-        private void OnConnectionStatusChanged(ConnectionStatusMessage connection)
+		private void OnConnectionStatusChanged(ConnectionStatusMessage connection)
         {
             if (IsOnline != connection.IsOnline)
             {
@@ -87,6 +87,19 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("IsOnline");
             }
         }
+
+		private LinkViewModel _linkViewModel = null;
+		public LinkViewModel Link
+		{
+			get
+			{
+				if (_linkViewModel == null)
+				{
+					_linkViewModel = new LinkViewModel(_linkThing, _baconProvider);
+				}
+				return _linkViewModel;
+			}
+		}
 
         public string Title
         {
@@ -119,6 +132,30 @@ namespace BaconographyPortable.ViewModel
                 return _linkThing.Data.Selftext;
             }
         }
+
+		public bool IsSelfPost
+		{
+			get
+			{
+				return _linkThing.Data.IsSelf;
+			}
+		}
+
+		public bool HasThumbnail
+		{
+			get
+			{
+				return !string.IsNullOrWhiteSpace(Thumbnail) && Thumbnail != "self" && Thumbnail != "nsfw" && Thumbnail != "default";
+			}
+		}
+
+		public string Thumbnail
+		{
+			get
+			{
+				return _linkThing.Data.Thumbnail;
+			}
+		}
 
         public bool IsSelf
         {

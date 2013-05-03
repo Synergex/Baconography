@@ -31,7 +31,8 @@ namespace BaconographyWP8.Converters
             public PortableAsyncCollectionWrapper(PortableISupportIncrementalLoad collection)
             {
                 _collection = collection;
-                _collection.LoadMoreItemsAsync(30).ConfigureAwait(true);
+                if(collection.HasMoreItems)
+                    _collection.LoadMoreItemsAsync(30).ConfigureAwait(true);
                 //Task.Run(() => _collection.LoadMoreItemsAsync(30));
             }
 

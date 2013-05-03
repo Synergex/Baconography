@@ -1,7 +1,9 @@
 ﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,64 +80,110 @@ namespace BaconographyPortable.ViewModel.Collections
 
         protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
-            if (thing.Data is Link)
-                return new LinkViewModel(thing, _baconProvider);
-            else if (thing.Data is Comment)
-                return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
-            else if (thing.Data is Subreddit)
-            {
-                var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
-                    ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
-                    false;
-                return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
-            }
-            else if (thing.Data is More)
-            {
-                //multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
-                object moreState;
-                if (state.TryGetValue("More", out moreState))
-                {
-                    //sometimes they give us duplicates make sure we remove them right away
-                    var moreList = moreState as IEnumerable<string>;
-                    if (moreList != null)
-                    {
-                        state["More"] = moreList.Concat(((More)thing.Data).Children)
-                            .Distinct()
-                            .ToList();
-                    }
-                    else
-                    {
-                        state["More"] = ((More)thing.Data).Children
-                            .Distinct()
-                            .ToList();
-                    }
-                }
-                return null;
-            }
-            else
-                throw new NotImplementedException();
+			if (thing.Data is Link)
+				return new LinkViewModel(thing, _baconProvider);
+			else if (thing.Data is Comment)
+				return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
+			else if (thing.Data is Subreddit)
+			{
+				var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
+					((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
+					false;
+				return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
+			}
+			else if (thing.Data is More)
+			{
+				//multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
+				object moreState;
+				if (state.TryGetValue("More", out moreState))
+				{
+					//sometimes they give us duplicates make sure we remove them right away
+					var moreList = moreState as IEnumerable<string>;
+					if (moreList != null)
+					{
+						state["More"] = moreList.Concat(((More)thing.Data).Children)
+							.Distinct()
+							.ToList();
+					}
+					else
+					{
+						state["More"] = ((More)thing.Data).Children
+							.Distinct()
+							.ToList();
+					}
+				}
+				return null;
+			}
+			else if (thing.Data is Advertisement)
+				return new AdvertisementViewModel(_baconProvider);
+			else
+				throw new NotImplementedException();
         }
 
         protected override bool HasAdditional(Dictionary<object, object> state)
         {
-            return state.ContainsKey("After") || state.ContainsKey("More");
+            return (state.ContainsKey("After") && state["After"] is string) || 
+                (state.ContainsKey("More") && state["More"] is string);
         }
 
         private async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
             {
-                var result = await _onlineListingProvider.GetInitialListing(state);
-                //make sure we arent starting up in offline mode
-                if (_settingsService.IsOnline())
+                var initTpl = _onlineListingProvider.GetInitialListing(state);
+
+                if (initTpl.Item1 != null)
                 {
-                    return result;
+					var initCache = await initTpl.Item1;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    Task.Run(async () =>
+                    {
+                        Listing target = null;
+                        try
+                        {
+                            await Task.Delay(1000);
+                            target = await initTpl.Item2();
+                        }
+                        catch
+                        {
+                        }
+                        if (target == null || !_settingsService.IsOnline())
+                            target = await _offlineListingProvider.GetInitialListing(state).Item2();
+                        return target;
+                    }).ContinueWith(async (result) =>
+                        {
+                            var targetListing = result.Result;
+                            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                            if (targetListing != null)
+                            {
+                                var mappedListing = MapListing(targetListing, state).ToArray();
+                                for (int i = 0; i < mappedListing.Length; i++)
+                                {
+                                    if (this.Count > i)
+                                        this[i] = mappedListing[i];
+                                    else
+                                        Add(mappedListing[i]);
+                                }
+
+
+                            }
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                    return initCache;
                 }
                 else
-                    return await _offlineListingProvider.GetInitialListing(state);
+                {
+                    var result = await initTpl.Item2();
+                    //make sure we arent starting up in offline mode
+                    if (_settingsService.IsOnline())
+                    {
+                        return result;
+                    }
+                    else
+                        return await _offlineListingProvider.GetInitialListing(state).Item2();
+                }
             }
             else
-                return await _offlineListingProvider.GetInitialListing(state);
+                return await _offlineListingProvider.GetInitialListing(state).Item2();
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

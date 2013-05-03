@@ -57,6 +57,15 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+		// XAML friendly data wrapper
+		public T TypedData
+		{
+			get
+			{
+				return Data;
+			}
+		}
+
 		//[JsonConstructor()]
 		public TypedThing(string kind, T data)
 		{

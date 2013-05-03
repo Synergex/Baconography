@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
@@ -41,6 +43,7 @@
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
     <Compile Include="Common\UtilityCommandImpl.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
+    <Compile Include="Messages\RefreshSubredditMessage.cs" />
     <Compile Include="Messages\ConnectionStatusMessage.cs" />
     <Compile Include="Messages\LoadingMessage.cs" />
     <Compile Include="Messages\NavigateToUrlMessage.cs" />
@@ -49,8 +52,13 @@
     <Compile Include="Messages\SearchQueryMessage.cs" />
     <Compile Include="Messages\SelectCommentTreeMessage.cs" />
     <Compile Include="Messages\SelectSubredditMessage.cs" />
+    <Compile Include="Messages\SelectTemporaryRedditMessage.cs" />
     <Compile Include="Messages\SelectUserAccountMessage.cs" />
     <Compile Include="Messages\UserLoggedInMessage.cs" />
+    <Compile Include="Model\Compression\CompressionService.cs" />
+    <Compile Include="Model\Compression\LZ4Codec.cs" />
+    <Compile Include="Model\Compression\LZ4Codec.Unsafe.cs" />
+    <Compile Include="Model\Compression\LZ4Codec.Unsafe32.Dirty.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
@@ -61,6 +69,7 @@
     <Compile Include="Model\Reddit\Comment.cs" />
     <Compile Include="Model\Reddit\Converters\ThingDataConverter.cs" />
     <Compile Include="Model\Reddit\Converters\UnixTimeConverter.cs" />
+    <Compile Include="Model\Reddit\Advertisement.cs" />
     <Compile Include="Model\Reddit\Flair.cs" />
     <Compile Include="Model\Reddit\ICreated.cs" />
     <Compile Include="Model\Reddit\IListingProvider.cs" />
@@ -87,6 +96,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\ICompressionService.cs" />
     <Compile Include="Services\IDynamicViewLocator.cs" />
     <Compile Include="Services\IImagesService.cs" />
     <Compile Include="Services\ILiveTileService.cs" />
@@ -102,6 +112,7 @@
     <Compile Include="Services\IVideoService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
+    <Compile Include="ViewModel\AdvertisementViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />

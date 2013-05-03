@@ -6,34 +6,48 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" SupportedOrientations="PortraitOrLandscape">
-    <UserControl.Resources>
-        <DataTemplate x:Key="ImagePivotHeaderTemplate">
-            <Grid Height="0"/>
+    
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="Temp">
+            <Grid/>
         </DataTemplate>
-    </UserControl.Resources>
+        <DataTemplate x:Key="Type:Gif">
+            <local:ScalingGifView HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                  DataContext="{Binding}" ImageSource="{Binding Path=ImageSource, Mode=TwoWay}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:Else">
+            <local:ScalingPictureView HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      DataContext="{Binding}" ImageSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ImageSource}"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
 
     <Grid>
 
         <phone:Pivot Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Margin="0" Padding="0" x:Name="albumPivot"
-                     ItemsSource="{Binding Path=Pictures}" >
+                     ItemsSource="{Binding Path=Pictures}"
+                     LoadingPivotItem="albumPivot_LoadingPivotItem"
+                     UnloadingPivotItem="albumPivot_UnloadingPivotItem">
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <local:ScalingPictureView ImageSource="{Binding ImageSource}" />
-                    </Grid>
+                    <common:ImageTypeSelector HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                              Content="{Binding}" />
                 </DataTemplate>
             </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Left" VerticalAlignment="Top"
-                          Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}">
-                        <local:PivotCountIndicator 
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
+                          MinWidth="430">
+                        <local:PivotCountIndicator Height="30"
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
-                            SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"/>
+                            SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
+                            Visibility="{Binding Path=DataContext.IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <local:LoadIndicatorView />
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.TitleTemplate>

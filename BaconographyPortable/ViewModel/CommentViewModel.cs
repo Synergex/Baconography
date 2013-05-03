@@ -5,6 +5,7 @@ using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,6 +50,7 @@ namespace BaconographyPortable.ViewModel
             _gotoContext = new RelayCommand(GotoContextImpl);
             _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
             _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
+			//MessengerInstance.Register<ToggleCommentTreeMessage>(this, OnToggleCommentTreeMessage);
         }
 
         public bool OddNesting { get; private set; }
@@ -114,9 +116,41 @@ namespace BaconographyPortable.ViewModel
             set
             {
                 _isMinimized = value;
-                RaisePropertyChanged("IsMinimized");
+				RaisePropertyChanged("IsMinimized");
+				this.Touch();
             }
         }
+
+		// Cause UI to re-evaluate visibility without changing values
+		public void Touch()
+		{
+			for (int i = 0; i < Replies.Count; i++)
+			{
+				var comment = Replies[i] as CommentViewModel;
+				var more = Replies[i] as MoreViewModel;
+				if (comment != null) comment.Touch();
+				if (more != null) more.Touch();
+			}
+			RaisePropertyChanged("IsVisible");
+		}
+
+		public CommentViewModel Parent
+		{
+			get;
+			set;
+		}
+
+		public bool IsVisible
+		{
+			get
+			{
+				if (Parent != null)
+				{
+					return Parent.IsVisible ? !Parent.IsMinimized : false;
+				}
+				return true;
+			}
+		}
 
         public bool IsExtended
         {

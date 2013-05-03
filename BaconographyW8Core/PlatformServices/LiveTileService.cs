@@ -190,6 +190,9 @@ namespace BaconographyW8.PlatformServices
                 var sizedWideLargeImage = await _imagesService.GenerateResizedImage(largeImageFile, 310, 150, 0, 0, true) as StorageFile;
                 var sizedSquareLargeImage = await _imagesService.GenerateResizedImage(largeImageFile, 150, 150, 0, 0, true) as StorageFile;
 
+                if (sizedWideLargeImage == null || sizedSquareLargeImage == null)
+                    return;
+
                 var sizedWideLargeImagePath = "ms-appdata:///local/liveTiles/" + sizedWideLargeImage.DisplayName;
                 var sizedSquareImagePath = "ms-appdata:///local/liveTiles/" + sizedSquareLargeImage.DisplayName;
 
@@ -215,6 +218,9 @@ namespace BaconographyW8.PlatformServices
 
                 var sizedWideLargeImage = await _imagesService.GenerateResizedImage(largeImageFile, 310, 150, 0, 0, true) as StorageFile;
                 var sizedSquareLargeImage = await _imagesService.GenerateResizedImage(largeImageFile, 150, 150, 0, 0, true) as StorageFile;
+
+                if (sizedWideLargeImage == null || sizedSquareLargeImage == null)
+                    return;
 
                 var sizedWideLargeImagePath = "ms-appdata:///local/liveTiles/" + sizedWideLargeImage.DisplayName;
                 var sizedSquareImagePath = "ms-appdata:///local/liveTiles/" + sizedSquareLargeImage.DisplayName;

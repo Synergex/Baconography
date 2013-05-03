@@ -2,6 +2,7 @@
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyWP8Core;
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -54,11 +56,32 @@ namespace BaconographyWP8.PlatformServices
 				return true;
 			}
 
+			if (parameter is SelectSubredditMessage)
+			{
+				var viewLocator = SimpleIoc.Default.GetService(typeof(IDynamicViewLocator)) as IDynamicViewLocator;
+				source = viewLocator.MainView;
+				var temp = parameter as SelectSubredditMessage;
+				parameter = new SelectTemporaryRedditMessage
+					{
+						Subreddit = temp.Subreddit
+					};
+			}
+
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-				var targetUri = parameter != null ? new Uri(uriAttribute._targetUri + "?data=" + Uri.EscapeDataString(JsonConvert.SerializeObject(parameter)), UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
-                return _frame.Navigate(targetUri);
+				var data = JsonConvert.SerializeObject(parameter);
+				var uri = uriAttribute._targetUri + "?data=" + HttpUtility.UrlEncode(data);
+
+				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
+				{
+					var targetUri = parameter != null ? new Uri(uri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
+					return _frame.Navigate(targetUri);
+				}
+				else
+				{
+					throw new NotImplementedException("Handle a bad URI");
+				}
             }
             else
             {

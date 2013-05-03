@@ -71,16 +71,16 @@ namespace BaconographyPortable.ViewModel.Collections
 
         protected override bool HasAdditional(Dictionary<object, object> state)
         {
-            return state.ContainsKey("After");
+            return state.ContainsKey("After") && state["After"] is string;
         }
 
 
         private Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
-                return _onlineListingProvider.GetInitialListing(state);
+                return _onlineListingProvider.GetInitialListing(state).Item2();
             else
-                return _offlineListingProvider.GetInitialListing(state);
+                return _offlineListingProvider.GetInitialListing(state).Item2();
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

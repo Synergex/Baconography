@@ -36,13 +36,13 @@ namespace Baconography.PlatformServices.ImageAPI
                     var hashes = Regex.Split(groups[1].Value, "[&,]");
                     //Imgur doesn't really care about the extension and the browsers don't seem to either.
                     return hashes
-                        .Select(hash => Tuple.Create(title, string.Format("http://i.imgur.com/{0}.jpg", hash)));
+                        .Select(hash => Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", hash)));
 
                 }
                 else
                 {
                     //Imgur doesn't really care about the extension and the browsers don't seem to either.
-                    return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.jpg", groups[1].Value)) };
+                    return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", groups[1].Value)) };
                 }
             }
             else if (albumGroups.Count > 2 && string.IsNullOrWhiteSpace(albumGroups[2].Value))

@@ -10,6 +10,9 @@ using BaconographyPortable.Services;
 using BaconographyWP8.PlatformServices;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using System.Threading;
+using Microsoft.Phone.Info;
+using System.Windows.Media;
 
 namespace BaconographyWP8
 {
@@ -69,6 +72,45 @@ namespace BaconographyWP8
 
         }
 
+        public static class LowMemoryHelper
+        {
+            private static Timer timer = null;
+
+            public static void BeginRecording()
+            {
+                // before we start recording we can clean up the previous session.
+                // e.g. Get a logging file from IsoStore and upload to the server 
+
+                // start a timer to report memory conditions every 2 seconds
+                timer = new Timer(state =>
+                {
+                    // every 2 seconds do something 
+                    string report =
+                        DateTime.Now.ToLongTimeString() + " memory conditions: " +
+                        Environment.NewLine +
+                        "\tApplicationCurrentMemoryUsage: " +
+                            DeviceStatus.ApplicationCurrentMemoryUsage +
+                            Environment.NewLine +
+                        "\tApplicationPeakMemoryUsage: " +
+                            DeviceStatus.ApplicationPeakMemoryUsage +
+                            Environment.NewLine +
+                        "\tApplicationMemoryUsageLimit: " +
+                            DeviceStatus.ApplicationMemoryUsageLimit +
+                            Environment.NewLine +
+                        "\tDeviceTotalMemory: " + DeviceStatus.DeviceTotalMemory + Environment.NewLine +
+                        "\tApplicationWorkingSetLimit: " +
+                            DeviceExtendedProperties.GetValue("ApplicationWorkingSetLimit") +
+                            Environment.NewLine;
+
+                    // write to IsoStore or debug conolse
+                    Debug.WriteLine(report);
+                },
+                    null,
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(2));
+            }
+        }
+
 		private void InitializeBacon()
 		{
 			if (_baconProvider == null)
@@ -90,6 +132,7 @@ namespace BaconographyWP8
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
+            LowMemoryHelper.BeginRecording();
 			InitializeBacon();
 
 			if (RootFrame.Content == null)

@@ -52,12 +52,17 @@ namespace BaconographyWP8.PlatformServices
 
         public Type AboutUserView
         {
-			get { throw new NotImplementedException(); }
+			get { return typeof(AboutUserView); }
         }
 
 		public Type LinkedVideoView
 		{
 			get { throw new NotImplementedException(); }
+		}
+
+		public Type MainView
+		{
+			get { return typeof(MainPage); }
 		}
     }
 }

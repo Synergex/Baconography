@@ -7,8 +7,12 @@ using KitaroDB;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace Baconography.NeutralServices
 {
@@ -42,6 +46,7 @@ namespace Baconography.NeutralServices
 
             _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history.ism", DBCreateFlags.None);
             _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings.ism", DBCreateFlags.None);
+            _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs.ism", DBCreateFlags.None);
 
             //get our initial action queue state
             var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock);
@@ -58,15 +63,32 @@ namespace Baconography.NeutralServices
                     } while (await historyCursor.MoveNextAsync());
                 }
             }
+
+            _settingsCache = new Dictionary<string, string>();
+            //load all of the settings up front so we dont spend so much time going back and forth
+            var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
+            if (cursor != null)
+            {
+                using (cursor)
+                {
+                    do
+                    {
+                        _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                    } while (await cursor.MoveNextAsync());
+                }
+            }
         }
 
         public Task Initialize()
         {
-            lock (this)
+            if (_instanceTask == null)
             {
-                if (_instanceTask == null)
+                lock (this)
                 {
-                    _instanceTask = InitializeImpl();
+                    if (_instanceTask == null)
+                    {
+                        _instanceTask = InitializeImpl();
+                    }
                 }
             }
             return _instanceTask;
@@ -79,6 +101,7 @@ namespace Baconography.NeutralServices
         DB _historyDb;
         DB _actionsDb;
         DB _thumbnailsDb;
+        DB _blobStoreDb;
         HashSet<string> _clickHistory = new HashSet<string>();
 
         public async Task Clear()
@@ -235,42 +258,123 @@ namespace Baconography.NeutralServices
 
         public async Task StoreOrderedThings(string key, IEnumerable<Thing> things)
         {
-            await Initialize();
+            try
+            {
+                await Initialize();
+                var thingsArray = things.ToArray();
+                var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray)));
+                //var compressedBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray));
 
+                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
+                if (gottenBlob != null)
+                {
+                    await _blobStoreDb.UpdateAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
+                }
+                else
+                {
+                    await _blobStoreDb.InsertAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
-        public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
+        public Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
+        {
+            return RetrieveOrderedThingsBG(key);
+        }
+
+        private async Task<IEnumerable<Thing>> RetrieveOrderedThingsBG(string key)
         {
             await Initialize();
-            return null;
+            bool badElement = false;
+            try
+            {
+                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
+                if (gottenBlob != null)
+                {
+                    var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                    var decompressedBytes = compressor.Decompress(gottenBlob.ToArray());
+                    //var decompressedBytes = gottenBlob.ToArray();
+                    IEnumerable<Thing> result = JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                    return result;
+                }
+            }
+            catch
+            {
+                badElement = true;
+            }
+
+            if (badElement)
+            {
+                try
+                {
+                    await _blobStoreDb.DeleteAsync(Encoding.UTF8.GetBytes(key));
+                }
+                catch
+                {
+                }
+            }
+            return Enumerable.Empty<Thing>();
         }
 
         public async Task StoreOrderedThings(IListingProvider listingProvider)
         {
             await Initialize();
+            
         }
 
+        private Dictionary<string, string> _settingsCache;
         public async Task StoreSetting(string name, string value)
         {
-            await Initialize();
-            var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
-            if (cursor != null)
+            try
             {
-                using (cursor)
+                await Initialize();
+                if (!_settingsCache.ContainsKey(name))
                 {
-                    await cursor.DeleteAsync();
+                    _settingsCache.Add(name, value);
+                }
+                else
+                {
+                    _settingsCache[name] = value;
+                }
+                var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
+                if (cursor != null)
+                {
+                    cursor.Dispose();
+                    var result = await _settingsDb.UpdateAsync(name, value);
+                }
+                else
+                {
+
+                    var result = await _settingsDb.InsertAsync(name, value);
                 }
             }
-            
-            await _settingsDb.InsertAsync(name, value);
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("error while storing setting: {0}", ex.ToString()));
+                //something went wrong
+            }
            
         }
 
         public async Task<string> GetSetting(string name)
         {
-            await Initialize();
+            try
+            {
+                await Initialize();
 
-            return await _settingsDb.GetAsync(name);
+                string result = null;
+                _settingsCache.TryGetValue(name, out result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
         }
 
 

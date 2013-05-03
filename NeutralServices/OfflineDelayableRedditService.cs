@@ -17,7 +17,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddComment(parentId, content);
                 else
                     await _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } });
@@ -39,7 +39,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddMessage(recipient, subject, message);
                 else
                     await _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } });
@@ -59,7 +59,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddPost(kind, url, subreddit, title);
                 else
                     await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
@@ -91,7 +91,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddVote(thingId, direction);
                 else
                     await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } });
@@ -111,7 +111,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddSubredditSubscription(subreddit, unsub);
                 else
                     await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } });
@@ -131,7 +131,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddSavedThing(thingId);
                 else
                     await _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } });
@@ -151,7 +151,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddReportOnThing(thingId);
                 else
                     await _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } });
@@ -172,7 +172,7 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_settingsService.IsOnline())
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                 {
                     var actionTpl = await _offlineService.DequeueAction();
                     if (actionTpl != null)
@@ -228,6 +228,15 @@ namespace Baconography.NeutralServices
             //we dont need to be particularly active here, as we dont want to burn battery when nothing is happening and we dont want to choke out
             //the content requests when the user is actively browsing around
             _queueTimer = ThreadPoolTimer.CreateTimer(async (timerParam) => await RunQueue(timerParam), new TimeSpan(0, 0, 2));
+        }
+
+        Task<Listing> _subredditsListing;
+        public override Task<Listing> GetSubreddits(int? limit)
+        {
+            if (_subredditsListing == null)
+                _subredditsListing = base.GetSubreddits(limit);
+
+            return _subredditsListing;
         }
     }
 }
