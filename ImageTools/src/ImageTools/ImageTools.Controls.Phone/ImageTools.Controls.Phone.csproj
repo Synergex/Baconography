@@ -86,13 +86,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageTools.Utils.Phone\ImageTools.Utils.Phone.csproj">
-      <Project>{F05F81AE-91FD-435D-9AC8-E53980B071A9}</Project>
-      <Name>ImageTools.Utils.Phone</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ImageTools.Phone\ImageTools.Phone.csproj">
       <Project>{5876DA9E-C3DF-4D27-835F-DF998658CB6E}</Project>
       <Name>ImageTools.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools.Utils.Phone\ImageTools.Utils.Phone.csproj">
+      <Project>{F05F81AE-91FD-435D-9AC8-E53980B071A9}</Project>
+      <Name>ImageTools.Utils.Phone</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

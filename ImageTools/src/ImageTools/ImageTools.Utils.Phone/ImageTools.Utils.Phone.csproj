@@ -73,10 +73,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageTools.IO.Png.Phone\ImageTools.IO.Png.Phone.csproj">
-      <Project>{42CB737F-CC7F-4C39-B318-52D75C89B654}</Project>
-      <Name>ImageTools.IO.Png.Phone</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ImageTools.Phone\ImageTools.Phone.csproj">
       <Project>{5876DA9E-C3DF-4D27-835F-DF998658CB6E}</Project>
       <Name>ImageTools.Phone</Name>

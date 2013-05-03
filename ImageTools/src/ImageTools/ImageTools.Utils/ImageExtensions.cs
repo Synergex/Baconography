@@ -15,7 +15,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ImageTools.IO;
-using ImageTools.IO.Png;
 
 namespace ImageTools
 {
@@ -31,7 +30,7 @@ namespace ImageTools
         /// </summary>
         static ImageExtensions()
         {
-            Encoders.AddEncoder<PngEncoder>();
+            
         }
 
         /// <summary>
@@ -83,11 +82,11 @@ namespace ImageTools
                     filter.Apply(temp, image, temp.Bounds);
                 }
 
-                PngEncoder encoder = new PngEncoder();
-                encoder.IsWritingUncompressed = true;
-                encoder.Encode(temp, memoryStream);
+                //PngEncoder encoder = new PngEncoder();
+                //encoder.IsWritingUncompressed = true;
+                //encoder.Encode(temp, memoryStream);
 
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                //memoryStream.Seek(0, SeekOrigin.Begin);
             }
             catch
             {
@@ -135,11 +134,6 @@ namespace ImageTools
                     encoder = availableEncoder;
                     break;
                 }
-            }
-
-            if (encoder == null)
-            {
-                encoder = new PngEncoder();
             }
 
             MemoryStream memoryStream = null;
