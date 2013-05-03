@@ -9,15 +9,27 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-    <Grid HorizontalAlignment="Stretch">
-        <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0" Padding="0" Margin="0,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}"
+    <Grid HorizontalAlignment="Stretch" MinWidth="430" MinHeight="40"
+          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}"
+          Visibility="{Binding IsVisible, Converter={StaticResource booleanVisibilityConverter}}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Background="{Binding Path=Depth, Converter={StaticResource depthColorConverter}}" />
+        <Grid Grid.Column="1">
+            <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0" Padding="0" Margin="0,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}"
                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Foreground="DarkOrange" Text="Load more comments" Margin="0,0,0,0" />
-                <TextBlock Foreground="DarkOrange" Text="{Binding CountString}" Margin="5,0,0,0" />
-            </StackPanel>
-        </Button>
-        <!--<ProgressRing IsActive="{Binding Loading}" Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" IsEnabled="{Binding Loading}"/>-->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource PhoneTextAccentStyle}" Text="Load more comments" Margin="0,0,0,0" />
+                    <TextBlock Style="{StaticResource PhoneTextAccentStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
+                </StackPanel>
+            </Button>
+            <ProgressBar  Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" 
+                        IsIndeterminate="{Binding Loading}" IsEnabled="{Binding Loading}"
+                        Margin="10, 0, 0, 0" HorizontalAlignment="Stretch"
+                        Grid.Column="1"/>
+        </Grid>
     </Grid>
     
 </UserControl>

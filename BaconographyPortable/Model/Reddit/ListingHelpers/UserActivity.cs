@@ -18,9 +18,9 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _username = username;
         }
 
-        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return _redditService.GetPostsByUser(_username, null);
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _redditService.GetPostsByUser(_username, null));
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

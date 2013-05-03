@@ -15,11 +15,11 @@ namespace BaconographyPortable.ViewModel
 {
     public class LoginViewModel : ViewModelBase
     {
-        IUserService _userService;
-        IBaconProvider _baconProvider;
-        ISystemServices _systemServices;
-        INotificationService _notificationService;
-        ISettingsService _settingsService;
+        protected IUserService _userService;
+		protected IBaconProvider _baconProvider;
+		protected ISystemServices _systemServices;
+		protected INotificationService _notificationService;
+		protected ISettingsService _settingsService;
         public LoginViewModel(IBaconProvider baconProvider)
         {
             _userService = baconProvider.GetService<IUserService>();
@@ -259,7 +259,7 @@ namespace BaconographyPortable.ViewModel
         }
 
 
-        private StoredUserCredentialsCollection _credentials;
+        protected StoredUserCredentialsCollection _credentials;
         public StoredUserCredentialsCollection Credentials
         {
             get

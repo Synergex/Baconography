@@ -17,7 +17,7 @@ namespace BaconographyWP8.View
     {
         public MoreCommentsView()
         {
-            //this.InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

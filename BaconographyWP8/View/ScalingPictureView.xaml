@@ -3,6 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:imagetools="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -12,13 +14,13 @@
     <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
         <ViewportControl x:Name="viewport" 
                 ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
-                             ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
+                ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
             <Canvas x:Name="canvas">
-
-                <!--Use ImageConverter defined as a static resource in App.xaml to convert a byte array to a BitmapImage-->
-                <Image x:Name="ImageReceived" Source="{Binding Path=ImageSource}" 
-                           CacheMode="BitmapCache" RenderTransformOrigin="0,0"
-                           ImageOpened="OnImageOpened">
+                <Image
+                    Source="{Binding ImageSource}"
+                    CacheMode="BitmapCache"  RenderTransformOrigin="0,0"
+                    MaxWidth="2048" ImageOpened="OnImageOpened"
+                    x:Name="image">
                     <Image.RenderTransform>
                         <ScaleTransform x:Name="xform"/>
                     </Image.RenderTransform>

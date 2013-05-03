@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="ImageTools.Demos.Views.Picture" x:Name="Control"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:it="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vsm="clr-namespace:System.Windows;assembly=System.Windows"
+    mc:Ignorable="d"
+    d:DesignWidth="300" 
+    d:DesignHeight="200">
+
+    <Grid>
+        <Rectangle Fill="#FF070707" Stroke="#FF000000" Margin="3,3,0,0" Opacity="0.355"/>
+        <Border Background="#FFFFFFFF" BorderThickness="1,1,1,1" BorderBrush="#FF000000" Margin="0,0,3,3" Padding="8,8,8,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.8*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                    
+                <Border BorderThickness="1,1,1,1" BorderBrush="#FF000000" Background="#FF000000">
+                    <it:AnimatedImage Stretch="Fill" Source="{Binding Image, ElementName=Control}" Filter="{Binding Filter, ElementName=Control}" />
+                </Border>
+                    
+                <TextBlock Grid.Row="1" Text="{Binding Title, ElementName=Control}" 
+                    TextWrapping="Wrap" FontSize="13" Margin="1"  />
+                <TextBlock Grid.Row="2" Text="{Binding Description, ElementName=Control}" 
+                    TextWrapping="Wrap" FontSize="10" Margin="1" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

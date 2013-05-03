@@ -7,14 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    x:Name="theControl">
     
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        </Grid.RowDefinitions> 
         <Button Grid.Row="0" Click="Button_Click_1" Style="{StaticResource ShowPreviewAppBarButtonStyle}" Margin="0,-13,0,-13"/>
-        <ContentControl Grid.Row="1" MaxWidth="768" x:Name="contentControl"/>
+        <local:PicturePreviewView Grid.Row="1" MaxWidth="768" Visibility="{Binding ElementName=theControl, Path=VM.Visibility}" 
+                                  DataContext="{Binding ElementName=theControl, Path=VM.PictureData}"/>
     </Grid>
 </UserControl>

@@ -14,9 +14,10 @@
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>BaconographyW8_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-    <PackageCertificateThumbprint>B012B40554F33FAE8FDCE0E419B0B3F4527D3D05</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>DAA46583718BCC9028780B56B6C80621954286F8</PackageCertificateThumbprint>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -115,6 +116,7 @@
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="Common\LayoutAwarePage.cs" />
     <Compile Include="Common\LayoutAwareUserControl.cs" />
+    <Compile Include="Common\PageChangeMessage.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Common\TypedTemplateSelector.cs" />
@@ -165,6 +167,9 @@
     <Compile Include="View\LinkedPictureView.xaml.cs">
       <DependentUpon>LinkedPictureView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedVideoView.xaml.cs">
+      <DependentUpon>LinkedVideoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LinkedWebView.xaml.cs">
       <DependentUpon>LinkedWebView.xaml</DependentUpon>
     </Compile>
@@ -204,6 +209,9 @@
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\VideoPlayerView.xaml.cs">
+      <DependentUpon>VideoPlayerView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\VotableView.xaml.cs">
       <DependentUpon>VotableView.xaml</DependentUpon>
     </Compile>
@@ -213,6 +221,7 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="BaconographyW8_TemporaryKey.pfx" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\BaconographyKitaroPlug.png" />
@@ -278,6 +287,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\LinkedVideoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\LinkedWebView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -327,6 +342,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SubredditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VideoPlayerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

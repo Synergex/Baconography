@@ -24,13 +24,16 @@ namespace BaconographyPortable.Common
         }
 
         //Subreddit:
-        private static Regex _subredditRegex = new Regex("/r/[a-zA-Z0-9_]+/?");
+		private static Regex _subredditRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/?");
 
         //Comments page:
-        private static Regex _commentsPageRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+		private static Regex _commentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
         //Comment:
-        private static Regex _commentRegex = new Regex("/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+		private static Regex _commentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+
+		//User:
+		private static Regex _userRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/?");
 
         public static async void GotoLinkImpl(string str)
         {
@@ -93,28 +96,60 @@ namespace BaconographyPortable.Common
                 else
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
             }
-            else
-            {
-                await baconProvider.GetService<IOfflineService>().StoreHistory(str);
-                var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl("", str);
-                if (imageResults != null && imageResults.Count() > 0)
-                {
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageResults);
-                }
-                else
-                {
-                    var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
-                    if (videoResults != null)
-                    {
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
-                    }
-                    else
-                    {
-                        //its not an image/video url we can understand so whatever it is just show it in the browser
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-                    }
-                }
-            }
+			else if (_userRegex.IsMatch(str))
+			{
+				var nameIndex = str.LastIndexOf("/u/");
+				string userName = "";
+				if (nameIndex < 0)
+				{
+					nameIndex = str.LastIndexOf("/user/");
+					userName = str.Substring(nameIndex + 6);
+				}
+				else
+				{
+					userName = str.Substring(nameIndex + 3);
+				}
+
+				TypedThing<Account> account = null;
+
+				var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+				var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+				if (settingsService.IsOnline())
+				{
+					account = await baconProvider.GetService<IRedditService>().GetAccountInfo(userName);
+
+					if (account != null)
+						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().AboutUserView, new SelectUserAccountMessage { Account = account });
+					else
+						ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This account does not exist.");
+				}
+				else
+				{
+					ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Cannot access user info in offline mode.");
+				}				
+			}
+			else
+			{
+				await baconProvider.GetService<IOfflineService>().StoreHistory(str);
+				var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl("", str);
+				if (imageResults != null && imageResults.Count() > 0)
+				{
+					navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageResults);
+				}
+				else
+				{
+					var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
+					if (videoResults != null)
+					{
+						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+					}
+					else
+					{
+						//its not an image/video url we can understand so whatever it is just show it in the browser
+						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+					}
+				}
+			}
         }
     }
 }

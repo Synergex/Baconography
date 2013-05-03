@@ -1,0 +1,6 @@
+<MarketplaceDetails>
+  <SmallAppTile>BaconographyPhoneStoreIcon.png</SmallAppTile>
+  <ScreenShots>frontpage.png;light_theme.png;album_view.png;comments.png;temp_subreddit.png;subreddit_selector.png;login.png;unobtrusive_menu.png;</ScreenShots>
+  <ScreenShotsWXGA>wxga_frontpage.png;wxga_light_theme.png;wxga_album.png;wxga_comments.png;wxga_temp_subreddit.png;wxga_subreddit_selector.png;wxga_login.png;wxga_unobtrusive_menu.png;</ScreenShotsWXGA>
+  <ScreenShots720P>720p_frontpage.png;720p_light.png;720p_album.png;720p_comments.png;720p_temp_subreddit.png;720p_subreddit_selector.png;720p_login.png;720p_unobtrusive_menu.png;</ScreenShots720P>
+</MarketplaceDetails>

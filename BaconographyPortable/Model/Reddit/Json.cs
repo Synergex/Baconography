@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit
 {
-    class JsonThing
+	public class JsonThing
     {
         [JsonProperty("json")]
         public JsonData Json { get; set; }
     }
 
-    class LoginJsonThing
+    public class LoginJsonThing
     {
         [JsonProperty("json")]
         public LoginJsonData Json { get; set; }
     }
 
-    class LoginJsonData : IThingData
+    public class LoginJsonData : IThingData
     {
         [JsonProperty("data")]
         public JsonData3 Data { get; set; }
@@ -27,7 +27,7 @@ namespace BaconographyPortable.Model.Reddit
         public Object[] Errors { get; set; }
     }
 
-    class JsonData3 : IThingData
+	public class JsonData3 : IThingData
     {
         [JsonProperty("modhash")]
         public string Modhash { get; set; }
@@ -35,7 +35,7 @@ namespace BaconographyPortable.Model.Reddit
         public string Cookie { get; set; }
     }
 
-    class JsonData : IThingData
+	public class JsonData : IThingData
     {
         [JsonProperty("data")]
         public JsonData2 Data { get; set; }
@@ -43,7 +43,7 @@ namespace BaconographyPortable.Model.Reddit
         public Object[] Errors { get; set; }
     }
 
-    class JsonData2 : IThingData
+	public class JsonData2 : IThingData
     {
         [JsonProperty("things")]
         public List<Thing> Things { get; set; }

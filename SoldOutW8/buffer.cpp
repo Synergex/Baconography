@@ -23,12 +23,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <list>
 
 /* MSVC compat */
 #if defined(_MSC_VER)
 #	define _buf_vsnprintf _vsnprintf
 #else
 #	define _buf_vsnprintf vsnprintf
+#endif
+
+std::list<buf*> g_smallBuffers;
+#ifdef DEBUG
+std::list<buf*> g_inuseBuffers;
 #endif
 
 int
@@ -81,14 +87,32 @@ bufgrow(struct buf *buf, size_t neosz)
 struct buf *
 bufnew(size_t unit)
 {
-	struct buf *ret;
-	ret = (buf*)malloc(sizeof (struct buf));
+	if(unit < 2048)
+		unit = 2048;
 
-	if (ret) {
-		ret->data = 0;
-		ret->size = ret->asize = 0;
-		ret->unit = unit;
+	struct buf *ret = nullptr;
+	if(unit == 2048 && g_smallBuffers.size() > 0)
+	{
+		ret = g_smallBuffers.back();
+		g_smallBuffers.pop_back();
 	}
+	else
+	{
+
+		ret = (buf*)malloc(sizeof (struct buf));
+
+		if (ret) {
+			ret->data = 0;
+			ret->size = ret->asize = 0;
+			ret->unit = unit;
+		}
+	}
+
+
+#ifdef DEBUG
+	g_inuseBuffers.push_back(ret);
+#endif
+
 	return ret;
 }
 
@@ -186,11 +210,24 @@ bufputc(struct buf *buf, int c)
 void
 bufrelease(struct buf *buf)
 {
-	if (!buf)
-		return;
+	
+#ifdef DEBUG
+	g_inuseBuffers.remove(buf);
+#endif
 
-	free(buf->data);
-	free(buf);
+	if(buf->unit == 2048)
+	{
+		g_smallBuffers.push_back(buf);
+		buf->size = 0;
+	}
+	else
+	{
+		if (!buf)
+			return;
+
+		free(buf->data);
+		free(buf);
+	}
 }
 
 

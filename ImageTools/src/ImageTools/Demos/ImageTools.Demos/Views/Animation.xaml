@@ -1,0 +1,52 @@
+﻿<navigation:Page x:Class="ImageTools.Demos.Views.Animation" Title="Animation Page"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ImageTools.Demos.Views"
+    xmlns:navigation="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Navigation"
+    mc:Ignorable="d"
+    d:DesignWidth="640" 
+    d:DesignHeight="480">
+    
+    <navigation:Page.Resources>
+        <local:AnimationMessageInfoConverter x:Key="MessageConverter" />
+    </navigation:Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+                
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="100" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <TextBlock Style="{StaticResource HeaderTextStyle}" Text="animated images" />
+            <TextBlock Style="{StaticResource ContentTextStyle}" Text="Simple demonstration how to make a chat in siverlight with animated smileys." />
+        </StackPanel>
+                
+        <ListBox x:Name="HistoryListBox" Grid.ColumnSpan="2" Grid.Row="1"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+            ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <local:AnimationMessageInfo User="Image Tools Team" 
+                MessageBrush="#0066FF"
+                Message="This sample demonstrates animated images." />
+                    
+            <local:AnimationMessageInfo User="Image Tools Team" 
+                MessageBrush="#0066FF"
+                Message="Add your text and press the button. Use icons. Supported Icons are *COOL* (*cool* in upper case), *GRINS* (*grins* in upper case). Try to find more!" />
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding Converter={StaticResource MessageConverter}}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+                
+        <TextBox x:Name="InputTextBox" Grid.Row="2" Margin="0,5,5,0" />
+        <Button x:Name="SendButton" Click="SendButton_Click" Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Content="Send" />
+    </Grid>
+</navigation:Page>

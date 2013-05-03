@@ -39,7 +39,18 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
+			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
         }
+
+		public void DetachSubredditMessage()
+		{
+			MessengerInstance.Unregister<SelectSubredditMessage>(this);
+		}
+
+		public void AssignSubreddit(SelectSubredditMessage message)
+		{
+			OnSubredditChanged(message);
+		}
 
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
@@ -54,6 +65,14 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("IsOnline");
             }
         }
+
+		private async void OnSubredditRefreshed(RefreshSubredditMessage message)
+		{
+			if (this.SelectedSubreddit == message.Subreddit)
+			{
+				RefreshLinks();
+			}
+		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
         {
@@ -70,7 +89,7 @@ namespace BaconographyPortable.ViewModel
                 SelectedLink = null;
                 RefreshLinks();
 
-                Heading = string.Format("{0}: {1}", _selectedSubreddit.Data.Url, _selectedSubreddit.Data.DisplayName);
+				Heading = _selectedSubreddit.Data.DisplayName;
 
                 RaisePropertyChanged("DisplayingSubreddit");
                 var currentUser = await _userService.GetUser();
@@ -121,7 +140,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        private void RefreshLinks()
+        public void RefreshLinks()
         {
             _links = null;
             RaisePropertyChanged("Links");
@@ -212,6 +231,14 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public TypedThing<Subreddit> SelectedSubreddit
+		{
+			get
+			{
+				return _selectedSubreddit;
+			}
+		}
+
         private string _heading;
         public string Heading
         {
@@ -227,6 +254,16 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("Heading");
             }
         }
+
+		public bool IsFrontPage
+		{
+			get
+			{
+				if (_selectedSubreddit == null || _selectedSubreddit.Data.Url == "/")
+					return true;
+				return false;
+			}
+		}
 
         public bool IsPinned
         {
@@ -257,6 +294,17 @@ namespace BaconographyPortable.ViewModel
                     RaisePropertyChanged("LoggedIn");
                 }
                 catch { }
+            }
+        }
+
+        public string Url
+        {
+            get
+            {
+                if (_selectedSubreddit == null)
+                    return "/";
+                else
+                    return _selectedSubreddit.Data.Url;
             }
         }
 

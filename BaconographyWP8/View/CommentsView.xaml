@@ -13,7 +13,10 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480"
-    DataContext="{Binding Comments, Source={StaticResource Locator}}">
+    shell:SystemTray.IsVisible="True"
+    SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
+    DataContext="{Binding Comments, Source={StaticResource Locator}}"
+    x:Name="controlRoot">
 
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
@@ -22,67 +25,105 @@
         <DataTemplate x:Key="Type:MoreViewModel">
             <local:MoreCommentsView/>
         </DataTemplate>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <StackPanel>
+            <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding}" />
+                <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="4" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <ToggleButton Grid.Row="1" Grid.Column="0"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Width="40" Height="40"
+                                            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+                                            Command="{Binding Path=Votable.ToggleUpvote}" CommandParameter="{Binding Path=Votable}"
+                                            IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,4,0,0" Text="Upvote" FontSize="14" HorizontalAlignment="Center" />
+
+                    <ToggleButton Grid.Row="1" Grid.Column="1"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Width="40" Height="40"
+                                            Content="&#xE110;" Style="{StaticResource RoundToggleButtonStyle}"
+                                            Command="{Binding Path=Votable.ToggleDownvote}" CommandParameter="{Binding Path=Votable}"
+                                            IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}">
+                        <ToggleButton.RenderTransform>
+                            <RotateTransform Angle="180" CenterX="20" CenterY="20" />
+                        </ToggleButton.RenderTransform>
+                    </ToggleButton>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,4,0,0" Text="Downvote" FontSize="14" HorizontalAlignment="Center" />
+
+                    <Button Grid.Row="1" Grid.Column="2"
+                                            FontFamily="Segoe UI Symbol" FontSize="14"
+                                            Width="40" Height="40"
+                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoReply}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"
+                                            Content="&#xE165;" Style="{StaticResource RoundButtonStyle}" />
+                    <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
+
+                    <Button Grid.Row="1" Grid.Column="3"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Width="40" Height="40"
+                                            Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
+                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoUserDetails}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="3" Margin="0,4,0,0" Text="User" FontSize="14" HorizontalAlignment="Center" />
+
+                    <Button Grid.Row="1" Grid.Column="4"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Width="40" Height="40"
+                                            Content="&#xE12F;" Style="{StaticResource RoundButtonStyle}"
+                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoSubreddit}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Subreddit" FontSize="14" HorizontalAlignment="Center" />
+
+                    <!--
+                                        <Button Grid.Row="1" Grid.Column="4"
+                                            FontFamily="Segoe UI Symbol" FontSize="14"
+                                            Width="40" Height="40"
+                                            Content="&#xE1CF;" Style="{StaticResource RoundButtonStyle}"
+                                            IsEnabled="False"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Save" FontSize="14" HorizontalAlignment="Center" 
+                                                   Foreground="{StaticResource PhoneDisabledBrush}"/>
+                                        -->
+
+                </Grid>
+                <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding ElementName=controlRoot, Path=DataContext.IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
+                    <ContentControl Margin="5,5,5,5" Content="{Binding ElementName=controlRoot, Path=DataContext.SelfText, Converter={StaticResource markdownConverter}}"/>
+                </Border>
+                <ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>
+            </StackPanel>
+        </DataTemplate>
         <DataTemplate x:Key="typedTemplateSelector">
             <common:TypedTemplateSelector Content="{Binding}" />
         </DataTemplate>
+
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" Background="{StaticResource PhoneChromeBrush}">
-        <ScrollViewer Margin="0,0,0,0" HorizontalAlignment="Left">
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                <Grid MinHeight="65" Width="460" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="360" />
-                        <ColumnDefinition Width="100" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="35" />
-                        <RowDefinition Height="25" />
-                        <RowDefinition MinHeight="0"  MaxHeight="800" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="22" HorizontalAlignment="Left" Text="{Binding Title}" TextWrapping="Wrap" />
-                    <StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Orientation="Horizontal">
-                        <TextBlock FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <TextBlock FontSize="15" Text=" by " />
-                        <TextBlock FontSize="15" Text="{Binding Author}" />
-                        <TextBlock FontSize="15" Text=" in " />
-                        <TextBlock FontSize="15" Text="{Binding Subreddit}" />
-                    </StackPanel>
+        <local:LoadIndicatorView VerticalAlignment="Top" />
+        
+        <ListBox Margin="0,20,0,0" HorizontalAlignment="Stretch"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}"
+                x:Name="commentList">
 
-                    <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Height="70" Width="70">
-                        <Button BorderThickness="0" Margin="0" Padding="0" Command="{Binding ShowPreview}" Visibility="{Binding HasPreview, Converter={StaticResource booleanVisibilityConverter}}">
-                            <Button.Content>
-                                <Border BorderThickness="0" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center" Visibility="{Binding HasThumbnail, Converter={StaticResource booleanVisibilityConverter}}">
-                                    <Image Source="{Binding Thumbnail}" VerticalAlignment="Center" Margin="0" Stretch="None" />
-                                </Border>
-                            </Button.Content>
-                        </Button>
-                    </Grid>
-
-                </Grid>
-                <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
-                    <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
-                </Border>
-
-                <ItemsControl Margin="0" ItemsSource="{Binding Path=Comments}" HorizontalAlignment="Left" 
-                              HorizontalContentAlignment="Left">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel HorizontalAlignment="Left" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.Template>
-                        <ControlTemplate>
-                            <ItemsPresenter HorizontalAlignment="Left" />
-                        </ControlTemplate>
-                    </ItemsControl.Template>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </phone:PhoneApplicationPage>

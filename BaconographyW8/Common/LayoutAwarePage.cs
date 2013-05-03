@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight.Messaging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -330,6 +331,7 @@ namespace BaconographyW8.Common
         /// property provides the group to be displayed.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Messenger.Default.Send<PageChangeMessage>(new PageChangeMessage { Forward = (e.NavigationMode == NavigationMode.Forward || e.NavigationMode == NavigationMode.New) });
             // Returning to a cached page through navigation shouldn't trigger state loading
             if (this._pageKey != null) return;
 
@@ -367,6 +369,8 @@ namespace BaconographyW8.Common
         /// property provides the group to be displayed.</param>
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            Messenger.Default.Send<PageChangeMessage>(new PageChangeMessage { Forward = (e.NavigationMode == NavigationMode.Forward || e.NavigationMode == NavigationMode.New)});
+
             var frameState = SuspensionManager.SessionStateForFrame(this.Frame);
             var pageState = new Dictionary<String, Object>();
             this.SaveState(pageState);

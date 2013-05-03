@@ -15,9 +15,9 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         }
 
-        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } }));
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

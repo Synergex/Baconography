@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,10 +8,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class SimpleHttpService : ISimpleHttpService
+    public class SimpleHttpService : ISimpleHttpService
     {
         public Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri)
         {
@@ -41,7 +44,7 @@ namespace BaconographyWP8.PlatformServices
         public static Task<Stream> GetRequestStreamAsync(HttpWebRequest request)
         {
             var taskComplete = new TaskCompletionSource<Stream>();
-            request.BeginGetResponse(asyncResponse =>
+            request.BeginGetRequestStream(asyncResponse =>
             {
                 try
                 {
@@ -67,11 +70,11 @@ namespace BaconographyWP8.PlatformServices
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
             request.ContentType = contentType;
             request.ContentLength = data.Length;
+			request.CookieContainer = new CookieContainer();
+			if (!string.IsNullOrEmpty(cookie))
+				request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
             using (var requestStream = (await GetRequestStreamAsync(request))) { requestStream.Write(data, 0, data.Length); }
-
-            if (!string.IsNullOrEmpty(cookie))
-                request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
             var postResult = await GetResponseAsync(request);
 
@@ -91,36 +94,81 @@ namespace BaconographyWP8.PlatformServices
 
         public async Task<string> SendGet(string cookie, string uri)
         {
-            //limit requests to once every 500 milliseconds
-            await ThrottleRequests();
+            
+                    //limit requests to once every 500 milliseconds
+                    await ThrottleRequests();
 
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
-            request.Method = "GET";
-            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+                    HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+                    request.Method = "GET";
+                    request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+                    request.CookieContainer = new CookieContainer();
 
-            if (!string.IsNullOrEmpty(cookie))
-                request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
+                    if (!string.IsNullOrEmpty(cookie))
+                        request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
-            var getResult = await GetResponseAsync(request);
+                    var getResult = await GetResponseAsync(request);
 
-            if (getResult.StatusCode == HttpStatusCode.OK)
-            {
-                return await Task<string>.Run(() =>
+                    if (getResult.StatusCode == HttpStatusCode.OK)
                     {
-                        using (var sr = new StreamReader(getResult.GetResponseStream()))
+                        return await Task<string>.Run(() =>
                         {
-                            return sr.ReadToEnd();
-                        }
-                    });
-            }
-            else
-                throw new Exception(getResult.StatusCode.ToString());
+                            using (var sr = new StreamReader(getResult.GetResponseStream()))
+                            {
+                                var result = sr.ReadToEnd();
+                                return result;
+                            }
+                        });
+                    }
+                    else
+                        throw new Exception(getResult.StatusCode.ToString());
         }
 
-        public Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
+        public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
         {
-            //TODO: implement me
-            throw new NotImplementedException();
+			//limit requests to once every 500 milliseconds
+			await ThrottleRequests();
+
+			StringBuilder dataBuilder = new StringBuilder();
+			var stringData = string.Join("&", urlEncodedData.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
+			byte[] data = Encoding.UTF8.GetBytes(stringData);
+
+			HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+			request.Method = "POST";
+			request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+			request.ContentType = "application/x-www-form-urlencoded";
+			request.ContentLength = data.Length;
+			var container = new CookieContainer();
+			request.CookieContainer = container;
+			//request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", "", "/", "reddit.com"));
+
+			using (var requestStream = (await GetRequestStreamAsync(request))) { requestStream.Write(data, 0, data.Length); }
+
+			var postResult = await GetResponseAsync(request);
+
+			if (postResult.StatusCode == HttpStatusCode.OK)
+			{
+				return await Task<Tuple<string, Dictionary<string, string>>>.Run(() =>
+				{
+					using (var sr = new StreamReader(postResult.GetResponseStream()))
+					{
+						container.GetCookies(new Uri("http://www.reddit.com", UriKind.Absolute));
+						string loginCookie = "";
+						var jsonResult = sr.ReadToEnd();
+						var loginResultThing = JsonConvert.DeserializeObject<LoginJsonThing>(jsonResult);
+						if (loginResultThing != null && loginResultThing.Json != null &&
+							(loginResultThing.Json.Errors == null || loginResultThing.Json.Errors.Length == 0))
+						{
+							loginCookie = HttpUtility.UrlEncode(loginResultThing.Json.Data.Cookie);
+						}
+						if (!String.IsNullOrEmpty(loginCookie))
+							return Tuple.Create(jsonResult, new Dictionary<string, string> { { "reddit_session", loginCookie } });
+						else
+							return Tuple.Create<string, Dictionary<string, string>>(jsonResult, null);
+					}
+				});
+			}
+			else
+				throw new Exception(postResult.StatusCode.ToString());
         }
 
         public async Task<string> UnAuthedGet(string uri)
@@ -153,24 +201,28 @@ namespace BaconographyWP8.PlatformServices
         static DateTime _lastRequestMade = new DateTime();
 
         //dont hammer reddit!
+        //Make no more than thirty requests per minute. This allows some burstiness to your requests, 
+        //but keep it sane. On average, we should see no more than one request every two seconds from you.
+        //the above statement is from the reddit api docs, but its not quite true, there are some api's that have logging 
+        //set for 15 requests in 30 seconds, so we can allow some burstiness but it must fit in the 15 requests/30 seconds rule
         public static async Task ThrottleRequests()
         {
             var offset = DateTime.Now - _lastRequestMade;
-            if (offset.TotalMilliseconds < 2000)
+            if (offset.TotalMilliseconds < 1000)
             {
-                await Task.Delay(2000 - (int)offset.TotalMilliseconds);
+                await Task.Delay(1000 - (int)offset.TotalMilliseconds);
             }
 
-            if (_requestSetCount > 30)
+            if (_requestSetCount > 15)
             {
                 var overallOffset = DateTime.Now - _priorRequestSet;
 
-                if (overallOffset.TotalSeconds < 60)
+                if (overallOffset.TotalSeconds < 30)
                 {
-                    await Task.Delay((60 - (int)overallOffset.TotalSeconds) * 1000);
-                    _requestSetCount = 0;
-                    _priorRequestSet = DateTime.Now;
+                    await Task.Delay((30 - (int)overallOffset.TotalSeconds) * 1000);
                 }
+                _requestSetCount = 0;
+                _priorRequestSet = DateTime.Now;
             }
             _requestSetCount++;
 

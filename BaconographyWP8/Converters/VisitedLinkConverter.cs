@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Services;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,10 +43,10 @@ namespace BaconographyWP8.Converters
         static Brush noHistory;
 
         IOfflineService _offlineService;
-        public VisitedMainLinkConverter(IBaconProvider baconProvider)
+        public VisitedMainLinkConverter()
         {
-            noHistory = App.Current.Resources["ApplicationForegroundThemeBrush"] as Brush;
-            _offlineService = baconProvider.GetService<IOfflineService>();
+			noHistory = App.Current.Resources["PhoneForegroundBrush"] as Brush;
+			_offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
         }
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

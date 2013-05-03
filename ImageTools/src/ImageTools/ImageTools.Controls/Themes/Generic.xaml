@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/client/2007" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:it="clr-namespace:ImageTools.Controls"
+    xmlns:vsm="clr-namespace:System.Windows;assembly=System.Windows">
+
+    <Style TargetType="it:AnimatedImage">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="it:AnimatedImage">
+                    <Image x:Name="Image" Stretch="{TemplateBinding Stretch}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="it:ImageEditorContainer">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="it:ImageEditorContainer">
+                    <ScrollViewer x:Name="ScrollViewer" Background="White" HorizontalScrollBarVisibility="Visible">
+
+                        <Grid x:Name="SelectionArea" Background="White">
+                            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"
+								Width="{Binding ElementName=Image, Mode=OneWay, Path=Width}" 
+								Height="{Binding ElementName=Image, Mode=OneWay, Path=Height}" Background="White">
+
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FFA1A1A1" BlurRadius="8"/>
+                                </Border.Effect>
+
+                                <Grid>
+                                    <it:AnimatedImage x:Name="Image" Source="{TemplateBinding Source}" AnimationMode="None" />
+
+                                    <Border x:Name="SelectionBorder" Background="#7F4A88E2" Cursor="Hand" 
+								        BorderBrush="#B91C4C92" 
+								        BorderThickness="1" 
+								        HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

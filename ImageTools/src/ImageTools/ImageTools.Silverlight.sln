@@ -1,0 +1,136 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{85CB1C66-7ADD-4BE3-AE21-94DC8B08C943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Filtering", "ImageTools.Filtering\ImageTools.Filtering.csproj", "{FB5B5D68-53D9-4B0A-9D06-018E76106922}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Controls", "ImageTools.Controls\ImageTools.Controls.csproj", "{F67AB944-0489-4DCB-BA32-BD26D175DBB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Png", "ImageTools.IO.Png\ImageTools.IO.Png.csproj", "{A3A3393A-D422-4775-AA2C-7B28998F4817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Bmp", "ImageTools.IO.Bmp\ImageTools.IO.Bmp.csproj", "{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Gif", "ImageTools.IO.Gif\ImageTools.IO.Gif.csproj", "{DB3B4A4D-276C-499E-B828-66A66D2DBED9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.IO.Jpeg", "ImageTools.IO.Jpeg\ImageTools.IO.Jpeg.csproj", "{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Utils", "ImageTools.Utils\ImageTools.Utils.csproj", "{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{C3BCC216-4230-4F8B-9912-7CC1C45A6534}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools", "ImageTools\ImageTools.csproj", "{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Demos", "Demos\ImageTools.Demos\ImageTools.Demos.csproj", "{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageTools.Demos.Web", "Demos\ImageTools.Demos.Web\ImageTools.Demos.Web.csproj", "{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 11
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs08
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ImageTools\\ImageTools.csproj
+		SccProjectTopLevelParentUniqueName1 = ImageTools.Silverlight.sln
+		SccProjectName1 = ImageTools
+		SccLocalPath1 = ImageTools
+		SccProjectUniqueName2 = ImageTools.Filtering\\ImageTools.Filtering.csproj
+		SccProjectTopLevelParentUniqueName2 = ImageTools.Silverlight.sln
+		SccProjectName2 = ImageTools.Filtering
+		SccLocalPath2 = ImageTools.Filtering
+		SccProjectUniqueName3 = ImageTools.Controls\\ImageTools.Controls.csproj
+		SccProjectTopLevelParentUniqueName3 = ImageTools.Silverlight.sln
+		SccProjectName3 = ImageTools.Controls
+		SccLocalPath3 = ImageTools.Controls
+		SccProjectUniqueName4 = ImageTools.IO.Png\\ImageTools.IO.Png.csproj
+		SccProjectTopLevelParentUniqueName4 = ImageTools.Silverlight.sln
+		SccProjectName4 = ImageTools.IO.Png
+		SccLocalPath4 = ImageTools.IO.Png
+		SccProjectUniqueName5 = ImageTools.IO.Bmp\\ImageTools.IO.Bmp.csproj
+		SccProjectTopLevelParentUniqueName5 = ImageTools.Silverlight.sln
+		SccProjectName5 = ImageTools.IO.Bmp
+		SccLocalPath5 = ImageTools.IO.Bmp
+		SccProjectUniqueName6 = ImageTools.IO.Gif\\ImageTools.IO.Gif.csproj
+		SccProjectTopLevelParentUniqueName6 = ImageTools.Silverlight.sln
+		SccProjectName6 = ImageTools.IO.Gif
+		SccLocalPath6 = ImageTools.IO.Gif
+		SccProjectUniqueName7 = ImageTools.IO.Jpeg\\ImageTools.IO.Jpeg.csproj
+		SccProjectTopLevelParentUniqueName7 = ImageTools.Silverlight.sln
+		SccProjectName7 = ImageTools.IO.Jpeg
+		SccLocalPath7 = ImageTools.IO.Jpeg
+		SccProjectUniqueName8 = ImageTools.Utils\\ImageTools.Utils.csproj
+		SccProjectTopLevelParentUniqueName8 = ImageTools.Silverlight.sln
+		SccProjectName8 = ImageTools.Utils
+		SccLocalPath8 = ImageTools.Utils
+		SccProjectUniqueName9 = Demos\\ImageTools.Demos\\ImageTools.Demos.csproj
+		SccProjectTopLevelParentUniqueName9 = ImageTools.Silverlight.sln
+		SccProjectName9 = Demos/ImageTools.Demos
+		SccLocalPath9 = Demos\\ImageTools.Demos
+		SccProjectUniqueName10 = Demos\\ImageTools.Demos.Web\\ImageTools.Demos.Web.csproj
+		SccProjectTopLevelParentUniqueName10 = ImageTools.Silverlight.sln
+		SccProjectName10 = Demos/ImageTools.Demos.Web
+		SccLocalPath10 = Demos\\ImageTools.Demos.Web
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3A3393A-D422-4775-AA2C-7B28998F4817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BD7FFCE8-DE1D-490E-B531-D5A0519F017C} = {85CB1C66-7ADD-4BE3-AE21-94DC8B08C943}
+		{A8C8ACE9-24A2-471F-A6BC-3B52F90E99F1} = {85CB1C66-7ADD-4BE3-AE21-94DC8B08C943}
+		{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{ECB93D2E-457C-4293-84EE-D5C8B5F7C0E6} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{F67AB944-0489-4DCB-BA32-BD26D175DBB8} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{FB5B5D68-53D9-4B0A-9D06-018E76106922} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{93A5C453-7E1E-40B5-ACB7-2239CFA6CA97} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{DB3B4A4D-276C-499E-B828-66A66D2DBED9} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{D191BB67-FA04-4CAD-ACF8-D9C546A290D3} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+		{A3A3393A-D422-4775-AA2C-7B28998F4817} = {C3BCC216-4230-4F8B-9912-7CC1C45A6534}
+	EndGlobalSection
+EndGlobal

@@ -22,6 +22,7 @@ namespace BaconographyPortable.ViewModel
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
         bool _isPreviewShown;
+		bool _isExtendedOptionsShown;
 
         public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
         {
@@ -32,7 +33,9 @@ namespace BaconographyPortable.ViewModel
             _imagesService = _baconProvider.GetService<IImagesService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _isPreviewShown = false;
+			_isExtendedOptionsShown = false;
             ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
+			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
         }
 
         VotableViewModel _votable;
@@ -99,7 +102,7 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return _linkThing.Data.Title.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+                return _linkThing.Data.Title.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim();
             }
         }
 
@@ -127,6 +130,29 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		string _domain = null;
+		public string Domain
+		{
+			get
+			{
+				if (_domain == null)
+				{
+					_domain = (new Uri(Url)).Host.TrimStart(new char[] { 'w', '.' });
+					if (_domain == "reddit.com" && Url.ToLower().Contains(Subreddit.ToLower()))
+						_domain = "self." + Subreddit.ToLower();
+				}
+				return _domain;
+			}
+		}
+
+        public string Id
+        {
+            get
+            {
+                return _linkThing.Data.Id;
+            }
+        }
+
         public bool HasPreview
         {
             get
@@ -149,6 +175,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		public bool IsExtendedOptionsShown
+		{
+			get
+			{
+				return _isExtendedOptionsShown;
+			}
+			set
+			{
+				_isExtendedOptionsShown = value;
+				RaisePropertyChanged("IsExtendedOptionsShown");
+			}
+		}
+
         public Tuple<bool, string> PreviewPack
         {
             get
@@ -159,12 +198,41 @@ namespace BaconographyPortable.ViewModel
 
         public RelayCommand<LinkViewModel> NavigateToComments { get { return _navigateToComments; } }
         public RelayCommand<LinkViewModel> GotoLink { get { return _gotoLink; } }
+		public RelayCommand<LinkViewModel> GotoSubreddit { get { return _gotoSubreddit; } }
+		public RelayCommand<LinkViewModel> GotoUserDetails { get { return _gotoUserDetails; } }
 
         static RelayCommand<LinkViewModel> _navigateToComments = new RelayCommand<LinkViewModel>(NavigateToCommentsImpl);
         static RelayCommand<LinkViewModel> _gotoLink = new RelayCommand<LinkViewModel>(GotoLinkImpl);
+		static RelayCommand<LinkViewModel> _gotoSubreddit = new RelayCommand<LinkViewModel>(GotoSubredditStatic);
+		static RelayCommand<LinkViewModel> _gotoUserDetails = new RelayCommand<LinkViewModel>(GotoUserStatic);
 
         public RelayCommand ShowPreview { get; set; }
+		public RelayCommand ShowExtendedOptions { get; set; }
 
+		private static void GotoSubredditStatic(LinkViewModel vm)
+		{
+			vm.GotoSubredditImpl();
+		}
+
+		private static void GotoUserStatic(LinkViewModel vm)
+		{
+			vm.GotoUserImpl();
+		}
+
+		private async void GotoSubredditImpl()
+        {
+            _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
+        }
+
+		private void GotoUserImpl()
+        {
+            UtilityCommandImpl.GotoUserDetails(_linkThing.Data.Author);
+        }
+
+		public void GotoComments()
+		{
+			NavigateToCommentsImpl(this);
+		}
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
@@ -174,6 +242,7 @@ namespace BaconographyPortable.ViewModel
         private static void GotoLinkImpl(LinkViewModel vm)
         {
             UtilityCommandImpl.GotoLinkImpl(vm.Url);
+			vm.RaisePropertyChanged("Url");
         }
     }
 }

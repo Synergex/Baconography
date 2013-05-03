@@ -61,9 +61,7 @@ url::url(const std::string& url_s)
 bool is_url_known_image(uint8_t* ptr, size_t length)
 {
 	std::string str((char*)ptr, length);
-	if(has_ending(str, ".gif"))
-		return false;
-	else if(has_ending(str, ".jpg") || has_ending(str, ".png"))
+	if(has_ending(str, ".jpg") || has_ending(str, ".png") || has_ending(str, ".gif"))
 		return true;
 	else
 	{
@@ -137,14 +135,11 @@ static int
 rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, void *opaque) {
 
 	if (!link || !link->size) return 0;
+#ifndef WP8
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -156,11 +151,7 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 	}
 	else
 	{
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -168,6 +159,12 @@ rndr_autolink(struct buf *ob, const struct buf *link, enum mkd_autolink type, vo
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
 	}
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><common:MarkdownButton Url=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		BUFPUTSL(ob, "\"/></InlineUIContainer>");
+#endif
+
 	return 1; 
 }
 
@@ -268,14 +265,12 @@ rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque) {
 static int
 rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const struct buf *content, void *opaque) 
 {
+
+#ifndef WP8
 	if(is_url_known_image(link->data, link->size))
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Grid><Grid.ColumnDefinitions><ColumnDefinition Width=\"Auto\"/><ColumnDefinition Width=\"*\"/></Grid.ColumnDefinitions><Button VerticalAlignment=\"Top\" Grid.Column=\"0\" Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -288,11 +283,7 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 	else
 	{
 		if (!link || !link->size) return 0;
-#ifndef WP8
 		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Style=\"{Binding TextButtonStyle, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#else
-		BUFPUTSL(ob, "<InlineUIContainer><Button Command=\"{Binding Path=StaticCommands.GotoMarkdownLink, Mode=OneTime}\" Margin=\"0,0,0,0\" Padding=\"0\" CommandParameter=\"");
-#endif
 		lus_attr_escape(ob, link->data, link->size);
 		BUFPUTSL(ob, "\"><Button.Foreground><Binding Converter=\"{Binding VisitedLink, Source={StaticResource Locator}}\" ConverterParameter=\"");
 		lus_attr_escape(ob, link->data, link->size);
@@ -300,6 +291,16 @@ rndr_link(struct buf *ob, const struct buf *link, const struct buf *title, const
 		if (content && content->size) bufput(ob, content->data, content->size);
 		BUFPUTSL(ob, "</Button.Content></Button></InlineUIContainer>");
 	}
+#else
+		BUFPUTSL(ob, "<InlineUIContainer><common:MarkdownButton Url=\"");
+		lus_attr_escape(ob, link->data, link->size);
+		if (content && content->size)
+		{
+			BUFPUTSL(ob, "\" Text=\"");
+			bufput(ob, content->data, content->size);
+		}
+		BUFPUTSL(ob, "\"/></InlineUIContainer>");
+#endif
 	return 1;  
 }
 
@@ -403,29 +404,34 @@ const struct sd_callbacks mkd_xaml = {
 	NULL,
 	NULL};
 
-Platform::String^ toPlatformString(const char* src, uint32_t sourceLength)
+void toPlatformString(const char* src, uint32_t sourceLength, wchar_t*& destination, uint32_t& destinationLength)
 {
+	static std::wstring result;
 	if (src == nullptr || sourceLength == 0)
-		return nullptr;
+	{
+		destination = nullptr;
+		destinationLength = 0;
+	}
 			
 	//get the length first so we dont have to double allocate
 	//also its not actually possible to predetermine the size
 	//as char16 just means the potential blocks are 16bits but remain chainable into a single char
 	auto length = sourceLength;
-	std::wstring result(length, 0);
-	mbstowcs(&result[0], src, length);
-	return ref new Platform::String(result.c_str(), (unsigned int)result.size());
+	result.resize(length);
+	auto realLength = mbstowcs(&result[0], src, length);
+	destination = &result[0];
+	destinationLength = realLength;
 }
 
-static void toBufString(Platform::String^ src, buf* target)
+static void toBufString(wchar_t* src, uint32_t srcLength, buf* target)
 {
 	if(src == nullptr)
 	{
 		return;
 	}
-	int length = src->Length() * 2;
+	int length = srcLength * 2;
 	bufgrow(target, length);
-	length = wcstombs((char*)target->data, src->Data(), length) ;
+	length = wcstombs((char*)target->data, src, length) ;
 	if(length == -1)
 		target->size = 0;
 	else
@@ -441,33 +447,51 @@ static const unsigned int snudown_default_md_flags =
 
 critical_section markdownCriticalSection;
 sd_markdown* markdownProcessor = nullptr;
+buf* g_ob = nullptr;
+buf* g_ib = nullptr;
 
-Platform::String^ SoldOut::MarkdownToXaml(Platform::String^ source)
+//on wp8 we get OOM if we use platform::string so just pin on the way in and return a pointer into our static wstring on the way out
+//additionally we've gone to great lengths to prevent memory allocation from occuring during markdown processing, it should grow to memory consumption
+//of the largest single markdown operation and then stay there
+VarPtr SoldOut::MarkdownToXaml(VarPtr source, std::uint32_t sourceLength)
 {
+	std::uint32_t destinationLength;
+	wchar_t* destination;
 	try
 	{
 		critical_section::scoped_lock markdownLock(markdownCriticalSection);
-		auto ib = bufnew(1024);
-		auto ob = bufnew(64);
+		if(g_ob == nullptr)
+		{
+			g_ob = bufnew(64 * 1024);
+		}
 
-		toBufString(source, ib);
+		if(g_ib == nullptr)
+		{
+			g_ib = bufnew(64 * 1024);
+		}
+
+
+		toBufString((wchar_t*)(void*)source, sourceLength, g_ib);
 
 		if(markdownProcessor == nullptr)
 			markdownProcessor = sd_markdown_new(snudown_default_md_flags, 100, &mkd_xaml, NULL);
 
-		sd_markdown_render(ob, ib->data, ib->size, markdownProcessor);
+		sd_markdown_render(g_ob, g_ib->data, g_ib->size, markdownProcessor);
 
 		//sd_markdown_free(markdownProc);
 
-		auto result = toPlatformString((char*)ob->data, ob->size);
+		toPlatformString((char*)g_ob->data, g_ob->size, destination, destinationLength);
 
-		bufrelease(ib);
-		bufrelease(ob);
-		return result;
+		g_ob->size = 0;
+		g_ib->size = 0;
+		return (VarPtr)destination;
+		//bufrelease(ib);
+		//bufrelease(ob);
+		//return result;
 	}
 	catch(...)
 	{
 
 	}
-	return nullptr;
+	return 0;
 }

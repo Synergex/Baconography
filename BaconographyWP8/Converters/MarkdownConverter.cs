@@ -17,7 +17,7 @@ namespace BaconographyWP8.Converters
     {
         object bindingContext;
         static int insertionLength = "<LineBreak/>".Length + "</Paragraph>".Length + "<Paragraph>".Length;
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        unsafe public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (bindingContext == null)
             {
@@ -35,10 +35,19 @@ namespace BaconographyWP8.Converters
                 try
                 {
                     var startingText = value as string;
-                    var markdown = SoldOut.MarkdownToXaml(startingText);
+                    string markdown = null;
+                    fixed (char* textPtr = startingText)
+                    {
+                        var markdownPtr = SoldOut.MarkdownToXaml((uint)textPtr, (uint)startingText.Length);
+                        if (markdownPtr != 0)
+                            markdown = new string((char*)markdownPtr);
+                    }
+                    
 
                     //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
+					var noWhiteStartingText = startingText.Replace(" ", "").Replace("\n", "");
+					var noWhiteMarkdown = markdown.Replace(" ", "").Replace("\n", "").Replace("<paragraph>", "");
+					var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(noWhiteStartingText, 0, noWhiteMarkdown, 0, noWhiteStartingText.Length) == 0;
 
                     if (isSame)
                     {
@@ -72,18 +81,26 @@ namespace BaconographyWP8.Converters
                                 }
                             }
                         }
-						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"clr-namespace:BaconographyWP8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBox>", markdown)) as RichTextBox;
+                        //xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"clr-namespace:BaconographyWP8.View\"
+
+                        //var markdown2 = "<Paragraph>Reminds me of <InlineUIContainer><Button><Button.Content>this</Button.Content></Button></InlineUIContainer></Paragraph>";
+
+                        if (!markdown.Contains("<Paragraph>"))
+                        {
+                            markdown = "<Paragraph>" + markdown + "</Paragraph>";
+                        }
+
+						var uiElement = XamlReader.Load(string.Format("<RichTextBox xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:common=\"clr-namespace:BaconographyWP8.Common;assembly=BaconographyWP8\">{0}</RichTextBox>", markdown)) as RichTextBox;
                         uiElement.DataContext = bindingContext;
                         return uiElement;
                     }
                 }
                 catch
                 {
-					var rtb = new RichTextBox();
-                    var pp = new Paragraph();
-                    pp.Inlines.Add(new Run { Text = value as string });
-                    rtb.Blocks.Add(pp);
-                    return rtb;
+                    var semiCleanText = value as string;
+                    if (semiCleanText != null)
+                        semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
+                    return new TextBlock { Text = semiCleanText, TextWrapping = TextWrapping.Wrap };
                 }
             }
             else

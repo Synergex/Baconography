@@ -13,22 +13,19 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="800" d:DesignWidth="480"
-    DataContext="{Binding Reddit, Source={StaticResource Locator}}">
-    
+    x:Name="controlRoot">
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
-                Background="Black"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
-                SelectedItem="{Binding Mode=TwoWay, Path=SelectedLink}"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
-                Loaded="linksView_Loaded">
+                ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <local:LinkView  />
+                        <local:LinkView DisplaySubreddit="{Binding ElementName=controlRoot, Path=DataContext.IsFrontPage}"  />
                         <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,0,0,3"/>
                     </StackPanel>
                 </DataTemplate>

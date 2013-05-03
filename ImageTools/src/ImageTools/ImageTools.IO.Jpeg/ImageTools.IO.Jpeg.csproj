@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D191BB67-FA04-4CAD-ACF8-D9C546A290D3}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ImageTools.IO.Jpeg</RootNamespace>
+    <AssemblyName>ImageTools.IO.Jpeg</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>_NetImageTool.snk</AssemblyOriginatorKeyFile>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <ExpressionBlendVersion>4.0.20310.0</ExpressionBlendVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\bin\SL4\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\..\bin\SL4\ImageTools.IO.Jpeg.XML</DocumentationFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\..\Rules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\bin\SL4\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\..\bin\SL4\ImageTools.IO.Jpeg.XML</DocumentationFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\..\Rules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows" />
+    <Reference Include="mscorlib" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FluxJpeg.Core\DCT.cs" />
+    <Compile Include="FluxJpeg.Core\DecodedJpeg.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\HuffmanTable.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegComponent.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegDecoder.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegFrame.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegHuffmanTable.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegQuantizationTable.cs" />
+    <Compile Include="FluxJpeg.Core\Decoder\JpegScan.cs" />
+    <Compile Include="FluxJpeg.Core\Encoder\JpegEncoder.cs" />
+    <Compile Include="FluxJpeg.Core\FDCT.cs" />
+    <Compile Include="FluxJpeg.Core\Image.cs" />
+    <Compile Include="FluxJpeg.Core\IO\BinaryReader.cs" />
+    <Compile Include="FluxJpeg.Core\IO\BinaryWriter.cs" />
+    <Compile Include="FluxJpeg.Core\IO\JpegBinaryReader.cs" />
+    <Compile Include="FluxJpeg.Core\JpegMarker.cs" />
+    <Compile Include="FluxJpeg.Core\YCbCr.cs" />
+    <Compile Include="FluxJpeg.Core\ZigZag.cs" />
+    <Compile Include="JpegDecoder.cs" />
+    <Compile Include="JpegEncoder.cs" />
+    <Compile Include="LibJpeg\BitmapDestination.cs" />
+    <Compile Include="LibJpeg\BitStream.cs" />
+    <Compile Include="LibJpeg\Classic\DensityUnit.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\bitread_perm_state.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\bitread_working_state.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\ComponentBuffer.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\d_derived_tbl.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\huff_entropy_decoder.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\huff_entropy_encoder.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\JpegUtils.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_color_converter.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_color_deconverter.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_color_quantizer.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_comp_master.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_c_coef_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_c_main_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_c_prep_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_decomp_master.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_downsampler.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_d_coef_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_d_main_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_d_post_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_entropy_decoder.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_entropy_encoder.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_forward_dct.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_input_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_inverse_dct.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_marker_reader.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_marker_writer.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_scan_info.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\jpeg_upsampler.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\J_BUF_MODE.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_1pass_cquantizer.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_2pass_cquantizer.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_c_coef_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_destination_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_merged_upsampler.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_source_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_trans_c_coef_controller.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\my_upsampler.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\phuff_entropy_decoder.cs" />
+    <Compile Include="LibJpeg\Classic\Internal\phuff_entropy_encoder.cs" />
+    <Compile Include="LibJpeg\Classic\JBLOCK.cs" />
+    <Compile Include="LibJpeg\Classic\JHUFF_TBL.cs" />
+    <Compile Include="LibJpeg\Classic\JpegConstants.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_common_struct.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_component_info.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_compress_struct.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_decompress_struct.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_destination_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_error_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\JPEG_MARKER.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_marker_struct.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_progress_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\jpeg_source_mgr.cs" />
+    <Compile Include="LibJpeg\Classic\JQUANT_TBL.cs" />
+    <Compile Include="LibJpeg\Classic\jvirt_array.cs" />
+    <Compile Include="LibJpeg\Classic\J_COLOR_SPACE.cs" />
+    <Compile Include="LibJpeg\Classic\J_DCT_METHOD.cs" />
+    <Compile Include="LibJpeg\Classic\J_DITHER_MODE.cs" />
+    <Compile Include="LibJpeg\Classic\J_MESSAGE_CODE.cs" />
+    <Compile Include="LibJpeg\Classic\ReadResult.cs" />
+    <Compile Include="LibJpeg\CompressionParameters.cs" />
+    <Compile Include="LibJpeg\DecompressionParameters.cs" />
+    <Compile Include="LibJpeg\DecompressorToJpegImage.cs" />
+    <Compile Include="LibJpeg\Enumerations.cs" />
+    <Compile Include="LibJpeg\IDecompressDestination.cs" />
+    <Compile Include="LibJpeg\IRawImage.cs" />
+    <Compile Include="LibJpeg\Jpeg.cs" />
+    <Compile Include="LibJpeg\JpegImage.cs" />
+    <Compile Include="LibJpeg\RawImage.cs" />
+    <Compile Include="LibJpeg\Sample.cs" />
+    <Compile Include="LibJpeg\SampleRow.cs" />
+    <Compile Include="LibJpeg\Utils.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="_NetImageTool.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImageTools\ImageTools.csproj">
+      <Project>{48AC0713-B9BF-4BD8-B8C7-F740C2B78F8D}</Project>
+      <Name>ImageTools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ImageTools.IO.Jpeg.extmap.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

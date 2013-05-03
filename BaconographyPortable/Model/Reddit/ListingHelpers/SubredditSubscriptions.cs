@@ -11,23 +11,40 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
     {
         IUserService _userService;
         IRedditService _redditService;
+        IOfflineService _offlineService;
         public SubredditSubscriptions(IBaconProvider baconProvider)
         {
             _userService = baconProvider.GetService<IUserService>();
             _redditService = baconProvider.GetService<IRedditService>();
+            _offlineService = baconProvider.GetService<IOfflineService>();
         }
 
-        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), UncachedLoad);
+        }
+
+        private async Task<Listing> GetCachedListing()
+        {
+            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username);
+            return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
+        }
+
+        private async Task<Listing> UncachedLoad()
+        {
+            Listing resultListing = null;
             var user = await _userService.GetUser();
             if (user != null && user.Me != null)
             {
-                return await _redditService.GetSubscribedSubredditListing();
+                resultListing = await _redditService.GetSubscribedSubredditListing();
             }
             else
             {
-                return await _redditService.GetDefaultSubreddits();
+                resultListing = await _redditService.GetDefaultSubreddits();
             }
+
+            await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
+            return resultListing;
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

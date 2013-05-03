@@ -10,13 +10,13 @@ using System.Windows.Controls;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace BaconographyW8.View
+namespace BaconographyWP8.View
 {
 	public sealed partial class LoadIndicatorView : UserControl
     {
         public LoadIndicatorView()
         {
-            //this.InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }
