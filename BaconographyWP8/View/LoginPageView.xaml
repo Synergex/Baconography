@@ -18,23 +18,23 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <phone:Pivot Title="BACONOGRAPHY > LOGIN"
+        <phone:Pivot Title="REDDITOGRAPHY > LOGIN"
                      x:Name="pivot">
             <!--Pivot item one-->
             <phone:PivotItem Header="new">
                 <Grid>
                     <StackPanel>
-                        <TextBlock FontWeight="SemiBold" Text="USERNAME"/>
-                        <TextBox Margin="5,0,5,0"
+                        <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="USERNAME"/>
+                        <TextBox Margin="0,0,0,0"
                             Text="{Binding Mode=TwoWay, Path=Username}"
                             KeyDown="Username_KeyDown"/>
-                        <TextBlock FontWeight="SemiBold" Text="PASSWORD"/>
-                        <PasswordBox Margin="5,0,5,0"
+                        <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="PASSWORD"/>
+                        <PasswordBox Margin="0,0,0,0"
                             x:Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}"
                             KeyDown="Password_KeyDown"/>
-                        <CheckBox Margin="5,0,5,0" Content="save this login"
+                        <CheckBox Margin="0,0,0,0" Content="save this login"
                             IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
-                        <CheckBox Margin="5,0,5,0" Content="login automatically"
+                        <CheckBox Margin="0,0,0,0" Content="login automatically"
                             IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
                     
                         <Button Content="submit"
@@ -60,8 +60,8 @@
                 <Grid>
                     <StackPanel>
                         <StackPanel Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock FontWeight="SemiBold">CURRENT USER</TextBlock>
-                            <TextBlock Margin="10,7,0,7" Text="{Binding CurrentUserName}"
+                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold">CURRENT USER</TextBlock>
+                            <TextBlock Margin="24,7,0,7" Text="{Binding CurrentUserName}"
                                    HorizontalAlignment="Left"/>
                         </StackPanel>
                         <common:FixedLongListSelector
@@ -73,12 +73,12 @@
                             HorizontalAlignment="Stretch">
                             <common:FixedLongListSelector.ListHeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="SAVED USERNAMES" />
+                                    <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="SAVED USERNAMES" />
                                 </DataTemplate>
                             </common:FixedLongListSelector.ListHeaderTemplate>
                             <common:FixedLongListSelector.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Margin="10,0,0,0" Text="{Binding}"/>
+                                    <TextBlock Margin="24,0,0,0" Text="{Binding}"/>
                                 </DataTemplate>
                             </common:FixedLongListSelector.ItemTemplate>
                         </common:FixedLongListSelector>

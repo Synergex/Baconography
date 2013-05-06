@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{0fe36153-24f5-429e-a5a3-b95da0367cab}" Title="Baconography" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="BaconographyWP8 author" Description="Browse Reddit in a format designed for your phone." Publisher="BaconographyWP8" PublisherID="{d217a270-9e09-4cfb-ace4-97ff87457170}">
+  <App xmlns="" ProductID="{0fe36153-24f5-429e-a5a3-b95da0367cab}" Title="Redditography" RuntimeType="Silverlight" Version="1.1.0.0" Genre="apps.normal" Author="Jeff Greene &amp; Marty Lewis" Description="Browse Reddit in a format designed for your phone." Publisher="Synergex International Corporation" PublisherID="{d217a270-9e09-4cfb-ace4-97ff87457170}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIconSmall.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
@@ -22,7 +22,7 @@
           <SmallImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</SmallImageURI>
           <Count>0</Count>
           <BackgroundImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</BackgroundImageURI>
-          <Title>Baconography</Title>
+          <Title>Redditography</Title>
           <BackContent>
           </BackContent>
           <BackBackgroundImageURI>

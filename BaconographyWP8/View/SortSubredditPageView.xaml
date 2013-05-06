@@ -20,7 +20,7 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <local:LoadIndicatorView VerticalAlignment="Top" />
         <TextBlock Margin="24,16,0,0" FontWeight="SemiBold"
-                   Text="BACONOGRAPHY > SUBREDDITS" FontSize="22.6"/>
+                   Text="REDDITOGRAPHY > SUBREDDITS" FontSize="22.6"/>
         
         <common:ReorderListBox Margin="10,56,10,0" HorizontalAlignment="Stretch"
             BorderThickness="0" VerticalAlignment="Stretch" 
