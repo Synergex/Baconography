@@ -18,7 +18,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <phone:Pivot Title="REDDITOGRAPHY > SETTINGS"
+        <phone:Pivot Title="SNARC > SETTINGS"
                      x:Name="pivot" DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
             <!--Pivot item one-->
             <phone:PivotItem Header="content">
@@ -49,15 +49,15 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock FontSize="24">
-                                Baconography
+                                SNARC
                             </TextBlock>
                             <TextBlock FontSize="24" x:Name="version"
-                                       Text="v1.0" Margin="8,0,0,0"/>
+                                       Text="v1.1" Margin="8,0,0,0"/>
                         </StackPanel>
                         <Border Height="8" />
                         <TextBlock Margin="10,0,0,0" FontSize="22"
                                    HorizontalAlignment="Left" TextWrapping="Wrap">
-                            Baconography is developed and maintained by a small team at Synergex International Corporation.
+                            SNARC is developed and maintained by a small team at Synergex International Corporation.
                             KitaroDB, our underlying database for the offline mode features, is also a product of the same company.
                         </TextBlock>
                     </StackPanel>

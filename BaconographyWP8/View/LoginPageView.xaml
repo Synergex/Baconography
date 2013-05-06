@@ -18,7 +18,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <phone:Pivot Title="REDDITOGRAPHY > LOGIN"
+        <phone:Pivot Title="SNARC > LOGIN"
                      x:Name="pivot">
             <!--Pivot item one-->
             <phone:PivotItem Header="new">
