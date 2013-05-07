@@ -50,8 +50,11 @@ namespace BaconographyWP8.View
 			{
 				if (value == null)
 				{
-					this._bitmap.UriSource = null;
-					this._bitmap = null;
+					if (this._bitmap != null)
+					{
+						this._bitmap.UriSource = null;
+						this._bitmap = null;
+					}
 				}
 				SetValue(ImageSourceProperty, value);
 			}

@@ -58,12 +58,12 @@ namespace BaconographyWP8.View
 			get { return GetValue(ImageSourceProperty); }
 			set
 			{
-				if (value == null)
+				if (value == null && image != null)
 				{
 					image.Stop();
 					image.Dispose();
 				}
-				else if (image.Source == null)
+				else if (image != null && image.Source == null)
 				{
 					var converter = App.Current.Resources["imageConverter"] as ImageConverter;
 					if (converter != null)
