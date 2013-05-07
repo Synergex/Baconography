@@ -70,7 +70,6 @@ namespace BaconographyWP8.View
         {
             if (e.NavigationMode == NavigationMode.New && e.IsCancelable)
             {
-                this.InitializeComponent();
                 OnNavigatedTo(null);
                 e.Cancel = true;
             }
@@ -86,7 +85,7 @@ namespace BaconographyWP8.View
             try
             {
                 this.State["PictureViewModelData"] = _pictureData;
-                Content = null;
+                //Content = null;
                 if (_currentItem != null)
                 {
                     var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
