@@ -26,7 +26,6 @@
                 <DataTemplate>
                     <StackPanel>
                         <local:LinkView DisplaySubreddit="{Binding ElementName=controlRoot, Path=DataContext.IsFrontPage}"  />
-                        <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,0,0,3"/>
                     </StackPanel>
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>

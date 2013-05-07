@@ -22,7 +22,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Type:Else">
             <local:ScalingPictureView HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                      DataContext="{Binding}" ImageSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ImageSource}"/>
+                                      DataContext="{Binding}" ImageSource="{Binding Path=ImageSource, Mode=TwoWay}"/>
         </DataTemplate>
     </phone:PhoneApplicationPage.Resources>
     <toolkit:TransitionService.NavigationInTransition>
