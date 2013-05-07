@@ -165,8 +165,10 @@ namespace BaconographyPortable.Model.Reddit
         public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
         {
             //no info for the front page
-            if(name == "/")
+            if (name == "/")
                 return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+            else if (name == "all")
+                return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = "all", Url = "/r/all", Name = "all", DisplayName="all", Title="all", Id="t5_fakeid" } });
 
             var targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
 
