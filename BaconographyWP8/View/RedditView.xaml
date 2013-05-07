@@ -16,12 +16,21 @@
     x:Name="controlRoot">
     <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
+                DataContext="{Binding ElementName=controlRoot, Path=DataContext}"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
                 ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
+            <common:FixedLongListSelector.ListHeaderTemplate>
+                <DataTemplate>
+                    <!-- Visibility="{Binding ElementName=linksView, Path=PulledDown, Converter={StaticResource booleanVisibilityConverter}}" -->
+                    <Grid>
+                        <local:PullToRefreshView IsPulled="{Binding ElementName=linksView, Path=PulledDown, Mode=TwoWay}" />
+                    </Grid>
+                </DataTemplate>
+            </common:FixedLongListSelector.ListHeaderTemplate>
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>

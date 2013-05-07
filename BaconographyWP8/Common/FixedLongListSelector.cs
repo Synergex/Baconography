@@ -1,10 +1,17 @@
-﻿using System;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace BaconographyWP8.Common
 {
@@ -20,6 +27,7 @@ namespace BaconographyWP8.Common
 			SelectionChanged += FixedLongListSelector_SelectionChanged;
 			ManipulationStateChanged += listbox_ManipulationStateChanged;
 			MouseMove += listbox_MouseMove;
+			Tap += FixedLongListSelector_Tap;
 			ItemRealized += OnViewportChanged;
 			ItemUnrealized += OnViewportChanged;
 			Compression += FixedLongListSelector_Compression;
@@ -29,6 +37,8 @@ namespace BaconographyWP8.Common
 		{
 			if (e.Type == CompressionType.Top)
 				PulledDown = true;
+			else
+				PulledDown = false;
 		}
 
 		void FixedLongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -47,9 +57,9 @@ namespace BaconographyWP8.Common
 		public static readonly DependencyProperty PulledDownProperty =
 		   DependencyProperty.Register(
 			   "PulledDown",
-			   typeof(Nullable<bool>),
+			   typeof(bool),
 			   typeof(FixedLongListSelector),
-			   new PropertyMetadata(null, OnPulledDownChanged)
+			   new PropertyMetadata(false, OnPulledDownChanged)
 		   );
 
 		private static void OnSelectedItemChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -67,12 +77,12 @@ namespace BaconographyWP8.Common
 		private static void OnPulledDownChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			var selector = (FixedLongListSelector)d;
-			selector.PulledDown = (Nullable<bool>)e.NewValue ?? false;
+			selector.PulledDown = (bool)e.NewValue;
 		}
 
 		public bool PulledDown
 		{
-			get { return (Nullable<bool>)GetValue(PulledDownProperty) ?? false; }
+			get { return (bool)GetValue(PulledDownProperty); }
 			set { SetValue(PulledDownProperty, value); }
 		}
 
@@ -81,7 +91,7 @@ namespace BaconographyWP8.Common
 			viewportChanged = true;
 		}
 
-		void listbox_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+		void FixedLongListSelector_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var pos = e.GetPosition(null);
 
@@ -91,6 +101,47 @@ namespace BaconographyWP8.Common
 				manipulationEnd = pos.Y;
 
 			isMoving = true;
+		}
+
+		void listbox_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+		{
+			var pos = e.GetPosition(null);
+
+			if (!isMoving)
+			{
+				manipulationStart = pos.Y;
+			}
+			else
+			{
+				manipulationEnd = pos.Y;
+				if (ManipulationState == System.Windows.Controls.Primitives.ManipulationState.Manipulating)
+				{
+					DoInterimManipulation();
+				}
+			}
+
+			isMoving = true;
+		}
+
+		const int pullDownOffset = -125;
+		void DoInterimManipulation()
+		{
+			var total = manipulationStart - manipulationEnd;
+			var viewport = FindViewport(this);
+			if (viewport != null)
+			{
+				if (viewport.Viewport.Top == 0)
+				{
+					if (total < pullDownOffset)
+						Compression(this, new CompressionEventArgs(CompressionType.Top));
+					else
+						Compression(this, new CompressionEventArgs(CompressionType.None));
+				}
+				else
+				{
+					Compression(this, new CompressionEventArgs(CompressionType.None));
+				}
+			}
 		}
 
 		void listbox_ManipulationStateChanged(object sender, EventArgs e)
@@ -103,23 +154,43 @@ namespace BaconographyWP8.Common
 			else if (ManipulationState == System.Windows.Controls.Primitives.ManipulationState.Manipulating)
 			{
 				viewportChanged = false;
+				DoInterimManipulation();
 			}
 			else if (ManipulationState == System.Windows.Controls.Primitives.ManipulationState.Animating)
 			{
-				var total = manipulationStart - manipulationEnd;
-
-				if (!viewportChanged && Compression != null)
+				if (PulledDown)
 				{
-					if (total < 0)
-						Compression(this, new CompressionEventArgs(CompressionType.Top));
-					else if (total > 0) // Explicitly exclude total == 0 case
-						Compression(this, new CompressionEventArgs(CompressionType.Bottom));
+					// User released, do refresh
+					var redditVM = DataContext as RedditViewModel;
+					var message = new RefreshSubredditMessage();
+					if (redditVM != null)
+					{
+						message.Subreddit = redditVM.SelectedSubreddit;
+						Messenger.Default.Send<RefreshSubredditMessage>(message);
+					}
+					Compression(this, new CompressionEventArgs(CompressionType.None));
 				}
 			}
 		}
 
 
 		public event OnCompression Compression;
+
+		#region LLS Util
+
+		private static ViewportControl FindViewport(DependencyObject parent)
+		{
+			var childCount = VisualTreeHelper.GetChildrenCount(parent);
+			for (var i = 0; i < childCount; i++)
+			{
+				var elt = VisualTreeHelper.GetChild(parent, i);
+				if (elt is ViewportControl) return (ViewportControl)elt;
+				var result = FindViewport(elt);
+				if (result != null) return result;
+			}
+			return null;
+		}
+		#endregion
 	}
 
 	public class CompressionEventArgs : EventArgs
@@ -132,7 +203,7 @@ namespace BaconographyWP8.Common
 		}
 	}
 
-	public enum CompressionType { Top, Bottom, Left, Right };
+	public enum CompressionType { None, Top, Bottom, Left, Right };
 
 	public delegate void OnCompression(object sender, CompressionEventArgs e);
 }

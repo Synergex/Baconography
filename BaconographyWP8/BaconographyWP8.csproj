@@ -158,6 +158,9 @@
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\PullToRefreshView.xaml.cs">
+      <DependentUpon>PullToRefreshView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ScalingGifView.xaml.cs">
       <DependentUpon>ScalingGifView.xaml</DependentUpon>
     </Compile>
@@ -238,6 +241,10 @@
     <Page Include="View\CommentView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PullToRefreshView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ScalingGifView.xaml">
       <SubType>Designer</SubType>
