@@ -14,7 +14,7 @@
       <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
     </Capabilities>
     <Tasks>
-      <DefaultTask Name="_default" NavigationPage="/MainPage.xaml" />
+      <DefaultTask Name="_default" NavigationPage="/MainPage.xaml" ActivationPolicy="Resume" />
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="BaconographyWP8Token" TaskName="_default">
@@ -22,7 +22,7 @@
           <SmallImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</SmallImageURI>
           <Count>0</Count>
           <BackgroundImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</BackgroundImageURI>
-          <Title>Baconography</Title>
+          <Title>SNARC</Title>
           <BackContent>
           </BackContent>
           <BackBackgroundImageURI>

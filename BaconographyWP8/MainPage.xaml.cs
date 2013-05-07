@@ -54,6 +54,7 @@ namespace BaconographyWP8
 				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
 		}
 
+
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.AdjustForOrientation(this.Orientation);
@@ -62,29 +63,33 @@ namespace BaconographyWP8
 			{
 
 			}
-			else if (e.NavigationMode == NavigationMode.New)
-			{
-				if (this.NavigationContext.QueryString.ContainsKey("data"))
-				{
+            else if (e.NavigationMode == NavigationMode.Refresh)
+            {
+
+            }
+            else if (e.NavigationMode == NavigationMode.New)
+            {
+                if (this.NavigationContext.QueryString.ContainsKey("data"))
+                {
                     //this appears to be a bug in WP8, the page is getting lazily bound but
                     //we're at a point where it should be completed
                     if (pivot.DataContext != null && pivot.ItemsSource == null)
                     {
                         pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
                     }
-					var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
-					var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
-					if (deserializedObject is SelectTemporaryRedditMessage)
-					{
-						Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
+                    var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+                    var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
+                    if (deserializedObject is SelectTemporaryRedditMessage)
+                    {
+                        Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
                         int indexToPosition;
                         if (pivot.DataContext != null && (((MainPageViewModel)pivot.DataContext).FindSubredditMessageIndex(deserializedObject as SelectTemporaryRedditMessage, out indexToPosition)))
                         {
                             pivot.SelectedIndex = indexToPosition;
                         }
-					}
-				}
-			}
+                    }
+                }
+            }
 		}
 
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)

@@ -71,15 +71,20 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnReorderSubreddit(ReorderSubredditMessage message)
 		{
-			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null);
+			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null).ToArray();
 			for (int i = Subreddits.Count - 1; i >= 0 ; i--)
 			{
-				var pivot = redditVMs.FirstOrDefault(rvm => rvm.Heading == Subreddits[i].Data.DisplayName);
-				if (pivot != null)
-				{
-					PivotItems.Remove(pivot);
-					PivotItems.Insert(0, pivot);
-				}
+                if (redditVMs.Length > i && redditVMs[i].Heading == Subreddits[i].Data.DisplayName)
+                    continue;
+                else
+                {
+                    var pivot = redditVMs.FirstOrDefault(rvm => rvm.Heading == Subreddits[i].Data.DisplayName);
+                    if (pivot != null)
+                    {
+                        PivotItems.Remove(pivot);
+                        PivotItems.Insert(0, pivot);
+                    }
+                }
 			}
 		}
 
