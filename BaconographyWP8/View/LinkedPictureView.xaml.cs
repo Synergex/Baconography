@@ -77,7 +77,8 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
-            CleanupImageSource();
+            if(e.NavigationMode == NavigationMode.Back)
+                CleanupImageSource();
 		}
 
         private void CleanupImageSource()
