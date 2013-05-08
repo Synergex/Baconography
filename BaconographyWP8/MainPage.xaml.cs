@@ -20,6 +20,7 @@ using BaconographyWP8Core;
 using BaconographyWP8.ViewModel;
 using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
+using Microsoft.Phone.Reactive;
 
 namespace BaconographyWP8
 {
@@ -169,7 +170,7 @@ namespace BaconographyWP8
 			}
 		}
 
-		private void MenuSave_Click(object sender, EventArgs e)
+		private void MenuPin_Click(object sender, EventArgs e)
 		{
 			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
 			if (trvm == null)
@@ -185,91 +186,109 @@ namespace BaconographyWP8
 			_navigationService.Navigate(typeof(SettingsPageView), null);
 		}
 
-		private void MenuSort_Click(object sender, EventArgs e)
+		private void MenuManage_Click(object sender, EventArgs e)
 		{
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			_navigationService.Navigate(typeof(SortSubredditPageView), null);
 		}
 
 		Popup sortPopup = new Popup();
-		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
+
+		List<ApplicationBarMenuItem> appMenuItems;
+
+		enum MenuEnum
 		{
-			if (e.IsMenuVisible)
+			Login = 0,
+			Sort,
+			Settings,
+			Manage,
+			Close,
+			Pin
+		}
+
+		private void BuildMenu()
+		{
+			appMenuItems = new List<ApplicationBarMenuItem>();
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
+			appMenuItems[(int)MenuEnum.Login].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Login].Click += MenuLogin_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Sort].Text = "sort";
+			appMenuItems[(int)MenuEnum.Sort].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Sort].Click += (object s, EventArgs args) =>
 			{
-				var appBarMenu = sender as ApplicationBar;
+				sortPopup = new Popup();
+				sortPopup.Height = 300;
+				sortPopup.Width = 400;
+				sortPopup.VerticalOffset = 100;
 
-				if (appBarMenu != null)
+				var child = new SelectSortTypeView();
+				child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
 				{
-					appBarMenu.MenuItems.Clear();
+					sortPopup.IsOpen = false;
+				};
 
-					var login = new ApplicationBarMenuItem();
-					login.Text = loginItemText;
-					login.Click += MenuLogin_Click;
+				child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+				{
+					sortPopup.IsOpen = false;
+				};
+				sortPopup.Child = child;
+				sortPopup.IsOpen = true;
+			}; 
 
-					var sort = new ApplicationBarMenuItem();
-					sort.Text = "sort subreddit";
-					sort.Click += (object s, EventArgs args) =>
-						{
-							sortPopup = new Popup();
-							sortPopup.Height = 300;
-							sortPopup.Width = 400;
-							sortPopup.VerticalOffset = 100;
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Settings].Text = "settings";
+			appMenuItems[(int)MenuEnum.Settings].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Settings].Click += MenuSettings_Click;
 
-							var child = new SelectSortTypeView();
-							child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
-								{
-									sortPopup.IsOpen = false;
-								};
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Manage].Text = "manage subreddits";
+			appMenuItems[(int)MenuEnum.Manage].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Manage].Click += MenuManage_Click;
 
-							child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
-								{
-									sortPopup.IsOpen = false;
-								};
-							sortPopup.Child = child;
-							sortPopup.IsOpen = true;
-						};
-					sort.IsEnabled = true;
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Close].Text = "close subreddit";
+			appMenuItems[(int)MenuEnum.Close].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Close].Click += MenuClose_Click;
 
-					var close = new ApplicationBarMenuItem();
-					close.Text = "close subreddit";
-					close.Click += MenuClose_Click;
-					close.IsEnabled = false;
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Pin].Text = "pin subreddit";
+			appMenuItems[(int)MenuEnum.Pin].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Pin].Click += MenuPin_Click;
 
-					var rvm = pivot.SelectedItem as RedditViewModel;
-					if (rvm != null && pivot.SelectedIndex != 0)
-						close.IsEnabled = true;
+			ApplicationBar.MenuItems.Clear();
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Sort]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
+		}
 
-					ApplicationBarMenuItem save = null;
-					var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
-					if (trvm != null)
-					{
-						close.IsEnabled = true;
-						save = new ApplicationBarMenuItem();
-						save.Text = "save subreddit";
-						save.Click += MenuSave_Click;
-					}
+		private void UpdateMenuItems()
+		{
+			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
+				BuildMenu();
 
-					var manage = new ApplicationBarMenuItem();
-					manage.Text = "manage subreddits";
-					manage.Click += MenuSort_Click;
-					manage.IsEnabled = true;
-
-					var settings = new ApplicationBarMenuItem();
-					settings.Text = "settings";
-					settings.Click += MenuSettings_Click;
-
-					if (save != null)
-					{
-						appBarMenu.MenuItems.Add(save);
-						appBarMenu.MenuItems.Add(close);
-					}
-					appBarMenu.MenuItems.Add(manage);
-					appBarMenu.MenuItems.Add(login);
-					appBarMenu.MenuItems.Add(sort);
-					appBarMenu.MenuItems.Add(settings);
-
+			if (pivot.SelectedItem is TemporaryRedditViewModel)
+			{
+				if (ApplicationBar.MenuItems.Count == 4)
+				{
+					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Close]);
+					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Pin]);
 				}
 			}
+			else if (ApplicationBar.MenuItems.Count > 4)
+			{
+				ApplicationBar.MenuItems.RemoveAt(0);
+				ApplicationBar.MenuItems.RemoveAt(0);
+			}
+		}
+
+		private void OnLoadedPivotItem(object sender, PivotItemEventArgs e)
+		{
+			UpdateMenuItems();
 		}
 
         // Sample code for building a localized ApplicationBar

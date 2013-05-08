@@ -76,7 +76,7 @@
         <phone:Pivot x:Name="pivot" 
                      ItemsSource="{Binding PivotItems}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0" Padding="0">
+                     Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem">
             <phone:Pivot.CacheMode>
                 <BitmapCache/>
             </phone:Pivot.CacheMode>
@@ -115,17 +115,10 @@
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged">
+        <shell:ApplicationBar x:Name="appBar" Mode="Minimized" IsVisible="True"
+                              IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged" >
             <shell:ApplicationBar.MenuItems>
-                <!--<shell:ApplicationBarMenuItem Text="save subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="close subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="manage subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="login"/>
-                <shell:ApplicationBarMenuItem Text="settings"/>-->
-                <shell:ApplicationBarMenuItem Text="_"/>
-                <shell:ApplicationBarMenuItem Text="_"/>
-                <shell:ApplicationBarMenuItem Text="_"/>
-                <shell:ApplicationBarMenuItem Text="_"/>
+                <shell:ApplicationBarMenuItem Text="_" />
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
