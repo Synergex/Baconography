@@ -12,18 +12,14 @@
     
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneChromeBrush}">
         <StackPanel Orientation="Horizontal" Margin="12,-40,12,0">
-            <Button FontFamily="Segoe UI Symbol" FontSize="12"
-                    Width="30" Height="30"
+            <Button FontFamily="Segoe UI Symbol" FontSize="16"
+                    Width="36" Height="36"
                     Margin="0,-9,0,0"
                     Content="&#xE110;" Style="{StaticResource RoundFlipButtonStyle}"
                     x:Name="button">
-
-                <!--<Button.RenderTransform>
-                                <RotateTransform Angle="180" CenterX="15" CenterY="15" />
-                            </Button.RenderTransform>-->
             </Button>
-            <TextBlock Margin="10,0,0,0" Text="pull down to refresh" Visibility="{Binding ElementName=controlRoot, Path=IsPulled, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
-            <TextBlock Margin="10,0,0,0" Text="release to refresh" Visibility="{Binding ElementName=controlRoot, Path=IsPulled, Converter={StaticResource booleanVisibilityConverter}}"/>
+            <TextBlock Margin="10,0,0,0" FontSize="20" Text="pull down to refresh" Visibility="{Binding ElementName=controlRoot, Path=IsPulled, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
+            <TextBlock Margin="10,0,0,0" FontSize="20" Text="release to refresh" Visibility="{Binding ElementName=controlRoot, Path=IsPulled, Converter={StaticResource booleanVisibilityConverter}}"/>
         </StackPanel>
     </Grid>
 </UserControl>

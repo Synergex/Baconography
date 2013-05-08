@@ -123,7 +123,7 @@ namespace BaconographyWP8.Common
 			isMoving = true;
 		}
 
-		const int pullDownOffset = -125;
+		const int pullDownOffset = -115;
 		void DoInterimManipulation()
 		{
 			var total = manipulationStart - manipulationEnd;
