@@ -156,7 +156,7 @@ namespace BaconographyWP8.PlatformServices
 				var userInfoDb = await GetUserInfoDB();
 				List<string> lastCookies = new List<string>();
 				//go find the one we're updating and actually do it
-				var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
+				var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.AutoLock);
 				if (userCredentialsCursor != null)
 				{
 					using (userCredentialsCursor)
@@ -173,7 +173,7 @@ namespace BaconographyWP8.PlatformServices
 					}
 				}
 
-				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+                var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.AutoLock);
 				if (passwordCursor != null)
 				{
 					using (passwordCursor)
@@ -202,7 +202,7 @@ namespace BaconographyWP8.PlatformServices
 			try
 			{
 
-				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.AutoLock);
 				if (passwordCursor != null)
 				{
 					using (passwordCursor)
@@ -248,7 +248,7 @@ namespace BaconographyWP8.PlatformServices
 
         private async Task<User> LoginWithCredentials(UserCredential credential, bool userInitiated)
         {
-			var originalCookie = credential.LoginCookie;
+            var originalCookie = credential.LoginCookie;
             if (!string.IsNullOrWhiteSpace(credential.LoginCookie))
             {
                 var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
