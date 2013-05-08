@@ -87,12 +87,15 @@ namespace BaconographyPortable.Model.Reddit
 
         }
 
-        public async Task<Listing> Search(string query, int? limit)
+        public async Task<Listing> Search(string query, int? limit, bool reddits)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-            var targetUri = string.Format("http://www.reddit.com/search.json?limit={0}&q={1}",
+            var targetUri = string.Format(
+                reddits ? 
+                    "http://www.reddit.com/subreddits/search.json?limit={0}&q={1}" : 
+                    "http://www.reddit.com/search.json?limit={0}&q={1}",
                                            guardedLimit,
                                            query);
 

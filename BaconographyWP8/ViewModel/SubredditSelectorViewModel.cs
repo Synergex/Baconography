@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
@@ -19,6 +20,7 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        ISystemServices _systemServices;
 
 		public SubredditSelectorViewModel(IBaconProvider baconProvider)
         {
@@ -27,8 +29,9 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _userService = _baconProvider.GetService<IUserService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
-
+            _systemServices = _baconProvider.GetService<ISystemServices>();
             Subreddits = new SubredditViewModelCollection(_baconProvider);
+            _nonSearchSubreddits = Subreddits;
         }
 
 		private string _text;
@@ -40,10 +43,55 @@ namespace BaconographyPortable.ViewModel
 			}
 			set
 			{
-				_text = value;
-				RaisePropertyChanged("Text");
+                bool wasChanged = _text != value;
+                if (wasChanged)
+                {
+                    _text = value;
+                    RaisePropertyChanged("Text");
+
+                    if (_text.Length < 3)
+                    {
+                        if (_subreddits != _nonSearchSubreddits)
+                            Subreddits = _nonSearchSubreddits;
+                        RevokeQueryTimer();
+                    }
+                    else
+                    {
+                        RestartQueryTimer();
+                    }
+                }
 			}
 		}
+        Object _queryTimer;
+        void RevokeQueryTimer()
+        {
+            if (_queryTimer != null)
+            {
+                _systemServices.StopTimer(_queryTimer);
+                _queryTimer = null;
+            }
+        }
+
+        void RestartQueryTimer()
+        {
+            // Start or reset a pending query
+            if (_queryTimer == null)
+            {
+                _queryTimer = _systemServices.StartTimer(queryTimer_Tick, new TimeSpan(0, 0, 1), true);
+            }
+            else
+            {
+                _systemServices.StopTimer(_queryTimer);
+                _systemServices.RestartTimer(_queryTimer);
+            }
+        }
+
+        void queryTimer_Tick(object sender, object timer)
+        {
+            // Stop the timer so it doesn't fire again unless rescheduled
+            RevokeQueryTimer();
+            Subreddits = new SearchResultsViewModelCollection(_baconProvider, _text, true);
+        }
 
         public AboutSubredditViewModel SelectedSubreddit
         {
@@ -81,12 +129,26 @@ namespace BaconographyPortable.ViewModel
 				return;
 
 			var subreddit = await _redditService.GetSubreddit(subredditName);
-			if (subreddit == null)
-				return;
-
+            if (subreddit == null)
+            {
+                return;
+            }
+            Text = "";
 			MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
 		}
-
-        public SubredditViewModelCollection Subreddits { get; private set; }
+        ThingViewModelCollection _nonSearchSubreddits;
+        ThingViewModelCollection _subreddits;
+        public ThingViewModelCollection Subreddits
+        {
+            get
+            {
+                return _subreddits;
+            }
+            set
+            {
+                _subreddits = value;
+                RaisePropertyChanged("Subreddits");
+            }
+        }
     }
 }

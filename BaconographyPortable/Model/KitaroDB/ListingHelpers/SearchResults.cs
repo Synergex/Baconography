@@ -13,7 +13,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         IOfflineService _offlineService;
         string _query;
 
-        public SearchResults(IBaconProvider baconProvider, string query)
+        public SearchResults(IBaconProvider baconProvider, string query, bool reddits)
         {
             _offlineService = baconProvider.GetService<IOfflineService>();
             _query = query;
