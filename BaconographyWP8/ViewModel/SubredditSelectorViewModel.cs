@@ -30,8 +30,7 @@ namespace BaconographyPortable.ViewModel
             _userService = _baconProvider.GetService<IUserService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _systemServices = _baconProvider.GetService<ISystemServices>();
-            Subreddits = new SubredditViewModelCollection(_baconProvider);
-            _nonSearchSubreddits = Subreddits;
+            Subreddits = new BindingShellViewModelCollection(new SubredditViewModelCollection(_baconProvider));
         }
 
 		private string _text;
@@ -51,8 +50,7 @@ namespace BaconographyPortable.ViewModel
 
                     if (_text.Length < 3)
                     {
-                        if (_subreddits != _nonSearchSubreddits)
-                            Subreddits = _nonSearchSubreddits;
+                        Subreddits.RevertToDefault();
                         RevokeQueryTimer();
                     }
                     else
@@ -90,7 +88,7 @@ namespace BaconographyPortable.ViewModel
         {
             // Stop the timer so it doesn't fire again unless rescheduled
             RevokeQueryTimer();
-            Subreddits = new SearchResultsViewModelCollection(_baconProvider, _text, true);
+            Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
         }
 
         public AboutSubredditViewModel SelectedSubreddit
@@ -136,19 +134,7 @@ namespace BaconographyPortable.ViewModel
             Text = "";
 			MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
 		}
-        ThingViewModelCollection _nonSearchSubreddits;
-        ThingViewModelCollection _subreddits;
-        public ThingViewModelCollection Subreddits
-        {
-            get
-            {
-                return _subreddits;
-            }
-            set
-            {
-                _subreddits = value;
-                RaisePropertyChanged("Subreddits");
-            }
-        }
+
+        public BindingShellViewModelCollection Subreddits { get; set; }
     }
 }

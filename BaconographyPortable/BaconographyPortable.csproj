@@ -116,6 +116,7 @@
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\BindingShellViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\SearchResultsViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\StoredUserCredentialsCollection.cs" />
     <Compile Include="ViewModel\Collections\SubredditViewModelCollection.cs" />

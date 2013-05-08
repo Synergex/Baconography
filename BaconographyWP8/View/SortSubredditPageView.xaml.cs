@@ -138,5 +138,20 @@ namespace BaconographyWP8.View
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			_navigationService.Navigate(typeof(LoginPageView), null);
 		}
+
+        //this bit of unpleasantry is needed to prevent the input box from getting defocused when an item gets added to the collection
+        bool _disableFocusHack = false;
+        private void manualBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (_disableFocusHack)
+                _disableFocusHack = false;
+            else
+                ((TextBox)sender).Focus();
+        }
+
+        private void manualBox_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            _disableFocusHack = true;
+        }
 	}
 }
