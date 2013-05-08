@@ -141,17 +141,33 @@ namespace BaconographyWP8.View
 
         //this bit of unpleasantry is needed to prevent the input box from getting defocused when an item gets added to the collection
         bool _disableFocusHack = false;
+        bool _needToHackFocus = false;
+        TextBox _manualBox = null;
         private void manualBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            _manualBox = sender as TextBox;
             if (_disableFocusHack)
                 _disableFocusHack = false;
             else
-                ((TextBox)sender).Focus();
+            {
+                _needToHackFocus = true;
+            }
+                //((TextBox)sender).Focus();
         }
 
         private void manualBox_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             _disableFocusHack = true;
+            _needToHackFocus = false;
+        }
+
+        private void FixedLongListSelector_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if(!_disableFocusHack && _needToHackFocus)
+            {
+                _needToHackFocus = false;
+                _manualBox.Focus();
+            }
         }
 	}
 }

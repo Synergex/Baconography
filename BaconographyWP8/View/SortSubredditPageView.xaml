@@ -172,6 +172,7 @@
                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         HorizontalContentAlignment="Stretch"
+                        GotFocus="FixedLongListSelector_GotFocus"
                         DataContext="{Binding SubredditSelector, Source={StaticResource Locator}}"
                         ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
                         ListHeader="{Binding}">
