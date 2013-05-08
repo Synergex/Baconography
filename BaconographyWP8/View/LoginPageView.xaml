@@ -80,11 +80,16 @@
             <!--Pivot item two-->
             <phone:PivotItem Header="saved">
                 <Grid>
-                    <StackPanel>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0"
+                                Margin="12,0,12,0">
                         <StackPanel Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold">CURRENT USER</TextBlock>
-                            <TextBlock Margin="24,7,0,7" Text="{Binding CurrentUserName}"
-                                   HorizontalAlignment="Left"/>
+                            <TextBlock Margin="0,0,0,0" FontWeight="SemiBold">CURRENT USER</TextBlock>
+                            <TextBlock Margin="12,7,0,7" FontSize="20" Text="{Binding CurrentUserName}"
+                                HorizontalAlignment="Left"/>
                         </StackPanel>
                         <common:FixedLongListSelector
                             Margin="0,10,0,0"
@@ -108,7 +113,7 @@
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center"
                                             Content="&#xE13D;"
-                                            Margin="12,0,0,0"
+                                            Margin="0,0,0,0"
                                             DataContext="{Binding Login, Source={StaticResource Locator}}"
                                             Command="{Binding SelectCredential}"
                                             CommandParameter="{Binding ElementName=name, Path=Text}"/>
@@ -130,7 +135,9 @@
                             </common:FixedLongListSelector.ItemTemplate>
                         </common:FixedLongListSelector>
                     </StackPanel>
+                    
                     <Button Content="logout"
+                            Grid.Row="1"
                             VerticalAlignment="Bottom"
                             Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
                             Command="{Binding DoLogout}"
