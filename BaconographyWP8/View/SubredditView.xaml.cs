@@ -16,5 +16,25 @@ namespace BaconographyWP8.View
 		{
 			InitializeComponent();
 		}
+
+		public static readonly DependencyProperty IsPinnedProperty =
+			DependencyProperty.Register(
+				"IsPinned",
+				typeof(bool),
+				typeof(SubredditView),
+				new PropertyMetadata(false, OnIsPinnedChanged)
+			);
+
+		private static void OnIsPinnedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var subreddit = (SubredditView)d;
+			subreddit.IsPinned = (bool)e.NewValue;
+		}
+
+		public bool IsPinned
+		{
+			get { return (bool)GetValue(IsPinnedProperty); }
+			set { SetValue(IsPinnedProperty, value); }
+		}
 	}
 }

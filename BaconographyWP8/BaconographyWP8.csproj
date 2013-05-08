@@ -112,6 +112,7 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
@@ -163,6 +164,9 @@
     </Compile>
     <Compile Include="View\ScalingGifView.xaml.cs">
       <DependentUpon>ScalingGifView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SelectSortTypeView.xaml.cs">
+      <DependentUpon>SelectSortTypeView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SortSubredditPageView.xaml.cs">
       <DependentUpon>SortSubredditPageView.xaml</DependentUpon>
@@ -247,6 +251,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SelectSortTypeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

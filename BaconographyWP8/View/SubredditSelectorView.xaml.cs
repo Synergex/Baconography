@@ -25,7 +25,7 @@ namespace BaconographyWP8.View
 				this.Focus();
 				var ssvm = this.DataContext as SubredditSelectorViewModel;
 				if (ssvm != null)
-					ssvm.SubmitSubreddit.Execute(ssvm);
+					ssvm.PinSubreddit.Execute(ssvm);
 			}
 		}
 	}

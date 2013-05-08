@@ -147,11 +147,21 @@ namespace BaconographyPortable.ViewModel
                 newReddit.RedditViewModel.DetachSubredditMessage();
                 newReddit.RedditViewModel.AssignSubreddit(message);
                 if (PivotItems.Count > 0)
-                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                    PivotItems.Insert(PivotItems.Count, newReddit);
                 else
                     PivotItems.Add(newReddit);
-                indexToPosition = PivotItems.Count - 1;
+
+				indexToPosition = PivotItems.Count - 1;
+				RaisePropertyChanged("Subreddits");
             }
+
+			Messenger.Default.Send<SelectIndexMessage>(
+				new SelectIndexMessage
+				{
+					TypeContext = typeof(MainPageViewModel),
+					Index = indexToPosition
+				}
+			);
 		}
 
         public bool FindSubredditMessageIndex(SelectSubredditMessage message, out int indexToPosition)
@@ -195,12 +205,12 @@ namespace BaconographyPortable.ViewModel
                 newReddit.DetachSubredditMessage();
                 newReddit.AssignSubreddit(message);
                 if (PivotItems.Count > 0)
-                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                    PivotItems.Insert(PivotItems.Count, newReddit);
                 else
                     PivotItems.Add(newReddit);
                 _subreddits.Add(message.Subreddit);
                 RaisePropertyChanged("PivotItems");
-                indexToPosition = PivotItems.Count - 2;
+                indexToPosition = PivotItems.Count - 1;
             }
 
             if (fireSubredditsChanged)
@@ -226,7 +236,7 @@ namespace BaconographyPortable.ViewModel
 		{
             var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits");
 
-            PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+            //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
 			if (subreddits == null || subreddits.Count() == 0)
 				subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
@@ -290,6 +300,19 @@ namespace BaconographyPortable.ViewModel
                 return _pivotItems;
             }
         }
+
+		private SubscribedSubredditViewModelCollection _subscribedSubreddits;
+		public SubscribedSubredditViewModelCollection SubscribedSubreddits
+		{
+			get
+			{
+				if (_subscribedSubreddits == null)
+				{
+					_subscribedSubreddits = new SubscribedSubredditViewModelCollection(_baconProvider);
+				}
+				return _subscribedSubreddits;
+			}
+		}
 
     }
 }

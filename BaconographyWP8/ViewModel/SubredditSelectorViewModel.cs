@@ -58,16 +58,16 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-		
-		public RelayCommand<SubredditSelectorViewModel> SubmitSubreddit { get { return _submitSubreddit; } }
-		static RelayCommand<SubredditSelectorViewModel> _submitSubreddit = new RelayCommand<SubredditSelectorViewModel>(SubmitSubredditImpl);
 
-		private async static void SubmitSubredditImpl(SubredditSelectorViewModel vm)
+		public RelayCommand<SubredditSelectorViewModel> PinSubreddit { get { return _pinSubreddit; } }
+		static RelayCommand<SubredditSelectorViewModel> _pinSubreddit = new RelayCommand<SubredditSelectorViewModel>(PinSubredditImpl);
+
+		private async static void PinSubredditImpl(SubredditSelectorViewModel vm)
 		{
-			vm.SelectSubreddit();
+			vm.DoPinSubreddit();
 		}
 
-		private async void SelectSubreddit()
+		private async void DoPinSubreddit()
 		{
 			var subredditName = Text;
 			if (String.IsNullOrEmpty(subredditName))
