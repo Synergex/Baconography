@@ -10,10 +10,10 @@ namespace BaconographyPortable.ViewModel.Collections
 {
     public class SearchResultsViewModelCollection : ThingViewModelCollection
     {
-        public SearchResultsViewModelCollection(IBaconProvider baconProvider, string query) :
+        public SearchResultsViewModelCollection(IBaconProvider baconProvider, string query, bool reddits = false) :
             base(baconProvider, 
-                new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(baconProvider, query),
-                new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(baconProvider, query)) { }
+                new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(baconProvider, query, reddits),
+                new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(baconProvider, query, reddits)) { }
 
         
     }

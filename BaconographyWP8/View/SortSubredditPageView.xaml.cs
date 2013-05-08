@@ -22,6 +22,7 @@ using Microsoft.Phone.Reactive;
 using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit.ListingHelpers;
 using BaconographyPortable.ViewModel;
+using System.Windows.Data;
 
 namespace BaconographyWP8.View
 {
@@ -162,6 +163,14 @@ namespace BaconographyWP8.View
 				if (ssvm != null)
 					ssvm.PinSubreddit.Execute(ssvm);
 			}
+            else
+            {
+                BindingExpression bindingExpression = ((TextBox)sender).GetBindingExpression(TextBox.TextProperty);
+                if (bindingExpression != null)
+                {
+                    bindingExpression.UpdateSource();
+                }
+            }
 		}
 
 		private void LoginButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)

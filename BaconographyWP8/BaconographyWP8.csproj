@@ -210,9 +210,6 @@
     <Compile Include="View\ScalingPictureView.xaml.cs">
       <DependentUpon>ScalingPictureView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\SubredditSelectorView.xaml.cs">
-      <DependentUpon>SubredditSelectorView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
     </Compile>
@@ -316,10 +313,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\ScalingPictureView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SubredditSelectorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
