@@ -267,7 +267,7 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-        public bool IsPinned
+		public bool IsTilePinned
         {
             get
             {
@@ -342,7 +342,7 @@ namespace BaconographyPortable.ViewModel
         private void PinRedditImpl()
         {
             _liveTileService.CreateSecondaryTileForSubreddit(_selectedSubreddit);
-            IsPinned = true;
+			IsTilePinned = true;
         }
 
         private void UnpinRedditImpl()
@@ -351,7 +351,7 @@ namespace BaconographyPortable.ViewModel
                 _liveTileService.RemoveSecondaryTile("");
             else
                 _liveTileService.RemoveSecondaryTile(_selectedSubreddit.Data.DisplayName);
-            IsPinned = false;
+			IsTilePinned = false;
         }
 
         private void SearchRedditsImpl()

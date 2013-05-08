@@ -125,7 +125,8 @@
                         HorizontalContentAlignment="Stretch"
                         ItemsSource="{Binding Path=SubscribedSubreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
                         ListHeader="{Binding}"
-                        Visibility="{Binding LoggedIn, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                        Visibility="{Binding LoggedIn, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"
+                        ItemRealized="subbedList_ItemRealized">
                         <common:FixedLongListSelector.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
@@ -175,7 +176,8 @@
                         GotFocus="FixedLongListSelector_GotFocus"
                         DataContext="{Binding SubredditSelector, Source={StaticResource Locator}}"
                         ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
-                        ListHeader="{Binding}">
+                        ListHeader="{Binding}"
+                        ItemRealized="newList_ItemRealized">
                         <common:FixedLongListSelector.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,7">

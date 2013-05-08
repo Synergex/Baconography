@@ -34,6 +34,46 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
+		const int _offsetKnob = 7;
+		private object newListLastItem;
+		private object subbedListLastItem;
+
+		void newList_ItemRealized(object sender, ItemRealizationEventArgs e)
+		{
+			newListLastItem = e.Container.Content;
+			var linksView = sender as FixedLongListSelector;
+			if (linksView.ItemsSource != null && linksView.ItemsSource.Count >= _offsetKnob)
+			{
+				if (e.ItemKind == LongListSelectorItemKind.Item)
+				{
+					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
+					{
+						var viewModel = DataContext as SubredditSelectorViewModel;
+						if (viewModel != null)
+							viewModel.Subreddits.LoadMoreItemsAsync(30);
+					}
+				}
+			}
+		}
+
+		void subbedList_ItemRealized(object sender, ItemRealizationEventArgs e)
+		{
+			subbedListLastItem = e.Container.Content;
+			var linksView = sender as FixedLongListSelector;
+			if (linksView.ItemsSource != null && linksView.ItemsSource.Count >= _offsetKnob)
+			{
+				if (e.ItemKind == LongListSelectorItemKind.Item)
+				{
+					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
+					{
+						var viewModel = DataContext as MainPageViewModel;
+						if (viewModel != null)
+							viewModel.SubscribedSubreddits.LoadMoreItemsAsync(30);
+					}
+				}
+			}
+		}
+
 		protected override async void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back)
