@@ -103,6 +103,8 @@
             </phone:Pivot.ItemTemplate>
         </phone:Pivot>
 
+        <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
         <!--ContentPanel - place additional content here-->
 
         <!--Uncomment to see an alignment grid to help ensure your controls are

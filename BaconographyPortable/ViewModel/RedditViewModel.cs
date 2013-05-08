@@ -167,7 +167,7 @@ namespace BaconographyPortable.ViewModel
             string subreddit = "/", subredditId = null;
             if(_selectedSubreddit != null)
             {
-                subreddit = _selectedSubreddit.Data.Url;
+				subreddit = _selectedSubreddit.Data.Url + _sortOrder;
                 subredditId = _selectedSubreddit.Data.Name;
             }
 
@@ -298,6 +298,46 @@ namespace BaconographyPortable.ViewModel
                 catch { }
             }
         }
+
+		private string _sortOrder = "";
+		//  hot - ""
+		// /new/
+		// /controversial/
+		// /top/
+		// /rising/
+		public string SortOrder
+		{
+			get
+			{
+				return _sortOrder;
+			}
+			set
+			{
+				string orig = _sortOrder;
+				switch (value)
+				{
+					case "new":
+					case "top":
+					case "rising":
+					case "controversial":
+						_sortOrder = "/" + value + "/";
+						break;
+
+					case "":
+					case "hot":
+					default:
+						_sortOrder = "";
+						break;
+				}
+
+				if (_sortOrder != orig)
+				{
+					_links = LinksImpl();
+					RaisePropertyChanged("Links");
+					RaisePropertyChanged("SortOrder");
+				}
+			}
+		}
 
         public string Url
         {
