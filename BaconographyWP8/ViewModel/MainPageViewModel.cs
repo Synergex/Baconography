@@ -133,6 +133,8 @@ namespace BaconographyPortable.ViewModel
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
 			}*/
 
+			SubscribedSubreddits.Refresh();
+
             if (_initialLoad)
             {
                 await LoadSubreddits();
