@@ -49,7 +49,7 @@ namespace BaconographyWP8.View
 					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
 						var viewModel = DataContext as SubredditSelectorViewModel;
-						if (viewModel != null)
+						if (viewModel != null && viewModel.Subreddits.HasMoreItems)
 							viewModel.Subreddits.LoadMoreItemsAsync(30);
 					}
 				}
@@ -67,8 +67,10 @@ namespace BaconographyWP8.View
 					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
 						var viewModel = DataContext as MainPageViewModel;
-						if (viewModel != null)
-							viewModel.SubscribedSubreddits.LoadMoreItemsAsync(30);
+                        if (viewModel != null && viewModel.SubscribedSubreddits.HasMoreItems)
+                        {
+                            viewModel.SubscribedSubreddits.LoadMoreItemsAsync(30);
+                        }
 					}
 				}
 			}

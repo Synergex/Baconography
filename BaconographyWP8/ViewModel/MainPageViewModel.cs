@@ -125,9 +125,10 @@ namespace BaconographyPortable.ViewModel
 		private async void OnUserLoggedIn(UserLoggedInMessage message)
 		{
 			bool wasLoggedIn = LoggedIn;
-			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+			LoggedIn = message.CurrentUser != null && !string.IsNullOrWhiteSpace(message.CurrentUser.LoginCookie);
 
-			SubscribedSubreddits.Refresh();
+            if(message.UserTriggered)
+			    SubscribedSubreddits.Refresh();
 
             if (_initialLoad)
             {
