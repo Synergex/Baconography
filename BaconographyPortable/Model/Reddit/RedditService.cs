@@ -540,6 +540,20 @@ namespace BaconographyPortable.Model.Reddit
             var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
         }
 
+        public virtual async Task EditComment(string thingId, string text)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"thing_id", thingId},
+                {"text", text.Replace("\r\n", "\n")},
+                {"uh", modhash}
+            };
+
+            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+        }
+
         private async Task<bool> UserIsGold()
         {
             var user = await _userService.GetUser();
@@ -677,5 +691,6 @@ namespace BaconographyPortable.Model.Reddit
             var meString = await _simpleHttpService.SendGet(loginToken, "http://www.reddit.com/api/me.json");
             return (!string.IsNullOrWhiteSpace(meString) && meString != "{}");
         }
+
     }
 }
