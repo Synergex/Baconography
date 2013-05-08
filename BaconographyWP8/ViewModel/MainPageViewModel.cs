@@ -76,11 +76,11 @@ namespace BaconographyPortable.ViewModel
                 var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null).ToArray();
                 for (int i = Subreddits.Count - 1; i >= 0; i--)
                 {
-                    if (redditVMs.Length > i && redditVMs[i].Heading == Subreddits[i].Data.DisplayName)
+                    if (redditVMs.Length > i && Subreddits[i].Data != null && redditVMs[i].Heading == Subreddits[i].Data.DisplayName)
                         continue;
                     else
                     {
-                        var pivot = redditVMs.FirstOrDefault(rvm => rvm.Heading == Subreddits[i].Data.DisplayName);
+                        var pivot = redditVMs.FirstOrDefault(rvm => Subreddits[i].Data != null && rvm.Heading == Subreddits[i].Data.DisplayName);
                         if (pivot != null)
                         {
                             PivotItems.Remove(pivot);
