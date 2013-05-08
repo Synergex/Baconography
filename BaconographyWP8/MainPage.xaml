@@ -82,7 +82,7 @@
             </phone:Pivot.CacheMode>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                    <Grid Height="20" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                         <!--<local:PivotCountIndicator 
                             ItemsCount="{Binding ElementName=pivot, Path=Items.Count}"
                             SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>-->
