@@ -156,6 +156,30 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("IsRememberLogin");
             }
         }
+
+		RelayCommand _doLogout;
+		public RelayCommand DoLogout
+		{
+			get
+			{
+				if (_doLogout == null)
+				{
+					_doLogout = new RelayCommand(() =>
+					{
+						try
+						{
+							_userService.Logout();
+						}
+						catch (Exception ex)
+						{
+							_notificationService.CreateErrorNotification(ex);
+						}
+					});
+				}
+				return _doLogout;
+			}
+		}
+
         RelayCommand _doLogin;
         public RelayCommand DoLogin
         {

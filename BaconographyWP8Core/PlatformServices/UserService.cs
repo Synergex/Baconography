@@ -35,8 +35,8 @@ namespace BaconographyWP8.PlatformServices
             var result = await _redditService.Login(username, password);
             if (result != null)
             {
+				_currentUser = result;
                 Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
-                _currentUser = result;
             }
             return result;
         }
@@ -46,8 +46,8 @@ namespace BaconographyWP8.PlatformServices
             var result = await DoLogin(username, true);
             if (result != null)
             {
+				_currentUser = result;
                 Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
-                _currentUser = result;
             }
             return result;
         }

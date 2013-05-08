@@ -59,7 +59,7 @@
                         <CheckBox Margin="0,0,0,0" Content="login automatically"
                             IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
                     
-                        <Button Content="submit"
+                        <Button Content="login"
                             Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
                             Command="{Binding DoLogin}"/>
                         <ProgressBar IsIndeterminate="{Binding Working}"
@@ -105,6 +105,11 @@
                             </common:FixedLongListSelector.ItemTemplate>
                         </common:FixedLongListSelector>
                     </StackPanel>
+                    <Button Content="logout"
+                            VerticalAlignment="Bottom"
+                            Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                            Command="{Binding DoLogout}"
+                            IsEnabled="{Binding IsLoggedIn}"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>
