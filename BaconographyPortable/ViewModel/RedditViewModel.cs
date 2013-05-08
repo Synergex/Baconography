@@ -23,7 +23,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
-        TypedThing<Subreddit> _selectedSubreddit;
+        TypedThing<Subreddit> _selectedSubreddit; 
 
         public RedditViewModel(IBaconProvider baconProvider)
         {
@@ -54,6 +54,9 @@ namespace BaconographyPortable.ViewModel
 
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
+            if (message.UserTriggered && Url == "/")
+                RefreshLinks();
+
             LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
         }
 
@@ -142,8 +145,7 @@ namespace BaconographyPortable.ViewModel
 
         public void RefreshLinks()
         {
-            _links = null;
-            RaisePropertyChanged("Links");
+            Links.Refresh();
         }
 
         LinkViewModelCollection _links;

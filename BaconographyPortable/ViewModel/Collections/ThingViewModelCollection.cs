@@ -201,5 +201,41 @@ namespace BaconographyPortable.ViewModel.Collections
             else
                 return _offlineListingProvider.GetMore(ids, state);
         }
+
+        protected override Task Refresh(Dictionary<object, object> state)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+
+            return Task.Run(async () =>
+                {
+                    Listing target = null;
+                    try
+                    {
+                        if (_settingsService.IsOnline())
+                            target = await _onlineListingProvider.Refresh(state);
+                    }
+                    catch
+                    {
+                    }
+                    if (target == null || !_settingsService.IsOnline())
+                        target = await _offlineListingProvider.Refresh(state);
+                    return target;
+                }).ContinueWith((result) =>
+                {
+                    var targetListing = result.Result;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    if (targetListing != null)
+                    {
+                        var mappedListing = MapListing(targetListing, state).ToArray();
+                        for (int i = 0; i < mappedListing.Length; i++)
+                        {
+                            if (this.Count > i)
+                                this[i] = mappedListing[i];
+                            else
+                                Add(mappedListing[i]);
+                        }
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
     }
 }

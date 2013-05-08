@@ -36,5 +36,10 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         {
             return _redditService.GetMoreOnListing(ids, _targetName, _subreddit);
         }
+
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return _redditService.GetCommentsOnPost(_subreddit, _permaLink, -1);
+        }
     }
 }

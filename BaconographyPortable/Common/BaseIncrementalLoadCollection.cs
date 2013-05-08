@@ -17,6 +17,7 @@ namespace BaconographyPortable.Common
     {
         bool HasMoreItems { get; }
         Task<int> LoadMoreItemsAsync(uint count);
+        void Refresh();
     }
 
     public class PrebuiltIncrementalLoadCollection<T> : ObservableCollection<T>, PortableISupportIncrementalLoad
@@ -30,6 +31,10 @@ namespace BaconographyPortable.Common
         public bool HasMoreItems
         {
             get { return false; }
+        }
+
+        public void Refresh()
+        {
         }
 
         public Task<int> LoadMoreItemsAsync(uint count)
@@ -84,5 +89,12 @@ namespace BaconographyPortable.Common
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             return addCounter;
         }
+
+        public async void Refresh()
+        {
+            await Refresh(_state);
+        }
+
+        protected abstract Task Refresh(Dictionary<object, object> state);
     }
 }

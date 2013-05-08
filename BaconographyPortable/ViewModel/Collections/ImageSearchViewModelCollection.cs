@@ -90,5 +90,10 @@ namespace BaconographyPortable.ViewModel.Collections
             else
                 return _offlineListingProvider.GetAdditionalListing(after, state);
         }
+
+        protected override async Task Refresh(Dictionary<object, object> state)
+        {
+            //TODO implement this
+        }
     }
 }
