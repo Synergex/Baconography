@@ -69,24 +69,31 @@ namespace BaconographyWP8
             }
             else if (e.NavigationMode == NavigationMode.New)
             {
-                if (this.NavigationContext.QueryString.ContainsKey("data"))
+                if (this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
                 {
-                    //this appears to be a bug in WP8, the page is getting lazily bound but
-                    //we're at a point where it should be completed
-                    if (pivot.DataContext != null && pivot.ItemsSource == null)
+                    try
                     {
-                        pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
-                    }
-                    var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
-                    var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
-                    if (deserializedObject is SelectTemporaryRedditMessage)
-                    {
-                        Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
-                        int indexToPosition;
-                        if (pivot.DataContext != null && (((MainPageViewModel)pivot.DataContext).FindSubredditMessageIndex(deserializedObject as SelectTemporaryRedditMessage, out indexToPosition)))
+                        //this appears to be a bug in WP8, the page is getting lazily bound but
+                        //we're at a point where it should be completed
+                        if (pivot.DataContext != null && pivot.ItemsSource == null)
                         {
-                            pivot.SelectedIndex = indexToPosition;
+                            pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
                         }
+                        var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+                        var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
+                        if (deserializedObject is SelectTemporaryRedditMessage)
+                        {
+                            Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
+                            int indexToPosition;
+                            if (pivot.DataContext != null && (((MainPageViewModel)pivot.DataContext).FindSubredditMessageIndex(deserializedObject as SelectTemporaryRedditMessage, out indexToPosition)))
+                            {
+                                pivot.SelectedIndex = indexToPosition;
+                            }
+                        }
+                    }
+                    catch (UriFormatException)
+                    {
+                        ServiceLocator.Current.GetInstance<IBaconProvider>().GetService<INotificationService>().CreateNotification("Invalid main page uri state, please PM /u/hippiehunter with details");
                     }
                 }
             }
