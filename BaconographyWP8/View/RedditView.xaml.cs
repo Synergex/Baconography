@@ -37,7 +37,7 @@ namespace BaconographyWP8.View
 					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
                         var viewModel = DataContext as RedditViewModel;
-                        if (viewModel != null)
+                        if (viewModel != null && viewModel.Links.HasMoreItems)
                             viewModel.Links.LoadMoreItemsAsync(30);
 					}
 				}
