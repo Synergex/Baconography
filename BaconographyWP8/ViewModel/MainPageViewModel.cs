@@ -191,7 +191,7 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnSubredditChanged(SelectSubredditMessage message)
 		{
-			ChangeSubreddit(message);
+			ChangeSubreddit(message, !message.AddOnly);
 		}
 
         private void ChangeSubreddit(SelectSubredditMessage message, bool fireSubredditsChanged = true)

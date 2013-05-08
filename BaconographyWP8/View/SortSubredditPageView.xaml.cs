@@ -49,7 +49,7 @@ namespace BaconographyWP8.View
 			}
 		}
 
-		private void CloseButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		private void UnpinButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var button = sender as Button;
 			var subreddit = button.DataContext as TypedThing<Subreddit>;
@@ -80,6 +80,22 @@ namespace BaconographyWP8.View
 				}
 
 				ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+			}
+		}
+
+		private void PinButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var button = sender as Button;
+			var subreddit = button.DataContext as TypedThing<Subreddit>;
+			if (subreddit == null && button.DataContext is AboutSubredditViewModel)
+				subreddit = (button.DataContext as AboutSubredditViewModel).Thing;
+			if (subreddit != null)
+			{
+				var mpvm = this.DataContext as MainPageViewModel;
+				if (mpvm != null)
+				{
+					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit, AddOnly = true });
+				}
 			}
 		}
 

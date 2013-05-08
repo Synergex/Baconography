@@ -11,5 +11,6 @@ namespace BaconographyPortable.Messages
     public class SelectSubredditMessage : MessageBase
     {
         public TypedThing<Subreddit> Subreddit { get; set; }
+		public bool AddOnly { get; set; }
     }
 }

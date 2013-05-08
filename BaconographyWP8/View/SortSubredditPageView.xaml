@@ -91,7 +91,7 @@
                                         VerticalContentAlignment="Center"
                                         Content="&#xE196;"
                                         DataContext="{Binding}"
-                                        Tap="CloseButton_Tap" />
+                                        Tap="UnpinButton_Tap" />
 
                                     <Border Grid.Column="3" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
                                         Background="White" BorderThickness="0" Padding="0"
@@ -148,7 +148,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"/>
+                                        Content="&#xE141;"
+                                        Tap="PinButton_Tap"/>
                                     <local:SubredditView/>
                                 </StackPanel>
                             </DataTemplate>
@@ -196,7 +197,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"/>
+                                        Content="&#xE141;"
+                                        Tap="GotoButton_Tap"/>
                                     <local:SubredditView />
                                 </StackPanel>
                             </DataTemplate>
