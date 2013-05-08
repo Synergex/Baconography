@@ -32,6 +32,7 @@
     <converters:LinkGlyphConverter x:Key="linkGlyphConverter"/>
     <converters:VisitedMainLinkConverter x:Key="visitedMainLinkConverter"/>
     <converters:PageHeadingConverter x:Key="pageHeadingConverter"/>
+    <converters:SubredditPinnedUnpinnedConverter x:Key="subredditPinnedUnpinnedConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
@@ -651,7 +652,7 @@
                         <Ellipse x:Name="Circle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeThickness="2"/>
                         <ContentControl x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}">
                             <ContentControl.RenderTransform>
-                                <CompositeTransform Rotation="180" CenterX="7" CenterY="8" />
+                                <CompositeTransform Rotation="180" CenterX="10" CenterY="11" />
                             </ContentControl.RenderTransform>
                         </ContentControl>
 

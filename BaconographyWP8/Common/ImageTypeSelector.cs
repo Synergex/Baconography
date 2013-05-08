@@ -54,19 +54,25 @@ namespace BaconographyWP8.Common
 		private async void AsyncGetTemplateKey(string apiURL)
 		{
 			var request = HttpWebRequest.CreateHttp(apiURL);
-			byte[] result;
+			byte[] result = null;
 			using (var response = (await SimpleHttpService.GetResponseAsync(request)))
 			{
-				result = await Task<byte[]>.Run(() =>
+				if (response != null)
 				{
-					byte[] buffer = new byte[11];
-					response.GetResponseStream().Read(buffer, 0, 11);
-					return buffer;
-				});
+					result = await Task<byte[]>.Run(() =>
+					{
+						byte[] buffer = new byte[11];
+						var stream = response.GetResponseStream();
+						if (stream == null)
+							return null;
+						stream.Read(buffer, 0, 11);
+						return buffer;
+					});
+				}
 			}
 
 			GifDecoder decoder = new GifDecoder();
-			if (decoder.IsSupportedFileFormat(result))
+			if (result != null && decoder.IsSupportedFileFormat(result))
 			{
 				this.ContentTemplate = GetDataTemplate("Type:Gif");
 			}

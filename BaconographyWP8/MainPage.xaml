@@ -22,9 +22,6 @@
         <DataTemplate x:Key="Type:RedditViewModel">
             <local:RedditView DataContext="{Binding}"/>
         </DataTemplate>
-        <DataTemplate x:Key="Type:SubredditSelectorViewModel">
-            <local:SubredditSelectorView/>
-        </DataTemplate>
         <DataTemplate x:Key="Type:TemporaryRedditViewModel">
             <local:TemporaryRedditView DataContext="{Binding}"/>
         </DataTemplate>
@@ -86,9 +83,9 @@
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid Height="30" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                        <local:PivotCountIndicator 
+                        <!--<local:PivotCountIndicator 
                             ItemsCount="{Binding ElementName=pivot, Path=Items.Count}"
-                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>
+                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>-->
                         <local:LoadIndicatorView />
                     </Grid>
                 </DataTemplate>
@@ -120,11 +117,15 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged">
             <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="save subreddit" IsEnabled="False"/>
+                <!--<shell:ApplicationBarMenuItem Text="save subreddit" IsEnabled="False"/>
                 <shell:ApplicationBarMenuItem Text="close subreddit" IsEnabled="False"/>
                 <shell:ApplicationBarMenuItem Text="manage subreddit" IsEnabled="False"/>
                 <shell:ApplicationBarMenuItem Text="login"/>
-                <shell:ApplicationBarMenuItem Text="settings"/>
+                <shell:ApplicationBarMenuItem Text="settings"/>-->
+                <shell:ApplicationBarMenuItem Text="_"/>
+                <shell:ApplicationBarMenuItem Text="_"/>
+                <shell:ApplicationBarMenuItem Text="_"/>
+                <shell:ApplicationBarMenuItem Text="_"/>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>

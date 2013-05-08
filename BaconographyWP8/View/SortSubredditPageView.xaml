@@ -15,7 +15,8 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
     shell:SystemTray.IsVisible="True"
-    DataContext="{Binding MainPage, Source={StaticResource Locator}}">
+    DataContext="{Binding MainPage, Source={StaticResource Locator}}"
+    x:Name="controlRoot">
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -41,68 +42,210 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <local:LoadIndicatorView VerticalAlignment="Top" />
-        <TextBlock Margin="24,16,0,0" FontWeight="SemiBold"
-                   Text="SNARC > SUBREDDITS" FontSize="22.6"/>
+        <phone:Pivot Title="SNARC > SUBREDDITS"
+                     x:Name="pivot">
+            <!--Pivot item one-->
+            <phone:PivotItem Header="pinned">
+                <Grid>
+                    <common:ReorderListBox Margin="0,0,0,0" HorizontalAlignment="Stretch"
+                        BorderThickness="0" VerticalAlignment="Stretch" 
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                        HorizontalContentAlignment="Stretch"
+                        ItemsSource="{Binding Subreddits}"
+                        IsReorderEnabled="True"
+                        x:Name="pinnedSubredditList">
+                        <common:ReorderListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,12" Height="70" HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="10" />
+                                    </Grid.ColumnDefinitions>
+                                    <!--<Rectangle Stroke="Gray" StrokeThickness="1" Grid.ColumnSpan="7" StrokeDashArray="4 4" />-->
+
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        Grid.Column="0"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE1AA;"
+                                        DataContext="{Binding}"
+                                        Tap="GotoButton_Tap" />
+                                    
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        Grid.Column="1"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE196;"
+                                        DataContext="{Binding}"
+                                        Tap="CloseButton_Tap" />
+
+                                    <Border Grid.Column="3" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
+                                        Background="White" BorderThickness="0" Padding="0"
+                                        VerticalAlignment="Center">
+                                        <Image 
+                                            Source="{Binding Path=TypedData.HeaderImage}" MaxHeight="50" MaxWidth="125" Height="{Binding Path=TypedData.HeaderImageHeight}"
+                                            Width="{Binding Path=TypedData.HeaderImageWidth}" HorizontalAlignment="Center" Margin="0"
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <TextBlock VerticalAlignment="Center" Grid.Column="5" FontSize="20" FontWeight="SemiBold" Text="{Binding Path=TypedData.DisplayName}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </common:ReorderListBox.ItemTemplate>
+                    </common:ReorderListBox>
+
+                </Grid>
+            </phone:PivotItem>
+
+            <!--Pivot item two-->
+            <phone:PivotItem Header="subscribed">
+                <Grid>
+                    <StackPanel Visibility="{Binding LoggedIn, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                        <TextBlock Margin="12,0,12,0" TextWrapping="Wrap" Text="Subscribed subreddits currently unavailable." />
+                        <Button Tap="LoginButton_Tap" Margin="0,20,0,0" Content="login" VerticalAlignment="Bottom"></Button>
+                    </StackPanel>
+                    <common:FixedLongListSelector
+                        BorderThickness="0" VerticalAlignment="Stretch" 
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        HorizontalContentAlignment="Stretch"
+                        ItemsSource="{Binding Path=SubscribedSubreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
+                        ListHeader="{Binding}"
+                        Visibility="{Binding LoggedIn, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                        <common:FixedLongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE1AA;"
+                                        DataContext="{Binding}"
+                                        Tap="GotoButton_Tap"/>
+
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Margin="10,0,12,0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE141;"/>
+                                    <local:SubredditView/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ItemTemplate>
+                        <common:FixedLongListSelector.ListHeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListHeaderTemplate>
+                    </common:FixedLongListSelector>
+                </Grid>
+            </phone:PivotItem>
+
+            <phone:PivotItem Header="new">
+                <Grid x:Name="newPivotRoot" HorizontalAlignment="Stretch" MinWidth="460">
+                    <common:FixedLongListSelector
+                        BorderThickness="0" VerticalAlignment="Stretch" 
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        HorizontalContentAlignment="Stretch"
+                        DataContext="{Binding SubredditSelector, Source={StaticResource Locator}}"
+                        ItemsSource="{Binding Path=Subreddits, Converter={StaticResource portableAsyncCollectionConverter}}"
+                        ListHeader="{Binding}">
+                        <common:FixedLongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE1AA;"
+                                        DataContext="{Binding}"
+                                        Tap="GotoButton_Tap"/>
+
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="40" Height="40"
+                                        Margin="10,0,12,0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE141;"/>
+                                    <local:SubredditView />
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ItemTemplate>
+                        <common:FixedLongListSelector.ListHeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,3">
+                                        Enter a subreddit:
+                                    </TextBlock>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource RoundButtonStyle}"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Padding="2" BorderThickness="0"
+                                            Width="40" Height="40"
+                                            Foreground="White"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Content="&#xE1AA;"
+                                            DataContext="{Binding}"
+                                            Tap="GotoButton_Tap"/>
+
+                                        <Button Style="{StaticResource RoundButtonStyle}"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
+                                            Padding="2" BorderThickness="0"
+                                            Width="40" Height="40"
+                                            Margin="10,0,12,0"
+                                            Foreground="White"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Content="&#xE141;"
+                                            Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}"/>
+
+                                        <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
+                                             x:Name="manualBox" Text="{Binding Text, Mode=TwoWay}"
+                                             KeyDown="manualBox_KeyDown"/>
+                                    </StackPanel>
+                                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,7">
+                                        Or select a subreddit from below to add it to your list.
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListHeaderTemplate>
+                    </common:FixedLongListSelector>
+                </Grid>
+            </phone:PivotItem>
+        </phone:Pivot>
+
         
-        <common:ReorderListBox Margin="10,56,10,0" HorizontalAlignment="Stretch"
-            BorderThickness="0" VerticalAlignment="Stretch" 
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-            HorizontalContentAlignment="Stretch"
-            ItemsSource="{Binding Subreddits}"
-            IsReorderEnabled="True"
-            x:Name="subredditList">
-            <common:ReorderListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid Margin="0,0,0,12" Height="70" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60" />
-                            <ColumnDefinition Width="10" />
-                            <ColumnDefinition Width="130" />
-                            <ColumnDefinition Width="10" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="10" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-                        <!--<Rectangle Stroke="Gray" StrokeThickness="1" Grid.ColumnSpan="7" StrokeDashArray="4 4" />-->
-                        
-                        <Button Grid.Column="0"
-                                FontFamily="Segoe UI Symbol" FontSize="16"
-                                Padding="2" BorderThickness="0"
-                                Width="60" Height="60"
-                                Foreground="Gray"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Content="&#xE10A;"
-                                DataContext="{Binding}"
-                                Tap="CloseButton_Tap" />
-
-                        <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" Height="50" Width="125"
-                        Background="White" BorderThickness="0" Padding="0"
-                        VerticalAlignment="Center">
-                            <Image 
-                            Source="{Binding Path=TypedData.HeaderImage}" MaxHeight="50" MaxWidth="125" Height="{Binding Path=TypedData.HeaderImageHeight}"
-                            Width="{Binding Path=TypedData.HeaderImageWidth}" HorizontalAlignment="Center" Margin="0"
-                            VerticalAlignment="Center"/>
-                        </Border>
-
-                        <TextBlock VerticalAlignment="Center" Grid.Column="4" FontSize="20" FontWeight="SemiBold" Text="{Binding Path=TypedData.DisplayName}"/>
-
-                        <Button Grid.Column="6"
-                                Margin="0,8,0,0"
-                                FontFamily="Segoe UI Symbol" FontSize="30"
-                                Padding="0" BorderThickness="0"
-                                Width="60" Height="60"
-                                Foreground="Gray"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Content="&#xE149;"
-                                DataContext="{Binding}"
-                                Tap="RefreshButton_Tap" />
-                    </Grid>
-                </DataTemplate>
-            </common:ReorderListBox.ItemTemplate>
-        </common:ReorderListBox>
     </Grid>
     
 </phone:PhoneApplicationPage>

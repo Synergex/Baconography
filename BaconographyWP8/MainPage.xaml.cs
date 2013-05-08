@@ -19,6 +19,7 @@ using BaconographyWP8.Messages;
 using BaconographyWP8Core;
 using BaconographyWP8.ViewModel;
 using System.Threading.Tasks;
+using System.Windows.Controls.Primitives;
 
 namespace BaconographyWP8
 {
@@ -54,14 +55,13 @@ namespace BaconographyWP8
 				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
 		}
 
-
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.AdjustForOrientation(this.Orientation);
 
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-
+				
 			}
             else if (e.NavigationMode == NavigationMode.Refresh)
             {
@@ -90,6 +90,19 @@ namespace BaconographyWP8
                     }
                 }
             }
+		}
+
+		protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+		{
+			if (sortPopup.IsOpen == true)
+			{
+				sortPopup.IsOpen = false;
+				e.Cancel = true;
+			}
+			else
+			{
+				base.OnBackKeyPress(e);
+			}
 		}
 
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
@@ -171,6 +184,7 @@ namespace BaconographyWP8
 			_navigationService.Navigate(typeof(SortSubredditPageView), null);
 		}
 
+		Popup sortPopup = new Popup();
 		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
 		{
 			if (e.IsMenuVisible)
@@ -184,6 +198,30 @@ namespace BaconographyWP8
 					var login = new ApplicationBarMenuItem();
 					login.Text = loginItemText;
 					login.Click += MenuLogin_Click;
+
+					var sort = new ApplicationBarMenuItem();
+					sort.Text = "sort subreddit";
+					sort.Click += (object s, EventArgs args) =>
+						{
+							sortPopup = new Popup();
+							sortPopup.Height = 300;
+							sortPopup.Width = 400;
+							sortPopup.VerticalOffset = 100;
+
+							var child = new SelectSortTypeView();
+							child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+								{
+									sortPopup.IsOpen = false;
+								};
+
+							child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+								{
+									sortPopup.IsOpen = false;
+								};
+							sortPopup.Child = child;
+							sortPopup.IsOpen = true;
+						};
+					sort.IsEnabled = true;
 
 					var close = new ApplicationBarMenuItem();
 					close.Text = "close subreddit";
@@ -207,10 +245,7 @@ namespace BaconographyWP8
 					var manage = new ApplicationBarMenuItem();
 					manage.Text = "manage subreddits";
 					manage.Click += MenuSort_Click;
-					if (pivot.Items.Count > 1)
-						manage.IsEnabled = true;
-					else
-						manage.IsEnabled = false;
+					manage.IsEnabled = true;
 
 					var settings = new ApplicationBarMenuItem();
 					settings.Text = "settings";
@@ -223,6 +258,7 @@ namespace BaconographyWP8
 					}
 					appBarMenu.MenuItems.Add(manage);
 					appBarMenu.MenuItems.Add(login);
+					appBarMenu.MenuItems.Add(sort);
 					appBarMenu.MenuItems.Add(settings);
 
 				}

@@ -20,6 +20,8 @@ using BaconographyPortable.Model.Reddit;
 using System.Threading;
 using Microsoft.Phone.Reactive;
 using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit.ListingHelpers;
+using BaconographyPortable.ViewModel;
 
 namespace BaconographyWP8.View
 {
@@ -35,7 +37,15 @@ namespace BaconographyWP8.View
 		{
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-				Messenger.Default.Send<ReorderSubredditMessage>(new ReorderSubredditMessage());
+				if (pinnedSubredditList.Items.Count == 0)
+				{
+					var frontPage = new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing());
+					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = frontPage });
+				}
+				else
+				{
+					Messenger.Default.Send<ReorderSubredditMessage>(new ReorderSubredditMessage());
+				}
 			}
 		}
 
@@ -46,9 +56,30 @@ namespace BaconographyWP8.View
 			if (subreddit != null)
 				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Subreddit = subreddit });
 
-			if (subredditList.Items.Count == 0)
+			if (pinnedSubredditList.Items.Count == 0)
 			{
-				Scheduler.Dispatcher.Schedule(GoBack, TimeSpan.FromSeconds(1.5));
+				Scheduler.Dispatcher.Schedule(SwitchToNew, TimeSpan.FromSeconds(0.10));
+			}
+		}
+
+		private void GotoButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var button = sender as Button;
+			var subreddit = button.DataContext as TypedThing<Subreddit>;
+			if (subreddit == null && button.DataContext is AboutSubredditViewModel)
+				subreddit = (button.DataContext as AboutSubredditViewModel).Thing;
+			if (subreddit != null)
+			{
+				if (pinnedSubredditList.Items.Contains(subreddit))
+				{
+					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
+				}
+				else
+				{
+					Messenger.Default.Send<SelectTemporaryRedditMessage>(new SelectTemporaryRedditMessage { Subreddit = subreddit });
+				}
+
+				ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
 			}
 		}
 
@@ -60,9 +91,27 @@ namespace BaconographyWP8.View
 				Messenger.Default.Send<RefreshSubredditMessage>(new RefreshSubredditMessage { Subreddit = subreddit });
 		}
 
-		private void GoBack()
+		private void SwitchToNew()
 		{
-			ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+			pivot.SelectedIndex = 2;
+			//ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+		}
+
+		private void manualBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if (e.Key == System.Windows.Input.Key.Enter)
+			{
+				this.Focus();
+				var ssvm = this.DataContext as SubredditSelectorViewModel;
+				if (ssvm != null)
+					ssvm.PinSubreddit.Execute(ssvm);
+			}
+		}
+
+		private void LoginButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(LoginPageView), null);
 		}
 	}
 }

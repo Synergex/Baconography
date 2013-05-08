@@ -26,9 +26,28 @@
             ListHeader="{Binding}">
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Margin="0,0,0,7">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                        <Button Style="{StaticResource RoundButtonStyle}"
+                                FontFamily="Segoe UI Symbol" FontSize="16"
+                                Padding="2" BorderThickness="0"
+                                Width="40" Height="40"
+                                Foreground="White"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Content="&#xE1AA;"
+                                DataContext="{Binding}" />
+
+                        <Button Style="{StaticResource RoundButtonStyle}"
+                                FontFamily="Segoe UI Symbol" FontSize="16"
+                                Padding="2" BorderThickness="0"
+                                Width="40" Height="40"
+                                Margin="10,0,12,0"
+                                Foreground="White"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Content="&#xE141;"
+                                DataContext="{Binding}" />
                         <local:SubredditView />
-                        <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,3,0,0"/>
                     </StackPanel>
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>
@@ -39,11 +58,30 @@
                             Enter a subreddit:
                         </TextBlock>
                         <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource RoundButtonStyle}"
+                                FontFamily="Segoe UI Symbol" FontSize="16"
+                                Padding="2" BorderThickness="0"
+                                Width="40" Height="40"
+                                Foreground="White"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Content="&#xE1AA;"
+                                Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}" />
+
+                            <Button Style="{StaticResource RoundButtonStyle}"
+                                FontFamily="Segoe UI Symbol" FontSize="16"
+                                Padding="2" BorderThickness="0"
+                                Width="40" Height="40"
+                                Margin="10,0,12,0"
+                                Foreground="White"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Content="&#xE141;"
+                                Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}"/>
+
                             <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
                                      x:Name="manualBox" Text="{Binding Text, Mode=TwoWay}"
                                      KeyDown="manualBox_KeyDown"/>
-                            <Button Content="Submit" x:Name="submitButton"
-                                    Command="{Binding SubmitSubreddit}" CommandParameter="{Binding}" />
                         </StackPanel>
                         <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,7">
                             Or select a subreddit from below to add it to your list.
