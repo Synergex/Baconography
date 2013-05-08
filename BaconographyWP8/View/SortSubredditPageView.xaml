@@ -114,7 +114,7 @@
             <!--Pivot item two-->
             <phone:PivotItem Header="subscribed">
                 <Grid>
-                    <StackPanel Visibility="{Binding LoggedIn, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                    <StackPanel Visibility="{Binding LoggedIn, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}">
                         <TextBlock Margin="12,0,12,0" TextWrapping="Wrap" Text="Subscribed subreddits currently unavailable." />
                         <Button Tap="LoginButton_Tap" Margin="0,20,0,0" Content="login" VerticalAlignment="Bottom"></Button>
                     </StackPanel>

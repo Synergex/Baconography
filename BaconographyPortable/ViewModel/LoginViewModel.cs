@@ -247,6 +247,42 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+		RelayCommand<string> _selectCredential;
+		public RelayCommand<string> SelectCredential
+		{
+			get
+			{
+				if (_selectCredential == null)
+				{
+					_selectCredential = new RelayCommand<string>(name =>
+					{
+						SelectedCredential = name;
+					});
+				}
+				return _selectCredential;
+			}
+		}
+
+		RelayCommand<string> _removeCredential;
+		public RelayCommand<string> RemoveCredential
+		{
+			get
+			{
+				if (_removeCredential == null)
+				{
+					_removeCredential = new RelayCommand<string>(name =>
+					{
+						_systemServices.RunAsync(async (c) =>
+						{
+							await _userService.RemoveStoredCredential(name);
+							RaisePropertyChanged("Credentials");
+						});
+					});
+				}
+				return _removeCredential;
+			}
+		}
+
         public string SelectedCredential
         {
             get

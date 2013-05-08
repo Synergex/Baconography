@@ -126,11 +126,12 @@ namespace BaconographyPortable.ViewModel
 		{
 			bool wasLoggedIn = LoggedIn;
 			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
-			if (wasLoggedIn != _loggedIn)
+			
+			/*if (wasLoggedIn != _loggedIn)
 			{
                 if (PivotItems.Count > 0 && PivotItems[0] != null && PivotItems[0] is RedditViewModel)
 					(PivotItems[0] as RedditViewModel).RefreshLinks();
-			}
+			}*/
 
             if (_initialLoad)
             {
