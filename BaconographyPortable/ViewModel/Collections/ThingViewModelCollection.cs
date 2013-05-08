@@ -157,6 +157,8 @@ namespace BaconographyPortable.ViewModel.Collections
                             if (targetListing != null)
                             {
                                 var mappedListing = MapListing(targetListing, state).ToArray();
+								if (mappedListing.Length < this.Count)
+									this.Clear();
                                 for (int i = 0; i < mappedListing.Length; i++)
                                 {
                                     if (this.Count > i)
