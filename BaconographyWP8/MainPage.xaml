@@ -116,7 +116,7 @@
 
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar x:Name="appBar" Mode="Minimized" IsVisible="True"
-                              IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged" >
+                              IsMenuEnabled="True" >
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="_" />
             </shell:ApplicationBar.MenuItems>
