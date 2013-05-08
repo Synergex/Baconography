@@ -21,6 +21,7 @@ using BaconographyWP8.ViewModel;
 using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
 using Microsoft.Phone.Reactive;
+using System.Windows.Media;
 
 namespace BaconographyWP8
 {
@@ -41,6 +42,7 @@ namespace BaconographyWP8
 
 		private void AdjustForOrientation(PageOrientation orientation)
 		{
+			lastKnownOrientation = orientation;
 			if (orientation == PageOrientation.Landscape
 				|| orientation == PageOrientation.LandscapeLeft
 				|| orientation == PageOrientation.LandscapeRight)
@@ -56,6 +58,7 @@ namespace BaconographyWP8
 				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
 		}
 
+		PageOrientation lastKnownOrientation;
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.AdjustForOrientation(this.Orientation);
@@ -192,7 +195,47 @@ namespace BaconographyWP8
 			_navigationService.Navigate(typeof(SortSubredditPageView), null);
 		}
 
-		Popup sortPopup = new Popup();
+		private void MenuSort_Click(object sender, EventArgs e)
+		{
+			double height = 480;
+			double width = 325;
+
+			if (LayoutRoot.ActualHeight <= 480)
+				height = LayoutRoot.ActualHeight;
+			
+			sortPopup.Height = height;
+			sortPopup.Width = width;
+
+			RedditViewModel rvm = pivot.SelectedItem as RedditViewModel;
+			if (rvm == null)
+			{
+				var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+				if (trvm != null)
+					rvm = trvm.RedditViewModel;
+				else
+					return;
+			}
+
+			var child = sortPopup.Child as SelectSortTypeView;
+			if (child == null)
+				child = new SelectSortTypeView();
+			child.SortOrder = rvm.SortOrder;
+			child.Height = height;
+			child.Width = width;
+			child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+			{
+				sortPopup.IsOpen = false;
+				rvm.SortOrder = child.SortOrder;
+			};
+
+			child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+			{
+				sortPopup.IsOpen = false;
+			};
+
+			sortPopup.Child = child;
+			sortPopup.IsOpen = true;
+		}
 
 		List<ApplicationBarMenuItem> appMenuItems;
 
@@ -218,26 +261,7 @@ namespace BaconographyWP8
 			appMenuItems.Add(new ApplicationBarMenuItem());
 			appMenuItems[(int)MenuEnum.Sort].Text = "sort";
 			appMenuItems[(int)MenuEnum.Sort].IsEnabled = true;
-			appMenuItems[(int)MenuEnum.Sort].Click += (object s, EventArgs args) =>
-			{
-				sortPopup = new Popup();
-				sortPopup.Height = 300;
-				sortPopup.Width = 400;
-				sortPopup.VerticalOffset = 100;
-
-				var child = new SelectSortTypeView();
-				child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
-				{
-					sortPopup.IsOpen = false;
-				};
-
-				child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
-				{
-					sortPopup.IsOpen = false;
-				};
-				sortPopup.Child = child;
-				sortPopup.IsOpen = true;
-			}; 
+			appMenuItems[(int)MenuEnum.Sort].Click += MenuSort_Click;
 
 			appMenuItems.Add(new ApplicationBarMenuItem());
 			appMenuItems[(int)MenuEnum.Settings].Text = "settings";
