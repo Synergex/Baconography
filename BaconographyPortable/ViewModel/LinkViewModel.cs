@@ -236,7 +236,10 @@ namespace BaconographyPortable.ViewModel
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
-            vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
+            if (vm == null || vm._linkThing == null || vm._linkThing.Data == null || string.IsNullOrWhiteSpace(vm._linkThing.Data.Url))
+                vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
+            else
+                vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
