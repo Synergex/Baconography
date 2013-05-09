@@ -19,6 +19,7 @@ namespace BaconographyPortable.Services
         bool HighlightAlreadyClickedLinks { get; set; }
         bool ApplyReadabliltyToLinks { get; set; }
         bool PreferImageLinksForTiles { get; set; }
+		bool LeftHandedMode { get; set; }
 
         void ShowSettings();
         Task Persist();

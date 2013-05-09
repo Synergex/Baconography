@@ -43,6 +43,7 @@
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
     <Compile Include="Common\UtilityCommandImpl.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
+    <Compile Include="Messages\SettingsChangedMessage.cs" />
     <Compile Include="Messages\RefreshSubredditMessage.cs" />
     <Compile Include="Messages\ConnectionStatusMessage.cs" />
     <Compile Include="Messages\LoadingMessage.cs" />

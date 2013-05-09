@@ -19,6 +19,19 @@ namespace BaconographyPortable.ViewModel
             _settingsService = baconProvider.GetService<ISettingsService>();
         }
 
+		public bool LeftHandedMode
+		{
+			get
+			{
+				return _settingsService.LeftHandedMode;
+			}
+			set
+			{
+				_settingsService.LeftHandedMode = value;
+				RaisePropertyChanged("LeftHandedMode");
+			}
+		}
+
         public bool AllowNSFWContent
         {
             get

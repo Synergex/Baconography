@@ -49,11 +49,17 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<SelectTemporaryRedditMessage>(this, OnSelectTemporarySubreddit);
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
+			MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			_pivotItems = new RedditViewModelCollection(_baconProvider);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
             _subreddits.CollectionChanged += _subreddits_CollectionChanged;
         }
+
+		private async void OnSettingsChanged(SettingsChangedMessage message)
+		{
+			await _baconProvider.GetService<ISettingsService>().Persist();
+		}
 
         void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

@@ -100,6 +100,7 @@
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\ImageTypeSelector.cs" />
+    <Compile Include="Common\LinkViewLayoutManager.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
     <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
