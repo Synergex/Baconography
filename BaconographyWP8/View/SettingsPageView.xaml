@@ -46,11 +46,15 @@
             <!--Pivot item one-->
             <phone:PivotItem Header="content">
                 <Grid>
-                    <StackPanel>
+                    <StackPanel Margin="12,0,12,0">
                         <TextBlock FontWeight="SemiBold" Text="NSFW"/>
-                        <CheckBox Margin="5,0,5,0" Content="allow NSFW (over 18) content"
-                            IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />                        
+                        <CheckBox Margin="12,0,0,0" Content="allow NSFW (over 18) content"
+                            IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
 
+                        <TextBlock FontWeight="SemiBold" Text="LAYOUT"/>
+                        <CheckBox Margin="12,0,0,0" Content="left-handed mode"
+                            IsChecked="{Binding LeftHandedMode, Mode=TwoWay}" />
+                        <!--
                         <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
                         <CheckBox Margin="5,0,5,0" Content="fast download"
                             IsChecked="{Binding OfflineOnlyGetsFirstSet, Mode=TwoWay}" />
@@ -60,6 +64,7 @@
                         </StackPanel>
 
                         <Slider Margin="5,0,5,0" Value="{Binding MaxTopLevelOfflineComments, Mode=TwoWay}" Maximum="5000" Minimum="5"></Slider>
+                        -->
 
                     </StackPanel>
                    

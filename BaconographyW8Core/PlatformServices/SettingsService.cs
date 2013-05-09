@@ -134,5 +134,12 @@ namespace BaconographyW8.PlatformServices
             await offlineService.ClearHistory();
         }
 
-    }
+
+
+		public bool LeftHandedMode
+		{
+			get;
+			set;
+		}
+	}
 }

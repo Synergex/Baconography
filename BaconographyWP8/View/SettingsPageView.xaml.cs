@@ -12,6 +12,8 @@ using BaconographyWP8.ViewModel;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
 using BaconographyWP8.Common;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
 
 namespace BaconographyWP8.View
 {
@@ -21,7 +23,12 @@ namespace BaconographyWP8.View
 		public SettingsPageView()
 		{
 			InitializeComponent();
-			//version.Text
+		}
+
+		protected override void OnNavigatedFrom(NavigationEventArgs e)
+		{
+			Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage());
+			base.OnNavigatedFrom(e);
 		}
 
 		private void HyperlinkButton_Click(object sender, RoutedEventArgs e)

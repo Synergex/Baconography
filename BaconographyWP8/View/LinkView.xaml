@@ -17,14 +17,15 @@
 
     <Grid MinHeight="65" HorizontalAlignment="Stretch" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="{Binding Source={StaticResource linkViewLayoutManager}, Path=FirstColumnWidth}" />
+            <ColumnDefinition Width="{Binding Source={StaticResource linkViewLayoutManager}, Path=SecondColumnWidth}" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Button Grid.Column="0" Grid.Row="0" BorderThickness="0" Margin="0" Padding="0" HorizontalContentAlignment="Left"
+        <Button Grid.Column="{Binding Source={StaticResource linkViewLayoutManager}, Path=TextColumn}"
+                Grid.Row="0" BorderThickness="0" Margin="0" Padding="0" HorizontalContentAlignment="Left"
                 FontFamily="Segoe WP" Tap="TitleButton_Tap" Hold="TitleButton_Hold">
             <Button.Content>
                 <StackPanel>
@@ -65,7 +66,7 @@
             </Button.Content>
         </Button>
 
-        <Grid Grid.Column="1" Grid.Row="0" VerticalAlignment="Stretch" MinHeight="70" Width="70">
+        <Grid Grid.Column="{Binding Source={StaticResource linkViewLayoutManager}, Path=PictureColumn}" Grid.Row="0" VerticalAlignment="Stretch" MinHeight="70" Width="70">
             <Button BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
                     MinHeight="70" Width="70" Margin="0,0,5,0"
                     Command="{Binding GotoLink}" CommandParameter="{Binding}"
