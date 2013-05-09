@@ -95,10 +95,18 @@ namespace BaconographyWP8.Common
 		{
 			var pos = e.GetPosition(null);
 
+			var orientationManager = App.Current.Resources["orientationManager"] as OrientationManager;
+			var val = pos.Y;
+			if (orientationManager != null
+				&& (orientationManager.Orientation == PageOrientation.Landscape
+				|| orientationManager.Orientation == PageOrientation.LandscapeLeft
+				|| orientationManager.Orientation == PageOrientation.LandscapeRight))
+				val = pos.X;
+
 			if (!isMoving)
-				manipulationStart = pos.Y;
+				manipulationStart = val;
 			else
-				manipulationEnd = pos.Y;
+				manipulationEnd = val;
 
 			isMoving = true;
 		}
@@ -107,13 +115,21 @@ namespace BaconographyWP8.Common
 		{
 			var pos = e.GetPosition(null);
 
+			var orientationManager = App.Current.Resources["orientationManager"] as OrientationManager;
+			var val = pos.Y;
+			if (orientationManager != null
+				&& (orientationManager.Orientation == PageOrientation.Landscape
+				|| orientationManager.Orientation == PageOrientation.LandscapeLeft
+				|| orientationManager.Orientation == PageOrientation.LandscapeRight))
+				val = pos.X;
+
 			if (!isMoving)
 			{
-				manipulationStart = pos.Y;
+				manipulationStart = val;
 			}
 			else
 			{
-				manipulationEnd = pos.Y;
+				manipulationEnd = val;
 				if (ManipulationState == System.Windows.Controls.Primitives.ManipulationState.Manipulating)
 				{
 					DoInterimManipulation();
@@ -123,7 +139,7 @@ namespace BaconographyWP8.Common
 			isMoving = true;
 		}
 
-		const int pullDownOffset = -115;
+		const int pullDownOffset = 95;
 		void DoInterimManipulation()
 		{
 			var total = manipulationStart - manipulationEnd;
@@ -132,7 +148,7 @@ namespace BaconographyWP8.Common
 			{
 				if (viewport.Viewport.Top == 0)
 				{
-					if (total < pullDownOffset)
+					if (total > pullDownOffset || (-total) > pullDownOffset)
 						Compression(this, new CompressionEventArgs(CompressionType.Top));
 					else
 						Compression(this, new CompressionEventArgs(CompressionType.None));

@@ -71,6 +71,8 @@ namespace BaconographyWP8.Common
 					SystemTrayVisible = true;
 					break;
 			}
+
+			Orientation = message.Orientation;
 		}
 
 		private void OnSettingsChanged(SettingsChangedMessage message)
