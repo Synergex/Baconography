@@ -58,7 +58,8 @@ namespace BaconographyPortable.ViewModel
 
 		private async void OnSettingsChanged(SettingsChangedMessage message)
 		{
-			await _baconProvider.GetService<ISettingsService>().Persist();
+			if (!message.InitialLoad)
+				await _baconProvider.GetService<ISettingsService>().Persist();
 		}
 
         void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

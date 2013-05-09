@@ -104,7 +104,7 @@ namespace BaconographyWP8.PlatformServices
 				else
 					LeftHandedMode = false;
 
-				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage());
+				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
             {

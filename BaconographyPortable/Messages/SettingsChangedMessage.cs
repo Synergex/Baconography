@@ -9,5 +9,6 @@ namespace BaconographyPortable.Messages
 {
 	public class SettingsChangedMessage : MessageBase
     {
+		public bool InitialLoad { get; set; }
     }
 }
