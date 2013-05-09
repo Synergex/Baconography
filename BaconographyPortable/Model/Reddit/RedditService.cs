@@ -401,9 +401,9 @@ namespace BaconographyPortable.Model.Reddit
             string targetUri = null;
             //if this base url already has arguments (like search) just append the count and the after
             if (baseUrl.Contains(".json?"))
-                targetUri = string.Format("{0}&count={1}&after={2}", baseUrl, guardedLimit, after);
+                targetUri = string.Format("{0}&limit={1}&after={2}", baseUrl, guardedLimit, after);
             else
-                targetUri = string.Format("{0}.json?count={1}&after={2}", baseUrl, guardedLimit, after);
+                targetUri = string.Format("{0}.json?limit={1}&after={2}", baseUrl, guardedLimit, after);
 
             try
             {
