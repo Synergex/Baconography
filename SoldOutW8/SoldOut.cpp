@@ -341,7 +341,7 @@ rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque) {
 
 static void
 rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque) {
-	BUFPUTSL(ob, "•  ");
+	BUFPUTSL(ob, "&#x25CF;  ");
 	if (text) {
 		bufput(ob, text->data, text->size); }
 	BUFPUTSL(ob, "<LineBreak/>\n"); 
