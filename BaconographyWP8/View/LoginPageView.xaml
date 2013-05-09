@@ -12,8 +12,8 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    SupportedOrientations="Portrait"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="True"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
     DataContext="{Binding Login, Source={StaticResource Locator}}">
 
     <toolkit:TransitionService.NavigationInTransition>
@@ -45,35 +45,37 @@
             <!--Pivot item one-->
             <phone:PivotItem Header="new">
                 <Grid>
-                    <StackPanel>
-                        <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="USERNAME"/>
-                        <TextBox Margin="0,0,0,0"
-                            Text="{Binding Mode=TwoWay, Path=Username}"
-                            KeyDown="Username_KeyDown"/>
-                        <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="PASSWORD"/>
-                        <PasswordBox Margin="0,0,0,0"
-                            x:Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}"
-                            KeyDown="Password_KeyDown"/>
-                        <CheckBox Margin="0,0,0,0" Content="save this login"
-                            IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
-                        <CheckBox Margin="0,0,0,0" Content="login automatically"
-                            IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
-                    
-                        <Button Content="login"
-                            Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
-                            Command="{Binding DoLogin}"/>
-                        <ProgressBar IsIndeterminate="{Binding Working}"
-                                     Visibility="{Binding Working, Converter={StaticResource booleanVisibilityConverter}}"/>
-                        <Border Margin="0,20,0,0" Visibility="{Binding HasErrors, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock Foreground="Red" HorizontalAlignment="Center" Text="Login Failed: incorrect username or password"/>
-                        </Border>
-                    </StackPanel>
-                    <common:ContextDataButton VerticalAlignment="Bottom"
-                                     ContextData="http://www.reddit.com/register"
-                                     Padding="10"
-                                     Click="HyperlinkButton_Click">
-                        Need an account? Click here to register
-                    </common:ContextDataButton>
+                    <ScrollViewer>
+                        <StackPanel>
+                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="USERNAME"/>
+                            <TextBox Margin="0,0,0,0"
+                                Text="{Binding Mode=TwoWay, Path=Username}"
+                                KeyDown="Username_KeyDown"/>
+                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="PASSWORD"/>
+                            <PasswordBox Margin="0,0,0,0"
+                                x:Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}"
+                                KeyDown="Password_KeyDown"/>
+                            <CheckBox Margin="0,0,0,0" Content="save this login"
+                                IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
+                            <CheckBox Margin="0,0,0,0" Content="login automatically"
+                                IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
+
+                            <ProgressBar IsIndeterminate="{Binding Working}"
+                                         Visibility="{Binding Working, Converter={StaticResource booleanVisibilityConverter}}"/>
+                            <Border Margin="0,20,0,10" Visibility="{Binding HasErrors, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                                <TextBlock Foreground="Red" HorizontalAlignment="Center" Text="Login Failed: incorrect username or password"/>
+                            </Border>
+                            <Button Content="login"
+                                Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                                Command="{Binding DoLogin}"/>
+                            <common:ContextDataButton VerticalAlignment="Bottom"
+                                         ContextData="http://www.reddit.com/register"
+                                         Padding="10"
+                                         Click="HyperlinkButton_Click">
+                                Need an account? Click here to register
+                            </common:ContextDataButton>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </phone:PivotItem>
 
