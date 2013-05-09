@@ -278,6 +278,9 @@ namespace Baconography.NeutralServices
             }
             catch(Exception ex)
             {
+                var errorText = DBError.TranslateError((uint)ex.HResult);
+                //throw new Exception(errorText);
+                Debug.WriteLine(errorText);
                 Debug.WriteLine(ex.ToString());
             }
         }
