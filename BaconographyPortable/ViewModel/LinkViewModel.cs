@@ -4,6 +4,7 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -221,7 +222,7 @@ namespace BaconographyPortable.ViewModel
 
 		private async void GotoSubredditImpl()
         {
-            _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
+            Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
         }
 
 		private void GotoUserImpl()
