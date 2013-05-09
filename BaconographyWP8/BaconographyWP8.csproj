@@ -136,7 +136,6 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Messages\CloseSubredditMessage.cs" />
-    <Compile Include="Messages\InvalidateThemeResources.cs" />
     <Compile Include="Messages\ReorderSubredditMessage.cs" />
     <Compile Include="Messages\SelectIndexMessage.cs" />
     <Compile Include="Messages\OrientationChangedMessage.cs" />

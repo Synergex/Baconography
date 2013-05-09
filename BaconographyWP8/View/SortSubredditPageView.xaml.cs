@@ -111,7 +111,13 @@ namespace BaconographyWP8.View
 			var subreddit = button.DataContext as TypedThing<Subreddit>;
 			if (subreddit == null && button.DataContext is AboutSubredditViewModel)
 				subreddit = (button.DataContext as AboutSubredditViewModel).Thing;
-			if (subreddit != null)
+            if (subreddit == null && button.DataContext is SubredditSelectorViewModel)
+            {
+                var selector = button.DataContext as SubredditSelectorViewModel;
+                selector.DoGoSubreddit(pinnedSubredditList.Items.Contains(subreddit));
+                ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+            }
+			else if (subreddit != null)
 			{
 				if (pinnedSubredditList.Items.Contains(subreddit))
 				{
