@@ -21,6 +21,7 @@
 
 #include "buffer.h"
 #include "autolink.h"
+#include "stack.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -128,6 +129,21 @@ sd_markdown_free(struct sd_markdown *md);
 
 extern void
 sd_version(int *major, int *minor, int *revision);
+
+
+
+/* render • structure containing one particular render */
+struct sd_markdown {
+	struct sd_callbacks	cb;
+	void *opaque;
+
+	struct link_ref *refs[8];
+	uint8_t active_char[256];
+	struct stack work_bufs[2];
+	unsigned int ext_flags;
+	size_t max_nesting;
+	int in_link_body;
+};
 
 #ifdef __cplusplus
 }

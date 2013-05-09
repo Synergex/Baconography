@@ -108,18 +108,7 @@ static char_trigger markdown_char_ptrs[] = {
 	&char_superscript,
 };
 
-/* render • structure containing one particular render */
-struct sd_markdown {
-	struct sd_callbacks	cb;
-	void *opaque;
 
-	struct link_ref *refs[REF_TABLE_SIZE];
-	uint8_t active_char[256];
-	struct stack work_bufs[2];
-	unsigned int ext_flags;
-	size_t max_nesting;
-	int in_link_body;
-};
 
 /***************************
  * HELPER FUNCTIONS *
