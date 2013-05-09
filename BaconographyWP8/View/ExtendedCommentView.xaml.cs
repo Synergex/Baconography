@@ -1,4 +1,8 @@
-﻿using System;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
+using GalaSoft.MvvmLight.Ioc;
+using Microsoft.Practices.ServiceLocation;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,5 +20,17 @@ namespace BaconographyWP8.View
         {
             this.InitializeComponent();
         }
+
+		private void ReplyButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var vm = this.DataContext as CommentViewModel;
+			vm.GotoReply.Execute(null);			
+			var replyData = vm.ReplyData;
+			if (SimpleIoc.Default.IsRegistered<ReplyViewModel>())
+				SimpleIoc.Default.Unregister<ReplyViewModel>();
+			SimpleIoc.Default.Register<ReplyViewModel>(() => replyData, true);
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(ReplyViewPage), null);
+		}
     }
 }

@@ -68,7 +68,7 @@
                               Margin="3,0,0,0"/>
             <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
                 Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
-            <ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
+            <!--<ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>-->
         </StackPanel>
         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource booleanVisibilityConverter}}">
             <Button BorderThickness="0" Margin="-5,-10,0,0" Padding="0" HorizontalAlignment="Left"

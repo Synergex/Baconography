@@ -50,7 +50,6 @@ namespace BaconographyPortable.ViewModel
             _gotoContext = new RelayCommand(GotoContextImpl);
             _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
             _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
-			//MessengerInstance.Register<ToggleCommentTreeMessage>(this, OnToggleCommentTreeMessage);
         }
 
         public bool OddNesting { get; private set; }
@@ -194,7 +193,6 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("ReplyData");
             }
         }
-
 
         public RelayCommand MinimizeCommand { get { return _minimizeCommand; } }
         public RelayCommand ShowExtendedView { get { return _showExtendedView; } }

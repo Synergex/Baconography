@@ -68,7 +68,7 @@
                     <Button Grid.Row="1" Grid.Column="2"
                                             FontFamily="Segoe UI Symbol" FontSize="14"
                                             Width="40" Height="40"
-                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoReply}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"
+                                            Tap="ReplyButton_Tap"
                                             Content="&#xE165;" Style="{StaticResource RoundButtonStyle}" />
                     <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
 
@@ -100,7 +100,7 @@
                 <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding ElementName=controlRoot, Path=DataContext.IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
                     <ContentControl Margin="5,5,5,5" Content="{Binding ElementName=controlRoot, Path=DataContext.SelfText, Converter={StaticResource markdownConverter}}"/>
                 </Border>
-                <ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>
+                <!--<ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>-->
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="typedTemplateSelector">
