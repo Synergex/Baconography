@@ -29,7 +29,7 @@ namespace BaconographyWP8.View
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.Reset || e.NavigationMode == NavigationMode.New)
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
             {
                 e.Cancel = true;
             }

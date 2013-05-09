@@ -57,7 +57,7 @@ namespace BaconographyPortable.ViewModel
             if (message.UserTriggered && Url == "/")
                 RefreshLinks();
 
-            LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+            LoggedIn = message.CurrentUser != null && !string.IsNullOrWhiteSpace(message.CurrentUser.LoginCookie);
         }
 
         private void OnConnectionStatusChanged(ConnectionStatusMessage message)

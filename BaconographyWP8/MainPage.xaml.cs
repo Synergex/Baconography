@@ -151,6 +151,9 @@ namespace BaconographyWP8
 			{
 				loginItemText = "login";
 			}
+
+            if(appMenuItems != null && appMenuItems.Count > (int)MenuEnum.Login)
+                appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 		}
 
 		private void MenuLogin_Click(object sender, EventArgs e)
