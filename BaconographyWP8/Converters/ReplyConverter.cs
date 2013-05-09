@@ -16,16 +16,16 @@ namespace BaconographyWP8.Converters
                 return null;
             else
             {
-                var control = new ReplyView { DataContext = value };
+				var control = new ReplyViewPage { DataContext = value };
                 return control;
             }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is ReplyView)
+			if (value is ReplyViewPage)
             {
-                return ((ReplyView)value).DataContext;
+				return ((ReplyViewPage)value).DataContext;
             }
             else
                 return null;

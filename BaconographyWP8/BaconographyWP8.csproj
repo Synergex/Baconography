@@ -207,8 +207,8 @@
     <Compile Include="View\LoadIndicatorView.xaml.cs">
       <DependentUpon>LoadIndicatorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ReplyView.xaml.cs">
-      <DependentUpon>ReplyView.xaml</DependentUpon>
+    <Compile Include="View\ReplyViewPage.xaml.cs">
+      <DependentUpon>ReplyViewPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ScalingPictureView.xaml.cs">
       <DependentUpon>ScalingPictureView.xaml</DependentUpon>
@@ -311,7 +311,7 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
-    <Page Include="View\ReplyView.xaml">
+    <Page Include="View\ReplyViewPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -15,6 +15,9 @@ using Windows.ApplicationModel.DataTransfer;
 using Newtonsoft.Json;
 using BaconographyPortable.Model.Reddit;
 using BaconographyWP8.Messages;
+using GalaSoft.MvvmLight.Ioc;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -119,6 +122,18 @@ namespace BaconographyWP8.View
 				//DataTransferManager dataTransferManager = DataTransferManager.GetForCurrentView();
 				//dataTransferManager.DataRequested -= DataRequestedEventHandler;
 			}
+		}
+
+		private void ReplyButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var vm = this.DataContext as CommentsViewModel;
+			vm.GotoReply.Execute(this.DataContext);
+			var replyData = vm.ReplyData;
+			if (SimpleIoc.Default.IsRegistered<ReplyViewModel>())
+				SimpleIoc.Default.Unregister<ReplyViewModel>();
+			SimpleIoc.Default.Register<ReplyViewModel>(() => replyData, true);
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(ReplyViewPage), null);
 		}
 	}
 }

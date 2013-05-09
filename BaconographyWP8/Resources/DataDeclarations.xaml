@@ -653,7 +653,8 @@
                 <ControlTemplate TargetType="Button" x:Name="LayoutRoot">
                     <Grid Background="Transparent">
                         <Ellipse x:Name="Circle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeThickness="2"/>
-                        <ContentControl x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}">
+                        <ContentControl x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Content="{TemplateBinding Content}">
                             <ContentControl.RenderTransform>
                                 <CompositeTransform Rotation="180" CenterX="10" CenterY="11" />
                             </ContentControl.RenderTransform>
