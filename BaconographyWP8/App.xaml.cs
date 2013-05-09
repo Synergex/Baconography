@@ -13,6 +13,8 @@ using System.Windows.Navigation;
 using System.Threading;
 using Microsoft.Phone.Info;
 using System.Windows.Media;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyWP8.Messages;
 
 namespace BaconographyWP8
 {
@@ -190,6 +192,9 @@ namespace BaconographyWP8
         // Avoid double-initialization
         private bool phoneApplicationInitialized = false;
 
+
+        private object _backgroundColorResource;
+        private object _accentColorResource;
         // Do not add any additional code to this method
         private void InitializePhoneApplication()
         {
@@ -200,13 +205,14 @@ namespace BaconographyWP8
             // screen to remain active until the application is ready to render.
             RootFrame = new TransitionFrame();
             RootFrame.Navigated += CompleteInitializePhoneApplication;
-
             // Handle navigation failures
             RootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
             // Ensure we don't initialize again
             phoneApplicationInitialized = true;
+
         }
+
 
         // Do not add any additional code to this method
         private void CompleteInitializePhoneApplication(object sender, NavigationEventArgs e)

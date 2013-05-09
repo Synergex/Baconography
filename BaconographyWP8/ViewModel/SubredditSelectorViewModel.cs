@@ -110,10 +110,10 @@ namespace BaconographyPortable.ViewModel
 
 		private async static void PinSubredditImpl(SubredditSelectorViewModel vm)
 		{
-			vm.DoPinSubreddit();
+			vm.DoGoSubreddit(true);
 		}
 
-		private async void DoPinSubreddit()
+		public async void DoGoSubreddit(bool pin)
 		{
 			var subredditName = Text;
 			if (String.IsNullOrEmpty(subredditName))
@@ -131,8 +131,10 @@ namespace BaconographyPortable.ViewModel
             {
                 return;
             }
-            Text = "";
-			MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
+            if(pin)
+			    MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
+            else
+                MessengerInstance.Send<SelectTemporaryRedditMessage>(new SelectTemporaryRedditMessage { Subreddit = subreddit });
 		}
 
         public BindingShellViewModelCollection Subreddits { get; set; }
