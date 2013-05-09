@@ -38,6 +38,7 @@
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
     <imagetools:ImageConverter x:Key="imageConverter"/>
     <common:LinkViewLayoutManager x:Key="linkViewLayoutManager" />
+    <common:OrientationManager x:Key="orientationManager" />
     
 
     <!-- (c) Copyright 2010 Microsoft Corporation.

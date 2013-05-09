@@ -20,6 +20,8 @@ namespace BaconographyPortable.Services
         bool ApplyReadabliltyToLinks { get; set; }
         bool PreferImageLinksForTiles { get; set; }
 		bool LeftHandedMode { get; set; }
+		bool OrientationLock { get; set; }
+		string Orientation { get; set; }
 
         void ShowSettings();
         Task Persist();

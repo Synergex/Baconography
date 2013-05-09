@@ -12,7 +12,7 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    SupportedOrientations="Portrait"  Orientation="Portrait"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="True"
     DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
 
@@ -47,13 +47,17 @@
             <phone:PivotItem Header="content">
                 <Grid>
                     <StackPanel Margin="12,0,12,0">
-                        <TextBlock FontWeight="SemiBold" Text="NSFW"/>
+                        <TextBlock FontWeight="SemiBold" Text="CONTENT"/>
                         <CheckBox Margin="12,0,0,0" Content="allow NSFW (over 18) content"
                             IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
 
                         <TextBlock FontWeight="SemiBold" Text="LAYOUT"/>
                         <CheckBox Margin="12,0,0,0" Content="left-handed mode"
                             IsChecked="{Binding LeftHandedMode, Mode=TwoWay}" />
+                        <CheckBox Margin="12,0,0,0" Content="orientation lock"
+                            IsChecked="{Binding OrientationLock, Mode=TwoWay}"
+                            Checked="OrientationLock_Checked"
+                            Unchecked="OrientationLock_Unchecked"/>
                         <!--
                         <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
                         <CheckBox Margin="5,0,5,0" Content="fast download"
