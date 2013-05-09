@@ -30,6 +30,7 @@ namespace BaconographyWP8
     {
 
         // Constructor
+		ISettingsService _settingsService;
         public MainPage()
         {
             InitializeComponent();
@@ -38,17 +39,13 @@ namespace BaconographyWP8
 
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
 			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
+			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
 		{
+			Messenger.Default.Send<OrientationChangedMessage>(new OrientationChangedMessage { Orientation = orientation });
 			lastKnownOrientation = orientation;
-			if (orientation == PageOrientation.Landscape
-				|| orientation == PageOrientation.LandscapeLeft
-				|| orientation == PageOrientation.LandscapeRight)
-				SystemTray.IsVisible = false;
-			else
-				SystemTray.IsVisible = true;
 
 			if (orientation == PageOrientation.LandscapeRight)
 				LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
@@ -119,7 +116,6 @@ namespace BaconographyWP8
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
 		{
 			AdjustForOrientation(e.Orientation);
-
 			base.OnOrientationChanged(e);
 		}
 

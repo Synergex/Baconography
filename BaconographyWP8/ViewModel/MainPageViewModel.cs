@@ -9,6 +9,7 @@ using BaconographyWP8.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,7 @@ namespace BaconographyPortable.ViewModel
 			if (!message.InitialLoad)
 				await _baconProvider.GetService<ISettingsService>().Persist();
 		}
+
 
         void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

@@ -37,6 +37,8 @@ namespace BaconographyWP8.PlatformServices
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
 		public bool LeftHandedMode{ get; set; }
+		public bool OrientationLock { get; set; }
+		public string Orientation { get; set; }
 
         public void ShowSettings()
         {
@@ -104,6 +106,18 @@ namespace BaconographyWP8.PlatformServices
 				else
 					LeftHandedMode = false;
 
+				var orientationLock = await offlineService.GetSetting("OrientationLock");
+				if (!string.IsNullOrWhiteSpace(orientationLock))
+					OrientationLock = bool.Parse(orientationLock);
+				else
+					OrientationLock = false;
+
+				var orientation = await offlineService.GetSetting("Orientation");
+				if (!string.IsNullOrWhiteSpace(orientation))
+					Orientation = orientation;
+				else
+					Orientation = "";
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -125,6 +139,8 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("PreferImageLinksForTiles", PreferImageLinksForTiles.ToString());
             await offlineService.StoreSetting("DefaultOfflineLinkCount", DefaultOfflineLinkCount.ToString());
 			await offlineService.StoreSetting("LeftHandedMode", LeftHandedMode.ToString());
+			await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
+			await offlineService.StoreSetting("Orientation", Orientation.ToString());
         }
 
 
