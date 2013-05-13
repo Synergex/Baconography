@@ -40,7 +40,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <phone:Pivot Title="SNARC > LOGIN"
+        <phone:Pivot Title="Baconography > Login"
                      x:Name="pivot">
             <!--Pivot item one-->
             <phone:PivotItem Header="new">
