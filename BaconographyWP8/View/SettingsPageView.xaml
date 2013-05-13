@@ -41,7 +41,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <phone:Pivot Title="Baconography > Settings"
+        <phone:Pivot Title="BACONOGRAPHY > SETTINGS"
                      x:Name="pivot" DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
             <!--Pivot item one-->
             <phone:PivotItem Header="content">

@@ -42,7 +42,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <local:LoadIndicatorView VerticalAlignment="Top" />
-        <phone:Pivot Title="Baconography > Subreddits"
+        <phone:Pivot Title="BACONOGRAPHY > SUBREDDITS"
                      x:Name="pivot">
             <!--Pivot item one-->
             <phone:PivotItem Header="pinned">
