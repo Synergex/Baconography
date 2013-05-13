@@ -54,6 +54,21 @@ namespace BaconographyWP8.View
 					}
 				}
 			}
+
+			var subredditVM = newListLastItem as AboutSubredditViewModel;
+			if (subredditVM != null)
+			{
+				var mainPageVM = this.DataContext as MainPageViewModel;
+				var match = mainPageVM.Subreddits.FirstOrDefault<TypedThing<Subreddit>>(thing => thing.Data.DisplayName == subredditVM.Thing.Data.DisplayName);
+				if (match != null)
+				{
+					subredditVM.Pinned = true;
+				}
+				else
+				{
+					subredditVM.Pinned = false;
+				}
+			}
 		}
 
 		void subbedList_ItemRealized(object sender, ItemRealizationEventArgs e)
@@ -72,6 +87,21 @@ namespace BaconographyWP8.View
                             viewModel.SubscribedSubreddits.LoadMoreItemsAsync(30);
                         }
 					}
+				}
+			}
+
+			var subredditVM = newListLastItem as AboutSubredditViewModel;
+			if (subredditVM != null)
+			{
+				var mainPageVM = this.DataContext as MainPageViewModel;
+				var match = mainPageVM.Subreddits.FirstOrDefault<TypedThing<Subreddit>>(thing => thing.Data.DisplayName == subredditVM.Thing.Data.DisplayName);
+				if (match != null)
+				{
+					subredditVM.Pinned = true;
+				}
+				else
+				{
+					subredditVM.Pinned = false;
 				}
 			}
 		}
@@ -132,18 +162,25 @@ namespace BaconographyWP8.View
 			}
 		}
 
-		private void PinButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		private void PinUnpinButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var button = sender as Button;
-			var subreddit = button.DataContext as TypedThing<Subreddit>;
-			if (subreddit == null && button.DataContext is AboutSubredditViewModel)
-				subreddit = (button.DataContext as AboutSubredditViewModel).Thing;
-			if (subreddit != null)
+			var subredditVM = button.DataContext as AboutSubredditViewModel;
+			if (subredditVM != null)
 			{
 				var mpvm = this.DataContext as MainPageViewModel;
 				if (mpvm != null)
 				{
-					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit, AddOnly = true });
+					var match = mpvm.Subreddits.FirstOrDefault<TypedThing<Subreddit>>(thing => thing.Data.DisplayName == subredditVM.Thing.Data.DisplayName);
+					if (match != null)
+					{
+						subredditVM.Pinned = false;
+					}
+					else
+					{
+						subredditVM.Pinned = true;
+					}
+					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subredditVM.Thing, AddOnly = true });
 				}
 			}
 		}

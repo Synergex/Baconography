@@ -18,25 +18,14 @@ namespace BaconographyWP8.Converters
 {
 	public class SubredditPinnedUnpinnedConverter : IValueConverter
     {
+		const string PinGlyph = "\uE141";
+		const string UnpinGlyph = "\uE196";
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-			if (parameter == null)
-				return false;
-
-			if (!(parameter is AboutSubredditViewModel))
-				return false;
-
-			if (!(value is ObservableCollection<TypedThing<Subreddit>>))
-				return false;
-
-			var pinnedSubreddits = value as ObservableCollection<TypedThing<Subreddit>>;
-			var subreddit = parameter as AboutSubredditViewModel;
-
-			if (pinnedSubreddits.Contains(subreddit.Thing))
-				return true;
-
-			return false;
+			if (value is bool && (bool)value == true)
+				return UnpinGlyph;
+			return PinGlyph;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

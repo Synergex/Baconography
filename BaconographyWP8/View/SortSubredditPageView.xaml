@@ -149,8 +149,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"
-                                        Tap="PinButton_Tap"/>
+                                        Content="{Binding Pinned, Mode=TwoWay, Converter={StaticResource subredditPinnedUnpinnedConverter}}"
+                                        Tap="PinUnpinButton_Tap"/>
                                     <local:SubredditView/>
                                 </StackPanel>
                             </DataTemplate>
@@ -200,8 +200,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"
-                                        Tap="PinButton_Tap"/>
+                                        Content="{Binding Pinned, Mode=TwoWay, Converter={StaticResource subredditPinnedUnpinnedConverter}}"
+                                        Tap="PinUnpinButton_Tap"/>
                                     <local:SubredditView />
                                 </StackPanel>
                             </DataTemplate>
