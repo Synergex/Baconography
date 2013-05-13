@@ -42,7 +42,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <local:LoadIndicatorView VerticalAlignment="Top" />
-        <phone:Pivot Title="Baconography > Subreddits"
+        <phone:Pivot Title="BACONOGRAPHY > SUBREDDITS"
                      x:Name="pivot">
             <!--Pivot item one-->
             <phone:PivotItem Header="pinned">
@@ -149,8 +149,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"
-                                        Tap="PinButton_Tap"/>
+                                        Content="{Binding Pinned, Mode=TwoWay, Converter={StaticResource subredditPinnedUnpinnedConverter}}"
+                                        Tap="PinUnpinButton_Tap"/>
                                     <local:SubredditView/>
                                 </StackPanel>
                             </DataTemplate>
@@ -200,8 +200,8 @@
                                         Foreground="White"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
-                                        Content="&#xE141;"
-                                        Tap="GotoButton_Tap"/>
+                                        Content="{Binding Pinned, Mode=TwoWay, Converter={StaticResource subredditPinnedUnpinnedConverter}}"
+                                        Tap="PinUnpinButton_Tap"/>
                                     <local:SubredditView />
                                 </StackPanel>
                             </DataTemplate>
