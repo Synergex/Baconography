@@ -19,7 +19,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private static async Task<DB> GetDBInstance()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-rev1.ism";
+            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v2.ism";
             var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0),
