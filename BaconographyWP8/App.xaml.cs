@@ -70,6 +70,8 @@ namespace BaconographyWP8
                 // Caution:- Use this under debug mode only. Application that disables user idle detection will continue to run
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
+                //Application.Current.Host.Settings.EnableCacheVisualization = true;
+                //Application.Current.Host.Settings.EnableRedrawRegions = true;
             }
 
         }
@@ -136,7 +138,7 @@ namespace BaconographyWP8
         {
             LowMemoryHelper.BeginRecording();
 			InitializeBacon();
-
+            
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,

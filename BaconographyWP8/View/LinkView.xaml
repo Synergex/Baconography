@@ -9,11 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="75"
-    d:DesignWidth="480"
-    x:Name="controlRoot">
-    <UserControl.CacheMode>
-        <BitmapCache/>
-    </UserControl.CacheMode>
+    d:DesignWidth="480">
 
     <Grid MinHeight="65" HorizontalAlignment="Stretch" Margin="0,0,0,12">
         <Grid.ColumnDefinitions>
@@ -52,7 +48,7 @@
                             </TextBlock.RenderTransform>
                         </TextBlock>
                         <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding ElementName=controlRoot, Path=DisplaySubreddit, Converter={StaticResource booleanVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding FromMultiReddit, Converter={StaticResource booleanVisibilityConverter}}">
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" in " />
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
                         </StackPanel>

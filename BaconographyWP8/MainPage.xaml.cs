@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
 using Microsoft.Phone.Reactive;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace BaconographyWP8
 {
@@ -56,13 +57,14 @@ namespace BaconographyWP8
 		}
 
 		PageOrientation lastKnownOrientation;
+
+
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.AdjustForOrientation(this.Orientation);
 
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-				
 			}
             else if (e.NavigationMode == NavigationMode.Refresh)
             {

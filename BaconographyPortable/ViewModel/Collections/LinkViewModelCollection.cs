@@ -15,7 +15,11 @@ namespace BaconographyPortable.ViewModel.Collections
         public LinkViewModelCollection(IBaconProvider baconProvider, string subreddit, string subredditId = null)
             : base(baconProvider,
                 new BaconographyPortable.Model.Reddit.ListingHelpers.SubredditLinks(baconProvider, subreddit, subredditId),
-                new BaconographyPortable.Model.KitaroDB.ListingHelpers.SubredditLinks(baconProvider, subreddit, subredditId)) { }
+                new BaconographyPortable.Model.KitaroDB.ListingHelpers.SubredditLinks(baconProvider, subreddit, subredditId)) 
+        {
+            if (subreddit.Contains("+") || subreddit.Contains("/r/all") || !subreddit.Contains("/r/"))
+                _state.Add("MultiRedditSource", string.Empty);
+        }
 
 
 

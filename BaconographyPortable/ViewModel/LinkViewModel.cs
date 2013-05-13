@@ -189,6 +189,8 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
+        public bool FromMultiReddit { get; set; }
+
         public Tuple<bool, string> PreviewPack
         {
             get

@@ -28,7 +28,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Type:LinkViewModel">
             <StackPanel>
-            <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding}" />
+            <local:LinkView InComments="True" DataContext="{Binding}" />
                 <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />

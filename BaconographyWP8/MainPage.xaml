@@ -77,9 +77,7 @@
                      ItemsSource="{Binding PivotItems}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem">
-            <phone:Pivot.CacheMode>
-                <BitmapCache/>
-            </phone:Pivot.CacheMode>
+            
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid Height="20" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">

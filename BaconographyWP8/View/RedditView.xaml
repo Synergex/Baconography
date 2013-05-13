@@ -12,11 +12,10 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="800" d:DesignWidth="480"
-    x:Name="controlRoot">
-    <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    d:DesignHeight="800" d:DesignWidth="480">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
-                DataContext="{Binding ElementName=controlRoot, Path=DataContext}"
+                DataContext="{Binding}"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
@@ -34,7 +33,7 @@
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <local:LinkView DisplaySubreddit="{Binding ElementName=controlRoot, Path=DataContext.IsFrontPage}"  />
+                        <local:LinkView/>
                     </StackPanel>
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>
