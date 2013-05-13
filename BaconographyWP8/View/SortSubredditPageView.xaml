@@ -201,7 +201,7 @@
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
                                         Content="&#xE141;"
-                                        Tap="GotoButton_Tap"/>
+                                        Tap="PinButton_Tap"/>
                                     <local:SubredditView />
                                 </StackPanel>
                             </DataTemplate>
