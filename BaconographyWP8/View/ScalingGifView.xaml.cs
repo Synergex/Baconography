@@ -22,6 +22,8 @@ using GalaSoft.MvvmLight;
 using System;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
 
 namespace BaconographyWP8.View
 {
@@ -68,6 +70,7 @@ namespace BaconographyWP8.View
 					var converter = App.Current.Resources["imageConverter"] as ImageConverter;
 					if (converter != null)
 					{
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 						image.Source = (ExtendedImage)converter.Convert(value, null, null, System.Globalization.CultureInfo.CurrentCulture);
 						image.Start();
 					}
@@ -221,7 +224,7 @@ namespace BaconographyWP8.View
 			_scale = 0;
 			CoerceScale(true);
 			_scale = _coercedScale;
-
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
 			ResizeImage(true);
 		}
 
@@ -230,6 +233,7 @@ namespace BaconographyWP8.View
 		/// </summary>
 		private void OnLoadingFailed(object sender, EventArgs e)
 		{
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			var pvm = (LinkedPictureViewModel.LinkedPicture)DataContext;
 			if (pvm.ImageSource is string)
