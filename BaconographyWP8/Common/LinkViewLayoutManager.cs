@@ -18,10 +18,12 @@ namespace BaconographyWP8.Common
 		IBaconProvider _baconProvider;
 		ISettingsService _settingsService;
 
+		const int PictureColumnWidth = 100;
+
 		public LinkViewLayoutManager()
 		{
 			FirstColumnWidth = new GridLength(1, GridUnitType.Star);
-			SecondColumnWidth = new GridLength(100, GridUnitType.Pixel);
+			SecondColumnWidth = new GridLength(PictureColumnWidth, GridUnitType.Pixel);
 			PictureColumn = 1;
 			TextColumn = 0;	
 			
@@ -52,7 +54,7 @@ namespace BaconographyWP8.Common
 				_leftHandedMode = value;
 				if (value)
 				{
-					FirstColumnWidth = new GridLength(100, GridUnitType.Pixel);
+					FirstColumnWidth = new GridLength(PictureColumnWidth, GridUnitType.Pixel);
 					SecondColumnWidth = new GridLength(1, GridUnitType.Star);
 					PictureColumn = 0;
 					TextColumn = 1;
@@ -60,7 +62,7 @@ namespace BaconographyWP8.Common
 				else
 				{
 					FirstColumnWidth = new GridLength(1, GridUnitType.Star);
-					SecondColumnWidth = new GridLength(100, GridUnitType.Pixel);
+					SecondColumnWidth = new GridLength(PictureColumnWidth, GridUnitType.Pixel);
 					PictureColumn = 1;
 					TextColumn = 0;
 				}
