@@ -24,6 +24,8 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         bool _isPreviewShown;
 		bool _isExtendedOptionsShown;
+        bool _loading;
+        bool _registeredLongNav;
 
         public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
         {
@@ -35,8 +37,45 @@ namespace BaconographyPortable.ViewModel
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _isPreviewShown = false;
 			_isExtendedOptionsShown = false;
+            _loading = false;
+            _registeredLongNav = false;
             ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
 			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
+
+
+            if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+            {
+                MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
+                _registeredLongNav = true;
+            }
+        }
+
+        private void OnLongNav(LongNavigationMessage msg)
+        {
+            if (msg.TargetUrl == Url)
+            {
+                Loading = !msg.Finished;
+            }
+        }
+
+        public override void Cleanup()
+        {
+            if (_registeredLongNav)
+                MessengerInstance.Unregister<LongNavigationMessage>(this);
+            base.Cleanup();
+        }
+
+        public bool Loading
+        {
+            get
+            {
+                return _loading;
+            }
+            set
+            {
+                _loading = value;
+                RaisePropertyChanged("Loading");
+            }
         }
 
         VotableViewModel _votable;

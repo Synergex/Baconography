@@ -65,7 +65,7 @@
         <Grid Grid.Column="{Binding Source={StaticResource linkViewLayoutManager}, Path=PictureColumn}" Grid.Row="0" VerticalAlignment="Stretch" MinHeight="70" Width="70">
             <Button BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
                     MinHeight="70" Width="70" Margin="0,0,5,0"
-                    Command="{Binding GotoLink}" CommandParameter="{Binding}"
+                    Tap="Link_Tap"
                     Padding="0" HorizontalContentAlignment="Left">
                 <Button.Content>
                     <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">

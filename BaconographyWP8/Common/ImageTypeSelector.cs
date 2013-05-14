@@ -1,5 +1,7 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.ViewModel;
 using BaconographyWP8.PlatformServices;
+using GalaSoft.MvvmLight.Messaging;
 using ImageTools;
 using ImageTools.Controls;
 using ImageTools.Helpers;
@@ -53,6 +55,7 @@ namespace BaconographyWP8.Common
 
 		private async void AsyncGetTemplateKey(string apiURL)
 		{
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 			var request = HttpWebRequest.CreateHttp(apiURL);
 			byte[] result = null;
 			using (var response = (await SimpleHttpService.GetResponseAsync(request)))
@@ -70,6 +73,7 @@ namespace BaconographyWP8.Common
 					});
 				}
 			}
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
 
 			GifDecoder decoder = new GifDecoder();
 			if (result != null && decoder.IsSupportedFileFormat(result))

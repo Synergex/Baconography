@@ -55,5 +55,12 @@ namespace BaconographyWP8.View
 			get { return (bool)GetValue(InCommentsProperty); }
 			set { SetValue(InCommentsProperty, value); }
 		}
+
+        private void Link_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var vm = this.DataContext as LinkViewModel;
+            if (!InComments)
+                vm.GotoLink.Execute(vm);
+        }
     }
 }
