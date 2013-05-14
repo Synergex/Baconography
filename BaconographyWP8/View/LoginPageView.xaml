@@ -82,76 +82,86 @@
             <!--Pivot item two-->
             <phone:PivotItem Header="saved">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Margin="12,0,12,0">
-                        <StackPanel Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock Margin="0,0,0,0" FontWeight="SemiBold">CURRENT USER</TextBlock>
-                            <TextBlock Margin="12,7,0,7" FontSize="22" Text="{Binding CurrentUserName}"
-                                HorizontalAlignment="Left"/>
-                        </StackPanel>
-                        <common:FixedLongListSelector
-                            Margin="0,10,0,0"
-                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                            ItemsSource="{Binding Path=Credentials, Mode=TwoWay}"
-                            HorizontalAlignment="Stretch">
-                            <common:FixedLongListSelector.ListHeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Margin="0,0,0,0" FontWeight="SemiBold" Text="SAVED USERNAMES" />
-                                </DataTemplate>
-                            </common:FixedLongListSelector.ListHeaderTemplate>
-                            <common:FixedLongListSelector.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Height="50" Margin="12,10,12,0">
-                                        <Button Style="{StaticResource RoundButtonStyle}"
-                                            FontFamily="Segoe UI Symbol" FontSize="22"
-                                            Padding="2" BorderThickness="0"
-                                            Width="50" Height="50"
-                                            Foreground="White"
-                                            HorizontalContentAlignment="Center"
-                                            VerticalContentAlignment="Center"
-                                            Content="&#xE13D;"
-                                            Margin="0,0,0,0"
-                                            DataContext="{Binding Login, Source={StaticResource Locator}}"
-                                            Command="{Binding SelectCredential}"
-                                            CommandParameter="{Binding ElementName=name, Path=Text}"/>
-                                        <Button Style="{StaticResource RoundButtonStyle}"
-                                            FontFamily="Segoe UI Symbol" FontSize="16"
-                                            Padding="2" BorderThickness="0"
-                                            Width="50" Height="50"
-                                            Foreground="White"
-                                            HorizontalContentAlignment="Center"
-                                            VerticalContentAlignment="Center"
-                                            Content="&#xE1E0;"
-                                            Margin="10,0,0,0"
-                                            DataContext="{Binding Login, Source={StaticResource Locator}}"
-                                            Command="{Binding RemoveCredential}"
-                                            CommandParameter="{Binding ElementName=name, Path=Text}"/>
-                                        <Button BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
-                                                Padding="0,0,0,0" Margin="10,0,0,0" FontWeight="Normal" FontFamily="Segoe UI"
-                                                Height="60" Command="{Binding Path=Login.SelectCredential, Source={StaticResource Locator}}"
-                                                CommandParameter="{Binding ElementName=name, Path=Text}">
-                                            <Button.Content>
-                                                <Grid Margin="0,-5,0,0">
-                                                    <TextBlock x:Name="name" FontSize="22" Text="{Binding}"/>
-                                                </Grid>
-                                            </Button.Content>
-                                        </Button>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </common:FixedLongListSelector.ItemTemplate>
-                        </common:FixedLongListSelector>
-                    </StackPanel>
-                    
-                    <Button Content="logout"
-                            Grid.Row="1"
-                            VerticalAlignment="Bottom"
-                            Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
-                            Command="{Binding DoLogout}"
-                            IsEnabled="{Binding IsLoggedIn}"/>
+                    <common:FixedLongListSelector
+                        Margin="12,10,12,0"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                        ItemsSource="{Binding Path=Credentials, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <common:FixedLongListSelector.ListHeaderTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition MaxHeight="50" />
+                                        <RowDefinition MaxHeight="50" />
+                                        <RowDefinition MaxHeight="50" />
+                                    </Grid.RowDefinitions>
+                                    <Border BorderThickness="0" Padding="0" Margin="0" Grid.Row="0"
+                                            Visibility="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}, Converter={StaticResource booleanVisibilityConverter}}">
+                                        <TextBlock Margin="0,0,0,0" FontWeight="SemiBold"
+                                            Text="CURRENT USER" />
+                                    </Border>
+                                    <Border BorderThickness="0" Padding="0" Margin="0" Grid.Row="1"
+                                            Visibility="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}, Converter={StaticResource booleanVisibilityConverter}}">
+                                        <TextBlock Margin="12,7,0,7" FontSize="22" Text="{Binding Path=Login.CurrentUserName, Source={StaticResource Locator}}"
+                                            HorizontalAlignment="Left"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="2" Margin="0,0,0,0" FontWeight="SemiBold" Text="SAVED USERNAMES" />
+                                </Grid>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListHeaderTemplate>
+                        <common:FixedLongListSelector.ListFooterTemplate>
+                            <DataTemplate>
+                                <Button Margin="0,12,0,0"
+                                    Content="logout"
+                                    VerticalAlignment="Bottom"
+                                    Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                                    Command="{Binding DoLogout}"
+                                    IsEnabled="{Binding IsLoggedIn}"/>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListFooterTemplate>
+                        <common:FixedLongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Height="50" Margin="12,10,12,0">
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="22"
+                                        Padding="2" BorderThickness="0"
+                                        Width="50" Height="50"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE13D;"
+                                        Margin="0,0,0,0"
+                                        DataContext="{Binding Login, Source={StaticResource Locator}}"
+                                        Command="{Binding SelectCredential}"
+                                        CommandParameter="{Binding ElementName=name, Path=Text}"/>
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="50" Height="50"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE1E0;"
+                                        Margin="10,0,0,0"
+                                        DataContext="{Binding Login, Source={StaticResource Locator}}"
+                                        Command="{Binding RemoveCredential}"
+                                        CommandParameter="{Binding ElementName=name, Path=Text}"/>
+                                    <Button BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
+                                            Padding="0,0,0,0" Margin="10,0,0,0" FontWeight="Normal" FontFamily="Segoe UI"
+                                            Height="60" Command="{Binding Path=Login.SelectCredential, Source={StaticResource Locator}}"
+                                            CommandParameter="{Binding ElementName=name, Path=Text}">
+                                        <Button.Content>
+                                            <Grid Margin="0,-5,0,0">
+                                                <TextBlock x:Name="name" FontSize="22" Text="{Binding}"/>
+                                            </Grid>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ItemTemplate>
+                    </common:FixedLongListSelector>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>
