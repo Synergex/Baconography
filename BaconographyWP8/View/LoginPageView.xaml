@@ -130,10 +130,10 @@
                                             DataContext="{Binding Login, Source={StaticResource Locator}}"
                                             Command="{Binding RemoveCredential}"
                                             CommandParameter="{Binding ElementName=name, Path=Text}"/>
-                                        <Button Command="{Binding SelectCredential}" CommandParameter="{Binding}"
-                                                BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
+                                        <Button BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
                                                 Padding="0,0,0,0" Margin="10,0,0,0" FontWeight="Normal" FontFamily="Segoe UI"
-                                                Height="60">
+                                                Height="60" Command="{Binding Path=Login.SelectCredential, Source={StaticResource Locator}}"
+                                                CommandParameter="{Binding ElementName=name, Path=Text}">
                                             <Button.Content>
                                                 <Grid Margin="0,-5,0,0">
                                                     <TextBlock x:Name="name" FontSize="22" Text="{Binding}"/>
