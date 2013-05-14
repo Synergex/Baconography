@@ -146,7 +146,7 @@ namespace BaconographyWP8.Common
 			var viewport = FindViewport(this);
 			if (viewport != null)
 			{
-				if (viewport.Viewport.Top == 0)
+				if (viewport.Viewport.Top < 10)
 				{
 					if (total > pullDownOffset || (-total) > pullDownOffset)
 						Compression(this, new CompressionEventArgs(CompressionType.Top));
