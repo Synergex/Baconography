@@ -42,7 +42,7 @@
 
     <ScrollViewer>
         <StackPanel Orientation="Vertical" Margin="12,20,12,0">
-            <TextBlock FontWeight="SemiBold" Text="Baconography > Reply"/>
+            <TextBlock FontWeight="SemiBold" Text="BACONOGRAPHY > REPLY"/>
             <Grid HorizontalAlignment="Right" Margin="0,0,0,10">
                 <StackPanel Orientation="Horizontal"
                             Visibility="{Binding IsLoggedIn, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
@@ -71,7 +71,7 @@
                         <InputScopeName NameValue="Text" />
                     </InputScope>
                 </TextBox.InputScope>
-            </TextBox>0
+            </TextBox>
 
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
