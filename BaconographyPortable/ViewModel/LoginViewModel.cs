@@ -277,7 +277,8 @@ namespace BaconographyPortable.ViewModel
 							await _userService.RemoveStoredCredential(name);
 							Credentials.Remove(name);
 							RaisePropertyChanged("Credentials");
-							DoLogout.Execute(null);
+							if (name == CurrentUserName)
+								DoLogout.Execute(null);
 						});
 					});
 				}
