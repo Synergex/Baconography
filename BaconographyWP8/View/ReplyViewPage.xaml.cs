@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -86,6 +87,27 @@ namespace BaconographyWP8.View
 		private void LoginButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			_navigationService.Navigate(typeof(LoginPageView), null);
+		}
+
+		private void TextBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+
+		}
+
+		private void TextBox_SelectionChanged(object sender, RoutedEventArgs e)
+		{
+			var textbox = sender as TextBox;
+			if (textbox != null)
+			{
+				var vm = this.DataContext as ReplyViewModel;
+				if (vm != null)
+				{
+					if (vm.SelectionLength != textbox.SelectionLength)
+						vm.SelectionLength = textbox.SelectionLength;
+					if (vm.SelectionStart != textbox.SelectionStart)
+						vm.SelectionStart = textbox.SelectionStart;
+				}
+			}
 		}
     }
 }
