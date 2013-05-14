@@ -123,12 +123,15 @@ namespace BaconographyPortable.ViewModel
 		// Cause UI to re-evaluate visibility without changing values
 		public void Touch()
 		{
-			for (int i = 0; i < Replies.Count; i++)
+			if (Replies != null)
 			{
-				var comment = Replies[i] as CommentViewModel;
-				var more = Replies[i] as MoreViewModel;
-				if (comment != null) comment.Touch();
-				if (more != null) more.Touch();
+				for (int i = 0; i < Replies.Count; i++)
+				{
+					var comment = Replies[i] as CommentViewModel;
+					var more = Replies[i] as MoreViewModel;
+					if (comment != null) comment.Touch();
+					if (more != null) more.Touch();
+				}
 			}
 			RaisePropertyChanged("IsVisible");
 		}
