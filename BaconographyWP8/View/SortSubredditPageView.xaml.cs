@@ -175,12 +175,13 @@ namespace BaconographyWP8.View
 					if (match != null)
 					{
 						subredditVM.Pinned = false;
+						Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Subreddit = subredditVM.Thing });
 					}
 					else
 					{
 						subredditVM.Pinned = true;
+						Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subredditVM.Thing, AddOnly = true });
 					}
-					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subredditVM.Thing, AddOnly = true });
 				}
 			}
 		}
