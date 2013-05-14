@@ -141,5 +141,18 @@ namespace BaconographyW8.PlatformServices
 			get;
 			set;
 		}
-	}
+
+
+        public bool OrientationLock
+        {
+            get;
+            set;
+        }
+
+        public string Orientation
+        {
+            get;
+            set;
+        }
+    }
 }
