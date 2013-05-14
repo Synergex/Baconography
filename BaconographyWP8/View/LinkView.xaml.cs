@@ -55,15 +55,5 @@ namespace BaconographyWP8.View
 			get { return (bool)GetValue(InCommentsProperty); }
 			set { SetValue(InCommentsProperty, value); }
 		}
-
-		private void Button_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-		{
-
-		}
-
-		private void Button_Hold(object sender, System.Windows.Input.GestureEventArgs e)
-		{
-
-		}
     }
 }
