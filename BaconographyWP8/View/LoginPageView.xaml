@@ -89,14 +89,14 @@
                     <StackPanel Grid.Row="0" Margin="12,0,12,0">
                         <StackPanel Visibility="{Binding IsLoggedIn, Converter={StaticResource booleanVisibilityConverter}}">
                             <TextBlock Margin="0,0,0,0" FontWeight="SemiBold">CURRENT USER</TextBlock>
-                            <TextBlock Margin="12,7,0,7" FontSize="20" Text="{Binding CurrentUserName}"
+                            <TextBlock Margin="12,7,0,7" FontSize="22" Text="{Binding CurrentUserName}"
                                 HorizontalAlignment="Left"/>
                         </StackPanel>
                         <common:FixedLongListSelector
                             Margin="0,10,0,0"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                            ItemsSource="{Binding Path=Credentials}"
+                            ItemsSource="{Binding Path=Credentials, Mode=TwoWay}"
                             HorizontalAlignment="Stretch">
                             <common:FixedLongListSelector.ListHeaderTemplate>
                                 <DataTemplate>
@@ -105,11 +105,11 @@
                             </common:FixedLongListSelector.ListHeaderTemplate>
                             <common:FixedLongListSelector.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Height="40" Margin="12,10,12,0">
+                                    <StackPanel Orientation="Horizontal" Height="50" Margin="12,10,12,0">
                                         <Button Style="{StaticResource RoundButtonStyle}"
-                                            FontFamily="Segoe UI Symbol" FontSize="20"
+                                            FontFamily="Segoe UI Symbol" FontSize="22"
                                             Padding="2" BorderThickness="0"
-                                            Width="40" Height="40"
+                                            Width="50" Height="50"
                                             Foreground="White"
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center"
@@ -119,9 +119,9 @@
                                             Command="{Binding SelectCredential}"
                                             CommandParameter="{Binding ElementName=name, Path=Text}"/>
                                         <Button Style="{StaticResource RoundButtonStyle}"
-                                            FontFamily="Segoe UI Symbol" FontSize="14"
+                                            FontFamily="Segoe UI Symbol" FontSize="16"
                                             Padding="2" BorderThickness="0"
-                                            Width="40" Height="40"
+                                            Width="50" Height="50"
                                             Foreground="White"
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center"
@@ -130,7 +130,16 @@
                                             DataContext="{Binding Login, Source={StaticResource Locator}}"
                                             Command="{Binding RemoveCredential}"
                                             CommandParameter="{Binding ElementName=name, Path=Text}"/>
-                                        <TextBlock x:Name="name" FontSize="20" Margin="10,4,0,0" Text="{Binding}"/>
+                                        <Button Command="{Binding SelectCredential}" CommandParameter="{Binding}"
+                                                BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
+                                                Padding="0,0,0,0" Margin="10,0,0,0" FontWeight="Normal" FontFamily="Segoe UI"
+                                                Height="60">
+                                            <Button.Content>
+                                                <Grid Margin="0,-5,0,0">
+                                                    <TextBlock x:Name="name" FontSize="22" Text="{Binding}"/>
+                                                </Grid>
+                                            </Button.Content>
+                                        </Button>
                                     </StackPanel>
                                 </DataTemplate>
                             </common:FixedLongListSelector.ItemTemplate>

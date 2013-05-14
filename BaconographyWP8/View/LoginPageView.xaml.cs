@@ -29,11 +29,12 @@ namespace BaconographyWP8.View
 			if (vm != null)
 			{
 				if (!String.IsNullOrEmpty(vm.CurrentUserName))
-				{
 					pivot.SelectedIndex = 1;
-				}
 
 				vm.LoadCredentials();
+
+				if (vm.Credentials.Count > 0)
+					pivot.SelectedIndex = 1;
 			}
 			base.OnNavigatedTo(e);
 		}
