@@ -30,6 +30,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
+		INotificationService _notificationService;
         bool _initialLoad = true;
         WeakReference<Task> _subredditSavingTask;
 
@@ -44,6 +45,7 @@ namespace BaconographyPortable.ViewModel
             _liveTileService = baconProvider.GetService<ILiveTileService>();
             _offlineService = baconProvider.GetService<IOfflineService>();
             _settingsService = baconProvider.GetService<ISettingsService>();
+			_notificationService = baconProvider.GetService<INotificationService>();
 
 			MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
@@ -201,6 +203,14 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnSubredditChanged(SelectSubredditMessage message)
 		{
+			if (Subreddits.Count == 5 || Subreddits.Count == 7)
+			{
+				_notificationService.CreateNotification("Warning: Adding more than five pinned subreddits can cause slow application performance when navigating between views. We recommend using five or fewer for this release.");
+			}
+			else if (Subreddits.Count >= 8)
+			{
+				_notificationService.CreateNotification("Warning: At eight or more pinned subreddits you are likely to see greatly decreased application performance. We recommend using five or fewer for this release.");
+			}
 			ChangeSubreddit(message, !message.AddOnly);
 		}
 
