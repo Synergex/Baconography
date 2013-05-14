@@ -62,11 +62,13 @@
             </Button.Content>
         </Button>
 
-        <Grid Grid.Column="{Binding Source={StaticResource linkViewLayoutManager}, Path=PictureColumn}" Grid.Row="0" VerticalAlignment="Stretch" MinHeight="70" Width="70">
-            <Button BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
-                    MinHeight="70" Width="70" Margin="0,0,5,0"
+         <Grid Grid.Column="{Binding Source={StaticResource linkViewLayoutManager}, Path=PictureColumn}" Grid.Row="0" VerticalAlignment="Stretch"
+              MinHeight="90" Width="100">
+            <Button BorderThickness="0" VerticalContentAlignment="Center"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Height="90" Width="90" Margin="0,0,0,0"
                     Tap="Link_Tap"
-                    Padding="0" HorizontalContentAlignment="Left">
+                    Padding="0" HorizontalContentAlignment="Center">
                 <Button.Content>
                     <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">
                         <Border BorderThickness="0" Height="70" Width="70"
@@ -85,7 +87,7 @@
                             </Grid>
                         </Border>
 
-                        <Border MinHeight="70" Width="70"
+                        <Border Height="70" Width="70"
                                 VerticalAlignment="Stretch"
                                 Visibility="{Binding HasThumbnail, Converter={StaticResource invertBooleanVisibilityConverter}}">
                             <TextBlock FontFamily="Segoe UI Symbol" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -100,6 +102,46 @@
                             <Border x:Name="ButtonBackground" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="0" >
                                 <ContentControl x:Name="ContentContainer" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ButtonBackground"
+                                                Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="Transparent" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ButtonBackground"
+                                                Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneDisabledBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ButtonBackground"
+                                                Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneAccentBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
                         </Grid>
                     </ControlTemplate>
                 </Button.Template>

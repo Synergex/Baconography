@@ -152,13 +152,13 @@ namespace BaconographyWP8.Converters
                 var stackPanel = new StackPanel { Orientation = Orientation.Vertical };
                 foreach (var part in SplitText(semiCleanText))
                 {
-                    stackPanel.Children.Add(new TextBlock { Text = part, TextWrapping = TextWrapping.Wrap });
+                    stackPanel.Children.Add(new TextBlock { Text = part, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(10,0,0,0) });
                 }
                 return stackPanel;
             }
             else
             {
-                return new TextBlock { Text = semiCleanText, TextWrapping = TextWrapping.Wrap };
+				return new TextBlock { Text = semiCleanText, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(10,0,0,0) };
             }
         }
 
