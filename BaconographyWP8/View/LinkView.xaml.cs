@@ -59,7 +59,7 @@ namespace BaconographyWP8.View
         private void Link_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             var vm = this.DataContext as LinkViewModel;
-            if (!InComments)
+			if (vm != null)
                 vm.GotoLink.Execute(vm);
         }
     }
