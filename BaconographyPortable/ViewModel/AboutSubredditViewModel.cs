@@ -16,6 +16,7 @@ namespace BaconographyPortable.ViewModel
         IRedditService _redditService;
         IBaconProvider _baconProvider;
         bool _subscribed;
+		bool _pinned;
 
         public AboutSubredditViewModel(IBaconProvider baconProvider, Thing thing, bool subscribed)
         {
@@ -116,5 +117,18 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("Subscribed");
             }
         }
+
+		public bool Pinned
+		{
+			get
+			{
+				return _pinned;
+			}
+			set
+			{
+				_pinned = value;
+				RaisePropertyChanged("Pinned");
+			}
+		}
     }
 }

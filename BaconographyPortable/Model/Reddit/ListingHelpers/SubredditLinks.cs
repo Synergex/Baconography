@@ -59,5 +59,11 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
             return await _redditService.GetMoreOnListing(ids, _subredditId, _subreddit);
         }
+
+
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return GetUncachedListing();
+        }
     }
 }

@@ -13,10 +13,6 @@
     d:DesignWidth="400"
     x:Name="controlRoot">
 
-    <UserControl.CacheMode>
-        <BitmapCache/>
-    </UserControl.CacheMode>
-
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
             <local:CommentView/>
@@ -38,9 +34,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Grid.Column="0" Background="{Binding Path=Depth, Converter={StaticResource depthColorConverter}}" />
-        <StackPanel Margin="0,0,0,15" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
+        <StackPanel Hold="Comment_Hold" Margin="0,0,0,15" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
             <Button BorderThickness="0" Margin="-5,-10,0,0" Padding="0" HorizontalAlignment="Left"
-                    Command="{Binding ShowExtendedView}" HorizontalContentAlignment="Left">
+                    Command="{Binding MinimizeCommand}" CommandParameter="{Binding}" HorizontalContentAlignment="Left">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2"
@@ -68,11 +64,11 @@
                               Margin="3,0,0,0"/>
             <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
                 Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
-            <ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
+            <!--<ContentControl Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>-->
         </StackPanel>
         <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource booleanVisibilityConverter}}">
             <Button BorderThickness="0" Margin="-5,-10,0,0" Padding="0" HorizontalAlignment="Left"
-                    HorizontalContentAlignment="Left">
+                    HorizontalContentAlignment="Left" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="-10,-5,-5,-5" Padding="2,-5,2,2"
@@ -87,28 +83,5 @@
                 </Button.Content>
             </Button>
         </Grid>
-        <!--
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
-            <Border BorderThickness="0" Height="1"/>
-            <ItemsControl Margin="7,0,0,0" ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Left" 
-                            HorizontalContentAlignment="Left">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel HorizontalAlignment="Left"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.Template>
-                    <ControlTemplate>
-                        <ItemsPresenter HorizontalAlignment="Left" />
-                    </ControlTemplate>
-                </ItemsControl.Template>
-            </ItemsControl>
-        </StackPanel>
-        -->
     </Grid>
 </UserControl>

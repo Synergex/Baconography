@@ -86,7 +86,9 @@ namespace BaconographyPortable.ViewModel.Collections
             }
             else if (thing.Data is Link)
             {
-                return new LinkViewModel(thing, _baconProvider);
+                var linkView = new LinkViewModel(thing, _baconProvider);
+                linkView.FromMultiReddit = true;
+                return linkView;
             }
             else if (thing.Data is Comment)
             {

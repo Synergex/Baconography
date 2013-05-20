@@ -6,6 +6,7 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     mc:Ignorable="d"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:local="clr-namespace:BaconographyWP8.View"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:res="clr-namespace:BaconographyWP8.Resources"
@@ -13,8 +14,8 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480"
-    shell:SystemTray.IsVisible="True"
-    SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
     DataContext="{Binding Comments, Source={StaticResource Locator}}"
     x:Name="controlRoot">
 
@@ -27,7 +28,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Type:LinkViewModel">
             <StackPanel>
-            <local:LinkView DisplaySubreddit="True" InComments="True" DataContext="{Binding}" />
+            <local:LinkView InComments="True" DataContext="{Binding}" />
                 <Grid Margin="0,0,0,0" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -67,7 +68,7 @@
                     <Button Grid.Row="1" Grid.Column="2"
                                             FontFamily="Segoe UI Symbol" FontSize="14"
                                             Width="40" Height="40"
-                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoReply}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"
+                                            Tap="ReplyButton_Tap"
                                             Content="&#xE165;" Style="{StaticResource RoundButtonStyle}" />
                     <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
 
@@ -99,7 +100,7 @@
                 <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding ElementName=controlRoot, Path=DataContext.IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
                     <ContentControl Margin="5,5,5,5" Content="{Binding ElementName=controlRoot, Path=DataContext.SelfText, Converter={StaticResource markdownConverter}}"/>
                 </Border>
-                <ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>
+                <!--<ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>-->
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="typedTemplateSelector">
@@ -108,7 +109,31 @@
 
     </UserControl.Resources>
 
-    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" Background="{StaticResource PhoneChromeBrush}">
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+    
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
+        <Grid.Background>
+            <SolidColorBrush Color="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}" Opacity="{StaticResource PhoneDarkThemeOpacity}" />
+        </Grid.Background>
         <local:LoadIndicatorView VerticalAlignment="Top" />
         
         <ListBox Margin="0,20,0,0" HorizontalAlignment="Stretch"

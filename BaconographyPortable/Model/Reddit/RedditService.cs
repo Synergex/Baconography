@@ -87,12 +87,15 @@ namespace BaconographyPortable.Model.Reddit
 
         }
 
-        public async Task<Listing> Search(string query, int? limit)
+        public async Task<Listing> Search(string query, int? limit, bool reddits)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-            var targetUri = string.Format("http://www.reddit.com/search.json?limit={0}&q={1}",
+            var targetUri = string.Format(
+                reddits ? 
+                    "http://www.reddit.com/subreddits/search.json?limit={0}&q={1}" : 
+                    "http://www.reddit.com/search.json?limit={0}&q={1}",
                                            guardedLimit,
                                            query);
 
@@ -165,8 +168,10 @@ namespace BaconographyPortable.Model.Reddit
         public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
         {
             //no info for the front page
-            if(name == "/")
+            if (name == "/")
                 return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+            else if (name == "all")
+                return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = "all", Url = "/r/all", Name = "all", DisplayName="all", Title="all", Id="t5_fakeid" } });
 
             var targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
 
@@ -213,7 +218,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
         {
-            var maxLimit = (await UserIsGold()) ? 1500 : 100;
+            var maxLimit = (await UserIsGold()) ? 1500 : 25;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
             if (subreddit == null)
@@ -396,9 +401,9 @@ namespace BaconographyPortable.Model.Reddit
             string targetUri = null;
             //if this base url already has arguments (like search) just append the count and the after
             if (baseUrl.Contains(".json?"))
-                targetUri = string.Format("{0}&count={1}&after={2}", baseUrl, guardedLimit, after);
+                targetUri = string.Format("{0}&limit={1}&after={2}", baseUrl, guardedLimit, after);
             else
-                targetUri = string.Format("{0}.json?count={1}&after={2}", baseUrl, guardedLimit, after);
+                targetUri = string.Format("{0}.json?limit={1}&after={2}", baseUrl, guardedLimit, after);
 
             try
             {
@@ -538,6 +543,20 @@ namespace BaconographyPortable.Model.Reddit
             var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
         }
 
+        public virtual async Task EditComment(string thingId, string text)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"thing_id", thingId},
+                {"text", text.Replace("\r\n", "\n")},
+                {"uh", modhash}
+            };
+
+            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+        }
+
         private async Task<bool> UserIsGold()
         {
             var user = await _userService.GetUser();
@@ -675,5 +694,6 @@ namespace BaconographyPortable.Model.Reddit
             var meString = await _simpleHttpService.SendGet(loginToken, "http://www.reddit.com/api/me.json");
             return (!string.IsNullOrWhiteSpace(meString) && meString != "{}");
         }
+
     }
 }

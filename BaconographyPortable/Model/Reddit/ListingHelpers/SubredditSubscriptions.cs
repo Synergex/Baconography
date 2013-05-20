@@ -47,6 +47,11 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             return resultListing;
         }
 
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return UncachedLoad();
+        }
+
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
         {
             return _redditService.GetAdditionalFromListing("http://www.reddit.com/reddits/mine.json", after, null);

@@ -39,5 +39,9 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         {
             return _offlineService.GetMoreComments(_subreddit, _targetName, ids);
         }
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return GetInitialListing(state).Item2();
+        }
     }
 }

@@ -156,6 +156,30 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("IsRememberLogin");
             }
         }
+
+		RelayCommand _doLogout;
+		public RelayCommand DoLogout
+		{
+			get
+			{
+				if (_doLogout == null)
+				{
+					_doLogout = new RelayCommand(() =>
+					{
+						try
+						{
+							_userService.Logout();
+						}
+						catch (Exception ex)
+						{
+							_notificationService.CreateErrorNotification(ex);
+						}
+					});
+				}
+				return _doLogout;
+			}
+		}
+
         RelayCommand _doLogin;
         public RelayCommand DoLogin
         {
@@ -222,6 +246,45 @@ namespace BaconographyPortable.ViewModel
                 return _doLogin;
             }
         }
+
+		RelayCommand<string> _selectCredential;
+		public RelayCommand<string> SelectCredential
+		{
+			get
+			{
+				if (_selectCredential == null)
+				{
+					_selectCredential = new RelayCommand<string>(name =>
+					{
+						SelectedCredential = name;
+					});
+				}
+				return _selectCredential;
+			}
+		}
+
+		RelayCommand<string> _removeCredential;
+		public RelayCommand<string> RemoveCredential
+		{
+			get
+			{
+				if (_removeCredential == null)
+				{
+					_removeCredential = new RelayCommand<string>(name =>
+					{
+						_systemServices.RunAsync(async (c) =>
+						{
+							await _userService.RemoveStoredCredential(name);
+							Credentials.Remove(name);
+							RaisePropertyChanged("Credentials");
+							if (name == CurrentUserName)
+								DoLogout.Execute(null);
+						});
+					});
+				}
+				return _removeCredential;
+			}
+		}
 
         public string SelectedCredential
         {

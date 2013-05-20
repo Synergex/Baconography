@@ -14,6 +14,53 @@ namespace BaconographyPortable.Common
 {
     public class UtilityCommandImpl
     {
+        private class LongNavWatcher
+        {
+            private string _inFlight;
+            public void WatchMessage(LongNavigationMessage message)
+            {
+                if(!message.Finished)
+                {
+                    lock (this)
+                    {
+                        _inFlight = message.TargetUrl;
+                    }
+                }
+                else
+                {
+                    lock (this)
+                    {
+                        _inFlight = null;
+                    }
+                }
+            }
+            public bool GetTerminatedClearInFlight(string url)
+            {
+                lock (this)
+                {
+                    if (_inFlight == url)
+                    {
+                        _inFlight = null;
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public void ClearInFlight()
+            {
+                lock (this)
+                {
+                    _inFlight = null;
+                }
+            }
+        }
+        private static LongNavWatcher _longNavWatcher = new LongNavWatcher();
+        static UtilityCommandImpl()
+        {
+            Messenger.Default.Register<LongNavigationMessage>(_longNavWatcher, _longNavWatcher.WatchMessage);
+        }
+
         public static async void GotoUserDetails(string str)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
@@ -37,6 +84,7 @@ namespace BaconographyPortable.Common
 
         public static async void GotoLinkImpl(string str)
         {
+            _longNavWatcher.ClearInFlight();
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             var navigationService = baconProvider.GetService<INavigationService>();
 
@@ -130,24 +178,30 @@ namespace BaconographyPortable.Common
 			}
 			else
 			{
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = false, TargetUrl = str });
 				await baconProvider.GetService<IOfflineService>().StoreHistory(str);
 				var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl("", str);
-				if (imageResults != null && imageResults.Count() > 0)
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                
+				if (imageResults != null && imageResults.Count() > 0 && !_longNavWatcher.GetTerminatedClearInFlight(str))
 				{
+                    Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
 					navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageResults);
 				}
 				else
 				{
+                    Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
 					var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
-					if (videoResults != null)
-					{
-						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
-					}
-					else
-					{
-						//its not an image/video url we can understand so whatever it is just show it in the browser
-						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-					}
+                    if (videoResults != null)
+                    {
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+                    }
+                    else
+                    {
+                        //its not an image/video url we can understand so whatever it is just show it in the browser
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    }
 				}
 			}
         }

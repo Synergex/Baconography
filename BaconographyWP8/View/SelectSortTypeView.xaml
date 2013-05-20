@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="BaconographyWP8.View.SelectSortTypeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:BaconographyWP8.Converters"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    Background="{StaticResource PhoneBackgroundBrush}"
+    d:DesignHeight="480" d:DesignWidth="480"
+    x:Name="controlRoot">
+    
+    <Grid Background="{StaticResource PhoneBackgroundBrush}"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch"
+          MinWidth="250"
+          MinHeight="300">
+        <Border BorderThickness="1" BorderBrush="{StaticResource PhoneForegroundBrush}">
+            <StackPanel Margin="12,12,0,0">
+                <TextBlock  FontWeight="SemiBold">SELECT SORT TYPE</TextBlock>
+                <RadioButton x:Name="hotRad" Margin="12,0,0,0" Content="hot" Checked="OnChecked"/>
+                <RadioButton x:Name="newRad" Margin="12,0,0,0" Content="new" Checked="OnChecked"/>
+                <RadioButton x:Name="topRad" Margin="12,0,0,0" Content="top" Checked="OnChecked"/>
+                <RadioButton x:Name="risingRad" Margin="12,0,0,0" Content="rising" Checked="OnChecked"/>
+                <RadioButton x:Name="controversialRad" Margin="12,0,0,0" Content="controversial" Checked="OnChecked"/>
+                <Grid Margin="0,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Name="button_ok">OK</Button>
+                    <Button Grid.Column="1" Name="button_cancel">Cancel</Button>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

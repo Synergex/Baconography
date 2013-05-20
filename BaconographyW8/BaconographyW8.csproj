@@ -377,7 +377,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="KitaroDBSDK, Version=1.1.0.0">
+    <SDKReference Include="KitaroDBSDK, Version=2.0.0.0">
       <Name>KitaroDB for Windows Store Applications</Name>
     </SDKReference>
     <SDKReference Include="Microsoft.VCLibs, Version=11.0">

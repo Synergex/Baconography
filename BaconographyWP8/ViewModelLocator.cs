@@ -62,6 +62,7 @@ namespace BaconographyWP8
 				SimpleIoc.Default.Register<VisitedLinkConverter>();
 				SimpleIoc.Default.Register<VisitedMainLinkConverter>();
 				SimpleIoc.Default.Register<PreviewDataConverter>();
+				SimpleIoc.Default.Register<ReplyViewModel>();
 
 
 				if (DesignerProperties.IsInDesignTool)
@@ -214,5 +215,13 @@ namespace BaconographyWP8
                 return ServiceLocator.Current.GetInstance<RedditPickerViewModel>();
             }
         }
+
+		public ReplyViewModel Reply
+		{
+			get
+			{
+				return ServiceLocator.Current.GetInstance<ReplyViewModel>();
+			}
+		}
     }
 }

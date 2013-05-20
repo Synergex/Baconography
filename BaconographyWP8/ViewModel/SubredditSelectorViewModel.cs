@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
@@ -19,6 +20,7 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        ISystemServices _systemServices;
 
 		public SubredditSelectorViewModel(IBaconProvider baconProvider)
         {
@@ -27,8 +29,8 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _userService = _baconProvider.GetService<IUserService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
-
-            Subreddits = new SubredditViewModelCollection(_baconProvider);
+            _systemServices = _baconProvider.GetService<ISystemServices>();
+            Subreddits = new BindingShellViewModelCollection(new SubredditViewModelCollection(_baconProvider));
         }
 
 		private string _text;
@@ -40,10 +42,54 @@ namespace BaconographyPortable.ViewModel
 			}
 			set
 			{
-				_text = value;
-				RaisePropertyChanged("Text");
+                bool wasChanged = _text != value;
+                if (wasChanged)
+                {
+                    _text = value;
+                    RaisePropertyChanged("Text");
+
+                    if (_text.Length < 3)
+                    {
+                        Subreddits.RevertToDefault();
+                        RevokeQueryTimer();
+                    }
+                    else
+                    {
+                        RestartQueryTimer();
+                    }
+                }
 			}
 		}
+        Object _queryTimer;
+        void RevokeQueryTimer()
+        {
+            if (_queryTimer != null)
+            {
+                _systemServices.StopTimer(_queryTimer);
+                _queryTimer = null;
+            }
+        }
+
+        void RestartQueryTimer()
+        {
+            // Start or reset a pending query
+            if (_queryTimer == null)
+            {
+                _queryTimer = _systemServices.StartTimer(queryTimer_Tick, new TimeSpan(0, 0, 1), true);
+            }
+            else
+            {
+                _systemServices.StopTimer(_queryTimer);
+                _systemServices.RestartTimer(_queryTimer);
+            }
+        }
+
+        void queryTimer_Tick(object sender, object timer)
+        {
+            // Stop the timer so it doesn't fire again unless rescheduled
+            RevokeQueryTimer();
+            Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
+        }
 
         public AboutSubredditViewModel SelectedSubreddit
         {
@@ -58,16 +104,16 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-		
-		public RelayCommand<SubredditSelectorViewModel> SubmitSubreddit { get { return _submitSubreddit; } }
-		static RelayCommand<SubredditSelectorViewModel> _submitSubreddit = new RelayCommand<SubredditSelectorViewModel>(SubmitSubredditImpl);
 
-		private async static void SubmitSubredditImpl(SubredditSelectorViewModel vm)
+		public RelayCommand<SubredditSelectorViewModel> PinSubreddit { get { return _pinSubreddit; } }
+		static RelayCommand<SubredditSelectorViewModel> _pinSubreddit = new RelayCommand<SubredditSelectorViewModel>(PinSubredditImpl);
+
+		private async static void PinSubredditImpl(SubredditSelectorViewModel vm)
 		{
-			vm.SelectSubreddit();
+			vm.DoGoSubreddit(true);
 		}
 
-		private async void SelectSubreddit()
+		public async void DoGoSubreddit(bool pin)
 		{
 			var subredditName = Text;
 			if (String.IsNullOrEmpty(subredditName))
@@ -81,12 +127,16 @@ namespace BaconographyPortable.ViewModel
 				return;
 
 			var subreddit = await _redditService.GetSubreddit(subredditName);
-			if (subreddit == null)
-				return;
-
-			MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
+            if (subreddit == null)
+            {
+                return;
+            }
+            if(pin)
+			    MessengerInstance.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = subreddit });
+            else
+                MessengerInstance.Send<SelectTemporaryRedditMessage>(new SelectTemporaryRedditMessage { Subreddit = subreddit });
 		}
 
-        public SubredditViewModelCollection Subreddits { get; private set; }
+        public BindingShellViewModelCollection Subreddits { get; set; }
     }
 }

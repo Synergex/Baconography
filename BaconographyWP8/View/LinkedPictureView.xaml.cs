@@ -27,7 +27,7 @@ namespace BaconographyWP8.View
 	public sealed partial class LinkedPictureView : PhoneApplicationPage
     {
         //cheating a little bit here but its for the best
-		IEnumerable<Tuple<string, string>> _pictureData;
+		string _pictureData;
 		LinkedPictureViewModel _pictureViewModel;
 		PivotItem _currentItem;
         public LinkedPictureView()
@@ -42,10 +42,14 @@ namespace BaconographyWP8.View
 		{
 			if (this.State != null && this.State.ContainsKey("PictureViewModelData"))
 			{
-				_pictureData = this.State["PictureViewModelData"] as IEnumerable<Tuple<string, string>>;
+				_pictureData = this.State["PictureViewModelData"] as string;
 				if (_pictureData != null)
 				{
-					_pictureViewModel = new LinkedPictureViewModel { Pictures = _pictureData.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
+                    var deserializedObject = JsonConvert.DeserializeObject<IEnumerable<Tuple<string, string>>>(_pictureData);
+                    if (deserializedObject != null)
+                    {
+                        _pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
+                    }
 				}
 			}
 			else if (this.NavigationContext.QueryString["data"] != null)
@@ -55,40 +59,52 @@ namespace BaconographyWP8.View
 				if (deserializedObject != null)
 				{
 					_pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 }) };
-					_pictureData = deserializedObject;
+					_pictureData = unescapedData;
 				}
 			}
-			if (DataContext == null)
+			if (DataContext == null || e == null)
 				DataContext = _pictureViewModel;
 		}
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.IsCancelable)
+            {
+                OnNavigatedTo(null);
+                e.Cancel = true;
+            }
+        }
+
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
-			if (e.NavigationMode == NavigationMode.Back)
-			{
-				try
-				{
-					this.State["PictureViewModelData"] = _pictureData;
-					Content = null;
-					if (_currentItem != null)
-					{
-						var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-						if (context.ImageSource is string)
-						{
-							context.ImageSource = null;
-						}
-						context = null;
-						_currentItem = null;
-					}
-					((LinkedPictureViewModel)DataContext).Cleanup();
-				}
-				catch (Exception ex)
-				{
-
-				}
-			}
+            if(e.NavigationMode == NavigationMode.Back)
+                CleanupImageSource();
 		}
+
+        private void CleanupImageSource()
+        {
+            try
+            {
+                this.State["PictureViewModelData"] = _pictureData;
+                //Content = null;
+                if (_currentItem != null)
+                {
+                    var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
+
+                    if (context.ImageSource is string)
+                    {
+                        context.ImageSource = null;
+                    }
+                    context = null;
+                    _currentItem = null;
+                }
+                ((LinkedPictureViewModel)DataContext).Cleanup();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
 
 		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
 		{

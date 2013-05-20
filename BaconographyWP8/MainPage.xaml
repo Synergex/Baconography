@@ -10,24 +10,43 @@
     xmlns:local="clr-namespace:BaconographyWP8.View"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     mc:Ignorable="d"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    SupportedOrientations="PortraitOrLandscape"  Orientation="Portrait"
-    shell:SystemTray.IsVisible="True"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    toolkit:TiltEffect.IsTiltEnabled="True"
     DataContext="{Binding MainPage, Source={StaticResource Locator}}">
     <phone:PhoneApplicationPage.Resources>
         <DataTemplate x:Key="Type:RedditViewModel">
             <local:RedditView DataContext="{Binding}"/>
-        </DataTemplate>
-        <DataTemplate x:Key="Type:SubredditSelectorViewModel">
-            <local:SubredditSelectorView/>
         </DataTemplate>
         <DataTemplate x:Key="Type:TemporaryRedditViewModel">
             <local:TemporaryRedditView DataContext="{Binding}"/>
         </DataTemplate>
     </phone:PhoneApplicationPage.Resources>
 
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!-- LOCALIZATION NOTE:
@@ -57,16 +76,14 @@
         <phone:Pivot x:Name="pivot" 
                      ItemsSource="{Binding PivotItems}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0" Padding="0">
-            <phone:Pivot.CacheMode>
-                <BitmapCache/>
-            </phone:Pivot.CacheMode>
+                     Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem">
+            
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
-                    <Grid Height="30" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                        <local:PivotCountIndicator 
+                    <Grid Height="20" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                        <!--<local:PivotCountIndicator 
                             ItemsCount="{Binding ElementName=pivot, Path=Items.Count}"
-                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>
+                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>-->
                         <local:LoadIndicatorView />
                     </Grid>
                 </DataTemplate>
@@ -84,6 +101,8 @@
             </phone:Pivot.ItemTemplate>
         </phone:Pivot>
 
+        <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
         <!--ContentPanel - place additional content here-->
 
         <!--Uncomment to see an alignment grid to help ensure your controls are
@@ -96,13 +115,10 @@
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar Mode="Minimized" IsVisible="True" IsMenuEnabled="True" StateChanged="ApplicationBar_StateChanged">
+        <shell:ApplicationBar x:Name="appBar" Mode="Minimized" IsVisible="True"
+                              IsMenuEnabled="True" >
             <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="save subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="close subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="manage subreddit" IsEnabled="False"/>
-                <shell:ApplicationBarMenuItem Text="login"/>
-                <shell:ApplicationBarMenuItem Text="settings"/>
+                <shell:ApplicationBarMenuItem Text="_" />
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>

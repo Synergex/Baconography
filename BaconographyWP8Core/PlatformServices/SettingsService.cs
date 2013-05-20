@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +36,9 @@ namespace BaconographyWP8.PlatformServices
         public bool ApplyReadabliltyToLinks {get; set;}
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
+		public bool LeftHandedMode{ get; set; }
+		public bool OrientationLock { get; set; }
+		public string Orientation { get; set; }
 
         public void ShowSettings()
         {
@@ -94,6 +99,26 @@ namespace BaconographyWP8.PlatformServices
                     DefaultOfflineLinkCount = int.Parse(defaultOfflineLinkCount);
                 else
                     DefaultOfflineLinkCount = 25;
+
+				var leftHandedMode = await offlineService.GetSetting("LeftHandedMode");
+				if (!string.IsNullOrWhiteSpace(leftHandedMode))
+					LeftHandedMode = bool.Parse(leftHandedMode);
+				else
+					LeftHandedMode = false;
+
+				var orientationLock = await offlineService.GetSetting("OrientationLock");
+				if (!string.IsNullOrWhiteSpace(orientationLock))
+					OrientationLock = bool.Parse(orientationLock);
+				else
+					OrientationLock = false;
+
+				var orientation = await offlineService.GetSetting("Orientation");
+				if (!string.IsNullOrWhiteSpace(orientation))
+					Orientation = orientation;
+				else
+					Orientation = "";
+
+				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
             {
@@ -113,6 +138,9 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("ApplyReadabliltyToLinks", ApplyReadabliltyToLinks.ToString());
             await offlineService.StoreSetting("PreferImageLinksForTiles", PreferImageLinksForTiles.ToString());
             await offlineService.StoreSetting("DefaultOfflineLinkCount", DefaultOfflineLinkCount.ToString());
+			await offlineService.StoreSetting("LeftHandedMode", LeftHandedMode.ToString());
+			await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
+			await offlineService.StoreSetting("Orientation", Orientation.ToString());
         }
 
 
@@ -121,5 +149,5 @@ namespace BaconographyWP8.PlatformServices
             var offlineService = _baconProvider.GetService<IOfflineService>();
             await offlineService.ClearHistory();
         }
-    }
+	}
 }

@@ -12,6 +12,9 @@ using BaconographyWP8.ViewModel;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
 using BaconographyWP8.Common;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
+using BaconographyPortable.ViewModel;
 
 namespace BaconographyWP8.View
 {
@@ -21,7 +24,12 @@ namespace BaconographyWP8.View
 		public SettingsPageView()
 		{
 			InitializeComponent();
-			//version.Text
+		}
+
+		protected override void OnNavigatedFrom(NavigationEventArgs e)
+		{
+			Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage());
+			base.OnNavigatedFrom(e);
 		}
 
 		private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
@@ -31,6 +39,24 @@ namespace BaconographyWP8.View
 			if (hyperlinkButton != null)
 			{
 				_navigationService.NavigateToExternalUri(new Uri((string)hyperlinkButton.ContextData));
+			}
+		}
+
+		private void OrientationLock_Checked(object sender, RoutedEventArgs e)
+		{
+			var preferences = this.DataContext as ContentPreferencesViewModel;
+			if (preferences != null)
+			{
+				preferences.Orientation = this.Orientation.ToString();
+			}
+		}
+
+		private void OrientationLock_Unchecked(object sender, RoutedEventArgs e)
+		{
+			var preferences = this.DataContext as ContentPreferencesViewModel;
+			if (preferences != null)
+			{
+				preferences.Orientation = this.Orientation.ToString();
 			}
 		}
 	}

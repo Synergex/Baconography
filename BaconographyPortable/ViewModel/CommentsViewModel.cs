@@ -96,6 +96,7 @@ namespace BaconographyPortable.ViewModel
 				if (_linkViewModel == null)
 				{
 					_linkViewModel = new LinkViewModel(_linkThing, _baconProvider);
+                    _linkViewModel.FromMultiReddit = true;
 				}
 				return _linkViewModel;
 			}

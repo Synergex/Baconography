@@ -50,7 +50,6 @@ namespace BaconographyPortable.ViewModel
             _gotoContext = new RelayCommand(GotoContextImpl);
             _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
             _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
-			//MessengerInstance.Register<ToggleCommentTreeMessage>(this, OnToggleCommentTreeMessage);
         }
 
         public bool OddNesting { get; private set; }
@@ -124,12 +123,15 @@ namespace BaconographyPortable.ViewModel
 		// Cause UI to re-evaluate visibility without changing values
 		public void Touch()
 		{
-			for (int i = 0; i < Replies.Count; i++)
+			if (Replies != null)
 			{
-				var comment = Replies[i] as CommentViewModel;
-				var more = Replies[i] as MoreViewModel;
-				if (comment != null) comment.Touch();
-				if (more != null) more.Touch();
+				for (int i = 0; i < Replies.Count; i++)
+				{
+					var comment = Replies[i] as CommentViewModel;
+					var more = Replies[i] as MoreViewModel;
+					if (comment != null) comment.Touch();
+					if (more != null) more.Touch();
+				}
 			}
 			RaisePropertyChanged("IsVisible");
 		}
@@ -194,7 +196,6 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("ReplyData");
             }
         }
-
 
         public RelayCommand MinimizeCommand { get { return _minimizeCommand; } }
         public RelayCommand ShowExtendedView { get { return _showExtendedView; } }

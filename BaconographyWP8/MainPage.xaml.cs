@@ -19,6 +19,10 @@ using BaconographyWP8.Messages;
 using BaconographyWP8Core;
 using BaconographyWP8.ViewModel;
 using System.Threading.Tasks;
+using System.Windows.Controls.Primitives;
+using Microsoft.Phone.Reactive;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace BaconographyWP8
 {
@@ -27,6 +31,7 @@ namespace BaconographyWP8
     {
 
         // Constructor
+		ISettingsService _settingsService;
         public MainPage()
         {
             InitializeComponent();
@@ -35,16 +40,13 @@ namespace BaconographyWP8
 
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
 			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
+			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
 		{
-			if (orientation == PageOrientation.Landscape
-				|| orientation == PageOrientation.LandscapeLeft
-				|| orientation == PageOrientation.LandscapeRight)
-				SystemTray.IsVisible = false;
-			else
-				SystemTray.IsVisible = true;
+			Messenger.Default.Send<OrientationChangedMessage>(new OrientationChangedMessage { Orientation = orientation });
+			lastKnownOrientation = orientation;
 
 			if (orientation == PageOrientation.LandscapeRight)
 				LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
@@ -54,43 +56,68 @@ namespace BaconographyWP8
 				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
 		}
 
+		PageOrientation lastKnownOrientation;
+
+
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.AdjustForOrientation(this.Orientation);
 
 			if (e.NavigationMode == NavigationMode.Back)
 			{
-
 			}
-			else if (e.NavigationMode == NavigationMode.New)
-			{
-				if (this.NavigationContext.QueryString.ContainsKey("data"))
-				{
-                    //this appears to be a bug in WP8, the page is getting lazily bound but
-                    //we're at a point where it should be completed
-                    if (pivot.DataContext != null && pivot.ItemsSource == null)
+            else if (e.NavigationMode == NavigationMode.Refresh)
+            {
+
+            }
+            else if (e.NavigationMode == NavigationMode.New)
+            {
+                if (this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
+                {
+                    try
                     {
-                        pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
-                    }
-					var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
-					var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
-					if (deserializedObject is SelectTemporaryRedditMessage)
-					{
-						Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
-                        int indexToPosition;
-                        if (pivot.DataContext != null && (((MainPageViewModel)pivot.DataContext).FindSubredditMessageIndex(deserializedObject as SelectTemporaryRedditMessage, out indexToPosition)))
+                        //this appears to be a bug in WP8, the page is getting lazily bound but
+                        //we're at a point where it should be completed
+                        if (pivot.DataContext != null && pivot.ItemsSource == null)
                         {
-                            pivot.SelectedIndex = indexToPosition;
+                            pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
                         }
-					}
-				}
+                        var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
+                        var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
+                        if (deserializedObject is SelectTemporaryRedditMessage)
+                        {
+                            Messenger.Default.Send<SelectTemporaryRedditMessage>(deserializedObject as SelectTemporaryRedditMessage);
+                            int indexToPosition;
+                            if (pivot.DataContext != null && (((MainPageViewModel)pivot.DataContext).FindSubredditMessageIndex(deserializedObject as SelectTemporaryRedditMessage, out indexToPosition)))
+                            {
+                                pivot.SelectedIndex = indexToPosition;
+                            }
+                        }
+                    }
+                    catch (UriFormatException)
+                    {
+                        ServiceLocator.Current.GetInstance<IBaconProvider>().GetService<INotificationService>().CreateNotification("Invalid main page uri state, please PM /u/hippiehunter with details");
+                    }
+                }
+            }
+		}
+
+		protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+		{
+			if (sortPopup.IsOpen == true)
+			{
+				sortPopup.IsOpen = false;
+				e.Cancel = true;
+			}
+			else
+			{
+				base.OnBackKeyPress(e);
 			}
 		}
 
 		protected override void OnOrientationChanged(OrientationChangedEventArgs e)
 		{
 			AdjustForOrientation(e.Orientation);
-
 			base.OnOrientationChanged(e);
 		}
 
@@ -122,6 +149,9 @@ namespace BaconographyWP8
 			{
 				loginItemText = "login";
 			}
+
+            if(appMenuItems != null && appMenuItems.Count > (int)MenuEnum.Login)
+                appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 		}
 
 		private void MenuLogin_Click(object sender, EventArgs e)
@@ -144,7 +174,7 @@ namespace BaconographyWP8
 			}
 		}
 
-		private void MenuSave_Click(object sender, EventArgs e)
+		private void MenuPin_Click(object sender, EventArgs e)
 		{
 			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
 			if (trvm == null)
@@ -160,68 +190,130 @@ namespace BaconographyWP8
 			_navigationService.Navigate(typeof(SettingsPageView), null);
 		}
 
-		private void MenuSort_Click(object sender, EventArgs e)
+		private void MenuManage_Click(object sender, EventArgs e)
 		{
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			_navigationService.Navigate(typeof(SortSubredditPageView), null);
 		}
 
-		private void ApplicationBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
+		private void MenuSort_Click(object sender, EventArgs e)
 		{
-			if (e.IsMenuVisible)
+			double height = 480;
+			double width = 325;
+
+			if (LayoutRoot.ActualHeight <= 480)
+				height = LayoutRoot.ActualHeight;
+			
+			sortPopup.Height = height;
+			sortPopup.Width = width;
+
+			RedditViewModel rvm = pivot.SelectedItem as RedditViewModel;
+			if (rvm == null)
 			{
-				var appBarMenu = sender as ApplicationBar;
+				var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+				if (trvm != null)
+					rvm = trvm.RedditViewModel;
+				else
+					return;
+			}
 
-				if (appBarMenu != null)
+			var child = sortPopup.Child as SelectSortTypeView;
+			if (child == null)
+				child = new SelectSortTypeView();
+			child.SortOrder = rvm.SortOrder;
+			child.Height = height;
+			child.Width = width;
+			child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+			{
+				sortPopup.IsOpen = false;
+				rvm.SortOrder = child.SortOrder;
+			};
+
+			child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+			{
+				sortPopup.IsOpen = false;
+			};
+
+			sortPopup.Child = child;
+			sortPopup.IsOpen = true;
+		}
+
+		List<ApplicationBarMenuItem> appMenuItems;
+
+		enum MenuEnum
+		{
+			Login = 0,
+			Sort,
+			Settings,
+			Manage,
+			Close,
+			Pin
+		}
+
+		private void BuildMenu()
+		{
+			appMenuItems = new List<ApplicationBarMenuItem>();
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
+			appMenuItems[(int)MenuEnum.Login].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Login].Click += MenuLogin_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Sort].Text = "sort";
+			appMenuItems[(int)MenuEnum.Sort].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Sort].Click += MenuSort_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Settings].Text = "settings";
+			appMenuItems[(int)MenuEnum.Settings].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Settings].Click += MenuSettings_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Manage].Text = "manage subreddits";
+			appMenuItems[(int)MenuEnum.Manage].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Manage].Click += MenuManage_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Close].Text = "close subreddit";
+			appMenuItems[(int)MenuEnum.Close].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Close].Click += MenuClose_Click;
+
+			appMenuItems.Add(new ApplicationBarMenuItem());
+			appMenuItems[(int)MenuEnum.Pin].Text = "pin subreddit";
+			appMenuItems[(int)MenuEnum.Pin].IsEnabled = true;
+			appMenuItems[(int)MenuEnum.Pin].Click += MenuPin_Click;
+
+			ApplicationBar.MenuItems.Clear();
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Sort]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
+			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
+		}
+
+		private void UpdateMenuItems()
+		{
+			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
+				BuildMenu();
+
+			if (pivot.SelectedItem is TemporaryRedditViewModel)
+			{
+				if (ApplicationBar.MenuItems.Count == 4)
 				{
-					appBarMenu.MenuItems.Clear();
-
-					var login = new ApplicationBarMenuItem();
-					login.Text = loginItemText;
-					login.Click += MenuLogin_Click;
-
-					var close = new ApplicationBarMenuItem();
-					close.Text = "close subreddit";
-					close.Click += MenuClose_Click;
-					close.IsEnabled = false;
-
-					var rvm = pivot.SelectedItem as RedditViewModel;
-					if (rvm != null && pivot.SelectedIndex != 0)
-						close.IsEnabled = true;
-
-					ApplicationBarMenuItem save = null;
-					var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
-					if (trvm != null)
-					{
-						close.IsEnabled = true;
-						save = new ApplicationBarMenuItem();
-						save.Text = "save subreddit";
-						save.Click += MenuSave_Click;
-					}
-
-					var manage = new ApplicationBarMenuItem();
-					manage.Text = "manage subreddits";
-					manage.Click += MenuSort_Click;
-					if (pivot.Items.Count > 1)
-						manage.IsEnabled = true;
-					else
-						manage.IsEnabled = false;
-
-					var settings = new ApplicationBarMenuItem();
-					settings.Text = "settings";
-					settings.Click += MenuSettings_Click;
-
-					if (save != null)
-					{
-						appBarMenu.MenuItems.Add(save);
-						appBarMenu.MenuItems.Add(close);
-					}
-					appBarMenu.MenuItems.Add(manage);
-					appBarMenu.MenuItems.Add(login);
-					appBarMenu.MenuItems.Add(settings);
-
+					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Close]);
+					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Pin]);
 				}
 			}
+			else if (ApplicationBar.MenuItems.Count > 4)
+			{
+				ApplicationBar.MenuItems.RemoveAt(0);
+				ApplicationBar.MenuItems.RemoveAt(0);
+			}
+		}
+
+		private void OnLoadedPivotItem(object sender, PivotItemEventArgs e)
+		{
+			UpdateMenuItems();
 		}
 
         // Sample code for building a localized ApplicationBar

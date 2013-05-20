@@ -80,44 +80,49 @@ namespace BaconographyPortable.ViewModel.Collections
 
         protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
-			if (thing.Data is Link)
-				return new LinkViewModel(thing, _baconProvider);
-			else if (thing.Data is Comment)
-				return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
-			else if (thing.Data is Subreddit)
-			{
-				var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
-					((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
-					false;
-				return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
-			}
-			else if (thing.Data is More)
-			{
-				//multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
-				object moreState;
-				if (state.TryGetValue("More", out moreState))
-				{
-					//sometimes they give us duplicates make sure we remove them right away
-					var moreList = moreState as IEnumerable<string>;
-					if (moreList != null)
-					{
-						state["More"] = moreList.Concat(((More)thing.Data).Children)
-							.Distinct()
-							.ToList();
-					}
-					else
-					{
-						state["More"] = ((More)thing.Data).Children
-							.Distinct()
-							.ToList();
-					}
-				}
-				return null;
-			}
-			else if (thing.Data is Advertisement)
-				return new AdvertisementViewModel(_baconProvider);
-			else
-				throw new NotImplementedException();
+            if (thing.Data is Link)
+            {
+                var linkView = new LinkViewModel(thing, _baconProvider);
+                if (state.ContainsKey("MultiRedditSource"))
+                    linkView.FromMultiReddit = true;
+                return linkView;
+            }
+            else if (thing.Data is Comment)
+                return new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, false);
+            else if (thing.Data is Subreddit)
+            {
+                var isSubscribed = state.ContainsKey("SubscribedSubreddits") ?
+                    ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
+                    false;
+                return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
+            }
+            else if (thing.Data is More)
+            {
+                //multiple 'more's can come back from reddit and we should add them to the list for load additional to ask for
+                object moreState;
+                if (state.TryGetValue("More", out moreState))
+                {
+                    //sometimes they give us duplicates make sure we remove them right away
+                    var moreList = moreState as IEnumerable<string>;
+                    if (moreList != null)
+                    {
+                        state["More"] = moreList.Concat(((More)thing.Data).Children)
+                            .Distinct()
+                            .ToList();
+                    }
+                    else
+                    {
+                        state["More"] = ((More)thing.Data).Children
+                            .Distinct()
+                            .ToList();
+                    }
+                }
+                return null;
+            }
+            else if (thing.Data is Advertisement)
+                return new AdvertisementViewModel(_baconProvider);
+            else
+                throw new NotImplementedException();
         }
 
         protected override bool HasAdditional(Dictionary<object, object> state)
@@ -157,6 +162,8 @@ namespace BaconographyPortable.ViewModel.Collections
                             if (targetListing != null)
                             {
                                 var mappedListing = MapListing(targetListing, state).ToArray();
+								if (mappedListing.Length < this.Count)
+									this.Clear();
                                 for (int i = 0; i < mappedListing.Length; i++)
                                 {
                                     if (this.Count > i)
@@ -200,6 +207,45 @@ namespace BaconographyPortable.ViewModel.Collections
                 return _onlineListingProvider.GetMore(ids, state);
             else
                 return _offlineListingProvider.GetMore(ids, state);
+        }
+
+        protected override Task Refresh(Dictionary<object, object> state)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+
+            return Task.Run(async () =>
+                {
+                    Listing target = null;
+                    try
+                    {
+                        if (_settingsService.IsOnline())
+                            target = await _onlineListingProvider.Refresh(state);
+                    }
+                    catch
+                    {
+                    }
+                    if (target == null || !_settingsService.IsOnline())
+                        target = await _offlineListingProvider.Refresh(state);
+                    return target;
+                }).ContinueWith((result) =>
+                {
+                    var targetListing = result.Result;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    if (targetListing != null)
+                    {
+                        var mappedListing = MapListing(targetListing, state).ToArray();
+						if (mappedListing.Length < this.Count)
+							this.Clear();
+
+                        for (int i = 0; i < mappedListing.Length; i++)
+                        {
+                            if (this.Count > i)
+                                this[i] = mappedListing[i];
+                            else
+                                Add(mappedListing[i]);
+                        }
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
         }
     }
 }

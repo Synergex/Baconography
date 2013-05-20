@@ -129,12 +129,19 @@ namespace BaconographyWP8.Converters
                 if (vm.Replies == null || vm.Replies.Count == 0)
                     return vm;
 
-                CommentViewModel lastChild = vm.Replies[vm.Replies.Count - 1] as CommentViewModel;
-                return GetLastChild(lastChild);
+				CommentViewModel lastChild = null;
+				int counter = vm.Replies.Count;
+				while (true)
+				{
+					counter--;
+					lastChild = vm.Replies[counter] as CommentViewModel;
+					if (lastChild != null)
+						return GetLastChild(lastChild);
+					if (counter == 0)
+						return vm;
+				}
             }
         }
-
-
 		
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

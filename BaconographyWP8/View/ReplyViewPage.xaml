@@ -1,0 +1,171 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="BaconographyWP8.View.ReplyViewPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    DataContext="{Binding Reply, Source={StaticResource Locator}}"
+    x:Name="controlRoot"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}">
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+    <ScrollViewer>
+        <StackPanel Orientation="Vertical" Margin="12,20,12,0">
+            <TextBlock FontWeight="SemiBold" Text="BACONOGRAPHY > REPLY"/>
+            <Grid HorizontalAlignment="Right" Margin="0,0,12,10">
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding IsLoggedIn, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                    <!--<Button Margin="0,-6,10,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="19"
+                        Width="40" Height="40"
+                        Content="&#xE117;" Style="{StaticResource RoundButtonStyle}"/>-->
+                    <TextBlock FontSize="20" Foreground="{StaticResource PhoneForegroundBrush}" Text="{Binding CommentingAs}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding IsLoggedIn, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                    <Button Margin="0,-6,10,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="19"
+                        Width="40" Height="40"
+                        Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
+                        Tap="LoginButton_Tap"/>
+                    <TextBlock FontSize="20" Foreground="{StaticResource PhoneForegroundBrush}" Text="login"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBox MinHeight="300" Text="{Binding ReplyBody, Mode=TwoWay}" Margin="0,5,0,5"
+                     SelectionStart="{Binding SelectionStart}" SelectionLength="{Binding SelectionLength}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                     SelectionChanged="TextBox_SelectionChanged">
+                <TextBox.InputScope>
+                    <InputScope>
+                        <InputScopeName NameValue="Text" />
+                    </InputScope>
+                </TextBox.InputScope>
+            </TextBox>
+
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="52" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="44"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="44"/>
+                </Grid.RowDefinitions>
+                <StackPanel Margin="12,0,0,0" Orientation="Horizontal">
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="bold" Style="{StaticResource RoundButtonStyle}"
+                        FontWeight="Bold" Command="{Binding AddBold}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="italic" Style="{StaticResource RoundButtonStyle}"
+                        FontStyle="Italic" Command="{Binding AddItalic}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="quote" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddQuote}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="18"
+                        Width="44" Height="44" Content="&#xE110;"
+                        Style="{StaticResource RoundButtonStyle}"
+                        Tap="ShowMoreButton_Tap">
+                        <Button.RenderTransform>
+                            <RotateTransform Angle="180" CenterX="22" CenterY="22" />
+                        </Button.RenderTransform>
+                    </Button>
+                </StackPanel>
+                <Button Grid.Column="1" Margin="0,0,12,0"
+                    HorizontalAlignment="Right"
+                    FontFamily="Segoe UI Symbol" FontSize="14"
+                    Width="40" Height="40"
+                    Content="&#xE122;" Style="{StaticResource RoundButtonStyle}"
+                    Tap="SendButton_Tap"/>
+
+                <StackPanel Margin="12,0,0,0" Grid.Row="2" Orientation="Horizontal"
+                            Visibility="{Binding ElementName=controlRoot, Path=ShowExtended, Converter={StaticResource booleanVisibilityConverter}}">
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="strike" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddStrike}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="super" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddSuper}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="link" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddLink}"/>
+
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="code" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddCode}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="14"
+                        Width="44" Height="44"
+                        Content="bullet" Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddBullets}"/>
+                    <Button Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        FontFamily="Segoe UI Symbol" FontSize="16"
+                        Width="44" Height="44"
+                        Content="1." Style="{StaticResource RoundButtonStyle}"
+                        Command="{Binding AddNumbers}"/>
+                </StackPanel>
+            </Grid>
+
+            <ContentControl Content="{Binding ReplyBody, Mode=OneWay, Converter={StaticResource markdownConverter}}" MinHeight="200" Margin="12,15,12,0"/>
+    </StackPanel>
+
+    </ScrollViewer>
+</phone:PhoneApplicationPage>

@@ -17,7 +17,7 @@ namespace Baconography.NeutralServices.KitaroDB
         private static Task<Links> _instanceTask;
         private static async Task<Links> GetInstanceImpl()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links.ism";
+            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links_v2.ism";
             var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(16, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),

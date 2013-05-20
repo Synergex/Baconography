@@ -23,7 +23,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
-        TypedThing<Subreddit> _selectedSubreddit;
+        TypedThing<Subreddit> _selectedSubreddit; 
 
         public RedditViewModel(IBaconProvider baconProvider)
         {
@@ -54,7 +54,10 @@ namespace BaconographyPortable.ViewModel
 
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
-            LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
+            if (message.UserTriggered && Url == "/")
+                RefreshLinks();
+
+            LoggedIn = message.CurrentUser != null && !string.IsNullOrWhiteSpace(message.CurrentUser.LoginCookie);
         }
 
         private void OnConnectionStatusChanged(ConnectionStatusMessage message)
@@ -142,8 +145,7 @@ namespace BaconographyPortable.ViewModel
 
         public void RefreshLinks()
         {
-            _links = null;
-            RaisePropertyChanged("Links");
+            Links.Refresh();
         }
 
         LinkViewModelCollection _links;
@@ -165,7 +167,7 @@ namespace BaconographyPortable.ViewModel
             string subreddit = "/", subredditId = null;
             if(_selectedSubreddit != null)
             {
-                subreddit = _selectedSubreddit.Data.Url;
+				subreddit = _selectedSubreddit.Data.Url + _sortOrder;
                 subredditId = _selectedSubreddit.Data.Name;
             }
 
@@ -265,7 +267,7 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
-        public bool IsPinned
+		public bool IsTilePinned
         {
             get
             {
@@ -296,6 +298,46 @@ namespace BaconographyPortable.ViewModel
                 catch { }
             }
         }
+
+		private string _sortOrder = "";
+		//  hot - ""
+		// /new/
+		// /controversial/
+		// /top/
+		// /rising/
+		public string SortOrder
+		{
+			get
+			{
+				return _sortOrder;
+			}
+			set
+			{
+				string orig = _sortOrder;
+				switch (value)
+				{
+					case "new":
+					case "top":
+					case "rising":
+					case "controversial":
+						_sortOrder = "/" + value + "/";
+						break;
+
+					case "":
+					case "hot":
+					default:
+						_sortOrder = "";
+						break;
+				}
+
+				if (_sortOrder != orig)
+				{
+					_links = LinksImpl();
+					RaisePropertyChanged("Links");
+					RaisePropertyChanged("SortOrder");
+				}
+			}
+		}
 
         public string Url
         {
@@ -340,7 +382,7 @@ namespace BaconographyPortable.ViewModel
         private void PinRedditImpl()
         {
             _liveTileService.CreateSecondaryTileForSubreddit(_selectedSubreddit);
-            IsPinned = true;
+			IsTilePinned = true;
         }
 
         private void UnpinRedditImpl()
@@ -349,7 +391,7 @@ namespace BaconographyPortable.ViewModel
                 _liveTileService.RemoveSecondaryTile("");
             else
                 _liveTileService.RemoveSecondaryTile(_selectedSubreddit.Data.DisplayName);
-            IsPinned = false;
+			IsTilePinned = false;
         }
 
         private void SearchRedditsImpl()

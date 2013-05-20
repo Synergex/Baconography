@@ -39,8 +39,10 @@ namespace BaconographyWP8.View
 					if ((e.Container.Content).Equals(linksView.ItemsSource[linksView.ItemsSource.Count - _offsetKnob]))
 					{
 						var viewModel = DataContext as AboutUserViewModel;
-						if (viewModel != null)
-							viewModel.Things.LoadMoreItemsAsync(30);
+                        if (viewModel != null && viewModel.Things.HasMoreItems)
+                        {
+                            viewModel.Things.LoadMoreItemsAsync(30);
+                        }
 					}
 				}
 			}

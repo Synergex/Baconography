@@ -30,7 +30,7 @@ namespace BaconographyW8.PlatformServices
             var result = await _redditService.Login(username, password);
             if (result != null)
             {
-                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result });
+                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
                 _currentUser = result;
             }
             return result;
@@ -41,7 +41,7 @@ namespace BaconographyW8.PlatformServices
             var result = await DoLogin(username);
             if (result != null)
             {
-                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result });
+                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
                 _currentUser = result;
             }
             return result;
@@ -50,7 +50,7 @@ namespace BaconographyW8.PlatformServices
         public void Logout()
         {
             _currentUser = CreateAnonUser();
-            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser });
+            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser, UserTriggered = true });
         }
 
         private User CreateAnonUser()
@@ -77,7 +77,7 @@ namespace BaconographyW8.PlatformServices
             if (_currentUser == null)
                 _currentUser = CreateAnonUser();
 
-            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser });
+            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser, UserTriggered = false });
         }
 
         public async Task<IEnumerable<UserCredential>> StoredCredentials()

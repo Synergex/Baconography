@@ -12,21 +12,28 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="800" d:DesignWidth="480"
-    x:Name="controlRoot">
-    <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    d:DesignHeight="800" d:DesignWidth="480">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
+                DataContext="{Binding}"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
                 ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
+            <common:FixedLongListSelector.ListHeaderTemplate>
+                <DataTemplate>
+                    <!-- Visibility="{Binding ElementName=linksView, Path=PulledDown, Converter={StaticResource booleanVisibilityConverter}}" -->
+                    <Grid>
+                        <local:PullToRefreshView IsPulled="{Binding ElementName=linksView, Path=PulledDown, Mode=TwoWay}" />
+                    </Grid>
+                </DataTemplate>
+            </common:FixedLongListSelector.ListHeaderTemplate>
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <local:LinkView DisplaySubreddit="{Binding ElementName=controlRoot, Path=DataContext.IsFrontPage}"  />
-                        <Border BorderThickness="0.5" BorderBrush="DarkGray" Margin="0,0,0,3"/>
+                        <local:LinkView/>
                     </StackPanel>
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>

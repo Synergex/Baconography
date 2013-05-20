@@ -23,5 +23,11 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         {
             throw new NotImplementedException();
         }
+
+
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } });
+        }
     }
 }
