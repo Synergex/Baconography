@@ -35,19 +35,19 @@ namespace BaconographyWP8.PlatformServices
             var result = await _redditService.Login(username, password);
             if (result != null)
             {
-                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result });
-                _currentUser = result;
+				_currentUser = result;
+                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
             }
             return result;
         }
 
         public async Task<User> TryStoredLogin(string username)
         {
-            var result = await DoLogin(username);
+            var result = await DoLogin(username, true);
             if (result != null)
             {
-                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result });
-                _currentUser = result;
+				_currentUser = result;
+                Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = result, UserTriggered = true });
             }
             return result;
         }
@@ -55,7 +55,7 @@ namespace BaconographyWP8.PlatformServices
         public void Logout()
         {
             _currentUser = CreateAnonUser();
-            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser });
+            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser, UserTriggered = true });
         }
 
         private User CreateAnonUser()
@@ -82,7 +82,7 @@ namespace BaconographyWP8.PlatformServices
             if (_currentUser == null)
                 _currentUser = CreateAnonUser();
 
-            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser });
+            Messenger.Default.Send<UserLoggedInMessage>(new UserLoggedInMessage { CurrentUser = _currentUser, UserTriggered = false });
         }
 
         public async Task<IEnumerable<UserCredential>> StoredCredentials()
@@ -156,7 +156,7 @@ namespace BaconographyWP8.PlatformServices
 				var userInfoDb = await GetUserInfoDB();
 				List<string> lastCookies = new List<string>();
 				//go find the one we're updating and actually do it
-				var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
+				var userCredentialsCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "credentials", DBReadFlags.AutoLock);
 				if (userCredentialsCursor != null)
 				{
 					using (userCredentialsCursor)
@@ -173,7 +173,7 @@ namespace BaconographyWP8.PlatformServices
 					}
 				}
 
-				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+                var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.AutoLock);
 				if (passwordCursor != null)
 				{
 					using (passwordCursor)
@@ -202,7 +202,7 @@ namespace BaconographyWP8.PlatformServices
 			try
 			{
 
-				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.NoLock);
+				var passwordCursor = await userInfoDb.SelectAsync(userInfoDb.GetKeys().First(), "passwords", DBReadFlags.AutoLock);
 				if (passwordCursor != null)
 				{
 					using (passwordCursor)
@@ -246,23 +246,30 @@ namespace BaconographyWP8.PlatformServices
             return credentials;
         }
 
-        private async Task<User> LoginWithCredentials(UserCredential credential)
+        private async Task<User> LoginWithCredentials(UserCredential credential, bool userInitiated)
         {
-			var originalCookie = credential.LoginCookie;
+            var originalCookie = credential.LoginCookie;
             if (!string.IsNullOrWhiteSpace(credential.LoginCookie))
             {
                 var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
-                ThreadPool.RunAsync(async (o) =>
+                if (userInitiated)
                 {
-                    await Task.Delay(10000);
-                    try
+                    loggedInUser.Me = await _redditService.GetMe(loggedInUser);
+                }
+                else
+                {
+                    ThreadPool.RunAsync(async (o) =>
                     {
-                        loggedInUser.Me = await _redditService.GetMe(loggedInUser);
-                    }
-                    catch { }
-                    if (loggedInUser.Me == null)
-                        ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification(string.Format("Failed to login with user {0}", credential.Username));
-                });
+                        await Task.Delay(5000);
+                        try
+                        {
+                            loggedInUser.Me = await _redditService.GetMe(loggedInUser);
+                        }
+                        catch { }
+                        if (loggedInUser.Me == null)
+                            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification(string.Format("Failed to login with user {0}", credential.Username));
+                    });
+                }
                 return loggedInUser;
             }
             else
@@ -301,7 +308,7 @@ namespace BaconographyWP8.PlatformServices
             var defaultCredential = credentials.FirstOrDefault(credential => credential.IsDefault);
             if (defaultCredential != null)
             {
-                var result = await LoginWithCredentials(defaultCredential);
+                var result = await LoginWithCredentials(defaultCredential, false);
                 if (result != null)
                 {
                     return result;
@@ -310,14 +317,14 @@ namespace BaconographyWP8.PlatformServices
             return null;
         }
 
-        private async Task<User> DoLogin(string username)
+        private async Task<User> DoLogin(string username, bool userInitiated)
         {
             var storedCredentials = await StoredCredentials();
             var targetCredential = storedCredentials.FirstOrDefault(credential => string.Compare(credential.Username, username, StringComparison.CurrentCultureIgnoreCase) == 0);
 
             if (targetCredential != null)
             {
-                var theUser = await LoginWithCredentials(targetCredential);
+                var theUser = await LoginWithCredentials(targetCredential, userInitiated);
                 return theUser;
             }
             return null;

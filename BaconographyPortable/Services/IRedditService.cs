@@ -13,7 +13,7 @@ namespace BaconographyPortable.Services
         Task<Account> GetMe(User user);
         Task<bool> CheckLogin(string loginToken);
         Task<User> Login(string username, string password);
-        Task<Listing> Search(string query, int? limit);
+        Task<Listing> Search(string query, int? limit, bool reddits);
         Task<Thing> GetThingById(string id);
         Task<HashSet<string>> GetSubscribedSubreddits();
         Task<Listing> GetSubscribedSubredditListing();
@@ -34,6 +34,7 @@ namespace BaconographyPortable.Services
         Task AddPost(string kind, string url, string subreddit, string title);
         Task AddMessage(string recipient, string subject, string message);
         Task AddComment(string parentId, string content);
+        Task EditComment(string thingId, string text);
         void AddFlairInfo(string linkId, string opName);
 
         AuthorFlairKind GetUsernameModifiers(string username, string linkid, string subreddit);

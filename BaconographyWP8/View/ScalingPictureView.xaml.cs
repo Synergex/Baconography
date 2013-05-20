@@ -10,11 +10,6 @@ using Microsoft.Phone.Shell;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.ComponentModel;
-
-using ImageTools.IO;
-using ImageTools.IO.Gif;
-using ImageTools;
-using ImageTools.Controls;
 using System.Windows.Media;
 using BaconographyWP8.PlatformServices;
 using System.Threading.Tasks;
@@ -55,11 +50,12 @@ namespace BaconographyWP8.View
 			{
 				if (value == null)
 				{
-					this._bitmap.UriSource = null;
-					this._bitmap = null;
+					if (this._bitmap != null)
+					{
+						this._bitmap.UriSource = null;
+						this._bitmap = null;
+					}
 				}
-//				if (!_isAssigned)
-//					AsyncLoadImageHeader();
 				SetValue(ImageSourceProperty, value);
 			}
 		}
@@ -69,7 +65,6 @@ namespace BaconographyWP8.View
 		/// </summary>
 		public ScalingPictureView()
 		{
-			Decoders.AddDecoder<GifDecoder>();
 			InitializeComponent();
 		}
 
@@ -78,35 +73,6 @@ namespace BaconographyWP8.View
 			var image = (ScalingPictureView)d;
 			image.ImageSource = e.NewValue;
 		}
-
-		/*
-		private async void AsyncLoadImageHeader()
-		{
-			var apiURL = this.ImageSource as string;
-			var request = HttpWebRequest.CreateHttp(apiURL);
-			byte[] result;
-			using (var response = (await SimpleHttpService.GetResponseAsync(request)))
-			{
-				result = await Task<byte[]>.Run(() =>
-				{
-					byte[] buffer = new byte[11];
-					response.GetResponseStream().Read(buffer, 0, 11);
-					return buffer;
-				});
-			}
-
-			_isAssigned = true;
-
-			GifDecoder decoder = new GifDecoder();
-			if (decoder.IsSupportedFileFormat(result))
-			{
-				staticImage.Visibility = Visibility.Collapsed;
-				animatedImage.Visibility = Visibility.Collapsed;
-				var converter = new ImageConverter();
-				animatedImage.Source = converter.Convert((DataContext as LinkedPictureViewModel.LinkedPicture).ImageSource, null, null, null) as ExtendedImage;
-				animatedImage.ApplyTemplate();
-			}
-		}*/
 
 		/// <summary>
 		/// Either the user has manipulated the image or the size of the viewport has changed. We only

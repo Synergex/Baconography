@@ -23,5 +23,12 @@ namespace BaconographyWP8.View
         {
             this.InitializeComponent();
         }
+
+		private void Comment_Hold(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var commentVm = this.DataContext as CommentViewModel;
+			if (commentVm != null)
+				commentVm.ShowExtendedView.Execute(null);
+		}
     }
 }

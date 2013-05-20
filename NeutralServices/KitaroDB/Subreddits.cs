@@ -15,7 +15,7 @@ namespace Baconography.NeutralServices.KitaroDB
         private static Task<Subreddits> _instanceTask;
         private static async Task<Subreddits> GetInstanceImpl()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//subreddits.ism";
+            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//subreddits_v2.ism";
             var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(24, 0, DBKeyFlags.Alpha, "name", false, false, false, 0),

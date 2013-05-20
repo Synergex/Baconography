@@ -15,6 +15,8 @@ using namespace SoldOutWP8;
 using namespace Platform;
 using namespace Concurrency;
 
+sd_markdown* markdownProcessor = nullptr;
+
 bool has_ending (std::string const &fullString, std::string const &ending)
 {
     if (fullString.length() >= ending.length()) {
@@ -178,6 +180,12 @@ rndr_blockcode(struct buf *ob, const struct buf *text, const struct buf *lang, v
 
 static void
 rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque) {
+
+	if(markdownProcessor->in_link_body == 1)
+	{
+		if (text) lus_body_escape(ob, text->data, text->size);
+		return;
+	}
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "\n");
 	if (text) lus_body_escape(ob, text->data, text->size);
@@ -186,6 +194,11 @@ rndr_blockquote(struct buf *ob, const struct buf *text, void *opaque) {
 
 static int
 rndr_codespan(struct buf *ob,const  struct buf *text, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+	{
+		if (text) lus_body_escape(ob, text->data, text->size);
+		return 1;
+	}
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "\n");
 	if (text) lus_body_escape(ob, text->data, text->size);
@@ -195,6 +208,11 @@ rndr_codespan(struct buf *ob,const  struct buf *text, void *opaque) {
 
 static int
 rndr_double_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+	{
+		if (text) bufput(ob, text->data, text->size);
+		return 1;
+	}
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontWeight=\"Bold\">");
 	bufput(ob, text->data, text->size);
@@ -204,6 +222,12 @@ rndr_double_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 
 static int
 rndr_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+	{
+		if (text) bufput(ob, text->data, text->size);
+		return 1;
+	}
+		
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontStyle=\"Italic\">");
 	if (text) bufput(ob, text->data, text->size);
@@ -228,6 +252,11 @@ rndr_superscript(struct buf *ob, const struct buf *text, void *opaque) {
 
 static void
 rndr_header(struct buf *ob, const struct buf *text, int level, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+	{
+		if (text) bufput(ob, text->data, text->size);
+		return;
+	}
 	if (ob->size) bufputc(ob, '\n');
 
 	BUFPUTSL(ob, "<Span FontSize=\"");
@@ -312,7 +341,7 @@ rndr_list(struct buf *ob, const struct buf *text, int flags, void *opaque) {
 
 static void
 rndr_listitem(struct buf *ob, const struct buf *text, int flags, void *opaque) {
-	BUFPUTSL(ob, "•  ");
+	BUFPUTSL(ob, "&#x25CF;  ");
 	if (text) {
 		bufput(ob, text->data, text->size); }
 	BUFPUTSL(ob, "<LineBreak/>\n"); 
@@ -325,10 +354,9 @@ rndr_normal_text(struct buf *ob, const struct buf *text, void *opaque) {
 
 static void
 rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque) {
-	if (ob->size) bufputc(ob, '\n');
-	BUFPUTSL(ob, "<Paragraph>\n");
+	if (ob->size) BUFPUTSL(ob, "<LineBreak/>\n");
 	if (text) bufput(ob, text->data, text->size);
-	BUFPUTSL(ob, "</Paragraph>\n"); 
+	BUFPUTSL(ob, "<LineBreak/>\n"); 
 }
 
 static void
@@ -353,6 +381,8 @@ rndr_raw_inline(struct buf *ob, const struct buf *tag, void *opaque) {
 
 static int
 rndr_triple_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+		return 0;
 	if (!text || !text->size) return 0;
 	BUFPUTSL(ob, "<Span FontWeight=\"Bold\">");
 	bufput(ob, text->data, text->size);
@@ -362,13 +392,18 @@ rndr_triple_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 
 static void
 rndr_hrule(struct buf *ob, void *opaque) {
+	if(markdownProcessor->in_link_body == 1)
+		return;
+	
 	if (ob->size) bufputc(ob, '\n');
 	BUFPUTSL(ob, "<Paragraph><InlineUIContainer><Line HorizontalAlignment=\"Stretch\" Stretch=\"Fill\"/></InlineUIContainer></Paragraph>\n"); 
 }
 
 static int
 rndr_linebreak(struct buf *ob, void *opaque) {
-	BUFPUTSL(ob, "<LineBreak />\n");
+	if(markdownProcessor->in_link_body == 1)
+		return 0;
+	BUFPUTSL(ob, "<LineBreak/>\n");
 	return 1; 
 }
 
@@ -446,7 +481,7 @@ static const unsigned int snudown_default_md_flags =
 	MKDEXT_TABLES;
 
 critical_section markdownCriticalSection;
-sd_markdown* markdownProcessor = nullptr;
+
 buf* g_ob = nullptr;
 buf* g_ib = nullptr;
 

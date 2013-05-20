@@ -4,6 +4,7 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         bool _isPreviewShown;
 		bool _isExtendedOptionsShown;
+        bool _loading;
+        bool _registeredLongNav;
 
         public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
         {
@@ -34,8 +37,45 @@ namespace BaconographyPortable.ViewModel
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
             _isPreviewShown = false;
 			_isExtendedOptionsShown = false;
+            _loading = false;
+            _registeredLongNav = false;
             ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
 			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
+
+
+            if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+            {
+                MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
+                _registeredLongNav = true;
+            }
+        }
+
+        private void OnLongNav(LongNavigationMessage msg)
+        {
+            if (msg.TargetUrl == Url)
+            {
+                Loading = !msg.Finished;
+            }
+        }
+
+        public override void Cleanup()
+        {
+            if (_registeredLongNav)
+                MessengerInstance.Unregister<LongNavigationMessage>(this);
+            base.Cleanup();
+        }
+
+        public bool Loading
+        {
+            get
+            {
+                return _loading;
+            }
+            set
+            {
+                _loading = value;
+                RaisePropertyChanged("Loading");
+            }
         }
 
         VotableViewModel _votable;
@@ -188,6 +228,8 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
+        public bool FromMultiReddit { get; set; }
+
         public Tuple<bool, string> PreviewPack
         {
             get
@@ -221,7 +263,7 @@ namespace BaconographyPortable.ViewModel
 
 		private async void GotoSubredditImpl()
         {
-            _navigationService.Navigate(_dynamicViewLocator.RedditView, new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
+            Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
         }
 
 		private void GotoUserImpl()
@@ -236,7 +278,10 @@ namespace BaconographyPortable.ViewModel
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
-            vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
+            if (vm == null || vm._linkThing == null || vm._linkThing.Data == null || string.IsNullOrWhiteSpace(vm._linkThing.Data.Url))
+                vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
+            else
+                vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)

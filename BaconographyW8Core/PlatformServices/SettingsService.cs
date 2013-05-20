@@ -134,5 +134,25 @@ namespace BaconographyW8.PlatformServices
             await offlineService.ClearHistory();
         }
 
+
+
+		public bool LeftHandedMode
+		{
+			get;
+			set;
+		}
+
+
+        public bool OrientationLock
+        {
+            get;
+            set;
+        }
+
+        public string Orientation
+        {
+            get;
+            set;
+        }
     }
 }

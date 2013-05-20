@@ -13,6 +13,8 @@ using System.Windows.Navigation;
 using System.Threading;
 using Microsoft.Phone.Info;
 using System.Windows.Media;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyWP8.Messages;
 
 namespace BaconographyWP8
 {
@@ -68,6 +70,8 @@ namespace BaconographyWP8
                 // Caution:- Use this under debug mode only. Application that disables user idle detection will continue to run
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
+                //Application.Current.Host.Settings.EnableCacheVisualization = true;
+                //Application.Current.Host.Settings.EnableRedrawRegions = true;
             }
 
         }
@@ -134,7 +138,7 @@ namespace BaconographyWP8
         {
             LowMemoryHelper.BeginRecording();
 			InitializeBacon();
-
+            
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,
@@ -190,6 +194,9 @@ namespace BaconographyWP8
         // Avoid double-initialization
         private bool phoneApplicationInitialized = false;
 
+
+        private object _backgroundColorResource;
+        private object _accentColorResource;
         // Do not add any additional code to this method
         private void InitializePhoneApplication()
         {
@@ -198,18 +205,16 @@ namespace BaconographyWP8
 
             // Create the frame but don't set it as RootVisual yet; this allows the splash
             // screen to remain active until the application is ready to render.
-            RootFrame = new PhoneApplicationFrame();
+            RootFrame = new TransitionFrame();
             RootFrame.Navigated += CompleteInitializePhoneApplication;
-
             // Handle navigation failures
             RootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
-            // Handle reset requests for clearing the backstack
-            RootFrame.Navigated += CheckForResetNavigation;
-
             // Ensure we don't initialize again
             phoneApplicationInitialized = true;
+
         }
+
 
         // Do not add any additional code to this method
         private void CompleteInitializePhoneApplication(object sender, NavigationEventArgs e)
@@ -220,30 +225,6 @@ namespace BaconographyWP8
 
             // Remove this handler since it is no longer needed
             RootFrame.Navigated -= CompleteInitializePhoneApplication;
-        }
-
-        private void CheckForResetNavigation(object sender, NavigationEventArgs e)
-        {
-            // If the app has received a 'reset' navigation, then we need to check
-            // on the next navigation to see if the page stack should be reset
-            if (e.NavigationMode == NavigationMode.Reset)
-                RootFrame.Navigated += ClearBackStackAfterReset;
-        }
-
-        private void ClearBackStackAfterReset(object sender, NavigationEventArgs e)
-        {
-            // Unregister the event so it doesn't get called again
-            RootFrame.Navigated -= ClearBackStackAfterReset;
-
-            // Only clear the stack for 'new' (forward) and 'refresh' navigations
-            if (e.NavigationMode != NavigationMode.New && e.NavigationMode != NavigationMode.Refresh)
-                return;
-
-            // For UI consistency, clear the entire page stack
-            while (RootFrame.RemoveBackEntry() != null)
-            {
-                ; // do nothing
-            }
         }
 
         #endregion

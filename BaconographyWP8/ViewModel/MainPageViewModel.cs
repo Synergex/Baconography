@@ -9,6 +9,7 @@ using BaconographyWP8.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Controls;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace BaconographyPortable.ViewModel
         ILiveTileService _liveTileService;
         IOfflineService _offlineService;
         ISettingsService _settingsService;
+		INotificationService _notificationService;
         bool _initialLoad = true;
         WeakReference<Task> _subredditSavingTask;
 
@@ -43,17 +45,26 @@ namespace BaconographyPortable.ViewModel
             _liveTileService = baconProvider.GetService<ILiveTileService>();
             _offlineService = baconProvider.GetService<IOfflineService>();
             _settingsService = baconProvider.GetService<ISettingsService>();
+			_notificationService = baconProvider.GetService<INotificationService>();
 
 			MessengerInstance.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<SelectTemporaryRedditMessage>(this, OnSelectTemporarySubreddit);
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
+			MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			_pivotItems = new RedditViewModelCollection(_baconProvider);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
             _subreddits.CollectionChanged += _subreddits_CollectionChanged;
         }
+
+		private async void OnSettingsChanged(SettingsChangedMessage message)
+		{
+			if (!message.InitialLoad)
+				await _baconProvider.GetService<ISettingsService>().Persist();
+		}
+
 
         void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -71,16 +82,24 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnReorderSubreddit(ReorderSubredditMessage message)
 		{
-			var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null);
-			for (int i = Subreddits.Count - 1; i >= 0 ; i--)
-			{
-				var pivot = redditVMs.FirstOrDefault(rvm => rvm.Heading == Subreddits[i].Data.DisplayName);
-				if (pivot != null)
-				{
-					PivotItems.Remove(pivot);
-					PivotItems.Insert(0, pivot);
-				}
-			}
+            if (PivotItems != null && Subreddits != null)
+            {
+                var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null).ToArray();
+                for (int i = Subreddits.Count - 1; i >= 0; i--)
+                {
+                    if (redditVMs.Length > i && Subreddits[i].Data != null && redditVMs[i].Heading == Subreddits[i].Data.DisplayName)
+                        continue;
+                    else
+                    {
+                        var pivot = redditVMs.FirstOrDefault(rvm => Subreddits[i].Data != null && rvm.Heading == Subreddits[i].Data.DisplayName);
+                        if (pivot != null)
+                        {
+                            PivotItems.Remove(pivot);
+                            PivotItems.Insert(0, pivot);
+                        }
+                    }
+                }
+            }
 		}
 
 		private void OnCloseSubreddit(CloseSubredditMessage message)
@@ -117,12 +136,10 @@ namespace BaconographyPortable.ViewModel
 		private async void OnUserLoggedIn(UserLoggedInMessage message)
 		{
 			bool wasLoggedIn = LoggedIn;
-			LoggedIn = message.CurrentUser != null && message.CurrentUser.Me != null;
-			if (wasLoggedIn != _loggedIn)
-			{
-                if (PivotItems.Count > 0 && PivotItems[0] != null && PivotItems[0] is RedditViewModel)
-					(PivotItems[0] as RedditViewModel).RefreshLinks();
-			}
+			LoggedIn = message.CurrentUser != null && !string.IsNullOrWhiteSpace(message.CurrentUser.LoginCookie);
+
+            if(message.UserTriggered)
+			    SubscribedSubreddits.Refresh();
 
             if (_initialLoad)
             {
@@ -142,11 +159,21 @@ namespace BaconographyPortable.ViewModel
                 newReddit.RedditViewModel.DetachSubredditMessage();
                 newReddit.RedditViewModel.AssignSubreddit(message);
                 if (PivotItems.Count > 0)
-                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                    PivotItems.Insert(PivotItems.Count, newReddit);
                 else
                     PivotItems.Add(newReddit);
-                indexToPosition = PivotItems.Count - 1;
+
+				indexToPosition = PivotItems.Count - 1;
+				RaisePropertyChanged("Subreddits");
             }
+
+			Messenger.Default.Send<SelectIndexMessage>(
+				new SelectIndexMessage
+				{
+					TypeContext = typeof(MainPageViewModel),
+					Index = indexToPosition
+				}
+			);
 		}
 
         public bool FindSubredditMessageIndex(SelectSubredditMessage message, out int indexToPosition)
@@ -176,7 +203,15 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnSubredditChanged(SelectSubredditMessage message)
 		{
-			ChangeSubreddit(message);
+			if (Subreddits.Count == 3 || Subreddits.Count == 5)
+			{
+				_notificationService.CreateNotification("Warning: Adding too many pinned subreddits can cause slow application performance when navigating between views. We recommend using four or fewer for this release.");
+			}
+			else if (Subreddits.Count >= 7)
+			{
+				_notificationService.CreateNotification("Warning: At eight or more pinned subreddits you are likely to see greatly decreased application performance. We recommend using five or fewer for this release.");
+			}
+			ChangeSubreddit(message, !message.AddOnly);
 		}
 
         private void ChangeSubreddit(SelectSubredditMessage message, bool fireSubredditsChanged = true)
@@ -190,12 +225,12 @@ namespace BaconographyPortable.ViewModel
                 newReddit.DetachSubredditMessage();
                 newReddit.AssignSubreddit(message);
                 if (PivotItems.Count > 0)
-                    PivotItems.Insert(PivotItems.Count - 1, newReddit);
+                    PivotItems.Insert(PivotItems.Count, newReddit);
                 else
                     PivotItems.Add(newReddit);
                 _subreddits.Add(message.Subreddit);
                 RaisePropertyChanged("PivotItems");
-                indexToPosition = PivotItems.Count - 2;
+                indexToPosition = PivotItems.Count - 1;
             }
 
             if (fireSubredditsChanged)
@@ -221,7 +256,7 @@ namespace BaconographyPortable.ViewModel
 		{
             var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits");
 
-            PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+            //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
 			if (subreddits == null || subreddits.Count() == 0)
 				subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
@@ -285,6 +320,19 @@ namespace BaconographyPortable.ViewModel
                 return _pivotItems;
             }
         }
+
+		private SubscribedSubredditViewModelCollection _subscribedSubreddits;
+		public SubscribedSubredditViewModelCollection SubscribedSubreddits
+		{
+			get
+			{
+				if (_subscribedSubreddits == null)
+				{
+					_subscribedSubreddits = new SubscribedSubredditViewModelCollection(_baconProvider);
+				}
+				return _subscribedSubreddits;
+			}
+		}
 
     }
 }

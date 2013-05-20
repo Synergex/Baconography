@@ -182,10 +182,10 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource PinAppBarButtonStyle}" 
                             Command="{Binding PinReddit}" CommandParameter="{Binding}"
-                            Visibility="{Binding IsPinned, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
+                            Visibility="{Binding IsTilePinned, Mode=TwoWay, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource UnpinAppBarButtonStyle}" 
                             Command="{Binding UnpinReddit}" CommandParameter="{Binding}"
-                            Visibility="{Binding IsPinned, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"/>
+                            Visibility="{Binding IsTilePinned, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}"/>
                     <Button Style="{StaticResource LoginAppBarButtonStyle}" 
                             Command="{Binding ShowLogin, Source={StaticResource StaticCommands}}" CommandParameter="{Binding}"
                             Visibility="{Binding LoggedIn, Converter={StaticResource invertBooleanVisibilityConverter}}"/>

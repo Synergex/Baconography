@@ -26,6 +26,8 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -95,9 +97,11 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Common\ContextDataButton.cs" />
+    <Compile Include="Common\OrientationManager.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\ImageTypeSelector.cs" />
+    <Compile Include="Common\LinkViewLayoutManager.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
     <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
@@ -110,6 +114,7 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
@@ -133,6 +138,7 @@
     <Compile Include="Messages\CloseSubredditMessage.cs" />
     <Compile Include="Messages\ReorderSubredditMessage.cs" />
     <Compile Include="Messages\SelectIndexMessage.cs" />
+    <Compile Include="Messages\OrientationChangedMessage.cs" />
     <Compile Include="PlatformServices\DynamicViewLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
@@ -156,8 +162,14 @@
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\PullToRefreshView.xaml.cs">
+      <DependentUpon>PullToRefreshView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ScalingGifView.xaml.cs">
       <DependentUpon>ScalingGifView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SelectSortTypeView.xaml.cs">
+      <DependentUpon>SelectSortTypeView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SortSubredditPageView.xaml.cs">
       <DependentUpon>SortSubredditPageView.xaml</DependentUpon>
@@ -195,14 +207,11 @@
     <Compile Include="View\LoadIndicatorView.xaml.cs">
       <DependentUpon>LoadIndicatorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ReplyView.xaml.cs">
-      <DependentUpon>ReplyView.xaml</DependentUpon>
+    <Compile Include="View\ReplyViewPage.xaml.cs">
+      <DependentUpon>ReplyViewPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ScalingPictureView.xaml.cs">
       <DependentUpon>ScalingPictureView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SubredditSelectorView.xaml.cs">
-      <DependentUpon>SubredditSelectorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
@@ -237,7 +246,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\PullToRefreshView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SelectSortTypeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -294,15 +311,11 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
-    <Page Include="View\ReplyView.xaml">
+    <Page Include="View\ReplyViewPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\ScalingPictureView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SubredditSelectorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -325,6 +338,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
@@ -351,6 +365,11 @@
     <Content Include="Assets\Tiles\IconicTileSmall.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="README_FIRST.txt" />
+    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.resx">
@@ -397,6 +416,9 @@
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Controls, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Phone.Controls.Toolkit">
+      <HintPath>..\packages\WPtoolkit.4.2012.10.30\lib\wp8\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -408,11 +430,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="KitaroDBSDK_WP8, Version=1.1.0.0">
+    <SDKReference Include="KitaroDBSDK_WP8, Version=2.0.0.0">
       <Name>KitaroDB for Windows Phone 8</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
@@ -423,4 +444,5 @@
   </Target>
   -->
   <ProjectExtensions />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

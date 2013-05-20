@@ -11,5 +11,6 @@ namespace BaconographyPortable.Model.Reddit
         Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state);
         Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state);
         Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state);
+        Task<Listing> Refresh(Dictionary<object, object> state);
     }
 }

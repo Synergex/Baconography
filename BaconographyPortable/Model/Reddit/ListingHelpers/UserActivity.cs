@@ -32,5 +32,11 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         {
             throw new NotImplementedException();
         }
+
+
+        public Task<Listing> Refresh(Dictionary<object, object> state)
+        {
+            return _redditService.GetPostsByUser(_username, null);
+        }
     }
 }

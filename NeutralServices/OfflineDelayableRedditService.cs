@@ -35,6 +35,28 @@ namespace Baconography.NeutralServices
 
         }
 
+        public override async Task EditComment(string thingId, string text)
+        {
+            try
+            {
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                    await base.EditComment(thingId, text);
+                else
+                    await _offlineService.EnqueueAction("EditComment", new Dictionary<string, string> { { "thingId", thingId }, { "text", text } });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                _offlineService.EnqueueAction("EditComment", new Dictionary<string, string> { { "thingId", thingId }, { "text", text } }).Start();
+            }
+
+
+        }
+
         public override async Task AddMessage(string recipient, string subject, string message)
         {
             try
@@ -182,6 +204,11 @@ namespace Baconography.NeutralServices
                             case "AddComment":
                                 {
                                     await AddComment(actionTpl.Item2["parentId"], actionTpl.Item2["content"]);
+                                    break;
+                                }
+                            case "EditComment":
+                                {
+                                    await EditComment(actionTpl.Item2["thingId"], actionTpl.Item2["text"]);
                                     break;
                                 }
                             case "AddMessage":

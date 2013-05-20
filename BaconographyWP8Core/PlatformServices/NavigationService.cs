@@ -30,7 +30,15 @@ namespace BaconographyWP8.PlatformServices
 
         public void GoBack()
         {
-            _frame.GoBack();
+            try
+            {
+                _frame.GoBack();
+            }
+            catch
+            {
+                //whatever the failure was we need to ignore it, it was an invalid request and
+                //msdn seems to suggest that this is not really a bug in user code
+            }
         }
 
         public void GoForward()

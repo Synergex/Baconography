@@ -11,5 +11,6 @@ namespace BaconographyPortable.Messages
     public class UserLoggedInMessage : MessageBase
     {
         public User CurrentUser { get; set; }
+        public bool UserTriggered { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -25,20 +26,8 @@ namespace BaconographyPortable.ViewModel
             _redditService = _baconProvider.GetService<IRedditService>();
             _userService = _baconProvider.GetService<IUserService>();
             _replyTargetThing = replyTargetThing;
-            
-            var userServiceTask = _userService.GetUser();
-            userServiceTask.Wait();
 
-            if (string.IsNullOrWhiteSpace(userServiceTask.Result.Username))
-            {
-                IsLoggedIn = false;
-                CommentingAs = string.Empty;
-            }
-            else
-            {
-                CommentingAs = userServiceTask.Result.Username;
-                IsLoggedIn = true;
-            }
+			RefreshUserImpl();
 
             _addBold = new RelayCommand(AddBoldImpl);
             _addItalic = new RelayCommand(AddItalicImpl);
@@ -50,7 +39,7 @@ namespace BaconographyPortable.ViewModel
             _addBullets = new RelayCommand(AddBulletsImpl);
             _addNumbers = new RelayCommand(AddNumbersImpl);
             _submit = new RelayCommand(SubmitImpl);
-
+			_refreshUser = new RelayCommand(RefreshUserImpl);
         }
 
         private int _selectionLength;
@@ -180,6 +169,7 @@ namespace BaconographyPortable.ViewModel
         public RelayCommand AddBullets { get { return _addBullets; } }
         public RelayCommand AddNumbers { get { return _addNumbers; } }
         public RelayCommand Submit { get { return _submit; } }
+		public RelayCommand RefreshUser { get { return _refreshUser; } }
 
         RelayCommand _addBold;
         RelayCommand _addItalic;
@@ -191,6 +181,7 @@ namespace BaconographyPortable.ViewModel
         RelayCommand _addBullets;
         RelayCommand _addNumbers;
         RelayCommand _submit;
+		RelayCommand _refreshUser;
         
         private void AddBoldImpl()
         {
@@ -285,6 +276,23 @@ namespace BaconographyPortable.ViewModel
             _convertIntoUIReply(theComment);
             Cancel.Execute(null);
         }
+
+		private void RefreshUserImpl()
+		{
+			var userServiceTask = _userService.GetUser();
+			userServiceTask.Wait();
+
+			if (string.IsNullOrWhiteSpace(userServiceTask.Result.Username))
+			{
+				IsLoggedIn = false;
+				CommentingAs = string.Empty;
+			}
+			else
+			{
+				CommentingAs = userServiceTask.Result.Username;
+				IsLoggedIn = true;
+			}
+		}
 
         RelayCommand _cancel;
         public RelayCommand Cancel

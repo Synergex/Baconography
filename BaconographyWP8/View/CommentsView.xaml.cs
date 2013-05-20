@@ -15,6 +15,9 @@ using Windows.ApplicationModel.DataTransfer;
 using Newtonsoft.Json;
 using BaconographyPortable.Model.Reddit;
 using BaconographyWP8.Messages;
+using GalaSoft.MvvmLight.Ioc;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -27,32 +30,44 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+            {
+                e.Cancel = true;
+            }
+        }
+
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back)
 			{
                 
 			}
-			else
-			{
-				if (this.State != null && this.State.ContainsKey("SelectedCommentTreeMessage"))
-				{
-					_selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
-					Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
-				}
-				else if (this.NavigationContext.QueryString["data"] != null)
-				{
-					var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
-					var deserializedObject = JsonConvert.DeserializeObject<SelectCommentTreeMessage>(unescapedData);
-					if (deserializedObject is SelectCommentTreeMessage)
-					{
-						_selectedCommentTree = deserializedObject as SelectCommentTreeMessage;
-						Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
-					}
-				}
+            else if (e.NavigationMode == NavigationMode.Reset)
+            {
+                //do nothing we have everything we want already here
+            }
+            else
+            {
+                if (this.State != null && this.State.ContainsKey("SelectedCommentTreeMessage"))
+                {
+                    _selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
+                    Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
+                }
+                else if (this.NavigationContext.QueryString["data"] != null)
+                {
+                    var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
+                    var deserializedObject = JsonConvert.DeserializeObject<SelectCommentTreeMessage>(unescapedData);
+                    if (deserializedObject is SelectCommentTreeMessage)
+                    {
+                        _selectedCommentTree = deserializedObject as SelectCommentTreeMessage;
+                        Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
+                    }
+                }
 
-				RegisterShareSourceContract();
-			}
+                RegisterShareSourceContract();
+            }
 		}
 
 
@@ -107,6 +122,18 @@ namespace BaconographyWP8.View
 				//DataTransferManager dataTransferManager = DataTransferManager.GetForCurrentView();
 				//dataTransferManager.DataRequested -= DataRequestedEventHandler;
 			}
+		}
+
+		private void ReplyButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+		{
+			var vm = this.DataContext as CommentsViewModel;
+			vm.GotoReply.Execute(this.DataContext);
+			var replyData = vm.ReplyData;
+			if (SimpleIoc.Default.IsRegistered<ReplyViewModel>())
+				SimpleIoc.Default.Unregister<ReplyViewModel>();
+			SimpleIoc.Default.Register<ReplyViewModel>(() => replyData, true);
+			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+			_navigationService.Navigate(typeof(ReplyViewPage), null);
 		}
 	}
 }
