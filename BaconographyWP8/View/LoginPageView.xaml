@@ -117,8 +117,8 @@
                                     Content="logout"
                                     VerticalAlignment="Bottom"
                                     Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
-                                    Command="{Binding DoLogout}"
-                                    IsEnabled="{Binding IsLoggedIn}"/>
+                                    Command="{Binding Path=Login.DoLogout, Source={StaticResource Locator}}"
+                                    IsEnabled="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}}"/>
                             </DataTemplate>
                         </common:FixedLongListSelector.ListFooterTemplate>
                         <common:FixedLongListSelector.ItemTemplate>

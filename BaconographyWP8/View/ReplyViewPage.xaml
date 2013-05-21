@@ -67,6 +67,7 @@
 
             <TextBox MinHeight="300" Text="{Binding ReplyBody, Mode=TwoWay}" Margin="0,5,0,5"
                      SelectionStart="{Binding SelectionStart}" SelectionLength="{Binding SelectionLength}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                     KeyUp="TextBox_KeyUp"
                      SelectionChanged="TextBox_SelectionChanged">
                 <TextBox.InputScope>
                     <InputScope>
