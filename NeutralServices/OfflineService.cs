@@ -49,7 +49,7 @@ namespace Baconography.NeutralServices
             _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v2.ism", DBCreateFlags.None);
 
             //get our initial action queue state
-            var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock);
+            var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             _hasQueuedActions = actionCursor != null;
 
             var historyCursor = await _historyDb.SeekAsync(DBReadFlags.NoLock);
@@ -344,7 +344,7 @@ namespace Baconography.NeutralServices
                 {
                     _settingsCache[name] = value;
                 }
-                var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock) ;
+                var cursor = await _settingsDb.SeekAsync(_settingsDb.GetKeys().First(), name, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock) ;
                 if (cursor != null)
                 {
                     cursor.Dispose();
@@ -424,7 +424,7 @@ namespace Baconography.NeutralServices
 
             if (_hasQueuedActions)
             {
-                var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock);
+                var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
                 if (actionCursor != null)
                 {
                     using (actionCursor)

@@ -61,7 +61,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
             encodedValue.CopyTo(combinedSpace, LinkKeySpaceSize);
 
-            var commentsCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), keySpace, DBReadFlags.AutoLock);
+            var commentsCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), keySpace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             if (commentsCursor != null)
             {
                 using (commentsCursor)
@@ -154,7 +154,7 @@ namespace Baconography.NeutralServices.KitaroDB
                 for (int i = 0; i < 16 && i < after.Length + 10; i++)
                     afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
 
-                await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace);
+                await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
             }
 
             return await DeserializeCursor(linkCursor, 25);

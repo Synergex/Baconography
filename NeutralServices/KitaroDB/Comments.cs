@@ -124,7 +124,7 @@ namespace Baconography.NeutralServices.KitaroDB
             if (combinedSpace.Length > 65435)
                 return; //failure until we get the record size bumped up next version
 
-            var commentsCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.AutoLock);
+            var commentsCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             if (commentsCursor != null)
             {
                 using (commentsCursor)

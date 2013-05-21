@@ -97,7 +97,7 @@ namespace Baconography.NeutralServices.KitaroDB
             if (combinedSpace.Length > 65435)
                 return; //failure until we get the record size bumped up next version
 
-            var subredditsCursor = await _subredditsDB.SeekAsync(_subredditsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock);
+            var subredditsCursor = await _subredditsDB.SeekAsync(_subredditsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             if (subredditsCursor != null)
             {
                 using (subredditsCursor)
