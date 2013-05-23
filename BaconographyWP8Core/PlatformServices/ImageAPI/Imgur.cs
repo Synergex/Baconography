@@ -49,17 +49,24 @@ namespace Baconography.PlatformServices.ImageAPI
             {
                 var apiURL = string.Format("{0}album/{1}.json", apiPrefix, albumGroups[1].Value);
                 var request = HttpWebRequest.CreateHttp(apiURL);
-                string jsonResult;
+                string jsonResult = null;
                 using (var response = (await SimpleHttpService.GetResponseAsync(request)))
                 {
-					jsonResult = await Task<string>.Run(() =>
-					{
-						using (var sr = new StreamReader(response.GetResponseStream()))
-						{
-							return sr.ReadToEnd();
-						}
-					});
+                    if (response != null)
+                    {
+                        jsonResult = await Task<string>.Run(() =>
+                        {
+                            using (var sr = new StreamReader(response.GetResponseStream()))
+                            {
+                                return sr.ReadToEnd();
+                            }
+                        });
+                    }
                 }
+
+                if(string.IsNullOrWhiteSpace(jsonResult))
+                    return Enumerable.Empty<Tuple<string, string>>();
+
                 var result = JsonConvert.DeserializeObject(jsonResult) as JObject;
                 if (result != null && result.HasValues)
                 {
