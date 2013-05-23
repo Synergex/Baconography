@@ -48,12 +48,15 @@ namespace BaconographyWP8
 			Messenger.Default.Send<OrientationChangedMessage>(new OrientationChangedMessage { Orientation = orientation });
 			lastKnownOrientation = orientation;
 
-			if (orientation == PageOrientation.LandscapeRight)
-				LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
-			else if (orientation == PageOrientation.LandscapeLeft)
-				LayoutRoot.Margin = new Thickness(0, 0, 35, 0);
-			else
-				LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
+			if (LayoutRoot != null)
+			{
+				if (orientation == PageOrientation.LandscapeRight)
+					LayoutRoot.Margin = new Thickness(40, 0, 0, 0);
+				else if (orientation == PageOrientation.LandscapeLeft)
+					LayoutRoot.Margin = new Thickness(0, 0, 35, 0);
+				else
+					LayoutRoot.Margin = new Thickness(0, 0, 0, 0);
+			}
 		}
 
 		PageOrientation lastKnownOrientation;

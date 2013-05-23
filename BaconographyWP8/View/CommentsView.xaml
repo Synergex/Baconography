@@ -146,7 +146,7 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
