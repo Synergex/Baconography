@@ -55,7 +55,7 @@ namespace BaconographyWP8.View
                     _selectedCommentTree = this.State["SelectedCommentTreeMessage"] as SelectCommentTreeMessage;
                     Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
                 }
-                else if (this.NavigationContext.QueryString["data"] != null)
+                else if (!string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
                 {
                     var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
                     var deserializedObject = JsonConvert.DeserializeObject<SelectCommentTreeMessage>(unescapedData);
@@ -64,6 +64,11 @@ namespace BaconographyWP8.View
                         _selectedCommentTree = deserializedObject as SelectCommentTreeMessage;
                         Messenger.Default.Send<SelectCommentTreeMessage>(_selectedCommentTree);
                     }
+                }
+                else
+                {
+                    var notificationService = ServiceLocator.Current.GetInstance<INotificationService>();
+                    notificationService.CreateNotification("TLDR; something bad happened, send /u/hippiehunter a PM letting us know what you clicked on");
                 }
 
                 RegisterShareSourceContract();

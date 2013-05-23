@@ -78,7 +78,7 @@ namespace BaconographyWP8.PlatformServices
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-				var data = JsonConvert.SerializeObject(parameter);
+                var data = parameter != null ? JsonConvert.SerializeObject(parameter) : "";
 				var uri = uriAttribute._targetUri + "?data=" + HttpUtility.UrlEncode(data);
 
 				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
