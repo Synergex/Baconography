@@ -130,7 +130,7 @@
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
     
-    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" MinWidth="430">
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
         <Grid.Background>
             <SolidColorBrush Color="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}" Opacity="{StaticResource PhoneDarkThemeOpacity}" />
         </Grid.Background>
@@ -146,7 +146,7 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
