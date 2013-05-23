@@ -130,7 +130,7 @@
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
     
-    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch" MinWidth="430">
         <Grid.Background>
             <SolidColorBrush Color="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}" Opacity="{StaticResource PhoneDarkThemeOpacity}" />
         </Grid.Background>
