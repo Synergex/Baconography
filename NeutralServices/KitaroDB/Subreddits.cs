@@ -12,11 +12,12 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Subreddits
     {
+		private static string subredditsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//subreddits_v2.ism";
+
         private static Task<Subreddits> _instanceTask;
         private static async Task<Subreddits> GetInstanceImpl()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//subreddits_v2.ism";
-            var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+            var db = await DB.CreateAsync(subredditsDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(24, 0, DBKeyFlags.Alpha, "name", false, false, false, 0),
                 new DBKey(12, 24, DBKeyFlags.Alpha, "id", false, false, false, 1)
@@ -93,9 +94,6 @@ namespace Baconography.NeutralServices.KitaroDB
 
             var keyspace = GenerateNameKeyspace(((Subreddit)thing.Data).DisplayName);
             var combinedSpace = GenerateCombinedKeyspace(((Subreddit)thing.Data).DisplayName, ((Subreddit)thing.Data).Name, encodedValue);
-
-            if (combinedSpace.Length > 65435)
-                return; //failure until we get the record size bumped up next version
 
             var subredditsCursor = await _subredditsDB.SeekAsync(_subredditsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             if (subredditsCursor != null)

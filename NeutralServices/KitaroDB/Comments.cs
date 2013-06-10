@@ -11,6 +11,8 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Comments
     {
+		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//comments-v2.ism";
+
         private static Task<Comments> _instanceTask;
         private static async Task<Comments> GetInstanceImpl()
         {
@@ -19,8 +21,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private static async Task<DB> GetDBInstance()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v2.ism";
-            var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			var db = await DB.CreateAsync(commentsDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0),
                 new DBKey(20, 0, DBKeyFlags.Alpha, "direct", false, false, false, 1, new DBKeySegment[] { new DBKeySegment(12, 32, DBKeyFlags.Alpha, false) }), 
@@ -121,9 +122,6 @@ namespace Baconography.NeutralServices.KitaroDB
             var keyspace = GenerateDirectKeyspace(subredditId, linkId, name);
             var combinedSpace = GenerateCombinedKeyspace(subredditId, linkId, parentId, name, encodedValue);
 
-            if (combinedSpace.Length > 65435)
-                return; //failure until we get the record size bumped up next version
-
             var commentsCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
             if (commentsCursor != null)
             {
@@ -150,7 +148,7 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             _commentsDB.Dispose();
             _commentsDB = null;
-            await DB.PurgeAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//comments-rev1.ism");
+			await DB.PurgeAsync(commentsDatabase);
             _commentsDB = await GetDBInstance();
         }
 

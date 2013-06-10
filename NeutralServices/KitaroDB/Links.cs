@@ -14,11 +14,12 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Links
     {
+		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links_v2.ism";
+
         private static Task<Links> _instanceTask;
         private static async Task<Links> GetInstanceImpl()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links_v2.ism";
-            var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			var db = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(16, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
                 new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1),
@@ -77,9 +78,9 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             _linksDB.Dispose();
             _linksDB = null;
-            await DB.PurgeAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links.ism");
+			await DB.PurgeAsync(linksDatabase);
 
-            _linksDB = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links.ism", DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			_linksDB = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
             {
                 new DBKey(16, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
                 new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1),
