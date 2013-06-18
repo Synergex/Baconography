@@ -73,33 +73,10 @@
             <TextBlock x:Name="SortType" Text="HOT" Style="{StaticResource PhoneTextNormalStyle}" Margin="12,0"/>
         </StackPanel>-->
 
-        <phone:Pivot x:Name="pivot" 
-                     ItemsSource="{Binding PivotItems}"
+        <common:RedditViewPivotControl x:Name="pivot" 
+                     ItemsSource="{Binding PivotItems, Converter={StaticResource reifiedSubredditTemplateCollectionConverter}}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem">
-            
-            <phone:Pivot.TitleTemplate>
-                <DataTemplate>
-                    <Grid Height="20" MinWidth="430" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                        <!--<local:PivotCountIndicator 
-                            ItemsCount="{Binding ElementName=pivot, Path=Items.Count}"
-                            SelectedPivotIndex="{Binding ElementName=pivot, Path=SelectedIndex}"/>-->
-                        <local:LoadIndicatorView />
-                    </Grid>
-                </DataTemplate>
-            </phone:Pivot.TitleTemplate>
-            <phone:Pivot.HeaderTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource pageHeadingConverter}}" />
-                </DataTemplate>
-            </phone:Pivot.HeaderTemplate>
-            <phone:Pivot.ItemTemplate>
-                <DataTemplate>
-                    <common:TypedTemplateSelector 
-                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Content="{Binding}" />
-                </DataTemplate>
-            </phone:Pivot.ItemTemplate>
-        </phone:Pivot>
+                     Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem"/>
 
         <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center" />
 

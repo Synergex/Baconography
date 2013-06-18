@@ -18,7 +18,7 @@
             <Canvas x:Name="canvas">
                 <Image
                     Source="{Binding ImageSource}"
-                    CacheMode="BitmapCache"  RenderTransformOrigin="0,0"
+                    RenderTransformOrigin="0,0"
                     MaxWidth="2048" ImageOpened="OnImageOpened"
                     x:Name="image">
                     <Image.RenderTransform>

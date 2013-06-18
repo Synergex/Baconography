@@ -36,6 +36,8 @@
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
+    <converters:ReifiedSubredditTemplateCollectionConverter x:Key="reifiedSubredditTemplateCollectionConverter"/>
+    
     <imagetools:ImageConverter x:Key="imageConverter"/>
     <common:LinkViewLayoutManager x:Key="linkViewLayoutManager" />
     <common:OrientationManager x:Key="orientationManager" />

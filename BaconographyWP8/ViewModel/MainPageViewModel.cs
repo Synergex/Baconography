@@ -229,7 +229,6 @@ namespace BaconographyPortable.ViewModel
                 else
                     PivotItems.Add(newReddit);
                 _subreddits.Add(message.Subreddit);
-                RaisePropertyChanged("PivotItems");
                 indexToPosition = PivotItems.Count - 1;
             }
 

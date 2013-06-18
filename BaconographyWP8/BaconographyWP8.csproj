@@ -102,6 +102,7 @@
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\ImageTypeSelector.cs" />
     <Compile Include="Common\LinkViewLayoutManager.cs" />
+    <Compile Include="Common\RedditViewPivotItemControl.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
     <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
     <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
