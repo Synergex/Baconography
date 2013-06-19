@@ -20,6 +20,10 @@ namespace BaconographyWP8.Common
 {
     public class RedditViewPivotControl : Pivot
     {
+        public RedditViewPivotControl()
+        {
+            
+        }
 
         RedditView MapViewModel(ViewModelBase viewModel)
         {
@@ -27,6 +31,7 @@ namespace BaconographyWP8.Common
         }
 
         int inflightLoadId = 0;
+        PivotItem inflightLoad;
         protected override async void OnLoadingPivotItem(PivotItem item)
         {
             //since this is going to take a non trivial amount of time we need to prevent
@@ -37,18 +42,18 @@ namespace BaconographyWP8.Common
             //this has the added side effect of making super rapid transitions of the pivot nearly free
             //since no one pivot will be the current one for more then a few hundred milliseconds
             var loadIdAtStart = ++inflightLoadId;
+            inflightLoad = item;
             base.OnLoadingPivotItem(item);
 
             if (item.Content is RedditView)
             {
-                ((RedditView)item.Content).LoadWithScroll();
                 return;
             }
 
             var imageControl = item.Content as Image;
 
             if(imageControl != null)
-                await Task.Delay(500);
+                await Task.Delay(400);
 
             if (loadIdAtStart != inflightLoadId)
                 return;
@@ -56,14 +61,14 @@ namespace BaconographyWP8.Common
             var madeControl = MapViewModel(item.DataContext as ViewModelBase);
 
             if(imageControl != null)
-                await Task.Delay(250);
+                await Task.Yield();
 
             if (loadIdAtStart != inflightLoadId)
                 return;
 
             madeControl.DataContext = item.DataContext as ViewModelBase;
             if (imageControl != null)
-                await Task.Delay(100);
+                await Task.Yield();
 
             if (loadIdAtStart != inflightLoadId)
                 return;
@@ -73,22 +78,39 @@ namespace BaconographyWP8.Common
 
             item.Content = madeControl;
             madeControl.LoadWithScroll();
-            
         }
 
-        protected override void OnUnloadedPivotItem(PivotItemEventArgs e)
+        private async Task RealUnloadingItem(PivotItemEventArgs e)
         {
+            if (e.Item == null)
+                return;
             //if we didnt finish loading we dont need to make a new writable bitmap
             if (!(e.Item.Content is Image) && e.Item.Content is UIElement)
             {
                 if (e.Item.Content is RedditView)
                 {
+                    await Task.Delay(500);
+                    if (inflightLoad == e.Item)
+                        return;
                     ((RedditView)e.Item.Content).UnloadWithScroll();
                 }
+
+                await Task.Delay(500);
+                if (inflightLoad == e.Item)
+                    return;
+
                 WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
+                await Task.Delay(250);
+                if (inflightLoad == e.Item)
+                    return;
                 e.Item.Content = new Image { Source = bitmap };
             }
-            base.OnUnloadedPivotItem(e);
+        }
+
+        protected override async void OnUnloadingPivotItem(PivotItemEventArgs e)
+        {
+            base.OnUnloadingPivotItem(e);
+            await RealUnloadingItem(e);
         }
 
     }

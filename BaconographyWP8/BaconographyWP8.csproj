@@ -115,6 +115,7 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\ExtendedLinkConverter.cs" />
     <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
     <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
@@ -163,6 +164,9 @@
     </Compile>
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExtendedLinkView.xaml.cs">
+      <DependentUpon>ExtendedLinkView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\PullToRefreshView.xaml.cs">
       <DependentUpon>PullToRefreshView.xaml</DependentUpon>
@@ -247,6 +251,10 @@
     <Page Include="View\CommentView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedLinkView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\PullToRefreshView.xaml">
       <SubType>Designer</SubType>
@@ -340,6 +348,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BaconographyWP8_2013_06_18_16_40_16.sap" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
