@@ -41,6 +41,7 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
+            IsTemporary = false;
         }
 
         //doesnt need to fire events since its just holding data for the view

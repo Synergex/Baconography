@@ -119,7 +119,7 @@ namespace BaconographyPortable.ViewModel
 					var subreddit = (match as RedditViewModel).SelectedSubreddit;
 					PivotItems.Remove(match);
 					RaisePropertyChanged("PivotItems");
-                    if (match.IsTemporary)
+                    if (!match.IsTemporary)
                     {
                         _subreddits.Remove(subreddit);
                         RaisePropertyChanged("Subreddits");
