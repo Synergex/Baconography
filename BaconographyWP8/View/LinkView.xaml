@@ -41,7 +41,7 @@
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" in " />
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
                         </StackPanel>
-                        <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Domain, Converter={StaticResource domainConverter}}" />
+                        <TextBlock Margin="8,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Domain, Converter={StaticResource domainConverter}}" />
                     </StackPanel>
                 </StackPanel>
             </Button.Content>
