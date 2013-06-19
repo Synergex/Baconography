@@ -37,7 +37,9 @@
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
     <converters:ReifiedSubredditTemplateCollectionConverter x:Key="reifiedSubredditTemplateCollectionConverter"/>
-    
+    <converters:VoteIndicatorConverter x:Key="voteIndicatorConverter"/>
+    <converters:DomainConverter x:Key="domainConverter"/>
+    <converters:TotalPointsConverter x:Key="totalPointsConverter"/>
     <imagetools:ImageConverter x:Key="imageConverter"/>
     <common:LinkViewLayoutManager x:Key="linkViewLayoutManager" />
     <common:OrientationManager x:Key="orientationManager" />

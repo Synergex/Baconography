@@ -115,10 +115,12 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\DomainConverter.cs" />
     <Compile Include="Converters\ExtendedLinkConverter.cs" />
     <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
     <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\TotalPointsConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
@@ -133,6 +135,7 @@
     <Compile Include="Converters\ReplyConverter.cs" />
     <Compile Include="Converters\TimeRelationConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
+    <Compile Include="Converters\VoteIndicatorConverter.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -340,6 +343,8 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="BaconographyWP8_2013_06_18_16_40_16.sap" />
+    <None Include="BaconographyWP8_2013_06_19_09_47_07.sap" />
+    <None Include="BaconographyWP8_2013_06_19_10_21_39.sap" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">

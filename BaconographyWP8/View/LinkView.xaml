@@ -32,31 +32,16 @@
                     </TextBlock>
                     <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
                         <TextBlock FontSize="18"  Foreground="Goldenrod" Text="{Binding Author}" />
-                        <TextBlock Margin="8,2,0,0" Foreground="Gray"
-                            FontSize="16" Text="{Binding Path=Votable.TotalVotes}"/>
-                        <TextBlock Margin="0,2,0,0" FontSize="16" Foreground="Gray" VerticalAlignment="Center" Text=" points" />
+                        <TextBlock Margin="8,2,0,0" Foreground="Gray" FontSize="16" Text="{Binding Path=Votable.TotalVotes, Converter={StaticResource totalPointsConverter}}"/>
                     </StackPanel>
                     <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="0,3,0,0">
-                        <TextBlock Foreground="OrangeRed" FontSize="13" Margin="0,0,0,0"
-                                   FontFamily="Segoe UI Symbol" Text="&#xE110; "
-                                   Visibility="{Binding Path=Votable.Like, Converter={StaticResource booleanVisibilityConverter}}"/>
-                        <TextBlock Foreground="LightSkyBlue" FontSize="13" Margin="0,0,0,0"
-                                   FontFamily="Segoe UI Symbol" Text=" &#xE110;"
-                                   Visibility="{Binding Path=Votable.Dislike, Converter={StaticResource booleanVisibilityConverter}}">
-                            <TextBlock.RenderTransform>
-                                <RotateTransform Angle="180" CenterX="9" CenterY="9" />
-                            </TextBlock.RenderTransform>
-                        </TextBlock>
+                        <ContentControl Content="{Binding Converter={StaticResource voteIndicatorConverter}}"/>
                         <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding FromMultiReddit, Converter={StaticResource booleanVisibilityConverter}}">
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=" in " />
                             <TextBlock FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Subreddit}" />
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Margin="8,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="(" />
-                            <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Domain}" />
-                            <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text=")" />
-                        </StackPanel> 
+                        <TextBlock Margin="0,0,0,0" FontSize="15" Foreground="Gray" VerticalAlignment="Center" Text="{Binding Domain, Converter={StaticResource domainConverter}}" />
                     </StackPanel>
                 </StackPanel>
             </Button.Content>
