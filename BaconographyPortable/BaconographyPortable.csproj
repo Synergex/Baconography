@@ -61,6 +61,7 @@
     <Compile Include="Model\Compression\LZ4Codec.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe32.Dirty.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\UsageStatisticsAggregate.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Model\Reddit\Json.cs" />
     <Compile Include="Model\Reddit\Link.cs" />
     <Compile Include="Model\Reddit\Listing.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\MergedListingProvider.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />

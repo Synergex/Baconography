@@ -12,7 +12,7 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Subreddits
     {
-		private static string subredditsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//subreddits_v2.ism";
+		private static string subredditsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\subreddits_v2.ism";
 
         private static Task<Subreddits> _instanceTask;
         private static async Task<Subreddits> GetInstanceImpl()

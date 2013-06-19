@@ -11,7 +11,7 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Comments
     {
-		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//comments-v2.ism";
+		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v2.ism";
 
         private static Task<Comments> _instanceTask;
         private static async Task<Comments> GetInstanceImpl()

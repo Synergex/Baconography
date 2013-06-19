@@ -22,6 +22,7 @@ namespace BaconographyPortable.Services
 		bool LeftHandedMode { get; set; }
 		bool OrientationLock { get; set; }
 		string Orientation { get; set; }
+        bool AllowPredictiveOfflining { get; set; }
 
         void ShowSettings();
         Task Persist();

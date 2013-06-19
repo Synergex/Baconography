@@ -14,7 +14,7 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Links
     {
-		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//links_v2.ism";
+		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\links_v2.ism";
 
         private static Task<Links> _instanceTask;
         private static async Task<Links> GetInstanceImpl()

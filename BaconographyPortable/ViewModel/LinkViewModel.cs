@@ -5,6 +5,7 @@ using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -282,12 +283,25 @@ namespace BaconographyPortable.ViewModel
                 vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
             else
                 vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
+            UpdateUsageStatistics(vm, false);
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
         {
             UtilityCommandImpl.GotoLinkImpl(vm.Url);
 			vm.RaisePropertyChanged("Url");
+            UpdateUsageStatistics(vm, true);
+        }
+
+        private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)
+        {
+            if (vm._linkThing != null)
+            {
+                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+
+                await offlineService.IncrementDomainStatistic(vm._linkThing.Data.Domain, isLink);
+                await offlineService.IncrementSubredditStatistic(vm._linkThing.Data.SubredditId, isLink);
+            }
         }
     }
 }
