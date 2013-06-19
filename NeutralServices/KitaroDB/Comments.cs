@@ -220,7 +220,7 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             var keyspace = GenerateMainKeyspace(subredditId, linkId, linkId);
 
-            var commentCursor = await _commentsDB.SelectAsync(_commentsDB.GetKeys().First(), keyspace);
+            var commentCursor = await _commentsDB.SelectAsync(_commentsDB.GetKeys().First(), keyspace, DBReadFlags.NoLock);
             Listing topLevelChildren = null;
             using (commentCursor)
             {
