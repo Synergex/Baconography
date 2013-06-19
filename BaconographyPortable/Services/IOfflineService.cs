@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Model.KitaroDB.ListingHelpers;
+using BaconographyPortable.Model.Reddit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,11 @@ namespace BaconographyPortable.Services
         Task StoreComments(Listing listing);
         Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count);
         Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids);
+
+        Task IncrementDomainStatistic(string domain, bool isLink);
+        Task IncrementSubredditStatistic(string subredditId, bool isLink);
+        Task<List<DomainAggregate>> GetDomainAggregates(int maxListSize, int threshold);
+        Task<List<SubredditAggregate>> GetSubredditAggregates(int maxListSize, int threshold);
 
         Task StoreLink(Thing link);
         Task StoreLinks(Listing listing);
@@ -40,5 +46,6 @@ namespace BaconographyPortable.Services
         Task<Tuple<string, Dictionary<string, string>>> DequeueAction();
 
         Task<Thing> GetSubreddit(string name);
+        uint GetHash(string name);
     }
 }

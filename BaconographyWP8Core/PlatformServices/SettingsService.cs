@@ -39,6 +39,7 @@ namespace BaconographyWP8.PlatformServices
 		public bool LeftHandedMode{ get; set; }
 		public bool OrientationLock { get; set; }
 		public string Orientation { get; set; }
+        public bool AllowPredictiveOfflining { get; set; }
 
         public void ShowSettings()
         {
@@ -118,6 +119,12 @@ namespace BaconographyWP8.PlatformServices
 				else
 					Orientation = "";
 
+                var predicitveOfflining = await offlineService.GetSetting("AllowPredictiveOfflining");
+                if (!string.IsNullOrWhiteSpace(predicitveOfflining))
+                    AllowPredictiveOfflining = bool.Parse(predicitveOfflining);
+                else
+                    AllowPredictiveOfflining = false;
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -141,6 +148,7 @@ namespace BaconographyWP8.PlatformServices
 			await offlineService.StoreSetting("LeftHandedMode", LeftHandedMode.ToString());
 			await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
 			await offlineService.StoreSetting("Orientation", Orientation.ToString());
+            await offlineService.StoreSetting("AllowPredictiveOfflining", AllowPredictiveOfflining.ToString());
         }
 
 

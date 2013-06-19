@@ -154,5 +154,7 @@ namespace BaconographyW8.PlatformServices
             get;
             set;
         }
+
+        public bool AllowPredictiveOfflining { get; set; }
     }
 }

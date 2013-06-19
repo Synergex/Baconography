@@ -1,5 +1,7 @@
 using Baconography.NeutralServices.KitaroDB;
+using Baconography.NeutralServices.KitaroDB.Util;
 using BaconographyPortable.Messages;
+using BaconographyPortable.Model.KitaroDB.ListingHelpers;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight.Messaging;
@@ -33,49 +35,57 @@ namespace Baconography.NeutralServices
 
         private async Task InitializeImpl()
         {
-            _comments = await Comments.GetInstance();
-            _links = await Links.GetInstance();
-            _subreddits = await Subreddits.GetInstance();
-
-            //tell the key value pair infrastructure to allow duplicates
-            //we dont really have a key, all we actually wanted was an ordered queue
-            //the duplicates mechanism should give us that
-            _actionsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\actions_v2.ism", DBCreateFlags.None,
-                ushort.MaxValue - 100,
-                new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) });
-
-            _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.None);
-            _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None);
-            _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v2.ism", DBCreateFlags.None);
-
-            //get our initial action queue state
-            var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-            _hasQueuedActions = actionCursor != null;
-
-            var historyCursor = await _historyDb.SeekAsync(DBReadFlags.NoLock);
-            if (historyCursor != null)
+            try
             {
-                using (historyCursor)
+                _comments = await Comments.GetInstance();
+                _links = await Links.GetInstance();
+                _subreddits = await Subreddits.GetInstance();
+                _statistics = await UsageStatistics.GetInstance();
+
+                //tell the key value pair infrastructure to allow duplicates
+                //we dont really have a key, all we actually wanted was an ordered queue
+                //the duplicates mechanism should give us that
+                _actionsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\actions_v2.ism", DBCreateFlags.None,
+                    ushort.MaxValue - 100,
+                    new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) });
+
+                _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.None);
+                _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None);
+                _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v2.ism", DBCreateFlags.None);
+
+                //get our initial action queue state
+                var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
+                _hasQueuedActions = actionCursor != null;
+
+                var historyCursor = await _historyDb.SeekAsync(DBReadFlags.NoLock);
+                if (historyCursor != null)
                 {
-                    do
+                    using (historyCursor)
                     {
-                        _clickHistory.Add(historyCursor.GetString());
-                    } while (await historyCursor.MoveNextAsync());
+                        do
+                        {
+                            _clickHistory.Add(historyCursor.GetString());
+                        } while (await historyCursor.MoveNextAsync());
+                    }
+                }
+
+                _settingsCache = new Dictionary<string, string>();
+                //load all of the settings up front so we dont spend so much time going back and forth
+                var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
+                if (cursor != null)
+                {
+                    using (cursor)
+                    {
+                        do
+                        {
+                            _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                        } while (await cursor.MoveNextAsync());
+                    }
                 }
             }
-
-            _settingsCache = new Dictionary<string, string>();
-            //load all of the settings up front so we dont spend so much time going back and forth
-            var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
-            if (cursor != null)
+            catch (Exception e)
             {
-                using (cursor)
-                {
-                    do
-                    {
-                        _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
-                    } while (await cursor.MoveNextAsync());
-                }
+                Debug.WriteLine(DBError.TranslateError((uint)e.HResult));
             }
         }
 
@@ -97,6 +107,7 @@ namespace Baconography.NeutralServices
         Comments _comments;
         Links _links;
         Subreddits _subreddits;
+        UsageStatistics _statistics;
         DB _settingsDb;
         DB _historyDb;
         DB _actionsDb;
@@ -109,6 +120,30 @@ namespace Baconography.NeutralServices
             await Initialize();
             await _comments.Clear();
             await _links.Clear();
+        }
+
+        public async Task IncrementDomainStatistic(string domain, bool isLink)
+        {
+            await Initialize();
+            await _statistics.IncrementDomain(domain, isLink);
+        }
+
+        public async Task IncrementSubredditStatistic(string subredditId, bool isLink)
+        {
+            await Initialize();
+            await _statistics.IncrementSubreddit(subredditId, isLink);
+        }
+
+        public async Task<List<DomainAggregate>> GetDomainAggregates(int maxListSize = 10, int threshold = 25)
+        {
+            await Initialize();
+            return await _statistics.GetDomainAggregateList(maxListSize, threshold);
+        }
+
+        public async Task<List<SubredditAggregate>> GetSubredditAggregates(int maxListSize = 10, int threshold = 25)
+        {
+            await Initialize();
+            return await _statistics.GetSubredditAggregateList(maxListSize, threshold);
         }
 
         public async Task<IEnumerable<Task<Tuple<string, byte[]>>>> GetImages(string uri)
@@ -443,6 +478,11 @@ namespace Baconography.NeutralServices
         public Task<Thing> GetSubreddit(string name)
         {
             return _subreddits.GetSubreddit(null, name);
+        }
+
+        public uint GetHash(string name)
+        {
+            return Crc32.Compute(Crc32.StringGetBytes(name));
         }
     }
 
