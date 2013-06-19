@@ -102,6 +102,7 @@
     <Compile Include="Common\FixedLongListSelector.cs" />
     <Compile Include="Common\ImageTypeSelector.cs" />
     <Compile Include="Common\LinkViewLayoutManager.cs" />
+    <Compile Include="Common\RedditViewPivotItemControl.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
     <Compile Include="Common\ReorderListBoxItem.cs" />
     <Compile Include="Common\StateAwarePage.cs" />
@@ -114,12 +115,13 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\ExtendedLinkConverter.cs" />
+    <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
     <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
-    <Compile Include="Converters\PageHeadingConverter.cs" />
     <Compile Include="Converters\LinkGlyphConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\DepthColorConverter.cs" />
@@ -152,7 +154,6 @@
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
-    <Compile Include="ViewModel\TemporaryRedditViewModel.cs" />
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
@@ -161,6 +162,9 @@
     </Compile>
     <Compile Include="View\CommentView.xaml.cs">
       <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExtendedLinkView.xaml.cs">
+      <DependentUpon>ExtendedLinkView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\PullToRefreshView.xaml.cs">
       <DependentUpon>PullToRefreshView.xaml</DependentUpon>
@@ -216,9 +220,6 @@
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\TemporaryRedditView.xaml.cs">
-      <DependentUpon>TemporaryRedditView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\VotableView.xaml.cs">
       <DependentUpon>VotableView.xaml</DependentUpon>
     </Compile>
@@ -245,6 +246,10 @@
     <Page Include="View\CommentView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedLinkView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\PullToRefreshView.xaml">
       <SubType>Designer</SubType>
@@ -323,10 +328,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\TemporaryRedditView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\VotableView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -338,6 +339,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BaconographyWP8_2013_06_18_16_40_16.sap" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">

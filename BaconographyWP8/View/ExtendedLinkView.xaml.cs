@@ -10,11 +10,11 @@ using Microsoft.Phone.Shell;
 
 namespace BaconographyWP8.View
 {
-	public partial class TemporaryRedditView : UserControl
-	{
-		public TemporaryRedditView()
-		{
-			InitializeComponent();
-		}
-	}
+    public partial class ExtendedLinkView : UserControl
+    {
+        public ExtendedLinkView()
+        {
+            InitializeComponent();
+        }
+    }
 }

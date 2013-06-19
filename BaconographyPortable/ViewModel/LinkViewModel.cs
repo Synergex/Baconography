@@ -226,8 +226,17 @@ namespace BaconographyPortable.ViewModel
 			{
 				_isExtendedOptionsShown = value;
 				RaisePropertyChanged("IsExtendedOptionsShown");
+                RaisePropertyChanged("ExtendedData");
 			}
 		}
+
+        public Tuple<bool, LinkViewModel> ExtendedData
+        {
+            get
+            {
+                return Tuple.Create(IsExtendedOptionsShown, this);
+            }
+        }
 
         public bool FromMultiReddit { get; set; }
 

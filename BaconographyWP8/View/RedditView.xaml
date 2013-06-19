@@ -22,6 +22,7 @@
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
                 ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
+            
             <common:FixedLongListSelector.ListHeaderTemplate>
                 <DataTemplate>
                     <!-- Visibility="{Binding ElementName=linksView, Path=PulledDown, Converter={StaticResource booleanVisibilityConverter}}" -->

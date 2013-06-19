@@ -8,6 +8,7 @@ using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,6 +43,9 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
         }
 
+        //doesnt need to fire events since its just holding data for the view
+        public object TopVisibleLink { get; set; }
+        public bool IsTemporary { get; set; }
 		public void DetachSubredditMessage()
 		{
 			MessengerInstance.Unregister<SelectSubredditMessage>(this);

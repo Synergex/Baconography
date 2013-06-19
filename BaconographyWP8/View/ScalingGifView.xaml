@@ -18,7 +18,7 @@
             <Canvas x:Name="canvas">
                 <imagetools:AnimatedImage
                     Source="{Binding ElementName=viewPanel, Path=ImageSource, Converter={StaticResource imageConverter}}"
-                    CacheMode="BitmapCache"  RenderTransformOrigin="0,0"
+                    RenderTransformOrigin="0,0"
                     LoadingCompleted="OnImageOpened" LoadingFailed="OnLoadingFailed"
                     AnimationMode="Repeat" Stretch="UniformToFill"
                     x:Name="image">

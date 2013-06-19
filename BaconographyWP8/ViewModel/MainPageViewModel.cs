@@ -112,24 +112,20 @@ namespace BaconographyPortable.ViewModel
 
 			if (!String.IsNullOrEmpty(heading))
 			{
-				var match = PivotItems.FirstOrDefault(vmb => vmb is TemporaryRedditViewModel && (vmb as TemporaryRedditViewModel).RedditViewModel.Heading == heading);
+				
+				var match = PivotItems.FirstOrDefault(vmb => vmb is RedditViewModel && (vmb as RedditViewModel).Heading == heading) as RedditViewModel;
 				if (match != null)
 				{
+					var subreddit = (match as RedditViewModel).SelectedSubreddit;
 					PivotItems.Remove(match);
 					RaisePropertyChanged("PivotItems");
+                    if (match.IsTemporary)
+                    {
+                        _subreddits.Remove(subreddit);
+                        RaisePropertyChanged("Subreddits");
+                    }
 				}
-				else
-				{
-					match = PivotItems.FirstOrDefault(vmb => vmb is RedditViewModel && (vmb as RedditViewModel).Heading == heading);
-					if (match != null)
-					{
-						var subreddit = (match as RedditViewModel).SelectedSubreddit;
-						PivotItems.Remove(match);
-						RaisePropertyChanged("PivotItems");
-						_subreddits.Remove(subreddit);
-						RaisePropertyChanged("Subreddits");
-					}
-				}
+				
 			}
 		}
 
@@ -155,9 +151,10 @@ namespace BaconographyPortable.ViewModel
 
             if (!foundExisting)
             {
-                var newReddit = new TemporaryRedditViewModel(_baconProvider);
-                newReddit.RedditViewModel.DetachSubredditMessage();
-                newReddit.RedditViewModel.AssignSubreddit(message);
+                var newReddit = new RedditViewModel(_baconProvider);
+                newReddit.IsTemporary = true;
+                newReddit.DetachSubredditMessage();
+                newReddit.AssignSubreddit(message);
                 if (PivotItems.Count > 0)
                     PivotItems.Insert(PivotItems.Count, newReddit);
                 else
@@ -188,13 +185,6 @@ namespace BaconographyPortable.ViewModel
                         return true;
                     }
 
-                }
-                else if (vm is TemporaryRedditViewModel)
-                {
-                    if (((TemporaryRedditViewModel)vm).RedditViewModel.Url == message.Subreddit.Data.Url)
-                    {
-                        return true;
-                    }
                 }
                 indexToPosition++;
             }
@@ -229,7 +219,6 @@ namespace BaconographyPortable.ViewModel
                 else
                     PivotItems.Add(newReddit);
                 _subreddits.Add(message.Subreddit);
-                RaisePropertyChanged("PivotItems");
                 indexToPosition = PivotItems.Count - 1;
             }
 

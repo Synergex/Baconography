@@ -141,6 +141,9 @@ namespace Baconography.NeutralServices.KitaroDB
         public async Task<Listing> LinksForSubreddit(Subreddits subreddits, string subredditName, string after)
         {
             var subredditId = await TranslateSubredditNameToId(subreddits, subredditName);
+            if (subredditId == null)
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+            
             var keyspace = new byte[8];
 
             for (int i = 0; i < 8 && i < subredditId.Length; i++)
