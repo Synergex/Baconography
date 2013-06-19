@@ -14,11 +14,13 @@ namespace BaconographyPortable.ViewModel
     {
         TypedThing<IVotable> _votableThing;
         IRedditService _redditService;
+        Action _propertyChanged;
 
-        public VotableViewModel(Thing votableThing, IBaconProvider baconProvider)
+        public VotableViewModel(Thing votableThing, IBaconProvider baconProvider, Action propertyChanged)
         {
             _votableThing = new TypedThing<IVotable>(votableThing);
             _redditService = baconProvider.GetService<IRedditService>();
+            _propertyChanged = propertyChanged;
         }
 
         public RelayCommand<VotableViewModel> ToggleUpvote { get { return _toggleUpvote; } }
@@ -110,7 +112,7 @@ namespace BaconographyPortable.ViewModel
             }
 
             vm._redditService.AddVote(vm._votableThing.Data.Name, voteDirection);
-
+            vm._propertyChanged();
         }
 
         private static void ToggleDownvoteImpl(VotableViewModel vm)
@@ -126,6 +128,7 @@ namespace BaconographyPortable.ViewModel
             }
 
             vm._redditService.AddVote(vm._votableThing.Data.Name, voteDirection);
+            vm._propertyChanged();
         }
 
 

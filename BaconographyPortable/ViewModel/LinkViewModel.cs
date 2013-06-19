@@ -84,7 +84,7 @@ namespace BaconographyPortable.ViewModel
             get
             {
                 if (_votable == null)
-                    _votable = new VotableViewModel(_linkThing, _baconProvider);
+                    _votable = new VotableViewModel(_linkThing, _baconProvider, () => RaisePropertyChanged("Votable"));
                 return _votable;
             }
         }

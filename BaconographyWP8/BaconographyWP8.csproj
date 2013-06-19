@@ -342,9 +342,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="BaconographyWP8_2013_06_18_16_40_16.sap" />
-    <None Include="BaconographyWP8_2013_06_19_09_47_07.sap" />
-    <None Include="BaconographyWP8_2013_06_19_10_21_39.sap" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">

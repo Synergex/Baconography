@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,10 @@ namespace BaconographyWP8.Converters
         private static FontFamily SegoeUISymbol = new FontFamily("Segoe UI Symbol");
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var votable = value as IVotable;
-            if (votable != null && votable.Likes != null)
+            var votable = value as VotableViewModel;
+            if (votable != null && votable.LikeStatus != 0)
             {
-                if (votable.Likes.Value)
+                if (votable.LikeStatus == 1)
                 {
                     return new TextBlock
                     {
