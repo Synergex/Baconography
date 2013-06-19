@@ -34,10 +34,12 @@ namespace BaconographyPortable.ViewModel.Collections
             _baconProvider = baconProvider;
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
+            {
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.MergedListingProvider<Comment>(
                     new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName),
-                    new List<IListingProvider>{ new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName) },
+                    new List<IListingProvider> { new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName) },
                     p => p.Id);
+            }
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
 
