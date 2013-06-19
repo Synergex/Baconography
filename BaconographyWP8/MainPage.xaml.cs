@@ -165,26 +165,21 @@ namespace BaconographyWP8
 
 		private void MenuClose_Click(object sender, EventArgs e)
 		{
-			var rvm = pivot.SelectedItem as RedditViewModel;
-			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
+            var rvm = ((PivotItem)pivot.SelectedItem).DataContext as RedditViewModel;
 			if (rvm != null)
 			{
 				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = rvm.Heading });
-			}
-			else if (trvm != null)
-			{
-				Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.RedditViewModel.Heading });
 			}
 		}
 
 		private void MenuPin_Click(object sender, EventArgs e)
 		{
-			var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
-			if (trvm == null)
+            var trvm = ((PivotItem)pivot.SelectedItem).DataContext as RedditViewModel;
+			if (trvm == null || !trvm.IsTemporary)
 				return;
 
-			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.RedditViewModel.Heading });
-			Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = trvm.RedditViewModel.SelectedSubreddit });
+			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.Heading });
+			Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = trvm.SelectedSubreddit });
 		}
 
 		private void MenuSettings_Click(object sender, EventArgs e)
@@ -210,15 +205,10 @@ namespace BaconographyWP8
 			sortPopup.Height = height;
 			sortPopup.Width = width;
 
-			RedditViewModel rvm = pivot.SelectedItem as RedditViewModel;
+			RedditViewModel rvm = ((PivotItem)pivot.SelectedItem).DataContext as RedditViewModel;
 			if (rvm == null)
-			{
-				var trvm = pivot.SelectedItem as TemporaryRedditViewModel;
-				if (trvm != null)
-					rvm = trvm.RedditViewModel;
-				else
-					return;
-			}
+			    return;
+			
 
 			var child = sortPopup.Child as SelectSortTypeView;
 			if (child == null)
@@ -299,7 +289,9 @@ namespace BaconographyWP8
 			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
 				BuildMenu();
 
-			if (pivot.SelectedItem is TemporaryRedditViewModel)
+            if (pivot.SelectedItem is PivotItem && 
+                ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel &&
+                ((RedditViewModel)((PivotItem)pivot.SelectedItem).DataContext).IsTemporary)
 			{
 				if (ApplicationBar.MenuItems.Count == 4)
 				{

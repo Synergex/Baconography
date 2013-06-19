@@ -122,7 +122,6 @@
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
-    <Compile Include="Converters\PageHeadingConverter.cs" />
     <Compile Include="Converters\LinkGlyphConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\DepthColorConverter.cs" />
@@ -155,7 +154,6 @@
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
-    <Compile Include="ViewModel\TemporaryRedditViewModel.cs" />
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
@@ -221,9 +219,6 @@
     </Compile>
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\TemporaryRedditView.xaml.cs">
-      <DependentUpon>TemporaryRedditView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\VotableView.xaml.cs">
       <DependentUpon>VotableView.xaml</DependentUpon>
@@ -330,10 +325,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SubredditView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\TemporaryRedditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

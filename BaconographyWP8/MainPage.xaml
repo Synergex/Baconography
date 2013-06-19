@@ -19,14 +19,6 @@
     shell:SystemTray.Opacity="100"
     toolkit:TiltEffect.IsTiltEnabled="True"
     DataContext="{Binding MainPage, Source={StaticResource Locator}}">
-    <phone:PhoneApplicationPage.Resources>
-        <DataTemplate x:Key="Type:RedditViewModel">
-            <local:RedditView DataContext="{Binding}"/>
-        </DataTemplate>
-        <DataTemplate x:Key="Type:TemporaryRedditViewModel">
-            <local:TemporaryRedditView DataContext="{Binding}"/>
-        </DataTemplate>
-    </phone:PhoneApplicationPage.Resources>
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>

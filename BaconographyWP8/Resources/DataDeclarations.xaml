@@ -32,7 +32,6 @@
     <converters:ExtendedLinkConverter x:Key="extendedLinkConverter"/>
     <converters:LinkGlyphConverter x:Key="linkGlyphConverter"/>
     <converters:VisitedMainLinkConverter x:Key="visitedMainLinkConverter"/>
-    <converters:PageHeadingConverter x:Key="pageHeadingConverter"/>
     <converters:SubredditPinnedUnpinnedConverter x:Key="subredditPinnedUnpinnedConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>

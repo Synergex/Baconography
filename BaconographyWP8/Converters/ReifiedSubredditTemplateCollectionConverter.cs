@@ -38,16 +38,10 @@ namespace BaconographyWP8.Converters
 
         PivotItem MapViewModel(ViewModelBase viewModel)
         {
-            if (viewModel is TemporaryRedditViewModel)
-            {
-                var trvm = viewModel as TemporaryRedditViewModel;
-                return new PivotItem { DataContext = viewModel,  Header = "*" + trvm.RedditViewModel.Heading.ToLower() };
-            }
-            else
-            {
-                var rvm = viewModel as RedditViewModel;
-                return new PivotItem { DataContext = viewModel, Header = rvm.Heading == "The front page of this device" ? "front page" : rvm.Heading.ToLower() };
-            }
+            var rvm = viewModel as RedditViewModel;
+
+            var plainHeader = rvm.Heading == "The front page of this device" ? "front page" : rvm.Heading.ToLower();
+            return new PivotItem { DataContext = viewModel, Header = rvm.IsTemporary ? "*" + plainHeader : plainHeader };
         }
 
         void redditViewModelCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e, ObservableCollection<PivotItem> adaptedTarget)

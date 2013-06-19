@@ -116,7 +116,7 @@ namespace BaconographyWP8.View
         public object GetFirstVisibleItem(LongListSelector lls)
         {
             var viewPort = FindViewport(lls);
-            if (viewPort != null)
+            if (items.Count > 0 && viewPort != null)
             {
                 var offset = viewPort.Viewport.Top;
                 return items.Where(x => Canvas.GetTop(x.Value) + x.Value.ActualHeight > offset)

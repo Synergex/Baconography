@@ -87,21 +87,10 @@
                                             Command="{Binding ElementName=controlRoot, Path=DataContext.GotoSubreddit}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"/>
                     <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Subreddit" FontSize="14" HorizontalAlignment="Center" />
 
-                    <!--
-                                        <Button Grid.Row="1" Grid.Column="4"
-                                            FontFamily="Segoe UI Symbol" FontSize="14"
-                                            Width="40" Height="40"
-                                            Content="&#xE1CF;" Style="{StaticResource RoundButtonStyle}"
-                                            IsEnabled="False"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="4" Margin="0,4,0,0" Text="Save" FontSize="14" HorizontalAlignment="Center" 
-                                                   Foreground="{StaticResource PhoneDisabledBrush}"/>
-                                        -->
-
                 </Grid>
                 <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10" Visibility="{Binding ElementName=controlRoot, Path=DataContext.IsSelf, Converter={StaticResource booleanVisibilityConverter}}">
                     <ContentControl Margin="5,5,5,5" Content="{Binding ElementName=controlRoot, Path=DataContext.SelfText, Converter={StaticResource markdownConverter}}"/>
                 </Border>
-                <!--<ContentControl Content="{Binding ElementName=controlRoot, Path=DataContext.ReplyData, Converter={StaticResource replyConverter}}"/>-->
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="typedTemplateSelector">
