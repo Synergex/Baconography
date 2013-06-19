@@ -16,6 +16,7 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="100"
     toolkit:TiltEffect.IsTiltEnabled="True"
     DataContext="{Binding MainPage, Source={StaticResource Locator}}">
     <phone:PhoneApplicationPage.Resources>
@@ -76,7 +77,7 @@
         <common:RedditViewPivotControl x:Name="pivot" 
                      ItemsSource="{Binding PivotItems, Converter={StaticResource reifiedSubredditTemplateCollectionConverter}}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0" Padding="0" LoadedPivotItem="OnLoadedPivotItem"/>
+                     Margin="0,-20,0,0" Padding="0" LoadedPivotItem="OnLoadedPivotItem"/>
 
         <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center" />
 

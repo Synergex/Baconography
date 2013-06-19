@@ -16,9 +16,10 @@
     d:DesignHeight="480" d:DesignWidth="480"
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="{StaticResource PhoneDarkThemeOpacity}"
+    shell:SystemTray.BackgroundColor="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}"
     DataContext="{Binding Comments, Source={StaticResource Locator}}"
     x:Name="controlRoot">
-
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
             <local:CommentView/>
@@ -114,9 +115,6 @@
             <toolkit:NavigationInTransition.Backward>
                 <toolkit:TurnstileTransition Mode="BackwardIn"/>
             </toolkit:NavigationInTransition.Backward>
-            <toolkit:NavigationInTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardIn"/>
-            </toolkit:NavigationInTransition.Forward>
         </toolkit:NavigationInTransition>
     </toolkit:TransitionService.NavigationInTransition>
     <toolkit:TransitionService.NavigationOutTransition>
@@ -136,7 +134,7 @@
         </Grid.Background>
         <local:LoadIndicatorView VerticalAlignment="Top" />
         
-        <ListBox Margin="0,20,0,0" HorizontalAlignment="Stretch"
+        <ListBox Margin="0,0,0,0" HorizontalAlignment="Stretch"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 

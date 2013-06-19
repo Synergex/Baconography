@@ -66,9 +66,8 @@
               MinHeight="90" Width="100">
             <Button BorderThickness="0" VerticalContentAlignment="Center"
                     HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Height="90" Width="90" Margin="5,15,5,15"
-                    Tap="Link_Tap"
-                    Padding="0" HorizontalContentAlignment="Center">
+                    Height="120" Width="100" Padding="5,15,5,15" Margin="0"
+                    Tap="Link_Tap" HorizontalContentAlignment="Center">
                 <Button.Content>
                     <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">
                         <Border BorderThickness="0" Height="70" Width="70"
