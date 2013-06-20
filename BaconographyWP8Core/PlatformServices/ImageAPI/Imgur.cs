@@ -70,9 +70,16 @@ namespace Baconography.PlatformServices.ImageAPI
                 var result = JsonConvert.DeserializeObject(jsonResult) as JObject;
                 if (result != null && result.HasValues)
                 {
+                    var albumTitleElement = (string)((JObject)result.GetValue("album")).GetValue("title");
+                    var albumTitle = string.IsNullOrWhiteSpace(albumTitleElement) ? title : albumTitleElement;
+
                     return ((IEnumerable)((JObject)result.GetValue("album")).GetValue("images"))
                         .Cast<JObject>()
-                        .Select(e => Tuple.Create((string)((JObject)e.GetValue("image")).GetValue("caption"), (string)((JObject)e.GetValue("links")).GetValue("original")));
+                        .Select(e => 
+                            {
+                                var caption = (string)((JObject)e.GetValue("image")).GetValue("caption");
+                                return Tuple.Create(string.IsNullOrWhiteSpace(caption) ? albumTitle : caption, (string)((JObject)e.GetValue("links")).GetValue("original"));
+                            });
                 }
                 else
                     return Enumerable.Empty<Tuple<string, string>>();

@@ -215,7 +215,7 @@ namespace BaconographyPortable.ViewModel
 
         private void GotoLinkImpl()
         {
-            UtilityCommandImpl.GotoLinkImpl(_linkThing.Data.Url);
+            UtilityCommandImpl.GotoLinkImpl(_linkThing.Data.Url, _linkThing);
         }
 
         private void GotoUserImpl()

@@ -111,9 +111,11 @@
     <Compile Include="Services\IBaconProvider.cs" />
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\ISimpleHttpService.cs" />
+    <Compile Include="Services\ISmartOfflineService.cs" />
     <Compile Include="Services\ISystemServices.cs" />
     <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\IVideoService.cs" />
+    <Compile Include="Services\IViewModelContextService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
     <Compile Include="ViewModel\AdvertisementViewModel.cs" />

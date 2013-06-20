@@ -26,6 +26,8 @@ namespace BaconographyPortable.ViewModel
 			}
             public string Title { get; set; }
             public bool IsAlbum { get; set; }
+            public int PositionInAlbum { get; set; }
+            public int AlbumSize { get; set; }
         }
 
         public IEnumerable<LinkedPicture> _pictures;
@@ -39,21 +41,27 @@ namespace BaconographyPortable.ViewModel
             {
                 if (value != null)
                 {
-                    if (value.Count() > 1)
+                    var refiedValue = value.ToList();
+                    if (refiedValue.Count > 1)
                     {
-                        foreach (var picture in value)
+                        int i = 1;
+                        foreach (var picture in refiedValue)
                         {
                             picture.IsAlbum = true;
+                            picture.PositionInAlbum = i++;
+                            picture.AlbumSize = refiedValue.Count;
                         }
                     }
                     else
                     {
-                        foreach (var picture in value)
+                        foreach (var picture in refiedValue)
                         {
                             picture.IsAlbum = false;
+                            picture.PositionInAlbum = 1;
+                            picture.AlbumSize = 1;
                         }
                     }
-                    _pictures = value;
+                    _pictures = refiedValue;
                 }
                 else
                     _pictures = null;

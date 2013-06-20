@@ -297,7 +297,7 @@ namespace BaconographyPortable.ViewModel
 
         private static void GotoLinkImpl(LinkViewModel vm)
         {
-            UtilityCommandImpl.GotoLinkImpl(vm.Url);
+            UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
 			vm.RaisePropertyChanged("Url");
             UpdateUsageStatistics(vm, true);
         }

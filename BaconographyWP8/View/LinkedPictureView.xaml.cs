@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -34,6 +35,7 @@ namespace BaconographyWP8.View
         {
             this.InitializeComponent();
 			_imageOrigins = new Dictionary<object, string>();
+            Typography.SetFraction(slashMe, System.Windows.FontFraction.Slashed);
         }
 
 		private Dictionary<object, string> _imageOrigins;

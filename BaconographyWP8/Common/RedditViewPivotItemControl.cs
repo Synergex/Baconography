@@ -22,7 +22,6 @@ namespace BaconographyWP8.Common
     {
         public RedditViewPivotControl()
         {
-            
         }
 
         RedditView MapViewModel(ViewModelBase viewModel)
