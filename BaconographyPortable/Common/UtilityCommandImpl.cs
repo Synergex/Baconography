@@ -82,7 +82,12 @@ namespace BaconographyPortable.Common
 		//User:
 		private static Regex _userRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/?");
 
-        public static async void GotoLinkImpl(string str)
+        public static void GotoLinkImpl(string str)
+        {
+            GotoLinkImpl(str, null);
+        }
+
+        public static async void GotoLinkImpl(string str, TypedThing<Link> sourceLink)
         {
             _longNavWatcher.ClearInFlight();
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
@@ -92,7 +97,7 @@ namespace BaconographyPortable.Common
             {
                 var lastSlash = str.LastIndexOf('/');
                 var commentRoot = str.Remove(lastSlash);
-                var targetLinkThing = await baconProvider.GetService<IRedditService>().GetLinkByUrl(str);
+                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
                 await baconProvider.GetService<IOfflineService>().StoreHistory(commentRoot);
                 if (targetLinkThing != null)
                 {
@@ -107,7 +112,7 @@ namespace BaconographyPortable.Common
             }
             else if (_commentsPageRegex.IsMatch(str))
             {
-                var targetLinkThing = await baconProvider.GetService<IRedditService>().GetLinkByUrl(str);
+                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
                 if (targetLinkThing != null)
                 {
                     var typedLinkThing = new TypedThing<Link>(targetLinkThing);
@@ -181,7 +186,7 @@ namespace BaconographyPortable.Common
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = false, TargetUrl = str });
 				await baconProvider.GetService<IOfflineService>().StoreHistory(str);
-				var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl("", str);
+                var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl(sourceLink == null ? "" : sourceLink.Data.Title, str);
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                 
 				if (imageResults != null && imageResults.Count() > 0 && !_longNavWatcher.GetTerminatedClearInFlight(str))

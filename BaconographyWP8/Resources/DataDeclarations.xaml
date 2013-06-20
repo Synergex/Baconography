@@ -38,6 +38,7 @@
     <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
     <converters:ReifiedSubredditTemplateCollectionConverter x:Key="reifiedSubredditTemplateCollectionConverter"/>
     <converters:VoteIndicatorConverter x:Key="voteIndicatorConverter"/>
+    <converters:LinkedPictureViewHeaderConverter x:Key="linkedPictureViewHeaderConverter"/>
     <converters:DomainConverter x:Key="domainConverter"/>
     <converters:TotalPointsConverter x:Key="totalPointsConverter"/>
     <imagetools:ImageConverter x:Key="imageConverter"/>
