@@ -663,11 +663,12 @@ namespace BaconographyPortable.Model.Reddit
 
                 links = links.Where(p => domainHashes.ContainsKey(p.Domain) || subs.Contains(p.SubredditId));
 
-                var first = links.FirstOrDefault();
-                if (first != null)
+                // TODO: Add a throttling mechanism for the background loads
+                // TODO: Load link and image data
+                foreach (var link in links)
                 {
-                    await offlineService.StoreLink(new TypedThing<Link>("t3", first));
-                    await offlineService.StoreComments(await this.GetCommentsOnPost(first.SubredditId, first.Permalink, 100));
+                    await offlineService.StoreLink(new TypedThing<Link>("t3", link));
+                    await offlineService.StoreComments(await this.GetCommentsOnPost(link.SubredditId, link.Permalink, 100));
                 }
             }
         }

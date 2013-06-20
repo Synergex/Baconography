@@ -35,6 +35,7 @@ namespace BaconographyPortable.ViewModel.Collections
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
             {
+                // TODO: Inject link object from Kitaro if it exists
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.MergedListingProvider<Comment>(
                     new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName),
                     new List<IListingProvider> { new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName) },
@@ -55,6 +56,7 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetInitialListing(_state).Item2();
+            // TODO: Inject Link item from offline as necessary
             var remainingVMs = await MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
