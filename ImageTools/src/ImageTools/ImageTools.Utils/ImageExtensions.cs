@@ -187,47 +187,53 @@ namespace ImageTools
         {
             Contract.Requires<ArgumentNullException>(image != null, "Image cannot be null.");
             Contract.Requires<ArgumentException>(image.IsFilled, "Image has not been loaded.");
-
-            WriteableBitmap bitmap = new WriteableBitmap(image.PixelWidth, image.PixelHeight);
-
-            ImageBase temp = image;
-
-            if (filter != null)
+            try
             {
-                temp = new ImageBase(image);
+                WriteableBitmap bitmap = new WriteableBitmap(image.PixelWidth, image.PixelHeight);
 
-                filter.Apply(temp, image, temp.Bounds);
-            }
+                ImageBase temp = image;
 
-            byte[] pixels = temp.Pixels;
-
-            if (pixels != null)
-            {
-                int[] raster = bitmap.Pixels;
-
-                if (raster != null)
+                if (filter != null)
                 {
-                    Buffer.BlockCopy(pixels, 0, raster, 0, pixels.Length);
+                    temp = new ImageBase(image);
 
-                    for (int i = 0; i < raster.Length; i++)
+                    filter.Apply(temp, image, temp.Bounds);
+                }
+
+                byte[] pixels = temp.Pixels;
+
+                if (pixels != null)
+                {
+                    int[] raster = bitmap.Pixels;
+
+                    if (raster != null)
                     {
-                        int abgr = raster[i];
-                        int a = (abgr >> 24) & 0xff;
+                        Buffer.BlockCopy(pixels, 0, raster, 0, pixels.Length);
 
-                        float m = a / 255f;
+                        for (int i = 0; i < raster.Length; i++)
+                        {
+                            int abgr = raster[i];
+                            int a = (abgr >> 24) & 0xff;
 
-                        int argb = a << 24 |
-                            (int)(((abgr >>  0) & 0xff) * m) << 16 |
-                            (int)(((abgr >>  8) & 0xff) * m) << 8 |
-                            (int)(((abgr >> 16) & 0xff) * m);
-                        raster[i] = argb;
+                            float m = a / 255f;
+
+                            int argb = a << 24 |
+                                (int)(((abgr >> 0) & 0xff) * m) << 16 |
+                                (int)(((abgr >> 8) & 0xff) * m) << 8 |
+                                (int)(((abgr >> 16) & 0xff) * m);
+                            raster[i] = argb;
+                        }
                     }
                 }
+
+                bitmap.Invalidate();
+
+                return bitmap;
             }
-
-            bitmap.Invalidate();
-
-            return bitmap;            
+            catch (OutOfMemoryException ex)
+            {
+                return null;
+            }
         }
 
         /// <summary>

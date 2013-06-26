@@ -183,6 +183,8 @@ namespace BaconographyPortable.Common
 			}
 			else
 			{
+                var smartOfflineService = baconProvider.GetService<ISmartOfflineService>();
+                smartOfflineService.NavigatedToOfflineableThing(sourceLink, false);
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = false, TargetUrl = str });
 				await baconProvider.GetService<IOfflineService>().StoreHistory(str);

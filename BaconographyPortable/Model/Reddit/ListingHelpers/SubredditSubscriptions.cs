@@ -26,7 +26,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         private async Task<Listing> GetCachedListing()
         {
-            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username);
+            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1024));
             return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
         }
 

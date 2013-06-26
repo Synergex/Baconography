@@ -20,6 +20,18 @@ namespace Baconography.PlatformServices.ImageAPI
         private static Regex albumHashRe = new Regex(@"^https?:\/\/(?:i\.)?imgur.com\/a\/([\w]+)(\..+)?(?:\/)?(?:#\d*)?$");
         private static string apiPrefix = "http://api.imgur.com/2/";
 
+        internal static bool IsAPI(Uri uri)
+        {
+            var href = uri.OriginalString;
+            var groups = hashRe.Match(href).Groups;
+            GroupCollection albumGroups = null;
+
+            if (groups.Count == 0 || (groups.Count > 0 && string.IsNullOrWhiteSpace(groups[0].Value)))
+                albumGroups = albumHashRe.Match(href).Groups;
+
+            return (albumGroups != null && albumGroups.Count > 2 && string.IsNullOrWhiteSpace(albumGroups[2].Value));
+        }
+
         internal static async Task<IEnumerable<Tuple<string, string>>> GetImagesFromUri(string title, Uri uri)
         {
             var href = uri.OriginalString;

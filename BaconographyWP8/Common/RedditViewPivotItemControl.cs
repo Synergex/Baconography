@@ -1,8 +1,10 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using BaconographyWP8.View;
 using BaconographyWP8.ViewModel;
 using GalaSoft.MvvmLight;
 using Microsoft.Phone.Controls;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +24,19 @@ namespace BaconographyWP8.Common
     {
         public RedditViewPivotControl()
         {
+            ServiceLocator.Current.GetInstance<IOOMService>().OutOfMemory += RedditViewPivotControl_OutOfMemory;
+        }
+
+        void RedditViewPivotControl_OutOfMemory(OutOfMemoryEventArgs obj)
+        {
+            //if we're out of memory scavange what is cached in the pivot
+            foreach (var item in this.Items)
+            {
+                if (item is PivotItem && ((PivotItem)item).Content is Image)
+                {
+                    ((PivotItem)item).Content = null;
+                }
+            }
         }
 
         RedditView MapViewModel(ViewModelBase viewModel)

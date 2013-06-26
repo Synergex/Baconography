@@ -3,19 +3,41 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.Services
 {
+    public enum OffliningOpportunityPriority
+    {
+        Image,
+        Thumbnail,
+        Links,
+        Comments,
+        ImageAPI,
+        None
+    }
+
+    public enum NetworkConnectivityStatus
+    {
+        Unmetered,
+        Metered,
+        Wifi,
+        Unknown
+    }
+
     public interface ISmartOfflineService
     {
-        void MaybeSuspend();
-        void MaybeWakeup();
+        void NavigatedToOfflineableThing(Thing targetThing, bool link);
+        void NavigatedToView(Type viewType, bool forward);
+        void ClearOfflineData();
 
-        void NavigatedToOfflinableThing(Thing targetThing);
+        IEnumerable<string> OfflineableImagesFromContext { get; }
+        IEnumerable<string> OfflineableImageAPIsFromContext { get; }
+        IEnumerable<string> OfflineableLinksFromContext { get; }
+        IEnumerable<TypedThing<Link>> OfflineableLinkThingsFromContext { get; }
+        bool IsActivityIdle { get; }
 
-        //need to know what the current network status is
-        //need to know when links/comments/images are clicked
-        //needs to manage suspending itself and wakeing up with slightly different behavior if it wakes back up quickly
+        event Action<OffliningOpportunityPriority, NetworkConnectivityStatus, CancellationToken> OffliningOpportunity;
     }
 }

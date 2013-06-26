@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
+using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -100,19 +101,11 @@ namespace BaconographyWP8.PlatformServices
         public void NavigateToSecondary(Type source, object parameter)
         {
             Navigate(source, parameter);
-            //var flyout = new SettingsFlyout();
-            //flyout.Content = Activator.CreateInstance(source);
-            //flyout.HeaderText = parameter as string;
-            //flyout.IsOpen = true;
-            //flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
-            //Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
-            //{
-            //    flyout.IsOpen = false;
-            //});
         }
 
         public async void NavigateToExternalUri(Uri uri)
         {
+            ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
             await Launcher.LaunchUriAsync(uri);
         }
     }

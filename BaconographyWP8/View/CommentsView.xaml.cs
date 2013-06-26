@@ -18,6 +18,7 @@ using BaconographyWP8.Messages;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
+using GalaSoft.MvvmLight;
 
 namespace BaconographyWP8.View
 {
@@ -25,10 +26,15 @@ namespace BaconographyWP8.View
 	public partial class CommentsView : PhoneApplicationPage
 	{
 		SelectCommentTreeMessage _selectedCommentTree;
-		public CommentsView()
+		IViewModelContextService _viewModelContextService;
+        ISmartOfflineService _smartOfflineService;
+        public CommentsView()
 		{
-			InitializeComponent();
+			this.InitializeComponent();
+            _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+            _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
 		}
+
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
@@ -36,6 +42,7 @@ namespace BaconographyWP8.View
             {
                 e.Cancel = true;
             }
+            _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
         }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -73,6 +80,8 @@ namespace BaconographyWP8.View
 
                 RegisterShareSourceContract();
             }
+            _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
+            _smartOfflineService.NavigatedToView(typeof(CommentsView), e.NavigationMode == NavigationMode.New);
 		}
 
 

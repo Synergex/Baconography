@@ -11,8 +11,11 @@ namespace BaconographyPortable.Services
     public interface IOfflineService
     {
         Task Clear();
-        //an async method that returns async loaded image tuples
-        Task<IEnumerable<Task<Tuple<string, byte[]>>>> GetImages(string uri);
+        //an async method that returns async loaded image info tuples
+        Task<IEnumerable<Tuple<string, string>>> GetImages(string uri);
+        Task<byte[]> GetImage(string uri);
+        Task StoreImage(byte[] bytes, string uri);
+        Task StoreImages(IEnumerable<Tuple<string, string>> apiResults, string uri);
 
         Task StoreComments(Listing listing);
         Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count);
@@ -28,8 +31,15 @@ namespace BaconographyPortable.Services
         Task<Listing> LinksForSubreddit(string subredditName, string after);
         Task<Listing> AllLinks(string after);
 
+        Task StoreThing(string key, Thing link);
+        Task<Thing> RetrieveThing(string key, TimeSpan maxAge);
         Task StoreOrderedThings(string key, IEnumerable<Thing> things);
-        Task<IEnumerable<Thing>> RetrieveOrderedThings(string key);
+        Task<IEnumerable<Thing>> RetrieveOrderedThings(string key, TimeSpan maxAge);
+
+        Task<TypedThing<Comment>> RetrieveComment(string id);
+        Task<TypedThing<Link>> RetrieveLink(string id);
+        Task<TypedThing<Link>> RetrieveLinkByUrl(string url, TimeSpan maxAge);
+        Task<TypedThing<Subreddit>> RetrieveSubredditById(string id);
 
         Task StoreOrderedThings(IListingProvider listingProvider);
 
@@ -46,6 +56,7 @@ namespace BaconographyPortable.Services
         Task<Tuple<string, Dictionary<string, string>>> DequeueAction();
 
         Task<Thing> GetSubreddit(string name);
+        Task StoreSubreddit(TypedThing<Subreddit> subreddit);
         uint GetHash(string name);
     }
 }

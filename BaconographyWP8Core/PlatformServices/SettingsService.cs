@@ -40,6 +40,8 @@ namespace BaconographyWP8.PlatformServices
 		public bool OrientationLock { get; set; }
 		public string Orientation { get; set; }
         public bool AllowPredictiveOfflining { get; set; }
+        public bool AllowOver18Items { get; set; }
+        public bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
 
         public void ShowSettings()
         {
@@ -125,6 +127,18 @@ namespace BaconographyWP8.PlatformServices
                 else
                     AllowPredictiveOfflining = false;
 
+                var over18Items = await offlineService.GetSetting("AllowOver18Items");
+                if (!string.IsNullOrWhiteSpace(over18Items))
+                    AllowOver18Items = bool.Parse(over18Items);
+                else
+                    AllowOver18Items = false;
+
+                var predictiveOffliningOnMeteredConnection = await offlineService.GetSetting("AllowPredictiveOffliningOnMeteredConnection");
+                if (!string.IsNullOrWhiteSpace(predictiveOffliningOnMeteredConnection))
+                    AllowPredictiveOffliningOnMeteredConnection = bool.Parse(predictiveOffliningOnMeteredConnection);
+                else
+                    AllowPredictiveOffliningOnMeteredConnection = false;
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -149,6 +163,8 @@ namespace BaconographyWP8.PlatformServices
 			await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
 			await offlineService.StoreSetting("Orientation", Orientation.ToString());
             await offlineService.StoreSetting("AllowPredictiveOfflining", AllowPredictiveOfflining.ToString());
+            await offlineService.StoreSetting("AllowPredictiveOffliningOnMeteredConnection", AllowPredictiveOffliningOnMeteredConnection.ToString());
+            await offlineService.StoreSetting("AllowOver18Items", AllowOver18Items.ToString());
         }
 
 
@@ -157,5 +173,5 @@ namespace BaconographyWP8.PlatformServices
             var offlineService = _baconProvider.GetService<IOfflineService>();
             await offlineService.ClearHistory();
         }
-	}
+    }
 }

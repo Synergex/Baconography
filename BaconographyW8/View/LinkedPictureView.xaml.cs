@@ -1,5 +1,7 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using DXRenderInterop;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,29 +35,6 @@ namespace BaconographyW8.View
             this.InitializeComponent();
         }
 
-        private async Task<byte[]> DownloadImageFromWebsiteAsync(string url)
-        {
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-                using (WebResponse response = await request.GetResponseAsync())
-                {
-                    using (Stream imageStream = response.GetResponseStream())
-                    {
-                        using (var result = new MemoryStream())
-                        {
-                            await imageStream.CopyToAsync(result);
-                            return result.ToArray();
-                        }
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                return null;
-            }
-        }
-
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
@@ -79,14 +58,14 @@ namespace BaconographyW8.View
                 _navData = pictureData;
                 var pictureTasks = pictureData.Select(async (tpl) =>
                 {
-                    var renderer = GifRenderer.CreateGifRenderer(await DownloadImageFromWebsiteAsync(tpl.Item2));
+                    var renderer = GifRenderer.CreateGifRenderer(await ServiceLocator.Current.GetInstance<IImagesService>().ImageBytesFromUrl(tpl.Item2));
                     if (renderer != null)
                     {
                         renderer.Visible = true;
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = renderer };
+                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = renderer, Url = tpl.Item2 };
                     }
                     else
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2 };
+                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 };
                 })
                 .ToArray();
 

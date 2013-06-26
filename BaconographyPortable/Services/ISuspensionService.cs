@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Services
 {
-    interface ICompressionService
+    public interface ISuspensionService
     {
-        byte[] Compress(byte[] bytes);
-        byte[] Decompress(byte[] bytes);
-        byte[] Decompress(byte[] bytes, int startIndex);
+        event Action Suspending;
+        event Action Resuming;
+
+        void FireSuspending();
+        void FireResuming();
     }
 }

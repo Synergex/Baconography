@@ -14,16 +14,18 @@ namespace Baconography.NeutralServices.KitaroDB
 {
     class Links
     {
-		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\links_v2.ism";
+		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\links_v3.ism";
 
         private static Task<Links> _instanceTask;
         private static async Task<Links> GetInstanceImpl()
         {
-			var db = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			var db = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, 0, new DBKey[]
             {
                 new DBKey(16, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
-                new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1),
-                new DBKey(8, 24, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 2)
+                new DBKey(8, 8, DBKeyFlags.Alpha, "directid", false, false, false, 1),
+                new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 2),
+                new DBKey(8, 24, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 3),
+                new DBKey(4, 32, DBKeyFlags.Integer, "urlhash", false, false, false, 4)
             });
             return new Links(db);
         }
@@ -80,11 +82,13 @@ namespace Baconography.NeutralServices.KitaroDB
             _linksDB = null;
 			await DB.PurgeAsync(linksDatabase);
 
-			_linksDB = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			_linksDB = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, 0, new DBKey[]
             {
                 new DBKey(16, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
-                new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1),
-                new DBKey(8, 24, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 2)
+                new DBKey(8, 8, DBKeyFlags.Alpha, "directid", false, false, false, 1),
+                new DBKey(8, 16, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 2),
+                new DBKey(8, 24, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 3),
+                new DBKey(4, 32, DBKeyFlags.Integer, "urlhash", false, false, false, 4)
             });
         }
 
@@ -183,6 +187,39 @@ namespace Baconography.NeutralServices.KitaroDB
             }
 
             return await DeserializeCursor(linkCursor, 25);
+        }
+
+        public async Task<TypedThing<Link>> GetLink(string url, string id)
+        {
+            
+            DBCursor linkCursor = null;
+
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                var urlKeyspace = BitConverter.GetBytes(url.GetHashCode());
+                linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().Last(), urlKeyspace, DBReadFlags.NoLock);
+            }
+            else if (!string.IsNullOrWhiteSpace(id))
+            {
+                var idKeyspace = new byte[16];
+
+                for (int i = 0; i < 8 && i < id.Length; i++)
+                    idKeyspace[i] = (byte)id[i];
+
+                linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys()[1], idKeyspace, DBReadFlags.NoLock);
+            }
+
+            if (linkCursor != null)
+            {
+                var listing = await DeserializeCursor(linkCursor, 1);
+                var thing = listing.Data.Children.FirstOrDefault();
+                if (thing != null && thing.Data is Link)
+                    return new TypedThing<Link>(thing);
+                else
+                    return null;
+            }
+            else
+                return null;
         }
     }
 }

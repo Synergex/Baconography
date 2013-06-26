@@ -412,6 +412,12 @@ namespace ImageTools.Controls
 
                 WriteableBitmap imageBitmap = image.ToBitmap();
 
+                if (imageBitmap == null)
+                {
+                    Stop();
+                    return;
+                }
+
                 if (image.IsAnimated && AnimationMode != AnimationMode.None)
                 {
                     Stop();
@@ -424,7 +430,13 @@ namespace ImageTools.Controls
                     {
                         if (frame != null && frame.IsFilled)
                         {
-							_framerefs.Add(frame.ToBitmap());
+                            var bitmap = frame.ToBitmap();
+                            if (bitmap == null)
+                            {
+                                Stop();
+                                return;
+                            }
+                            _framerefs.Add(bitmap);
 							_frames.Add(new KeyValuePair<ImageBase, WeakReference>(frame, new WeakReference(_framerefs[_framerefs.Count - 1])));
                         }
                     }

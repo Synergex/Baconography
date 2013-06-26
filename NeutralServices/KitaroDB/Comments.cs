@@ -256,5 +256,10 @@ namespace Baconography.NeutralServices.KitaroDB
             }
             return targetListing;
         }
+
+        public async Task<Thing> GetComment(string id)
+        {
+            return null;
+        }
     }
 }

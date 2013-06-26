@@ -1,6 +1,7 @@
 ﻿using Baconography.NeutralServices;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using BaconographyPortable.Services.Impl;
 using GalaSoft.MvvmLight.Ioc;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace BaconographyWP8.PlatformServices
 {
     public class BaconProvider : IBaconProvider
     {
-        public BaconProvider()
+        public BaconProvider(IEnumerable<Tuple<Type, Object>> initialServices)
         {
             WebRequest.RegisterPrefix("http://", SharpGIS.WebRequestCreator.GZip);
             WebRequest.RegisterPrefix("https://", SharpGIS.WebRequestCreator.GZip);
@@ -32,6 +33,13 @@ namespace BaconographyWP8.PlatformServices
             var webViewWrapper = new WebViewWrapper();
             var userService = new UserService();
 			var videoService = new VideoService(simpleHttpService, notificationService, settingsService);
+            var smartImageService = new SmartOfflineImageService();
+            var smartRedditService = new SmartOfflineRedditService();
+            var oomService = new OOMService();
+            var smartOfflineService = new SmartOfflineService();
+            var viewModelContextService = new ViewModelContextService();
+            var suspensionService = new SuspensionService();
+
 
             _services = new Dictionary<Type, object>
             {
@@ -46,8 +54,23 @@ namespace BaconographyWP8.PlatformServices
                 {typeof(INavigationService), navigationService},
                 {typeof(IWebViewWrapper), webViewWrapper},
                 {typeof(IUserService), userService},
-				{typeof(IVideoService), videoService}
+				{typeof(IVideoService), videoService},
+                {typeof(IOOMService), oomService},
+                {typeof(ISmartOfflineService), smartOfflineService},
+                {typeof(ISuspensionService), suspensionService},
+                {typeof(IViewModelContextService), viewModelContextService}
             };
+
+            foreach (var initialService in initialServices)
+            {
+                _services.Add(initialService.Item1, initialService.Item2);
+            }
+
+
+            smartImageService.Initialize(imagesService, offlineService, oomService, settingsService, suspensionService, smartOfflineService, simpleHttpService);
+            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService,notificationService, userService);
+            smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator, offlineService, imagesService, systemServices);
+
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);
             SimpleIoc.Default.Register<ILiveTileService>(() => liveTileService);
@@ -61,6 +84,10 @@ namespace BaconographyWP8.PlatformServices
             SimpleIoc.Default.Register<IWebViewWrapper>(() => webViewWrapper);
             SimpleIoc.Default.Register<IUserService>(() => userService);
 			SimpleIoc.Default.Register<IVideoService>(() => videoService);
+            SimpleIoc.Default.Register<IOOMService>(() => oomService);
+            SimpleIoc.Default.Register<ISmartOfflineService>(() => smartOfflineService);
+            SimpleIoc.Default.Register<ISuspensionService>(() => suspensionService);
+            SimpleIoc.Default.Register<IViewModelContextService>(() => viewModelContextService);
 
             redditService.Initialize(GetService<ISettingsService>(), 
                 GetService<IOfflineService>(), 
@@ -79,8 +106,8 @@ namespace BaconographyWP8.PlatformServices
                     await ((IBaconService)tpl.Value).Initialize(this);
             }
 
-            var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
-            await redditService.RunQueue(null);
+            //var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
+            //await redditService.RunQueue(null);
             
         }
 

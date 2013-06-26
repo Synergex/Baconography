@@ -51,7 +51,15 @@ namespace Baconography.NeutralServices
 
                 _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.None);
                 _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None);
-                _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v2.ism", DBCreateFlags.None);
+                _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v3.ism", DBCreateFlags.None, 0,
+                    new DBKey[] 
+                    { 
+                        new DBKey(4, 0, DBKeyFlags.Integer, "default", false, false, false, 0),
+                        new DBKey(8, 4, DBKeyFlags.AutoTime, "timestamp", false, true, false, 1) 
+                    });
+
+                _imageAPIDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism", DBCreateFlags.None);
+                _imageDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism", DBCreateFlags.None);
 
                 //get our initial action queue state
                 var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
@@ -113,6 +121,8 @@ namespace Baconography.NeutralServices
         DB _actionsDb;
         DB _thumbnailsDb;
         DB _blobStoreDb;
+        DB _imageAPIDb;
+        DB _imageDb;
         HashSet<string> _clickHistory = new HashSet<string>();
 
         public async Task Clear()
@@ -146,22 +156,51 @@ namespace Baconography.NeutralServices
             return await _statistics.GetSubredditAggregateList(maxListSize, threshold);
         }
 
-        public async Task<IEnumerable<Task<Tuple<string, byte[]>>>> GetImages(string uri)
+        public async Task<IEnumerable<Tuple<string, string>>> GetImages(string uri)
         {
             await Initialize();
-            return Enumerable.Empty<Task<Tuple<string, byte[]>>>();
+            var apiResult = await _imageAPIDb.GetAsync(uri);
+            if (apiResult != null)
+                return JsonConvert.DeserializeObject<Tuple<string, string>[]>(apiResult);
+            else
+                return null;
+        }
+
+        public async Task<byte[]> GetImage(string uri)
+        {
+            await Initialize();
+            var resultIList = await _imageAPIDb.GetAsync(UTF8Encoding.UTF8.GetBytes(uri));
+            if (resultIList != null)
+                return resultIList.ToArray();
+            else
+                return null;
         }
 
         public async Task StoreComments(Listing listing)
         {
             await Initialize();
+            if (listing == null || listing.Data.Children.Count == 0)
+                return;
+
+            var linkThing = listing.Data.Children.First().Data as Link;
+            if (linkThing != null)
+            {
+                await _links.StoreLink(listing.Data.Children.First());
+            }
+
             await _comments.StoreComments(listing);
         }
 
         public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
         {
             await Initialize();
-            return await _comments.GetTopLevelComments(subredditId, linkId, count);
+            var link = await _links.GetLink(null, linkId);
+            var comments = await _comments.GetTopLevelComments(subredditId, linkId, count);
+            if (comments.Data.Children.Count > 0 && link != null)
+            {
+                comments.Data.Children.Insert(0, link);
+            }
+            return comments;
         }
 
         public async Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids)
@@ -299,16 +338,21 @@ namespace Baconography.NeutralServices
                 var thingsArray = things.ToArray();
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray)));
-                //var compressedBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thingsArray));
+                var recordBytes = new byte[compressedBytes.Length + 12];
+                Array.Copy(compressedBytes, 0, recordBytes, 12, compressedBytes.Length);
+                //the 8 bytes not written here will be filled with the current time stamp by kdb
+                Array.Copy(BitConverter.GetBytes(key.GetHashCode()), recordBytes, 4);
 
-                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
-                if (gottenBlob != null)
+                using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
                 {
-                    await _blobStoreDb.UpdateAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
-                }
-                else
-                {
-                    await _blobStoreDb.InsertAsync(Encoding.UTF8.GetBytes(key), compressedBytes);
+                    if (blobCursor != null)
+                    {
+                        await blobCursor.UpdateAsync(recordBytes);
+                    }
+                    else
+                    {
+                        await _blobStoreDb.InsertAsync(recordBytes);
+                    }
                 }
             }
             catch(Exception ex)
@@ -320,25 +364,57 @@ namespace Baconography.NeutralServices
             }
         }
 
-        public Task<IEnumerable<Thing>> RetrieveOrderedThings(string key)
+
+        public async Task StoreThing(string key, Thing thing)
         {
-            return RetrieveOrderedThingsBG(key);
+            try
+            {
+                await Initialize();
+
+                var thingBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thing));
+                var recordBytes = new byte[thingBytes.Length + 12];
+                Array.Copy(thingBytes, 0, recordBytes, 12, thingBytes.Length);
+                //the 8 bytes not written here will be filled with the current time stamp by kdb
+                Array.Copy(BitConverter.GetBytes(key.GetHashCode()), recordBytes, 4);
+
+                using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
+                {
+                    if (blobCursor != null)
+                    {
+                        await blobCursor.UpdateAsync(recordBytes);
+                    }
+                    else
+                    {
+                        await _blobStoreDb.InsertAsync(recordBytes);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                var errorText = DBError.TranslateError((uint)ex.HResult);
+                //throw new Exception(errorText);
+                Debug.WriteLine(errorText);
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
-        private async Task<IEnumerable<Thing>> RetrieveOrderedThingsBG(string key)
+        public async Task<Thing> RetrieveThing(string key, TimeSpan maxAge)
         {
             await Initialize();
             bool badElement = false;
             try
             {
-                var gottenBlob = await _blobStoreDb.GetAsync(Encoding.UTF8.GetBytes(key));
-                if (gottenBlob != null)
+                using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
                 {
-                    var compressor = new BaconographyPortable.Model.Compression.CompressionService();
-                    var decompressedBytes = compressor.Decompress(gottenBlob.ToArray());
-                    //var decompressedBytes = gottenBlob.ToArray();
-                    IEnumerable<Thing> result = JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
-                    return result;
+                    if (blobCursor != null)
+                    {
+                        var gottenBlob = blobCursor.Get();
+                        //var microseconds = BitConverter.ToInt64(gottenBlob, 4);
+                        //var updatedTime = new DateTime(microseconds * 10);
+                        //var blobAge = DateTime.Now - updatedTime;
+                        //if(blobAge <= maxAge)
+                            return JsonConvert.DeserializeObject<Thing>(Encoding.UTF8.GetString(gottenBlob, 12, gottenBlob.Length));
+                    }
                 }
             }
             catch
@@ -350,13 +426,55 @@ namespace Baconography.NeutralServices
             {
                 try
                 {
-                    await _blobStoreDb.DeleteAsync(Encoding.UTF8.GetBytes(key));
+                    await _blobStoreDb.DeleteAsync(key);
                 }
                 catch
                 {
                 }
             }
-            return Enumerable.Empty<Thing>();
+            return null;
+        }
+
+        public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key, TimeSpan maxAge)
+        {
+            await Initialize();
+            bool badElement = false;
+            try
+            {
+                using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
+                {
+                    if (blobCursor != null)
+                    {
+                        var gottenBlob = blobCursor.Get();
+                        //var microseconds = BitConverter.ToInt64(gottenBlob, 4);
+                        //var updatedTime = new DateTime(microseconds * 10);
+                        //var blobAge = DateTime.Now - updatedTime;
+                        //if (blobAge <= maxAge)
+                        //{
+                            var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                            var decompressedBytes = compressor.Decompress(gottenBlob, 12);
+                            IEnumerable<Thing> result = JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                            return result;
+                        //}
+                    }
+                }
+            }
+            catch
+            {
+                badElement = true;
+            }
+
+            if (badElement)
+            {
+                try
+                {
+                    await _blobStoreDb.DeleteAsync(key);
+                }
+                catch
+                {
+                }
+            }
+            return null;
         }
 
         public async Task StoreOrderedThings(IListingProvider listingProvider)
@@ -433,7 +551,7 @@ namespace Baconography.NeutralServices
             _clickHistory.Clear();
             _historyDb.Dispose();
             _historyDb = null;
-            _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history.ism", DBCreateFlags.Supersede);
+            _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.Supersede);
         }
 
         public bool HasHistory(string link)
@@ -475,14 +593,118 @@ namespace Baconography.NeutralServices
         }
 
 
-        public Task<Thing> GetSubreddit(string name)
+        public async Task<Thing> GetSubreddit(string name)
         {
-            return _subreddits.GetSubreddit(null, name);
+            await Initialize();
+            return await _subreddits.GetSubreddit(null, name);
         }
 
         public uint GetHash(string name)
         {
             return Crc32.Compute(Crc32.StringGetBytes(name));
+        }
+
+
+        public async Task StoreImage(byte[] bytes, string uri)
+        {
+            try
+            {
+                await Initialize();
+                var uriBytes = Encoding.UTF8.GetBytes(uri);
+                using (var apiCursor = await _imageDb.SeekAsync(_imageDb.GetKeys()[0], uriBytes, DBReadFlags.NoLock))
+                {
+                    if (apiCursor != null)
+                    {
+                        await _imageDb.UpdateAsync(uriBytes, bytes);
+                    }
+                    else
+                    {
+                        await _imageDb.InsertAsync(uriBytes, bytes);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorText = DBError.TranslateError((uint)ex.HResult);
+                //throw new Exception(errorText);
+                Debug.WriteLine(errorText);
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+
+        public async Task StoreImages(IEnumerable<Tuple<string, string>> apiResults, string uri)
+        {
+            try
+            {
+                await Initialize();
+
+                var apiString = JsonConvert.SerializeObject(apiResults);
+
+                using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uri, DBReadFlags.NoLock))
+                {
+                    if (apiCursor != null)
+                    {
+                        await _imageAPIDb.UpdateAsync(uri, apiString);
+                    }
+                    else
+                    {
+                        await _imageAPIDb.InsertAsync(uri, apiString);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorText = DBError.TranslateError((uint)ex.HResult);
+                //throw new Exception(errorText);
+                Debug.WriteLine(errorText);
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+
+        public async Task<TypedThing<Comment>> RetrieveComment(string id)
+        {
+            await Initialize();
+            var comment = await _comments.GetComment(id);
+            if (comment != null)
+                return new TypedThing<Comment>(comment);
+            else
+                return null;
+        }
+
+        public async Task<TypedThing<Link>> RetrieveLink(string id)
+        {
+            await Initialize();
+            var link = await _links.GetLink(id, null);
+            if (link != null)
+                return new TypedThing<Link>(link);
+            else
+                return null;
+        }
+
+        public async Task<TypedThing<Link>> RetrieveLinkByUrl(string url, TimeSpan maxAge)
+        {
+            await Initialize();
+            var link = await _links.GetLink(null, url);
+            if (link != null)
+                return new TypedThing<Link>(link);
+            else
+                return null;
+        }
+
+        public async Task<TypedThing<Subreddit>> RetrieveSubredditById(string id)
+        {
+            await Initialize();
+            var subreddit = await _subreddits.GetSubreddit(id);
+            if (subreddit != null)
+                return new TypedThing<Subreddit>(subreddit);
+            else
+                return null;
+        }
+
+        public async Task StoreSubreddit(TypedThing<Subreddit> subreddit)
+        {
+            await Initialize();
+            await _subreddits.StoreSubreddit(subreddit);
         }
     }
 
