@@ -73,6 +73,7 @@
     <Compile Include="Model\Reddit\Converters\ThingDataConverter.cs" />
     <Compile Include="Model\Reddit\Converters\UnixTimeConverter.cs" />
     <Compile Include="Model\Reddit\Advertisement.cs" />
+    <Compile Include="Model\Reddit\CommentMessage.cs" />
     <Compile Include="Model\Reddit\Flair.cs" />
     <Compile Include="Model\Reddit\ICreated.cs" />
     <Compile Include="Model\Reddit\IListingProvider.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Model\Reddit\Json.cs" />
     <Compile Include="Model\Reddit\Link.cs" />
     <Compile Include="Model\Reddit\Listing.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\PostMessages.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\MergedListingProvider.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
@@ -120,6 +122,7 @@
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
     <Compile Include="ViewModel\AdvertisementViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\MessageViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\BindingShellViewModelCollection.cs" />
@@ -132,6 +135,9 @@
     <Compile Include="ViewModel\CommentsViewModel.cs" />
     <Compile Include="ViewModel\CommentViewModel.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
+    <Compile Include="ViewModel\ComposeViewModel.cs" />
+    <Compile Include="ViewModel\MessageViewModel.cs" />
+    <Compile Include="ViewModel\MessagesViewModel.cs" />
     <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\LinkedPictureViewModel.cs" />

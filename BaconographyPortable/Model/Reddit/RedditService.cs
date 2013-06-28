@@ -393,6 +393,27 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        public async Task<Listing> GetMessages(int? limit)
+        {
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
+            var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
+
+            var targetUri = string.Format("http://www.reddit.com/message/inbox/.json?limit={0}", guardedLimit);
+
+            try
+            {
+                var messages = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                // Hacky hack mcHackerson
+                messages = messages.Replace("\"kind\": \"t1\"", "\"kind\": \"t4.5\"");
+                return JsonConvert.DeserializeObject<Listing>(messages);
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+            }
+        }
+
         public void AddFlairInfo(string linkId, string opName)
         {
             if (!_linkToOpMap.ContainsKey(linkId))
@@ -534,7 +555,26 @@ namespace BaconographyPortable.Model.Reddit
             };
 
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+            var temp = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+        }
+
+        public virtual async Task AddReply(string recipient, string subject, string message, string thing_id)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"id", "#compose-message"},
+                {"to", recipient},
+                {"text", message},
+                {"subject", subject},
+                {"thing-id", ""},
+                {"renderstyle", "html"},
+                {"uh", modhash}
+            };
+
+
+            var temp = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
         public virtual async Task AddComment(string parentId, string content)
@@ -665,11 +705,12 @@ namespace BaconographyPortable.Model.Reddit
 
                 // TODO: Add a throttling mechanism for the background loads
                 // TODO: Load link and image data
+                /*
                 foreach (var link in links)
                 {
                     await offlineService.StoreLink(new TypedThing<Link>("t3", link));
                     await offlineService.StoreComments(await this.GetCommentsOnPost(link.SubredditId, link.Permalink, 100));
-                }
+                }*/
             }
         }
 

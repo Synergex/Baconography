@@ -64,5 +64,15 @@ namespace BaconographyWP8.PlatformServices
 		{
 			get { return typeof(MainPage); }
 		}
+
+        public Type MessagesView
+        {
+            get { return typeof(MessagingPageView); }
+        }
+
+        public Type ComposeView
+        {
+            get { return typeof(ComposeMessagePageView); }
+        }
     }
 }

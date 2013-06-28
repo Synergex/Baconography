@@ -64,5 +64,15 @@ namespace BaconographyW8.PlatformServices
 		{
 			get { return RedditView; }
 		}
+
+        public Type MessagesView
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public Type ComposeView
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }
