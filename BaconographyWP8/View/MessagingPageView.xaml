@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -39,8 +40,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock x:Name="AuthorField" Text="{Binding Author}" FontSize="34" FontFamily="Segoe UI" Foreground="{StaticResource PhoneForegroundBrush}" />
                                     <TextBlock x:Name="SubjectField" Text="{Binding Subject}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" Foreground="{StaticResource PhoneForegroundBrush}" />
-                                    <TextBlock x:Name="PreviewField" Text="{Binding Preview}" FontSize="19" FontFamily="Segoe UI" Foreground="{StaticResource PhoneSubtleBrush}" />
-                                    <TextBlock x:Name="BodyField" Text="{Binding Body}" FontSize="22" Margin="0,5,0,0" FontFamily="Segoe UI" Foreground="{StaticResource PhoneContrastForegroundBrush}" Visibility="Collapsed" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="PreviewField" Text="{Binding Preview}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" TextWrapping="NoWrap" Foreground="{StaticResource PhoneSubtleBrush}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                     <TextBlock x:Name="DateField" Text="{Binding CreatedUTC, Converter={StaticResource unixTimeConverter}}" />
@@ -66,13 +66,16 @@
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(Grid.Background)" Storyboard.TargetName="ItemRoot">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastBackgroundBrush}"/>
                                             </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="GridBorder">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastBackgroundBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="AuthorField">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastForegroundBrush}"/>
                                             </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="GridBorder">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastBackgroundBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="SubjectField">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastForegroundBrush}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="PreviewField">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneContrastForegroundBrush}"/>
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="DateField">
@@ -81,14 +84,9 @@
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="TextWrapping" Storyboard.TargetName="SubjectField">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="Wrap"/>
                                             </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="PreviewField">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="BodyField">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
-                                            </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
+                                    <!---->
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                         </Border>

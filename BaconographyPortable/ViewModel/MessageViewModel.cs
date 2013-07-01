@@ -73,22 +73,17 @@ namespace BaconographyPortable.ViewModel
                 if (String.IsNullOrEmpty(_preview))
                 {
                     _preview = Body;
-                    bool flag = false;
                     var newline = _preview.IndexOf('\r');
                     if (newline <= 0)
                         newline = _preview.IndexOf('\n');
                     if (newline > 0)
                     {
                         _preview = _preview.Substring(0, newline - 1);
-                        flag = true;
                     }
-                    if (Body.Length > 35)
+                    if (Body.Length > 50)
                     {
-                        _preview = Body.Substring(0, 35);
-                        flag = true;                        
+                        _preview = Body.Substring(0, 50);
                     }
-                    if (flag)
-                        _preview += "...";
                 }
                 return _preview;
             }

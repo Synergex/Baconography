@@ -142,6 +142,9 @@ namespace BaconographyWP8
 		private string loginItemText = "login";
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{
+            if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
+                BuildMenu();
+
 			bool loggedIn = message.CurrentUser != null && message.CurrentUser.Username != null;
 
 			if (loggedIn)
@@ -153,15 +156,15 @@ namespace BaconographyWP8
 				loginItemText = "login";
 			}
 
-            if(appMenuItems != null && appMenuItems.Count > (int)MenuEnum.Login)
+            if(appMenuItems.Count > (int)MenuEnum.Login)
                 appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 
-            if (loggedIn && appMenuItems != null)
+            if (loggedIn)
             {
                 if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]))
                     ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Mail]);
             }
-            else if (appMenuItems != null)
+            else
             {
                 ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Mail]);
             }
