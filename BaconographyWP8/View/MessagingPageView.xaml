@@ -152,11 +152,6 @@
                          ItemContainerStyle="{StaticResource MessageListBoxContainerStyle}">
                 </ListBox>
             </phone:PivotItem>
-
-            <phone:PivotItem Header="modmail">
-                <Grid>
-                </Grid>
-            </phone:PivotItem>
         </phone:Pivot>
     </Grid>
 
