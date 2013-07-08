@@ -24,6 +24,7 @@ namespace BaconographyPortable.Services
         Task<Listing> GetPostsBySubreddit(string subreddit, int? limit);
         Task<Listing> GetMoreOnListing(IEnumerable<string> childrenIds, string contentId, string subreddit);
         Task<Listing> GetCommentsOnPost( string subreddit, string permalink, int? limit);
+        Task<Listing> GetMessages(int? limit);
         Task<Thing> GetLinkByUrl(string url);
         Task<Listing> GetAdditionalFromListing(string baseUrl, string after, int? limit);
         Task<TypedThing<Account>> GetAccountInfo(string accountName);

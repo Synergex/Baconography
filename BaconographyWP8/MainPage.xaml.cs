@@ -156,6 +156,9 @@ namespace BaconographyWP8
 		private string loginItemText = "login";
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{
+            if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
+                BuildMenu();
+
 			bool loggedIn = message.CurrentUser != null && message.CurrentUser.Username != null;
 
 			if (loggedIn)
@@ -167,8 +170,18 @@ namespace BaconographyWP8
 				loginItemText = "login";
 			}
 
-            if(appMenuItems != null && appMenuItems.Count > (int)MenuEnum.Login)
+            if(appMenuItems.Count > (int)MenuEnum.Login)
                 appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
+
+            if (loggedIn)
+            {
+                if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]))
+                    ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Mail]);
+            }
+            else
+            {
+                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Mail]);
+            }
 		}
 
 		private void MenuLogin_Click(object sender, EventArgs e)
@@ -201,6 +214,17 @@ namespace BaconographyWP8
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			_navigationService.Navigate(typeof(SettingsPageView), null);
 		}
+
+        private void MenuMail_Click(object sender, EventArgs e)
+        {
+            var locator = App.Current.Resources["Locator"] as ViewModelLocator;
+            if (locator != null)
+            {
+                locator.Messages.RefreshMessages.Execute(locator.Messages);
+            }
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate(typeof(MessagingPageView), null);
+        }
 
 		private void MenuManage_Click(object sender, EventArgs e)
 		{
@@ -254,7 +278,8 @@ namespace BaconographyWP8
 			Settings,
 			Manage,
 			Close,
-			Pin
+			Pin,
+            Mail
 		}
 
 		private void BuildMenu()
@@ -291,6 +316,11 @@ namespace BaconographyWP8
 			appMenuItems[(int)MenuEnum.Pin].IsEnabled = true;
 			appMenuItems[(int)MenuEnum.Pin].Click += MenuPin_Click;
 
+            appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Mail].Text = "mail";
+            appMenuItems[(int)MenuEnum.Mail].IsEnabled = true;
+            appMenuItems[(int)MenuEnum.Mail].Click += MenuMail_Click;
+
 			ApplicationBar.MenuItems.Clear();
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Sort]);
@@ -303,17 +333,20 @@ namespace BaconographyWP8
 			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
 				BuildMenu();
 
+            
+
+            int threshold = ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]) ? 5 : 4;
             if (pivot.SelectedItem is PivotItem && 
                 ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel &&
                 ((RedditViewModel)((PivotItem)pivot.SelectedItem).DataContext).IsTemporary)
 			{
-				if (ApplicationBar.MenuItems.Count == 4)
+				if (ApplicationBar.MenuItems.Count == threshold)
 				{
 					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Close]);
 					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Pin]);
 				}
 			}
-			else if (ApplicationBar.MenuItems.Count > 4)
+            else if (ApplicationBar.MenuItems.Count > threshold)
 			{
 				ApplicationBar.MenuItems.RemoveAt(0);
 				ApplicationBar.MenuItems.RemoveAt(0);

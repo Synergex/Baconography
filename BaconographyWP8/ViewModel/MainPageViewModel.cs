@@ -322,6 +322,5 @@ namespace BaconographyPortable.ViewModel
 				return _subscribedSubreddits;
 			}
 		}
-
     }
 }

@@ -630,5 +630,11 @@ namespace BaconographyPortable.Services.Impl
         {
             _redditService.AddFlairInfo(linkId, opName);
         }
+
+
+        public Task<Listing> GetMessages(int? limit)
+        {
+            return _redditService.GetMessages(limit);
+        }
     }
 }

@@ -17,6 +17,7 @@
     <converters:AuthorFlairKindConverter x:Key="authorFlairKindConverter"/>
     <converters:ForegroundAuthorFlairKindConverter x:Key="fgAuthorFlairKindConverter"/>
     <converters:TimeRelationConverter x:Key="timeRelationConverter"/>
+    <converters:UnixTimeConverter x:Key="unixTimeConverter"/>
     <converters:InvertBooleanConverter x:Key="invertBooleanConverter"/>
     <converters:BooleanVisibilityConverter x:Key="booleanVisibilityConverter"/>
     <converters:InvertedBooleanVisibilityConverter x:Key="invertBooleanVisibilityConverter"/>
