@@ -282,8 +282,8 @@ namespace BaconographyPortable.Services.Impl
         public async Task<Listing> GetCommentsOnPost(string subreddit, string permalink, int? limit)
         {
             var cachedLink = await _offlineService.RetrieveLinkByUrl(permalink, TimeSpan.FromDays(1));
-            var linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink);
-            if (cachedLink != null && linkThing != null)
+            Thing linkThing = null;
+            if (cachedLink != null && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
             {
                 //compare to see if there was any significant change
                 var typedLink = new TypedThing<Link>(linkThing);

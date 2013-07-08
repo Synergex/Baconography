@@ -21,7 +21,7 @@ namespace BaconographyWP8.PlatformServices
             WebRequest.RegisterPrefix("http://", SharpGIS.WebRequestCreator.GZip);
             WebRequest.RegisterPrefix("https://", SharpGIS.WebRequestCreator.GZip);
 
-            var redditService = new OfflineDelayableRedditService();
+            var redditService = new RedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
@@ -45,7 +45,7 @@ namespace BaconographyWP8.PlatformServices
             {
                 {typeof(IImagesService), imagesService},
                 {typeof(ILiveTileService), liveTileService},
-                {typeof(IRedditService), redditService},
+                {typeof(IRedditService), smartRedditService},
                 {typeof(IOfflineService), offlineService},
                 {typeof(ISimpleHttpService), simpleHttpService},
                 {typeof(INotificationService), notificationService},
@@ -74,7 +74,7 @@ namespace BaconographyWP8.PlatformServices
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);
             SimpleIoc.Default.Register<ILiveTileService>(() => liveTileService);
-            SimpleIoc.Default.Register<IRedditService>(() => redditService);
+            SimpleIoc.Default.Register<IRedditService>(() => smartRedditService);
             SimpleIoc.Default.Register<IOfflineService>(() => offlineService);
             SimpleIoc.Default.Register<ISimpleHttpService>(() => simpleHttpService);
             SimpleIoc.Default.Register<INotificationService>(() => notificationService);

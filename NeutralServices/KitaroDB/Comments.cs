@@ -173,11 +173,13 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             var targetListing = existing ?? new Listing { Data = new ListingData { Children = new List<Thing>() } };
             int i = 0;
+            
             if (cursor != null)
             {
-                do
+                var bulkRecords = await cursor.GetManyAsync(count);
+                foreach (var bulkRecord in bulkRecords)
                 {
-                    var currentRecord = cursor.Get();
+                    var currentRecord = bulkRecord as byte[];
                     var decodedListing = Encoding.UTF8.GetString(currentRecord, CommentKeySpaceSize, currentRecord.Length - CommentKeySpaceSize);
                     var deserializedComment = JsonConvert.DeserializeObject<Thing>(decodedListing);
                     targetListing.Data.Children.Add(deserializedComment);
@@ -185,7 +187,7 @@ namespace Baconography.NeutralServices.KitaroDB
                     {
                         break;
                     }
-                } while (await cursor.MoveNextAsync());
+                }
             }
 
             return targetListing;
