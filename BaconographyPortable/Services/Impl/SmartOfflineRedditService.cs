@@ -150,9 +150,9 @@ namespace BaconographyPortable.Services.Impl
                 Thing gottenThing = null;
                 switch (idCode)
                 {
-                    case "t1":
-                        gottenThing = await _offlineService.RetrieveComment(id);
-                        break;
+                    //case "t1":
+                        //gottenThing = await _offlineService.RetrieveComment(id);
+                        //break;
                     case "t3":
                         gottenThing = await _offlineService.RetrieveLink(id);
                         break;
@@ -257,10 +257,10 @@ namespace BaconographyPortable.Services.Impl
             return listing;
         }
 
-        public Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
+        public async Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
         {
             //we dont need to serve cached versions of this, we just want to serve it if the network has failed us
-            return _redditService.GetPostsBySubreddit(subreddit, limit);
+            return MaybeStorePostsBySubreddit(await _redditService.GetPostsBySubreddit(subreddit, limit));
         }
 
         public Task<Listing> GetMoreOnListing(IEnumerable<string> childrenIds, string contentId, string subreddit)
@@ -268,19 +268,38 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.GetMoreOnListing(childrenIds, contentId, subreddit);
         }
 
-        private Listing MaybeStoreCommentsOnPost(Listing listing)
+        Dictionary<string, Listing> _currentlyStoringComments = new Dictionary<string, Listing>();
+        private Listing MaybeStoreCommentsOnPost(Listing listing, string permalink)
         {
             var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
             if (!_linkToOpMap.ContainsKey(((Link)requestedLinkInfo.Data).Name))
             {
                 _linkToOpMap.Add(((Link)requestedLinkInfo.Data).Name, ((Link)requestedLinkInfo.Data).Author);
             }
-            _offlineService.StoreComments(listing);
+            lock (_currentlyStoringComments)
+            {
+                if (_currentlyStoringComments.ContainsKey(permalink))
+                    return listing;
+
+                _currentlyStoringComments.Add(permalink, listing);
+            }
+            _offlineService.StoreComments(listing).ContinueWith(task =>
+                {
+                    lock(_currentlyStoringComments)
+                    {
+                        _currentlyStoringComments.Remove(permalink);
+                    }
+                });
             return listing;
         }
 
         public async Task<Listing> GetCommentsOnPost(string subreddit, string permalink, int? limit)
         {
+            lock (_currentlyStoringComments)
+            {
+                if (_currentlyStoringComments.ContainsKey(permalink))
+                    return _currentlyStoringComments[permalink];
+            }
             var cachedLink = await _offlineService.RetrieveLinkByUrl(permalink, TimeSpan.FromDays(1));
             Thing linkThing = null;
             if (cachedLink != null && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
@@ -289,21 +308,25 @@ namespace BaconographyPortable.Services.Impl
                 var typedLink = new TypedThing<Link>(linkThing);
                 var percentChange = Math.Abs((typedLink.TypedData.CommentCount - cachedLink.TypedData.CommentCount) / ((typedLink.TypedData.CommentCount + cachedLink.TypedData.CommentCount) / 2));
                 if (percentChange > 5)
-                    return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit));
+                    return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
-                var comments = await _offlineService.GetTopLevelComments(subreddit, permalink, limit ?? 500);
+                var comments = await _offlineService.GetTopLevelComments(cachedLink.TypedData.SubredditId, cachedLink.TypedData.Name, limit ?? 500);
                 if (comments != null && comments.Data.Children.Count > 0)
                     return comments;
                 else
-                    return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit));
+                    return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
             }
             else
-                return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit));
+                return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
         }
 
         public async Task<Thing> GetLinkByUrl(string url)
         {
-            var cachedLink = await _offlineService.RetrieveLinkByUrl(url, TimeSpan.FromMinutes(10));
+            string permaLink = url;
+            if (url.StartsWith("http://www.reddit.com"))
+                permaLink = url.Substring("http://www.reddit.com".Length);
+
+            var cachedLink = await _offlineService.RetrieveLinkByUrl(permaLink, TimeSpan.FromMinutes(10));
             if (cachedLink != null)
                 return cachedLink;
             else

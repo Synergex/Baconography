@@ -65,42 +65,42 @@ namespace BaconographyPortable.Services.Impl
             _inflightOfflining = true;
             try
             {
-                if (!_smartOfflineService.IsActivityIdle && priority == OffliningOpportunityPriority.Image)
-                {
-                    //we're probably looking at images right now, possibly in a gallery so grab as much as possible
-                    //metered or not doesnt matter here since they were going to download the image anyway
-                    foreach (var offlinableImage in _smartOfflineService.OfflineableImagesFromContext)
-                    {
-                        if (token.IsCancellationRequested)
-                            break;
+                //if (!_smartOfflineService.IsActivityIdle && priority == OffliningOpportunityPriority.Image)
+                //{
+                //    //we're probably looking at images right now, possibly in a gallery so grab as much as possible
+                //    //metered or not doesnt matter here since they were going to download the image anyway
+                //    foreach (var offlinableImage in _smartOfflineService.OfflineableImagesFromContext)
+                //    {
+                //        if (token.IsCancellationRequested)
+                //            break;
 
-                        await ImageBytesFromUrl(offlinableImage);
-                    }
-                    return;
-                }
+                //        await ImageBytesFromUrl(offlinableImage);
+                //    }
+                //    return;
+                //}
 
 
                 //if we're on unmetered we can be pretty agressive about our downloading
                 //otherwise just download the thumbnails and make the api calls since the platform default behavior would have been to download them anyway
-                if (networkStatus == NetworkConnectivityStatus.Unmetered)
-                {
-                    if (token.IsCancellationRequested)
-                        return;
+                //if (networkStatus == NetworkConnectivityStatus.Unmetered)
+                //{
+                //    if (token.IsCancellationRequested)
+                //        return;
 
-                    string targetImageToOffline = null;
-                    lock (_waitingOfflineImages)
-                    {
-                        if (_waitingOfflineImages.Count == 0)
-                            foreach (var item in _smartOfflineService.OfflineableImagesFromContext.Reverse())
-                                _waitingOfflineImages.Push(item);
+                //    string targetImageToOffline = null;
+                //    lock (_waitingOfflineImages)
+                //    {
+                //        if (_waitingOfflineImages.Count == 0)
+                //            foreach (var item in _smartOfflineService.OfflineableImagesFromContext.Reverse())
+                //                _waitingOfflineImages.Push(item);
 
-                        if(_waitingOfflineImages.Count > 0)
-                            targetImageToOffline = _waitingOfflineImages.Pop();
-                    }
+                //        if(_waitingOfflineImages.Count > 0)
+                //            targetImageToOffline = _waitingOfflineImages.Pop();
+                //    }
 
-                    if(targetImageToOffline != null)
-                        await ImageBytesFromUrl(targetImageToOffline);
-                }
+                //    if(targetImageToOffline != null)
+                //        await ImageBytesFromUrl(targetImageToOffline);
+                //}
 
                 if (token.IsCancellationRequested)
                     return;
@@ -113,7 +113,7 @@ namespace BaconographyPortable.Services.Impl
                             _waitingOfflineAPI.Push(item);
 
                     if (_waitingOfflineAPI.Count > 0)
-                        targetAPIToOffline = _waitingOfflineImages.Pop();
+                        targetAPIToOffline = _waitingOfflineAPI.Pop();
                 }
 
                 if (targetAPIToOffline != null)

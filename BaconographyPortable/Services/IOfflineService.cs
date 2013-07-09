@@ -36,7 +36,6 @@ namespace BaconographyPortable.Services
         Task StoreOrderedThings(string key, IEnumerable<Thing> things);
         Task<IEnumerable<Thing>> RetrieveOrderedThings(string key, TimeSpan maxAge);
 
-        Task<TypedThing<Comment>> RetrieveComment(string id);
         Task<TypedThing<Link>> RetrieveLink(string id);
         Task<TypedThing<Link>> RetrieveLinkByUrl(string url, TimeSpan maxAge);
         Task<TypedThing<Subreddit>> RetrieveSubredditById(string id);

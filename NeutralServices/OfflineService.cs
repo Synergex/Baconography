@@ -179,34 +179,43 @@ namespace Baconography.NeutralServices
         public async Task StoreComments(Listing listing)
         {
             await Initialize();
-            if (listing == null || listing.Data.Children.Count == 0)
-                return;
-
-            var linkThing = listing.Data.Children.First().Data as Link;
-            if (linkThing != null)
+            try
             {
-                await _links.StoreLink(listing.Data.Children.First());
-            }
+                if (listing == null || listing.Data.Children.Count == 0)
+                    return;
 
-            await _comments.StoreComments(listing);
+                var linkThing = listing.Data.Children.First().Data as Link;
+                if (linkThing != null)
+                {
+                    await _links.StoreLink(listing.Data.Children.First());
+                }
+
+                await _comments.StoreComments(listing);
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+            }
         }
 
         public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
         {
             await Initialize();
-            var link = await _links.GetLink(null, linkId);
-            var comments = await _comments.GetTopLevelComments(subredditId, linkId, count);
-            if (comments.Data.Children.Count > 0 && link != null)
+            try
             {
-                comments.Data.Children.Insert(0, link);
+                return await _comments.GetTopLevelComments(subredditId, linkId, count);
             }
-            return comments;
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+            }
+            return new Listing { Data = new ListingData { Children = new List<Thing>() } };
         }
 
         public async Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids)
         {
             await Initialize();
-            return await _comments.GetMoreComments(subredditId, linkId, ids);
+            return new Listing { Data = new ListingData { Children = new List<Thing>() } };
         }
 
         public async Task StoreLink(Thing link)
@@ -223,93 +232,14 @@ namespace Baconography.NeutralServices
             {
                 await _links.StoreLinks(listing);
 
-                foreach (var link in listing.Data.Children)
+                var subredditTuples = listing.Data.Children
+                    .Where(thing => thing.Data is Link)
+                    .Select(thing => Tuple.Create(((Link)thing.Data).SubredditId, ((Link)thing.Data).Subreddit))
+                    .Distinct();
+
+                foreach (var tpl in subredditTuples)
                 {
-                    if (link.Data is Link)
-                    {
-                        await _subreddits.StoreSubreddit(((Link)link.Data).SubredditId, ((Link)link.Data).Subreddit);
-                        Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = ((Link)link.Data).Id, Status = OfflineStatusMessage.OfflineStatus.Initial });
-                    }
-                }
-
-
-                _notificationService.CreateKitaroDBNotification(string.Format("{0} Links now available offline", listing.Data.Children.Count));
-                //this is where we should kick off the non reddit content getter/converter on a seperate thread
-
-                var remainingMoreThings = new List<Tuple<Link, TypedThing<More>>>();
-
-
-                foreach (var link in listing.Data.Children)
-                {
-                    bool finishedLink = true;
-                    var linkData = link.Data as Link;
-                    if (linkData != null)
-                    {
-                        var comments = await _redditService.GetCommentsOnPost(linkData.Subreddit, linkData.Permalink, null);
-                        if (comments != null)
-                        {
-                            if (comments.Data.Children.Count == 0)
-                            {
-                                throw new Exception();
-                            }
-                            await (await Comments.GetInstance()).StoreComments(comments);
-                            var moreChild = comments.Data.Children.LastOrDefault(comment => comment.Data is More);
-                            if (moreChild != null)
-                            {
-                                TypedThing<More> moreThing = new TypedThing<More>(moreChild);
-                                if (moreThing != null && moreThing.Data.Children.Count > 0)
-                                {
-                                    if (moreThing.Data.Children.Count > _settingsService.MaxTopLevelOfflineComments)
-                                    {
-                                        moreThing.Data.Children.RemoveRange(_settingsService.MaxTopLevelOfflineComments, moreThing.Data.Children.Count - _settingsService.MaxTopLevelOfflineComments - 1);
-                                    }
-                                    finishedLink = false;
-                                    remainingMoreThings.Add(Tuple.Create(linkData, moreThing));
-                                }
-                            }
-                        }
-                    }
-                    Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = linkData.Id, Status = finishedLink ? OfflineStatusMessage.OfflineStatus.AllComments : OfflineStatusMessage.OfflineStatus.TopComments });
-                }
-
-                _notificationService.CreateKitaroDBNotification("Inital comments for offline links now available");
-
-                //we've seperated getting the links and initial comments because we want to prioritize getting some data for all of the links instead of all the data for a very small number of links
-                //ex, someone getting on a plane in 5 minutes wants to get what they can on a broad a selection of links as possible, rather than all of the comments on the latest 10 bazilion comment psy ama
-
-                if (!_settingsService.OfflineOnlyGetsFirstSet)
-                {
-
-                    uint commentCount = 0;
-                    foreach (var moreThingTpl in remainingMoreThings)
-                    {
-                        var moreThing = moreThingTpl.Item2;
-                        var linkData = moreThingTpl.Item1;
-
-                        while (moreThing != null && moreThing.Data.Children.Count > 0)
-                        {
-                            var moreChildren = moreThing.Data.Children.Take(500).ToList();
-                            var moreComments = await _redditService.GetMoreOnListing(moreChildren, linkData.Name, linkData.Subreddit);
-                            var moreMoreComments = moreComments.Data.Children.FirstOrDefault(thing => thing.Data is More);
-                            if (moreMoreComments != null)
-                            {
-                                //we asked for more then reddit was willing to give us back
-                                //just make sure we dont lose anyone
-                                moreChildren.RemoveAll((str) => ((More)moreMoreComments.Data).Children.Contains(str));
-                                //all thats left is what was returned so remove them by value from the moreThing
-                                moreThing.Data.Children.RemoveAll((str) => moreChildren.Contains(str));
-                                commentCount += (uint)((More)moreMoreComments.Data).Children.Count;
-                            }
-                            else
-                            {
-                                moreThing.Data.Children.RemoveRange(0, moreChildren.Count);
-                            }
-                            await (await Comments.GetInstance()).StoreComments(moreComments);
-                        }
-                        Messenger.Default.Send<OfflineStatusMessage>(new OfflineStatusMessage { LinkId = linkData.Id, Status = OfflineStatusMessage.OfflineStatus.AllComments });
-
-                    }
-                    _notificationService.CreateKitaroDBNotification(string.Format("{0} Top level comments for offline links now available", commentCount));
+                    await _subreddits.StoreSubreddit(tpl.Item1, tpl.Item2);
                 }
             }
             catch (Exception ex)
@@ -409,10 +339,10 @@ namespace Baconography.NeutralServices
                     if (blobCursor != null)
                     {
                         var gottenBlob = blobCursor.Get();
-                        //var microseconds = BitConverter.ToInt64(gottenBlob, 4);
-                        //var updatedTime = new DateTime(microseconds * 10);
-                        //var blobAge = DateTime.Now - updatedTime;
-                        //if(blobAge <= maxAge)
+                        var microseconds = BitConverter.ToInt64(gottenBlob, 4);
+                        var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
+                        var blobAge = DateTime.Now - updatedTime;
+                        if(blobAge <= maxAge)
                             return JsonConvert.DeserializeObject<Thing>(Encoding.UTF8.GetString(gottenBlob, 12, gottenBlob.Length));
                     }
                 }
@@ -446,16 +376,16 @@ namespace Baconography.NeutralServices
                     if (blobCursor != null)
                     {
                         var gottenBlob = blobCursor.Get();
-                        //var microseconds = BitConverter.ToInt64(gottenBlob, 4);
-                        //var updatedTime = new DateTime(microseconds * 10);
-                        //var blobAge = DateTime.Now - updatedTime;
-                        //if (blobAge <= maxAge)
-                        //{
+                        var microseconds = BitConverter.ToInt64(gottenBlob, 4);
+                        var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
+                        var blobAge = DateTime.Now - updatedTime;
+                        if (blobAge <= maxAge)
+                        {
                             var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                             var decompressedBytes = compressor.Decompress(gottenBlob, 12);
                             IEnumerable<Thing> result = JsonConvert.DeserializeObject<Thing[]>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
                             return result;
-                        //}
+                        }
                     }
                 }
             }
@@ -661,20 +591,10 @@ namespace Baconography.NeutralServices
             }
         }
 
-        public async Task<TypedThing<Comment>> RetrieveComment(string id)
-        {
-            await Initialize();
-            var comment = await _comments.GetComment(id);
-            if (comment != null)
-                return new TypedThing<Comment>(comment);
-            else
-                return null;
-        }
-
         public async Task<TypedThing<Link>> RetrieveLink(string id)
         {
             await Initialize();
-            var link = await _links.GetLink(id, null);
+            var link = await _links.GetLink(null, id, TimeSpan.FromDays(1024));
             if (link != null)
                 return new TypedThing<Link>(link);
             else
@@ -684,7 +604,7 @@ namespace Baconography.NeutralServices
         public async Task<TypedThing<Link>> RetrieveLinkByUrl(string url, TimeSpan maxAge)
         {
             await Initialize();
-            var link = await _links.GetLink(null, url);
+            var link = await _links.GetLink(url, null, maxAge);
             if (link != null)
                 return new TypedThing<Link>(link);
             else

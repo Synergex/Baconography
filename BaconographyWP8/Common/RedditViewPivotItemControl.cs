@@ -22,9 +22,11 @@ namespace BaconographyWP8.Common
 {
     public class RedditViewPivotControl : Pivot
     {
+        IViewModelContextService _viewModelContextService;
         public RedditViewPivotControl()
         {
             ServiceLocator.Current.GetInstance<IOOMService>().OutOfMemory += RedditViewPivotControl_OutOfMemory;
+            _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
         }
 
         void RedditViewPivotControl_OutOfMemory(OutOfMemoryEventArgs obj)
@@ -58,6 +60,8 @@ namespace BaconographyWP8.Common
             var loadIdAtStart = ++inflightLoadId;
             inflightLoad = item;
             base.OnLoadingPivotItem(item);
+
+            _viewModelContextService.PushViewModelContext(item.DataContext as ViewModelBase);
 
             if (item.Content is RedditView)
             {
@@ -98,6 +102,10 @@ namespace BaconographyWP8.Common
         {
             if (e.Item == null)
                 return;
+
+            if(e.Item.DataContext is ViewModelBase)
+                _viewModelContextService.PopViewModelContext(e.Item.DataContext as ViewModelBase);
+
             //if we didnt finish loading we dont need to make a new writable bitmap
             if (!(e.Item.Content is Image) && e.Item.Content is UIElement)
             {

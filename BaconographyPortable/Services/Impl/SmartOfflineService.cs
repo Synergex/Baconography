@@ -55,46 +55,62 @@ namespace BaconographyPortable.Services.Impl
             //if we've offlined this thing, we need to pat ourselves on the back
             //because we got it right
 
-            //if(targetThing.Data is Link)
-            //{
-            //    var targetLink = targetThing.Data as Link;
-            //    await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
-            //    await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
-            //}
+            if(targetThing.Data is Link)
+            {
+                var targetLink = targetThing.Data as Link;
+                await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
+                await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
+            }
         }
 
-        public void NavigatedToView(Type viewType, bool forward)
+        int _navId = 0;
+        public async void NavigatedToView(Type viewType, bool forward)
         {
-            //var currentContext = _viewModelContextService.Context;
-            //if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
-            //{
-            //    NavigatedToOfflineableThing(((CommentsViewModel)currentContext).Link.LinkThing, true);
-            //}
+            _navId++;
+            int myNavID = _navId;
 
-            ////determine if this is a good time to be caching things
-            ////and what should be our highest priority to be cached
-            //var viewModelContextStack = _viewModelContextService.ContextStack;
-            //_firstRedditViewModel = viewModelContextStack.OfType<RedditViewModel>().FirstOrDefault();
-            //_firstCommentsViewModel = viewModelContextStack.OfType<CommentsViewModel>().FirstOrDefault();
+            _cancelationTokenSource.Cancel();
 
-            //var networkAvailable = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
+            await Task.Delay(2000);
 
-            ////no network means there is no reason for us to do anything
-            //if(!networkAvailable)
-            //    return;
-            //var onMeteredConnection = _systemServices.IsOnMeteredConnection;
+            if (myNavID != _navId)
+            {
+                _cancelationTokenSource.Cancel();
+                return;
+            }
+            else
+                _cancelationTokenSource = new CancellationTokenSource();
 
-            //OffliningOpportunityPriority priority = OffliningOpportunityPriority.None;
-            //if (viewType == _dynamicViewLocator.LinkedPictureView && forward)
-            //    priority = OffliningOpportunityPriority.Image;
+            var currentContext = _viewModelContextService.Context;
+            if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
+            {
+                NavigatedToOfflineableThing(((CommentsViewModel)currentContext).Link.LinkThing, true);
+            }
 
-            //else if (viewType == _dynamicViewLocator.CommentsView && forward)
-            //    priority = OffliningOpportunityPriority.Comments;
+            //determine if this is a good time to be caching things
+            //and what should be our highest priority to be cached
+            var viewModelContextStack = _viewModelContextService.ContextStack;
+            _firstRedditViewModel = viewModelContextStack.OfType<RedditViewModel>().FirstOrDefault();
+            _firstCommentsViewModel = viewModelContextStack.OfType<CommentsViewModel>().FirstOrDefault();
 
-            //else if (viewType == _dynamicViewLocator.RedditView)
-            //    priority = OffliningOpportunityPriority.ImageAPI;
+            var networkAvailable = System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
 
-            //OffliningOpportunity(priority, onMeteredConnection ? NetworkConnectivityStatus.Metered : NetworkConnectivityStatus.Unmetered, _cancelationTokenSource.Token);
+            //no network means there is no reason for us to do anything
+            if (!networkAvailable)
+                return;
+            var onMeteredConnection = _systemServices.IsOnMeteredConnection;
+
+            OffliningOpportunityPriority priority = OffliningOpportunityPriority.None;
+            if (viewType == _dynamicViewLocator.LinkedPictureView && forward)
+                priority = OffliningOpportunityPriority.Image;
+
+            else if (viewType == _dynamicViewLocator.CommentsView && forward)
+                priority = OffliningOpportunityPriority.Comments;
+
+            else if (viewType == _dynamicViewLocator.RedditView)
+                priority = OffliningOpportunityPriority.ImageAPI;
+
+            OffliningOpportunity(priority, onMeteredConnection ? NetworkConnectivityStatus.Metered : NetworkConnectivityStatus.Unmetered, _cancelationTokenSource.Token);
         }
 
         public IEnumerable<string> OfflineableImagesFromContext
@@ -127,7 +143,7 @@ namespace BaconographyPortable.Services.Impl
         {
             get 
             {
-                if (_firstRedditViewModel != null)
+                if (_firstRedditViewModel != null && !IsActivityIdle)
                 {
                     //this is less usefull than it initially appears
                     //top visible link is only updated when you leave the subreddit in the pivot
@@ -148,7 +164,7 @@ namespace BaconographyPortable.Services.Impl
         {
             get 
             {
-                if (_firstRedditViewModel != null)
+                if (_firstRedditViewModel != null && !IsActivityIdle)
                 {
                     //this is less usefull than it initially appears
                     //top visible link is only updated when you leave the subreddit in the pivot
@@ -173,7 +189,7 @@ namespace BaconographyPortable.Services.Impl
                 //need to look through the link things for offlineable image api's, not entirely sure what priority CommentsView stuff should be
                 //given that it might be expensive to compute
 
-                if (_firstRedditViewModel != null)
+                if (_firstRedditViewModel != null && !IsActivityIdle)
                 {
                     //this is less usefull than it initially appears
                     //top visible link is only updated when you leave the subreddit in the pivot
