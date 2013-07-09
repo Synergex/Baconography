@@ -16,7 +16,8 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
-    shell:SystemTray.Opacity="100"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
     toolkit:TiltEffect.IsTiltEnabled="True"
     DataContext="{Binding MainPage, Source={StaticResource Locator}}">
 

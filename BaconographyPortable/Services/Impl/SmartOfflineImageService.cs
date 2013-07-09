@@ -33,6 +33,7 @@ namespace BaconographyPortable.Services.Impl
         void _oomService_OutOfMemory(OutOfMemoryEventArgs obj)
         {
             _activeImages = null;
+            _urlsOfflined.Clear();
         }
 
         bool _inflightOfflining = false;
@@ -56,6 +57,7 @@ namespace BaconographyPortable.Services.Impl
 
         Stack<string> _waitingOfflineImages = new Stack<string>();
         Stack<string> _waitingOfflineAPI = new Stack<string>();
+        HashSet<string> _urlsOfflined = new HashSet<string>();
 
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, System.Threading.CancellationToken token)
         {
@@ -105,19 +107,34 @@ namespace BaconographyPortable.Services.Impl
                 if (token.IsCancellationRequested)
                     return;
 
-                string targetAPIToOffline = null;
-                lock (_waitingOfflineAPI)
+                string targetAPIToOffline;
+                do
                 {
-                    if (_waitingOfflineAPI.Count == 0)
-                        foreach (var item in _smartOfflineService.OfflineableImageAPIsFromContext.Reverse())
-                            _waitingOfflineAPI.Push(item);
+                    targetAPIToOffline = null;
+                    lock (_waitingOfflineAPI)
+                    {
+                        if (_waitingOfflineAPI.Count == 0)
+                            foreach (var item in _smartOfflineService.OfflineableImageAPIsFromContext.Reverse())
+                                _waitingOfflineAPI.Push(item);
 
-                    if (_waitingOfflineAPI.Count > 0)
-                        targetAPIToOffline = _waitingOfflineAPI.Pop();
-                }
+                        if (_waitingOfflineAPI.Count > 0)
+                            targetAPIToOffline = _waitingOfflineAPI.Pop();
+                    }
 
-                if (targetAPIToOffline != null)
-                    await GetImagesFromUrl("", targetAPIToOffline);
+                    if (targetAPIToOffline != null)
+                    {
+                        if (_urlsOfflined.Contains(targetAPIToOffline))
+                            continue;
+                        else
+                            _urlsOfflined.Add(targetAPIToOffline);
+
+                        await GetImagesFromUrl("", targetAPIToOffline);
+                    }
+
+                    if (token.IsCancellationRequested)
+                        return;
+
+                } while (targetAPIToOffline != null);
             }
             catch (Exception ex)
             {
