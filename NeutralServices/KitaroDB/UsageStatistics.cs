@@ -8,12 +8,13 @@ using BaconographyPortable.Services;
 using KitaroDB;
 using Newtonsoft.Json;
 using BaconographyPortable.Model.KitaroDB.ListingHelpers;
+using System.Diagnostics;
 
 namespace Baconography.NeutralServices.KitaroDB
 {
     class UsageStatistics
     {
-		private static string subredditStatisticsPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\subreddit_statistics_v2.ism";
+        private static string subredditStatisticsPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\subreddit_statistics_v2.ism";
         private static string domainStatisticsPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\domain_statistics_v2.ism";
 
         private static Task<UsageStatistics> _instanceTask;
@@ -100,94 +101,97 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task IncrementDomain(string domain, bool link)
         {
-            uint links = 0;
-            uint comments = 0;
-            uint hash = (uint)domain.GetHashCode();
-            var keyspace = GenerateDomainHashKeyspace(hash);
-
-            var dbCursor = await _domainStatisticsDB.SeekAsync(_domainStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-            if (dbCursor != null)
+            try
             {
-                using (dbCursor)
+                uint links = 0;
+                uint comments = 0;
+                uint hash = (uint)domain.GetHashCode();
+                var keyspace = GenerateDomainHashKeyspace(hash);
+
+                using (var dbCursor = await _domainStatisticsDB.SeekAsync(_domainStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
-                    // Decode cursor
-                    var record = dbCursor.Get();
-                    links = BitConverter.ToUInt32(record.Skip(DomainHashKeySpaceSize).Take(4).ToArray(), 0);
-                    comments = BitConverter.ToUInt32(record.Skip(DomainHashKeySpaceSize + 4).Take(4).ToArray(), 0);
-                    // Increment variable
-                    if (link)
-                        links++;
+                    if (dbCursor != null)
+                    {
+                        // Decode cursor
+                        var record = dbCursor.Get();
+                        links = BitConverter.ToUInt32(record.Skip(DomainHashKeySpaceSize).Take(4).ToArray(), 0);
+                        comments = BitConverter.ToUInt32(record.Skip(DomainHashKeySpaceSize + 4).Take(4).ToArray(), 0);
+                        // Increment variable
+                        if (link)
+                            links++;
+                        else
+                            comments++;
+                        // Update record
+                        var combinedSpace = GenerateCombinedDomainKeyspace(hash, links, comments);
+                        await dbCursor.UpdateAsync(combinedSpace);
+                    }
                     else
-                        comments++;
-                    // Update record
-                    var combinedSpace = GenerateCombinedDomainKeyspace(hash, links, comments);
-                    await dbCursor.UpdateAsync(combinedSpace);
+                    {
+                        links = (uint)(link ? 1 : 0);
+                        comments = (uint)(link ? 0 : 1);
+
+
+                        if (link)
+                            links++;
+                        else
+                            comments++;
+                        // Insert a fresh, zero'd record
+                        var combinedSpace = GenerateCombinedDomainKeyspace(hash, links, comments);
+                        await _domainStatisticsDB.InsertAsync(combinedSpace);
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                links = (uint)(link ? 1 : 0);
-                comments = (uint)(link ? 0 : 1);
-
-                try
-                {
-                    if (link)
-                        links++;
-                    else
-                        comments++;
-                    // Insert a fresh, zero'd record
-                    var combinedSpace = GenerateCombinedDomainKeyspace(hash, links, comments);
-                    await _domainStatisticsDB.InsertAsync(combinedSpace);
-                }
-                catch (Exception ex)
-                {
-                }
+                Debug.WriteLine(DBError.TranslateError((uint)ex.HResult));
             }
         }
 
         public async Task IncrementSubreddit(string id, bool link)
         {
-            uint links = 0;
-            uint comments = 0;
-            var keyspace = GenerateSubIdKeyspace(id);
-
-            var dbCursor = await _subredditStatisticsDB.SeekAsync(_subredditStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-            if (dbCursor != null)
+            try
             {
-                using (dbCursor)
+                uint links = 0;
+                uint comments = 0;
+                var keyspace = GenerateSubIdKeyspace(id);
+
+                using (var dbCursor = await _subredditStatisticsDB.SeekAsync(_subredditStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
-                    // Decode cursor
-                    var record = dbCursor.Get();
-                    links = BitConverter.ToUInt32(record.Skip(SubIdKeySpaceSize).Take(4).ToArray(), 0);
-                    comments = BitConverter.ToUInt32(record.Skip(SubIdKeySpaceSize + 4).Take(4).ToArray(), 0);
-                    // Increment variable
-                    if (link)
-                        links++;
+                    if (dbCursor != null)
+                    {
+
+                        // Decode cursor
+                        var record = dbCursor.Get();
+                        links = BitConverter.ToUInt32(record.Skip(SubIdKeySpaceSize).Take(4).ToArray(), 0);
+                        comments = BitConverter.ToUInt32(record.Skip(SubIdKeySpaceSize + 4).Take(4).ToArray(), 0);
+                        // Increment variable
+                        if (link)
+                            links++;
+                        else
+                            comments++;
+                        // Update record
+                        var combinedSpace = GenerateCombinedSubredditKeyspace(id, links, comments);
+                        await dbCursor.UpdateAsync(combinedSpace);
+                    }
                     else
-                        comments++;
-                    // Update record
-                    var combinedSpace = GenerateCombinedSubredditKeyspace(id, links, comments);
-                    await dbCursor.UpdateAsync(combinedSpace);
+                    {
+                        links = (uint)(link ? 1 : 0);
+                        comments = (uint)(link ? 0 : 1);
+
+                        if (link)
+                            links++;
+                        else
+                            comments++;
+                        // Insert a fresh, zero'd record
+                        var combinedSpace = GenerateCombinedSubredditKeyspace(id, links, comments);
+                        await _subredditStatisticsDB.InsertAsync(combinedSpace);
+
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                links = (uint)(link ? 1 : 0);
-                comments = (uint)(link ? 0 : 1);
-
-                try
-                {
-                    if (link)
-                        links++;
-                    else
-                        comments++;
-                    // Insert a fresh, zero'd record
-                    var combinedSpace = GenerateCombinedSubredditKeyspace(id, links, comments);
-                    await _subredditStatisticsDB.InsertAsync(combinedSpace);
-                }
-                catch (Exception ex)
-                {
-                }
+                Debug.WriteLine(DBError.TranslateError((uint)ex.HResult));
             }
         }
 
@@ -235,22 +239,20 @@ namespace Baconography.NeutralServices.KitaroDB
         public async Task<List<SubredditAggregate>> GetSubredditAggregateList(int maxSize, int threshold)
         {
             var retval = new List<SubredditAggregate>();
-            var cursor = await _subredditStatisticsDB.SeekAsync(DBReadFlags.NoLock);
-
-            while (cursor != null)
+            using (var cursor = await _subredditStatisticsDB.SeekAsync(DBReadFlags.NoLock))
             {
-                var agg = new SubredditAggregate();
-                var currentRecord = cursor.Get();
-                agg.SubredditId = BitConverter.ToString(currentRecord.Take(12).ToArray(), 0);
-                agg.LinkClicks = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize).Take(4).ToArray(), 0);
-                agg.CommentClicks = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize + 4).Take(4).ToArray(), 0);
-                agg.LastModified = new DateTime(BitConverter.ToInt64(currentRecord.Skip(20).Take(8).ToArray(), 0));
-                if (agg.LinkClicks > threshold || agg.CommentClicks > threshold)
-                    retval.Add(agg);
-                if (!await cursor.MoveNextAsync())
+                while (cursor != null)
                 {
-                    cursor.Dispose();
-                    cursor = null;
+                    var agg = new SubredditAggregate();
+                    var currentRecord = cursor.Get();
+                    agg.SubredditId = BitConverter.ToString(currentRecord.Take(12).ToArray(), 0);
+                    agg.LinkClicks = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize).Take(4).ToArray(), 0);
+                    agg.CommentClicks = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize + 4).Take(4).ToArray(), 0);
+                    agg.LastModified = new DateTime(BitConverter.ToInt64(currentRecord.Skip(20).Take(8).ToArray(), 0));
+                    if (agg.LinkClicks > threshold || agg.CommentClicks > threshold)
+                        retval.Add(agg);
+                    if (!await cursor.MoveNextAsync())
+                        break;
                 }
             }
 
@@ -264,22 +266,20 @@ namespace Baconography.NeutralServices.KitaroDB
         public async Task<List<DomainAggregate>> GetDomainAggregateList(int maxSize, int threshold)
         {
             var retval = new List<DomainAggregate>();
-            var cursor = await _domainStatisticsDB.SeekAsync(DBReadFlags.NoLock);
-
-            while (cursor != null)
+            using (var cursor = await _domainStatisticsDB.SeekAsync(DBReadFlags.NoLock))
             {
-                var agg = new DomainAggregate();
-                var currentRecord = cursor.Get();
-                agg.DomainHash = BitConverter.ToUInt32(currentRecord.Take(4).ToArray(), 0);
-                agg.LinkClicks = BitConverter.ToUInt32(currentRecord.Skip(4).Take(4).ToArray(), 0);
-                agg.CommentClicks = BitConverter.ToUInt32(currentRecord.Skip(8).Take(4).ToArray(), 0);
-                agg.LastModified = new DateTime(BitConverter.ToInt64(currentRecord.Skip(12).Take(8).ToArray(), 0));
-                if (agg.LinkClicks > threshold || agg.CommentClicks > threshold)
-                    retval.Add(agg);
-                if (!await cursor.MoveNextAsync())
+                while (cursor != null)
                 {
-                    cursor.Dispose();
-                    cursor = null;
+                    var agg = new DomainAggregate();
+                    var currentRecord = cursor.Get();
+                    agg.DomainHash = BitConverter.ToUInt32(currentRecord.Take(4).ToArray(), 0);
+                    agg.LinkClicks = BitConverter.ToUInt32(currentRecord.Skip(4).Take(4).ToArray(), 0);
+                    agg.CommentClicks = BitConverter.ToUInt32(currentRecord.Skip(8).Take(4).ToArray(), 0);
+                    agg.LastModified = new DateTime(BitConverter.ToInt64(currentRecord.Skip(12).Take(8).ToArray(), 0));
+                    if (agg.LinkClicks > threshold || agg.CommentClicks > threshold)
+                        retval.Add(agg);
+                    if (!await cursor.MoveNextAsync())
+                        break;
                 }
             }
 

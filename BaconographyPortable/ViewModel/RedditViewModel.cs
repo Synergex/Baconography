@@ -172,7 +172,7 @@ namespace BaconographyPortable.ViewModel
             string subreddit = "/", subredditId = null;
             if(_selectedSubreddit != null)
             {
-				subreddit = _selectedSubreddit.Data.Url + _sortOrder;
+                subreddit = (_selectedSubreddit.Data.Url + _sortOrder).Replace("//", "/");
                 subredditId = _selectedSubreddit.Data.Name;
             }
 

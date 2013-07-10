@@ -55,11 +55,18 @@ namespace BaconographyPortable.Services.Impl
             //if we've offlined this thing, we need to pat ourselves on the back
             //because we got it right
 
-            if(targetThing.Data is Link)
+            if (targetThing != null && targetThing.Data is Link)
             {
                 var targetLink = targetThing.Data as Link;
-                await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
-                await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
+                try
+                {
+                    await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
+                    await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
+                }
+                catch
+                {
+                    //dont care what the error is, this isnt an acceptable place to fail or present the user with a failure
+                }
             }
         }
 
