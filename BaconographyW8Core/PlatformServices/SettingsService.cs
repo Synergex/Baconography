@@ -159,5 +159,7 @@ namespace BaconographyW8.PlatformServices
         }
 
         public bool AllowPredictiveOfflining { get; set; }
+        public bool AllowOver18Items { get; set; }
+        public bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
     }
 }
