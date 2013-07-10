@@ -661,5 +661,11 @@ namespace BaconographyPortable.Services.Impl
         {
             return _redditService.GetMessages(limit);
         }
+
+
+        public Task SubmitCaptcha(string captcha)
+        {
+            return _redditService.SubmitCaptcha(captcha);
+        }
     }
 }

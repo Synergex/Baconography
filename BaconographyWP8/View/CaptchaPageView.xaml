@@ -59,7 +59,7 @@
 
         <StackPanel Grid.Row="2" Orientation="Vertical"  Margin="0,12,0,0">
             <TextBox Text="{Binding CaptchaResponse, Mode=TwoWay}" />
-            <Button Content="send" />
+            <Button Content="send" Command="{Binding Send}" />
         </StackPanel>
     </Grid>
 </phone:PhoneApplicationPage>

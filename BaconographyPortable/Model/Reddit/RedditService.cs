@@ -544,7 +544,27 @@ namespace BaconographyPortable.Model.Reddit
             await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
+        public async Task SubmitCaptcha(string captcha)
+        {
+            Captcha = captcha;
+            List<PostData> data = PostQueue.ToList<PostData>();
+            PostQueue.Clear();
+            foreach (var post in data)
+            {
+                await this.SendPost(post.Cookie, post.UrlEncodedData, post.Uri, true);
+            }
+        }
+
+        private class PostData
+        {
+            public string Cookie { get; set; }
+            public Dictionary<string, string> UrlEncodedData { get; set; }
+            public string Uri { get; set; }
+        }
+        private List<PostData> PostQueue = new List<PostData>();
+
         private string CaptchaIden { get; set; }
+        private string Captcha { get; set; }
         private async Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri, bool queuedMessage = false)
         {
             if (!urlEncodedData.ContainsKey("api_type"))
@@ -552,10 +572,18 @@ namespace BaconographyPortable.Model.Reddit
 
             if (!String.IsNullOrEmpty(CaptchaIden))
             {
-                if (urlEncodedData.ContainsKey("captcha"))
-                    urlEncodedData["captcha"] = CaptchaIden;
+                if (urlEncodedData.ContainsKey("iden"))
+                    urlEncodedData["iden"] = CaptchaIden;
                 else
-                    urlEncodedData.Add("captcha", CaptchaIden);
+                    urlEncodedData.Add("iden", CaptchaIden);
+            }
+
+            if (!String.IsNullOrEmpty(Captcha))
+            {
+                if (urlEncodedData.ContainsKey("captcha"))
+                    urlEncodedData["captcha"] = Captcha;
+                else
+                    urlEncodedData.Add("captcha", Captcha);
             }
 
             string response = null;
@@ -585,6 +613,8 @@ namespace BaconographyPortable.Model.Reddit
                     // If a user has told us to bug off this session, do as they say
                     if (!_settingsService.PromptForCaptcha)
                         return response;
+
+                    PostQueue.Add(new PostData { Cookie = cookie, Uri = uri, UrlEncodedData = urlEncodedData });
 
                     CaptchaViewModel captchaVM = CaptchaViewModel.GetInstance(_baconProvider);
                     captchaVM.ShowCaptcha(CaptchaIden);

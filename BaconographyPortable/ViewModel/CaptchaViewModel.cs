@@ -36,6 +36,7 @@ namespace BaconographyPortable.ViewModel
             _settingsService = baconProvider.GetService<ISettingsService>();
             _redditService = baconProvider.GetService<IRedditService>();
             _locatorService = baconProvider.GetService<IDynamicViewLocator>();
+            _send = new RelayCommand(SendImpl);
         }
 
         public void ShowCaptcha(string iden)
@@ -79,6 +80,7 @@ namespace BaconographyPortable.ViewModel
         private RelayCommand _send;
         private async void SendImpl()
         {
+            await _redditService.SubmitCaptcha(CaptchaResponse);
             _navigationService.GoBack();
             //await _redditService.AddMessage(_recipient, _subject, _message);
         }
