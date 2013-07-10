@@ -657,7 +657,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var temp = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
         public virtual async Task AddComment(string parentId, string content)
@@ -671,7 +671,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
+            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
         }
 
         public virtual async Task EditComment(string thingId, string text)
@@ -685,7 +685,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
         }
 
         private async Task<bool> UserIsGold()
