@@ -425,7 +425,11 @@ namespace Baconography.NeutralServices
             {
                 try
                 {
-                    await _blobStoreDb.DeleteAsync(key);
+                    using (var badCursor = await _blobStoreDb.SeekAsync(BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock | DBReadFlags.AutoLock))
+                    {
+                        if (badCursor != null)
+                            await badCursor.DeleteAsync();
+                    }
                 }
                 catch
                 {

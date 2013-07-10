@@ -121,13 +121,14 @@ namespace Baconography.NeutralServices.KitaroDB
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(listing)));
                 var recordBytes = new byte[compressedBytes.Length + 20];
+                var keyBytes = new byte[12];
                 Array.Copy(compressedBytes, 0, recordBytes, 20, compressedBytes.Length);
                 //the 12 bytes not written here will be filled with the current time stamp by kdb
                 //these ids are stored in base 36 so we will never see unicode chars
                 for (int i = 0; i < 12 && i < key.Length; i++)
-                    recordBytes[i] = (byte)key[i];
+                    keyBytes[i] = recordBytes[i] = (byte)key[i];
 
-                using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
+                using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
                 {
                     if (blobCursor != null)
                     {
