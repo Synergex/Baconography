@@ -3,6 +3,7 @@ using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8Core;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
 using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
@@ -33,18 +34,64 @@ namespace BaconographyWP8.View
 
 		protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
 		{
-
+            UpdateMenuItems();
 		}
 
-		private void SendButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-		{
-			var vm = this.DataContext as ReplyViewModel;
-			if (vm != null)
-			{
-				vm.Submit.Execute(null);
-                _navigationService.GoBack();
-			}
-		}
+        private void Send_Click(object sender, EventArgs e)
+        {
+            var vm = this.DataContext as CaptchaViewModel;
+            if (vm != null)
+                vm.Send.Execute(null);
+        }
+
+        private void Cancel_Click(object sender, EventArgs e)
+        {
+            // TODO: ARE YOU SURE?!?!?!
+            _navigationService.GoBack();
+        }
+
+        private List<ApplicationBarIconButton> _appBarButtons;
+        private void BuildAppBar()
+        {
+            _appBarButtons = new List<ApplicationBarIconButton>();
+
+            _appBarButtons.Add(new ApplicationBarIconButton());
+            _appBarButtons[0].IconUri = new Uri("\\Assets\\Icons\\send.png", UriKind.Relative);
+            _appBarButtons[0].Text = "send";
+            _appBarButtons[0].IsEnabled = false;
+            _appBarButtons[0].Click += Send_Click;
+
+            _appBarButtons.Add(new ApplicationBarIconButton());
+            _appBarButtons[1].IconUri = new Uri("\\Assets\\Icons\\cancel.png", UriKind.Relative);
+            _appBarButtons[1].Text = "cancel";
+            _appBarButtons[1].IsEnabled = true;
+            _appBarButtons[1].Click += Cancel_Click;
+
+            ApplicationBar.Buttons.Clear();
+            foreach (var button in _appBarButtons)
+                ApplicationBar.Buttons.Add(button as IApplicationBarIconButton);
+        }
+
+        private void UpdateMenuItems()
+        {
+            if (_appBarButtons == null || ApplicationBar.Buttons.Count == 0)
+                BuildAppBar();
+
+            var vm = this.DataContext as CaptchaViewModel;
+            if (vm != null)
+                _appBarButtons[0].IsEnabled = vm.CanSend;
+        }
+
+        private void TextBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            BindingExpression bindingExpression = ((TextBox)sender).GetBindingExpression(TextBox.TextProperty);
+            if (bindingExpression != null)
+            {
+                bindingExpression.UpdateSource();
+            }
+
+            UpdateMenuItems();
+        }
 
     }
 }

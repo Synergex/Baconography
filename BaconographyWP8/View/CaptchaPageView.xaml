@@ -42,24 +42,36 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.5*" />
+            <RowDefinition Height="150" />
             <RowDefinition Height="1*" />
-            <RowDefinition Height="0.5*" />
+            <RowDefinition Height="150" />
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0" Orientation="Vertical" Margin="12,20,12,12">
             <TextBlock FontWeight="SemiBold" Text="BACONOGRAPHY > CAPTCHA"/>
-            <TextBlock Margin="0,12,0,12" Text="Reddit would like you to verify a CAPTCHA to complete your request" TextWrapping="Wrap" />
+            <TextBlock Margin="0,12,0,12" Text="Before we can send your message, Reddit wants to verify that you are a real person. Fill the letters below into the provided textbox."
+                       TextWrapping="Wrap" />
         </StackPanel>
 
         <local:ScalingPictureView
-            Grid.Row="1" Margin="12,0,12,0"
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            Margin="12,0,12,0"
             ImageSource="{Binding ImageSource, Mode=TwoWay}"
             MinWidth="200"/>
 
-        <StackPanel Grid.Row="2" Orientation="Vertical"  Margin="0,12,0,0">
-            <TextBox Text="{Binding CaptchaResponse, Mode=TwoWay}" />
-            <Button Content="send" Command="{Binding Send}" />
-        </StackPanel>
+        <Grid Grid.Row="2" VerticalAlignment="Bottom">
+            <TextBox Text="{Binding CaptchaResponse, Mode=TwoWay}"
+                     KeyUp="TextBox_KeyUp"/>
+        </Grid>
     </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar x:Name="appBar" Mode="Default" IsVisible="True"
+                              IsMenuEnabled="True">
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

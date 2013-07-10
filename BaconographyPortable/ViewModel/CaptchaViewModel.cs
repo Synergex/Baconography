@@ -42,6 +42,7 @@ namespace BaconographyPortable.ViewModel
         public void ShowCaptcha(string iden)
         {
             _captchaIdentifier = iden;
+            CaptchaResponse = "";
             ImageSource = "http://www.reddit.com/captcha/" + iden;
             _navigationService.Navigate(_locatorService.CaptchaView, this);
         }
@@ -73,6 +74,15 @@ namespace BaconographyPortable.ViewModel
             {
                 _captchaResponse = value;
                 RaisePropertyChanged("CaptchaResponse");
+                RaisePropertyChanged("CanSend");
+            }
+        }
+
+        public bool CanSend
+        {
+            get
+            {
+                return _captchaResponse.Length >= 6;
             }
         }
 
@@ -82,7 +92,6 @@ namespace BaconographyPortable.ViewModel
         {
             await _redditService.SubmitCaptcha(CaptchaResponse);
             _navigationService.GoBack();
-            //await _redditService.AddMessage(_recipient, _subject, _message);
         }
     }
 }
