@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
 {
-    public class LinkViewModel : ViewModelBase
+    public class LinkViewModel : ViewModelBase, IMergableThing
     {
         TypedThing<Link> _linkThing;
         IRedditService _redditService;
@@ -313,6 +313,20 @@ namespace BaconographyPortable.ViewModel
                 await offlineService.IncrementDomainStatistic(vm._linkThing.Data.Domain, isLink);
                 await offlineService.IncrementSubredditStatistic(vm._linkThing.Data.SubredditId, isLink);
             }
+        }
+
+        public bool MaybeMerge(ViewModelBase thing)
+        {
+            if (thing is LinkViewModel && ((LinkViewModel)thing).Id == Id)
+            {
+                _linkThing = ((LinkViewModel)thing).LinkThing;
+                Votable.MergeVotable(_linkThing);
+                RaisePropertyChanged("CommentCount");
+                RaisePropertyChanged("CreatedUTC");
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

@@ -23,6 +23,15 @@ namespace BaconographyPortable.ViewModel
             _propertyChanged = propertyChanged;
         }
 
+        public void MergeVotable(Thing votableThing)
+        {
+            _votableThing = new TypedThing<IVotable>(votableThing);
+            RaisePropertyChanged("Like");
+            RaisePropertyChanged("Dislike");
+            RaisePropertyChanged("TotalVotes");
+            RaisePropertyChanged("LikeStatus");
+        }
+
         public RelayCommand<VotableViewModel> ToggleUpvote { get { return _toggleUpvote; } }
         public RelayCommand<VotableViewModel> ToggleDownvote { get { return _toggleDownvote; } }
 
