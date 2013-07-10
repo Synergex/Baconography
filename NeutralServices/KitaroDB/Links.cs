@@ -18,19 +18,23 @@ namespace Baconography.NeutralServices.KitaroDB
 		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\links_v3.ism";
 
         private static Task<Links> _instanceTask;
+        private static async Task<DB> CreateDB()
+        {
+            return await DB.CreateAsync(linksDatabase, DBCreateFlags.None, 0, new DBKey[]
+                {
+                    new DBKey(20, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
+                    new DBKey(8, 8, DBKeyFlags.Alpha, "directid", true, false, false, 1),
+                    new DBKey(4, 16, DBKeyFlags.Alpha, "urlhash", true, false, false, 2),
+                    new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 3),
+                    new DBKey(8, 28, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 4),
+                
+                });
+        }
         private static async Task<Links> GetInstanceImpl()
         {
             try
             {
-                var db = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, 0, new DBKey[]
-            {
-                new DBKey(20, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
-                new DBKey(8, 8, DBKeyFlags.Alpha, "directid", false, false, false, 1),
-                new DBKey(4, 16, DBKeyFlags.Alpha, "urlhash", false, false, false, 2),
-                new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 3),
-                new DBKey(8, 28, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 4),
-                
-            });
+                var db = await CreateDB();
                 return new Links(db);
             }
             catch (Exception ex)
@@ -79,26 +83,19 @@ namespace Baconography.NeutralServices.KitaroDB
                 hashBytes.CopyTo(keySpace, 16);
                 encodedValue.CopyTo(combinedSpace, LinkKeySpaceSize);
 
-                var commentsCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), keySpace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-                if (commentsCursor != null)
+                using (var commentsCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), keySpace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
-                    using (commentsCursor)
-                    {
+                    if (commentsCursor != null)
                         await commentsCursor.UpdateAsync(combinedSpace);
-                    }
+
+                    else
+                        await _linksDB.InsertAsync(combinedSpace);
                 }
-                else
-                    await _linksDB.InsertAsync(combinedSpace);
             }
             catch (Exception ex)
             {
-                //dont throw for duplicates
-                if (-1610612721 != ex.HResult)
-                {
-                    var errorCode = DBError.TranslateError((uint)ex.HResult);
-                    Debug.WriteLine(errorCode);
-                    throw;
-                }
+                var errorCode = DBError.TranslateError((uint)ex.HResult);
+                Debug.WriteLine(errorCode);
             }
         }
 
@@ -108,14 +105,7 @@ namespace Baconography.NeutralServices.KitaroDB
             _linksDB = null;
 			await DB.PurgeAsync(linksDatabase);
 
-			_linksDB = await DB.CreateAsync(linksDatabase, DBCreateFlags.None, 0, new DBKey[]
-            {
-                new DBKey(20, 0, DBKeyFlags.Alpha, "main", false, false, false, 0),
-                new DBKey(8, 8, DBKeyFlags.Alpha, "directid", false, false, false, 1),
-                new DBKey(4, 16, DBKeyFlags.Alpha, "urlhash", false, false, false, 2),
-                new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 3),
-                new DBKey(8, 28, DBKeyFlags.AutoSequence, "insertion_order", false, false, false, 4),
-            });
+            _linksDB = await CreateDB();
         }
 
         public async Task StoreLinks(Listing listing)
@@ -170,32 +160,43 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task<Listing> LinksForSubreddit(Subreddits subreddits, string subredditName, string after)
         {
-            var subredditId = await TranslateSubredditNameToId(subreddits, subredditName);
-            if (subredditId == null)
-                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
-            
-            var keyspace = new byte[8];
-
-            for (int i = 0; i < 8 && i < subredditId.Length; i++)
-                keyspace[i] = (byte)subredditId[i];
-
-            var linkCursor = await _linksDB.SelectAsync(_linksDB.GetKeys().First(), keyspace);
-
-            if(after != null && linkCursor != null)
+            try
             {
-                var afterKeyspace = new byte[16];
+                var subredditId = await TranslateSubredditNameToId(subreddits, subredditName);
+                if (subredditId == null)
+                    return new Listing { Data = new ListingData { Children = new List<Thing>() } };
 
-                for (int i = 0; i < 16 && i < after.Length + 10; i++)
-                    afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
+                var keyspace = new byte[8];
 
-                await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
+                for (int i = 0; i < 8 && i < subredditId.Length; i++)
+                    keyspace[i] = (byte)subredditId[i];
+
+                var linkCursor = await _linksDB.SelectAsync(_linksDB.GetKeys().First(), keyspace);
+
+                if (after != null && linkCursor != null)
+                {
+                    var afterKeyspace = new byte[16];
+
+                    for (int i = 0; i < 16 && i < after.Length + 10; i++)
+                        afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
+
+                    await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
+                }
+
+                return await DeserializeCursor(linkCursor, 25);
             }
-
-            return await DeserializeCursor(linkCursor, 25);
+            catch (Exception ex)
+            {
+                var errorCode = DBError.TranslateError((uint)ex.HResult);
+                Debug.WriteLine(errorCode);
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+            }
         }
 
         public async Task<Listing> AllLinks(string after)
         {
+            try
+            {
             DBCursor linkCursor;
 
             if (after != null && after.Length > 0)
@@ -213,49 +214,64 @@ namespace Baconography.NeutralServices.KitaroDB
             }
 
             return await DeserializeCursor(linkCursor, 25);
+            }
+            catch (Exception ex)
+            {
+                var errorCode = DBError.TranslateError((uint)ex.HResult);
+                Debug.WriteLine(errorCode);
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+            }
         }
 
         public async Task<TypedThing<Link>> GetLink(string url, string id, TimeSpan maxAge)
         {
-            
-            DBCursor linkCursor = null;
-
-            if (!string.IsNullOrWhiteSpace(url))
+            try
             {
-                var urlKeyspace = BitConverter.GetBytes(url.GetHashCode());
-                linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys()[2], urlKeyspace, DBReadFlags.NoLock);
-            }
-            else if (!string.IsNullOrWhiteSpace(id))
-            {
-                var idKeyspace = new byte[16];
+                DBCursor linkCursor = null;
 
-                for (int i = 0; i < 8 && i < id.Length; i++)
-                    idKeyspace[i] = (byte)id[i];
-
-                linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys()[1], idKeyspace, DBReadFlags.NoLock);
-            }
-
-            if (linkCursor != null)
-            {
-                var gottenBlob = linkCursor.Get();
-                var microseconds = BitConverter.ToInt64(gottenBlob, 20);
-                var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
-                var blobAge = DateTime.Now - updatedTime;
-                if (blobAge < maxAge)
+                if (!string.IsNullOrWhiteSpace(url))
                 {
+                    var urlKeyspace = BitConverter.GetBytes(url.GetHashCode());
+                    linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys()[2], urlKeyspace, DBReadFlags.NoLock);
+                }
+                else if (!string.IsNullOrWhiteSpace(id))
+                {
+                    var idKeyspace = new byte[16];
 
-                    var listing = await DeserializeCursor(linkCursor, 1);
-                    var thing = listing.Data.Children.FirstOrDefault();
-                    if (thing != null && thing.Data is Link)
-                        return new TypedThing<Link>(thing);
+                    for (int i = 0; i < 8 && i < id.Length; i++)
+                        idKeyspace[i] = (byte)id[i];
+
+                    linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys()[1], idKeyspace, DBReadFlags.NoLock);
+                }
+
+                if (linkCursor != null)
+                {
+                    var gottenBlob = linkCursor.Get();
+                    var microseconds = BitConverter.ToInt64(gottenBlob, 20);
+                    var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
+                    var blobAge = DateTime.Now - updatedTime;
+                    if (blobAge < maxAge)
+                    {
+
+                        var listing = await DeserializeCursor(linkCursor, 1);
+                        var thing = listing.Data.Children.FirstOrDefault();
+                        if (thing != null && thing.Data is Link)
+                            return new TypedThing<Link>(thing);
+                        else
+                            return null;
+                    }
                     else
                         return null;
                 }
                 else
                     return null;
             }
-            else
-                return null;
+            catch (Exception ex)
+            {
+                var errorCode = DBError.TranslateError((uint)ex.HResult);
+                Debug.WriteLine(errorCode);
+                throw;
+            }
         }
     }
 }

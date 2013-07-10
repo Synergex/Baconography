@@ -302,7 +302,8 @@ namespace BaconographyPortable.Services.Impl
             }
             var cachedLink = await _offlineService.RetrieveLinkByUrl(permalink, TimeSpan.FromDays(1));
             Thing linkThing = null;
-            if (cachedLink != null && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
+            //make sure there are some comments otherwise its more expensive to make two calls then just the one
+            if (cachedLink != null && cachedLink.TypedData.CommentCount > 15 && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
             {
                 //compare to see if there was any significant change
                 var typedLink = new TypedThing<Link>(linkThing);
