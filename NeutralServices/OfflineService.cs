@@ -19,6 +19,12 @@ namespace Baconography.NeutralServices
 {
     class OfflineService : IOfflineService
     {
+        private string _historyFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism";
+        private string _actionsFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\actions_v2.ism";
+        private string _blobsFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v3.ism";
+        private string _imageApiFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism";
+        private string _imageFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism";
+
         public OfflineService(IRedditService redditService, INotificationService notificationService, ISettingsService settingsService)
         {
             _redditService = redditService;
@@ -111,6 +117,17 @@ namespace Baconography.NeutralServices
             return _instanceTask;
         }
 
+        public Task ReInitialize()
+        {
+            _instanceTask = null;
+            lock (this)
+            {
+                if(_instanceTask == null)
+                    _instanceTask = InitializeImpl();
+            }
+            return _instanceTask;
+        }
+
         Comments _comments;
         Links _links;
         Subreddits _subreddits;
@@ -129,6 +146,17 @@ namespace Baconography.NeutralServices
             await Initialize();
             await _comments.Clear();
             await _links.Clear();
+            await PurgeDB(_historyDb, _historyFileName);
+            await PurgeDB(_actionsDb, _actionsFileName);
+            await PurgeDB(_blobStoreDb, _blobsFileName);
+            await PurgeDB(_imageAPIDb, _imageApiFileName);
+            await PurgeDB(_imageDb, _imageFileName);
+            await ReInitialize();
+        }
+        private async Task PurgeDB(DB db, string filename)
+        {
+            db.Dispose();
+            await DB.PurgeAsync(filename);
         }
 
         public async Task IncrementDomainStatistic(string domain, bool isLink)
@@ -430,12 +458,15 @@ namespace Baconography.NeutralServices
                 if (cursor != null)
                 {
                     cursor.Dispose();
-                    var result = await _settingsDb.UpdateAsync(name, value);
+                    if(!string.IsNullOrEmpty(value))
+                        await _settingsDb.UpdateAsync(name, value);
+                    else
+                        await _settingsDb.DeleteAsync(name);
                 }
                 else
                 {
-
-                    var result = await _settingsDb.InsertAsync(name, value);
+                    if(!string.IsNullOrEmpty(value))
+                        await _settingsDb.InsertAsync(name, value);
                 }
             }
             catch (Exception ex)

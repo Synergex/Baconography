@@ -1,5 +1,6 @@
 ﻿using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,6 +96,17 @@ namespace BaconographyPortable.ViewModel
             {
                 _settingsService.MaxTopLevelOfflineComments = value;
                 RaisePropertyChanged("MaxTopLevelOfflineComments");
+            }
+        }
+
+        public RelayCommand ClearOffline
+        {
+            get
+            {
+                return new RelayCommand(async () =>
+                    {
+                        await _baconProvider.GetService<IOfflineService>().Clear();
+                    });
             }
         }
     }

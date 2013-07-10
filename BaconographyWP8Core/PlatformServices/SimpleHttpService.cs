@@ -92,9 +92,8 @@ namespace BaconographyWP8.PlatformServices
                 throw new Exception(postResult.StatusCode.ToString());
         }
 
-        public async Task<string> SendGet(string cookie, string uri)
+        private async Task<string> SendGet(string cookie, string uri, bool hasRetried)
         {
-            
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
@@ -121,8 +120,25 @@ namespace BaconographyWP8.PlatformServices
                     }
                 });
             }
+            else if (!hasRetried)
+            {
+                int networkDownRetries = 0;
+                while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
+                {
+                    networkDownRetries++;
+                    await Task.Delay(1000);
+                }
+                   
+                return await SendGet(cookie, uri, true);
+            }
             else
+            {
                 throw new Exception(getResult.StatusCode.ToString());
+            }
+        }
+        public Task<string> SendGet(string cookie, string uri)
+        {
+            return SendGet(cookie, uri, false); 
         }
 
         public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
@@ -173,7 +189,7 @@ namespace BaconographyWP8.PlatformServices
 				throw new Exception(postResult.StatusCode.ToString());
         }
 
-        public async Task<string> UnAuthedGet(string uri)
+        private async Task<string> UnAuthedGet(string uri, bool hasRetried)
         {
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
@@ -194,8 +210,23 @@ namespace BaconographyWP8.PlatformServices
                     }
                 });
             }
+            else if (!hasRetried)
+            {
+                int networkDownRetries = 0;
+                while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
+                {
+                    networkDownRetries++;
+                    await Task.Delay(1000);
+                }
+
+                return await UnAuthedGet(uri, true);
+            }
             else
                 throw new Exception(getResult.StatusCode.ToString());
+        }
+        public Task<string> UnAuthedGet(string uri)
+        {
+            return UnAuthedGet(uri, false);
         }
 
         static DateTime _priorRequestSet = new DateTime();

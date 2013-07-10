@@ -584,9 +584,7 @@ namespace BaconographyPortable.Services.Impl
         {
             try
             {
-                User user = null;
-                if (_settingsService.IsOnline()) user = await _userService.GetUser();
-                if (_settingsService.IsOnline() && user.Username != null && user.NeedsCaptcha == false)
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                 {
                     var actionTpl = await _offlineService.DequeueAction();
                     if (actionTpl != null)

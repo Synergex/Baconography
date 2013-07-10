@@ -107,18 +107,19 @@ namespace BaconographyPortable.Services.Impl
                 if (token.IsCancellationRequested)
                     return;
 
-                string targetAPIToOffline;
+                string targetAPIToOffline = null;
                 do
                 {
-                    targetAPIToOffline = null;
                     lock (_waitingOfflineAPI)
                     {
-                        if (_waitingOfflineAPI.Count == 0)
+                        if (_waitingOfflineAPI.Count == 0 && targetAPIToOffline == null)
                             foreach (var item in _smartOfflineService.OfflineableImageAPIsFromContext.Reverse())
                                 _waitingOfflineAPI.Push(item);
 
                         if (_waitingOfflineAPI.Count > 0)
                             targetAPIToOffline = _waitingOfflineAPI.Pop();
+                        else
+                            targetAPIToOffline = null;
                     }
 
                     if (targetAPIToOffline != null)

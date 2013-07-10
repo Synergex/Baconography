@@ -39,7 +39,7 @@
     </toolkit:TransitionService.NavigationOutTransition>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <Grid x:Name="LayoutRoot" Background="Transparent" >
         <!--Pivot Control-->
         <phone:Pivot Title="BACONOGRAPHY > SETTINGS"
                      x:Name="pivot" DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
@@ -59,6 +59,7 @@
                                 IsChecked="{Binding OrientationLock, Mode=TwoWay}"
                                 Checked="OrientationLock_Checked"
                                 Unchecked="OrientationLock_Unchecked"/>
+                            <Button Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
                             <!--
                             <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
                             <CheckBox Margin="5,0,5,0" Content="fast download"

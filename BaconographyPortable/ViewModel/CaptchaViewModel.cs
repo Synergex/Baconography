@@ -29,7 +29,7 @@ namespace BaconographyPortable.ViewModel
 		protected ISettingsService _settingsService;
         protected IRedditService _redditService;
         protected IDynamicViewLocator _locatorService;
-        private CaptchaViewModel(IBaconProvider baconProvider)
+        public CaptchaViewModel(IBaconProvider baconProvider)
         {
             _baconProvider = baconProvider;
             _navigationService = baconProvider.GetService<INavigationService>();
