@@ -51,5 +51,20 @@ namespace BaconographyPortable.Model.Compression
             }
             return LZ4n.LZ4Codec.Decode32(bytes, 4, bytes.Length - 4, decompressedSize);
         }
+
+        public unsafe byte[] Decompress(byte[] bytes, int startIndex)
+        {
+            if (bytes == null || bytes.Length < 4)
+                return new byte[0];
+
+            int decompressedSize = 0;
+            fixed (byte* bytesPtr = bytes)
+            {
+                decompressedSize = *((int*)((byte*)bytesPtr + startIndex));
+            }
+
+            var skipLen = 4 + startIndex;
+            return LZ4n.LZ4Codec.Decode32(bytes, skipLen, bytes.Length - skipLen, decompressedSize);
+        }
     }
 }

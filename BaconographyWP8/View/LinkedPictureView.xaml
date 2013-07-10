@@ -11,6 +11,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     mc:Ignorable="d"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}">
     
     <phone:PhoneApplicationPage.Resources>
@@ -52,7 +55,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <local:LoadIndicatorView Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="0"/>
 
             <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" FontSize="24" Foreground="{StaticResource PhoneForegroundBrush}" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"/>
             <RichTextBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" TextWrapping="NoWrap">

@@ -13,6 +13,9 @@ using BaconographyWP8Core;
 using BaconographyWP8.Converters;
 using BaconographyWP8.Common;
 using System.Windows.Controls.Primitives;
+using BaconographyPortable.Services;
+using Microsoft.Practices.ServiceLocation;
+using GalaSoft.MvvmLight;
 
 namespace BaconographyWP8.View
 {
@@ -22,9 +25,15 @@ namespace BaconographyWP8.View
 		int _offsetKnob = 7;
 		object lastItem;
 
+        IViewModelContextService _viewModelContextService;
+        ISmartOfflineService _smartOfflineService;
 		public RedditView()
 		{
 			this.InitializeComponent();
+            _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+            _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
+
+            _smartOfflineService.NavigatedToView(typeof(RedditView), true);
 		}
 
 		void linksView_ItemRealized(object sender, ItemRealizationEventArgs e)
@@ -87,6 +96,8 @@ namespace BaconographyWP8.View
                     ((RedditViewModel)DataContext).TopVisibleLink = GetFirstVisibleItem(this.linksView);
                     linksView.ScrollTo(((RedditViewModel)DataContext).TopVisibleLink);
                     linksView.UpdateLayout();
+
+                    _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
                 }
                 catch
                 {
@@ -104,6 +115,7 @@ namespace BaconographyWP8.View
                     if (FindViewport(linksView) != null)
                         linksView.ScrollTo(((RedditViewModel)DataContext).TopVisibleLink);
 
+                    _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
                 }
             }
             catch

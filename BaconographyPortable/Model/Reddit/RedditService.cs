@@ -239,7 +239,7 @@ namespace BaconographyPortable.Model.Reddit
             {
                 var links = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
 				var newListing = JsonConvert.DeserializeObject<Listing>(links);
-                return MaybeQueueEarlyLoad(MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing)));
+                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
             }
             catch (Exception ex)
             {
@@ -281,7 +281,7 @@ namespace BaconographyPortable.Model.Reddit
                     Data = new ListingData { Children = JsonConvert.DeserializeObject<JsonThing>(result).Json.Data.Things }
                 };
 
-                return MaybeQueueEarlyLoad(MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing)));
+                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
             }
             catch (Exception ex)
             {
@@ -698,16 +698,6 @@ namespace BaconographyPortable.Model.Reddit
                 return FilterForNSFW(source);
         }
 
-        private Listing MaybeQueueEarlyLoad(Listing source)
-        {
-            //if (_settingsService.AllowPredictiveOfflining)
-            {
-                QueueEarlyLoad(source);
-            }
-
-            return source;
-        }
-
 		private Listing MaybeInjectAdvertisements(Listing source)
 		{
 			return source;
@@ -720,49 +710,6 @@ namespace BaconographyPortable.Model.Reddit
 			}
 			return source;
 		}
-
-        private Link MyFred(Thing thing)
-        {
-            return thing.Data as Link;
-        }
-
-        const int TopSubsetMaximum = 10;
-        private async void QueueEarlyLoad(Listing source)
-        {
-            if (source.Data.Children.First().Data is Link)
-            {
-                Dictionary<string, uint> domainHashes = new Dictionary<string, uint>();            
-                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
-                var links = source.Data.Children.Select(MyFred).Where(p => p != null);
-
-                var domainAggs = await offlineService.GetDomainAggregates(TopSubsetMaximum, 25);
-                var subredditAggs = await offlineService.GetSubredditAggregates(TopSubsetMaximum, 25);
-
-                var linkTotal = subredditAggs.Sum(p => p.LinkClicks);
-                var commentTotal = subredditAggs.Sum(p => p.CommentClicks);
-                var hashes = domainAggs.Select(p => p.DomainHash);
-                var subs = subredditAggs.Select(p => p.SubredditId);
-
-                foreach (var domain in links.Select(p => p.Domain).Distinct())
-                {
-                    uint hash = offlineService.GetHash(domain);
-                    if (hashes.Contains(hash))
-                        domainHashes.Add(domain, hash);
-                }
-                hashes = null;
-
-                links = links.Where(p => domainHashes.ContainsKey(p.Domain) || subs.Contains(p.SubredditId));
-
-                // TODO: Add a throttling mechanism for the background loads
-                // TODO: Load link and image data
-                /*
-                foreach (var link in links)
-                {
-                    await offlineService.StoreLink(new TypedThing<Link>("t3", link));
-                    await offlineService.StoreComments(await this.GetCommentsOnPost(link.SubredditId, link.Permalink, 100));
-                }*/
-            }
-        }
 
         private Listing FilterForNSFW(Listing source)
         {

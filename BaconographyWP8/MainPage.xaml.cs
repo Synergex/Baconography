@@ -23,6 +23,7 @@ using System.Windows.Controls.Primitives;
 using Microsoft.Phone.Reactive;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using GalaSoft.MvvmLight;
 
 namespace BaconographyWP8
 {
@@ -32,6 +33,8 @@ namespace BaconographyWP8
 
         // Constructor
 		ISettingsService _settingsService;
+        IViewModelContextService _viewModelContextService;
+        ISmartOfflineService _smartOfflineService;
         public MainPage()
         {
             InitializeComponent();
@@ -41,6 +44,8 @@ namespace BaconographyWP8
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
 			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
 			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+            _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
@@ -61,6 +66,12 @@ namespace BaconographyWP8
 
 		PageOrientation lastKnownOrientation;
 
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            _viewModelContextService.PopViewModelContext();
+            base.OnNavigatingFrom(e);
+        }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
@@ -103,6 +114,9 @@ namespace BaconographyWP8
                     }
                 }
             }
+
+            _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
+            _smartOfflineService.NavigatedToView(typeof(MainPage), (e.NavigationMode == NavigationMode.New));
 		}
 
 		protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)

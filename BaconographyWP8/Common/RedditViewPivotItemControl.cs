@@ -1,8 +1,10 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using BaconographyWP8.View;
 using BaconographyWP8.ViewModel;
 using GalaSoft.MvvmLight;
 using Microsoft.Phone.Controls;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,8 +22,23 @@ namespace BaconographyWP8.Common
 {
     public class RedditViewPivotControl : Pivot
     {
+        IViewModelContextService _viewModelContextService;
         public RedditViewPivotControl()
         {
+            ServiceLocator.Current.GetInstance<IOOMService>().OutOfMemory += RedditViewPivotControl_OutOfMemory;
+            _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+        }
+
+        void RedditViewPivotControl_OutOfMemory(OutOfMemoryEventArgs obj)
+        {
+            //if we're out of memory scavange what is cached in the pivot
+            foreach (var item in this.Items)
+            {
+                if (item is PivotItem && ((PivotItem)item).Content is Image)
+                {
+                    ((PivotItem)item).Content = null;
+                }
+            }
         }
 
         RedditView MapViewModel(ViewModelBase viewModel)
@@ -43,6 +60,8 @@ namespace BaconographyWP8.Common
             var loadIdAtStart = ++inflightLoadId;
             inflightLoad = item;
             base.OnLoadingPivotItem(item);
+
+            _viewModelContextService.PushViewModelContext(item.DataContext as ViewModelBase);
 
             if (item.Content is RedditView)
             {
@@ -83,6 +102,10 @@ namespace BaconographyWP8.Common
         {
             if (e.Item == null)
                 return;
+
+            if(e.Item.DataContext is ViewModelBase)
+                _viewModelContextService.PopViewModelContext(e.Item.DataContext as ViewModelBase);
+
             //if we didnt finish loading we dont need to make a new writable bitmap
             if (!(e.Item.Content is Image) && e.Item.Content is UIElement)
             {

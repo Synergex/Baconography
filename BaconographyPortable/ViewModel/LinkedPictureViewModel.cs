@@ -24,6 +24,7 @@ namespace BaconographyPortable.ViewModel
 					RaisePropertyChanged("ImageSource");
 				}
 			}
+            public string Url { get; set; }
             public string Title { get; set; }
             public bool IsAlbum { get; set; }
             public int PositionInAlbum { get; set; }

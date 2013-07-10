@@ -26,6 +26,9 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         HashSet<string> HashifyListing(IEnumerable<Thing> listing)
         {
+            if (listing == null)
+                return null;
+
             var hashifyListing = new Func<Thing, string>((thing) =>
             {
                 if (thing.Data is Subreddit)
@@ -51,8 +54,12 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         private async Task<Listing> GetCachedListing(Dictionary<object, object> state)
         {
-            state["SubscribedSubreddits"] = HashifyListing(await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username));
-            var things = await _offlineService.RetrieveOrderedThings("reddits:");
+            var orderedThings = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1024));
+            if (orderedThings == null)
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+
+            state["SubscribedSubreddits"] = HashifyListing(orderedThings);
+            var things = await _offlineService.RetrieveOrderedThings("reddits:", TimeSpan.FromDays(1024));
 			if (things.Count() == 0)
 				things = new List<Thing>() { GetFrontPageThing() };
             return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };

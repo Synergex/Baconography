@@ -12,6 +12,7 @@ using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Messages;
 using Microsoft.Phone.Controls;
 using BaconographyWP8.Messages;
+using Microsoft.Phone.Shell;
 
 namespace BaconographyWP8.Common
 {
@@ -30,7 +31,20 @@ namespace BaconographyWP8.Common
 
 			Messenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			Messenger.Default.Register<OrientationChangedMessage>(this, OnOrientationChanged);
+            Messenger.Default.Register<LoadingMessage>(this, OnLoading);
 		}
+
+        private void OnLoading(LoadingMessage obj)
+        {
+            try
+            {
+                ProgressActive.IsVisible = obj.Loading;
+            }
+            catch (Exception)
+            {
+                _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => ProgressActive.IsVisible = obj.Loading, TimeSpan.FromMilliseconds(0), true);
+            }
+        }
 
 		private PageOrientation StringToOrientation(string orientation)
 		{
@@ -149,5 +163,12 @@ namespace BaconographyWP8.Common
 				RaisePropertyChanged("SystemTrayVisible");
 			}
 		}
+
+        ProgressIndicator _progressActive = new ProgressIndicator { IsIndeterminate = true, IsVisible = false };
+        public ProgressIndicator ProgressActive
+        {
+            get { return _progressActive; }
+            set { _progressActive = value; }
+        }
 	}
 }

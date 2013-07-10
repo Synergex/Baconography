@@ -36,10 +36,7 @@ namespace BaconographyPortable.ViewModel.Collections
             if (_settingsService.IsOnline())
             {
                 // TODO: Inject link object from Kitaro if it exists
-                _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.MergedListingProvider<Comment>(
-                    new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName),
-                    new List<IListingProvider> { new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName) },
-                    p => p.Id);
+                _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
             }
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);

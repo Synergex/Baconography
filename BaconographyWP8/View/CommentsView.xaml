@@ -16,10 +16,13 @@
     d:DesignHeight="480" d:DesignWidth="480"
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
-    shell:SystemTray.Opacity="{StaticResource PhoneDarkThemeOpacity}"
-    shell:SystemTray.BackgroundColor="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
     DataContext="{Binding Comments, Source={StaticResource Locator}}"
     x:Name="controlRoot">
+    <UserControl.Background>
+        <SolidColorBrush Color="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}" Opacity="{StaticResource PhoneDarkThemeOpacity}" />
+    </UserControl.Background>
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
             <local:CommentView/>
@@ -118,11 +121,6 @@
     </toolkit:TransitionService.NavigationOutTransition>
     
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
-        <Grid.Background>
-            <SolidColorBrush Color="{Binding Source={StaticResource PhoneChromeBrush}, Path=Color}" Opacity="{StaticResource PhoneDarkThemeOpacity}" />
-        </Grid.Background>
-        <local:LoadIndicatorView VerticalAlignment="Top" />
-        
         <ListBox Margin="0,0,0,0" HorizontalAlignment="Stretch"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"

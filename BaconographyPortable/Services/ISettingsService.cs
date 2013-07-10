@@ -13,6 +13,7 @@ namespace BaconographyPortable.Services
         void SetOnline(bool fromUser);
 
         bool AllowOver18 {get; set;}
+        bool AllowOver18Items { get; set; }
         int MaxTopLevelOfflineComments { get; set; }
         bool OfflineOnlyGetsFirstSet { get; set; }
         bool OpenLinksInBrowser { get; set; }
@@ -22,6 +23,7 @@ namespace BaconographyPortable.Services
 		bool LeftHandedMode { get; set; }
 		bool OrientationLock { get; set; }
 		string Orientation { get; set; }
+        bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
         bool AllowPredictiveOfflining { get; set; }
         bool PromptForCaptcha { get; set; }
 

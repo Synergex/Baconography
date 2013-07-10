@@ -51,6 +51,8 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public TypedThing<Link> LinkThing { get { return _linkThing; } }
+
         private void OnLongNav(LongNavigationMessage msg)
         {
             if (msg.TargetUrl == Url)

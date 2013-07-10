@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Windows.Storage;
@@ -27,6 +28,39 @@ namespace BaconographyWP8.PlatformServices
         public async Task<object> SaveFileFromUriAsync(Uri fileUri, string localFileName, string localPath = "Images", bool replaceIfExists = true)
         {
             return await SaveFileFromUriAsync(fileUri, localFileName, localPath, replaceIfExists ? NameCollisionOption.ReplaceExisting : NameCollisionOption.FailIfExists); 
+        }
+
+        public Task<byte[]> ImageBytesFromUrl(string url)
+        {
+            return ImageBytesFromUrl(url, false);
+        }
+
+        public async Task<byte[]> ImageBytesFromUrl(string url, bool isRetry)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                using (WebResponse response = await SimpleHttpService.GetResponseAsync(request))
+                {
+                    using (Stream imageStream = response.GetResponseStream())
+                    {
+                        using (var result = new MemoryStream())
+                        {
+                            await imageStream.CopyToAsync(result);
+                            return result.ToArray();
+                        }
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                if (isRetry || !System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                    return null;
+            }
+
+            //delay a bit and try again
+            await Task.Delay(500);
+            return await ImageBytesFromUrl(url, true);
         }
 
         private static byte[] GenerateTransparentBitmap(uint width, uint height)
@@ -219,5 +253,64 @@ namespace BaconographyWP8.PlatformServices
             }
             return false;
         }
+
+
+        public bool IsImage(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+
+                string filename = Path.GetFileName(uri.LocalPath);
+
+                if (filename.EndsWith(".jpg") || url.EndsWith(".png") || url.EndsWith(".jpeg") || filename.EndsWith(".gif"))
+                    return true;
+            }
+            catch
+            {
+                //ignore failure here, we're going to return false anyway
+            }
+            return false;
+        }
+
+        public bool IsImageAPI(string url)
+        {
+            try
+            {
+                var uri = new Uri(url);
+
+                string filename = Path.GetFileName(uri.LocalPath);
+
+                if (filename.EndsWith(".jpg") || url.EndsWith(".png") || url.EndsWith(".jpeg") || filename.EndsWith(".gif"))
+                    return false;
+                else
+                {
+                    var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+
+                    switch (targetHost)
+                    {
+                        case "imgur.com":
+                            return Imgur.IsAPI(uri);
+                        case "min.us":
+                            return Minus.IsAPI(uri);
+                        case "flickr.com":
+                            return Flickr.IsAPI(uri);
+                        case "www.quickmeme.com":
+                        case "i.qkme.me":
+                        case "quickmeme.com":
+                        case "qkme.me":
+                        case "memecrunch.com":
+                            return false;
+                    }
+                }
+
+            }
+            catch
+            {
+                //ignore failure here, we're going to return false anyway
+            }
+            return false;
+        }
+
     }
 }

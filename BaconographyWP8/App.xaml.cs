@@ -28,6 +28,7 @@ namespace BaconographyWP8
 
 		private BaconProvider _baconProvider;
 		private NavigationServices navigator;
+        private IOOMService _oomService;
 
         /// <summary>
         /// Constructor for the Application object.
@@ -119,8 +120,7 @@ namespace BaconographyWP8
 		{
 			if (_baconProvider == null)
 			{
-				_baconProvider = new BaconProvider();
-				_baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
+				_baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
 
 				_baconProvider.Initialize(RootFrame);
 
@@ -130,6 +130,7 @@ namespace BaconographyWP8
 			{
 				_baconProvider.Initialize(RootFrame);
 			}
+            _oomService = _baconProvider.GetService<IOOMService>();
 		}
 
         // Code to execute when the application is launching (eg, from Start)
@@ -187,6 +188,12 @@ namespace BaconographyWP8
                 // An unhandled exception has occurred; break into the debugger
                 Debugger.Break();
             }
+
+            //ask things nicely to vacate as much memory as possible so we dont die
+            if (e.ExceptionObject is OutOfMemoryException && _oomService.TryToCleanup(true, true))
+            {
+                e.Handled = true;
+            }
         }
 
         #region Phone application initialization
@@ -195,8 +202,6 @@ namespace BaconographyWP8
         private bool phoneApplicationInitialized = false;
 
 
-        private object _backgroundColorResource;
-        private object _accentColorResource;
         // Do not add any additional code to this method
         private void InitializePhoneApplication()
         {

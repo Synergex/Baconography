@@ -243,7 +243,7 @@ namespace BaconographyPortable.ViewModel
 
 		public async Task LoadSubreddits()
 		{
-            var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits");
+            var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits", TimeSpan.FromDays(1024));
 
             //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
