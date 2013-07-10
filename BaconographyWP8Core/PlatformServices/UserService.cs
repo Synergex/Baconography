@@ -251,7 +251,7 @@ namespace BaconographyWP8.PlatformServices
             var originalCookie = credential.LoginCookie;
             if (!string.IsNullOrWhiteSpace(credential.LoginCookie))
             {
-                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
+                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie, NeedsCaptcha = false };
                 if (userInitiated)
                 {
                     loggedInUser.Me = await _redditService.GetMe(loggedInUser);

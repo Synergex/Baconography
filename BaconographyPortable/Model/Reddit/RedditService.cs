@@ -84,7 +84,7 @@ namespace BaconographyPortable.Model.Reddit
             else
             {
                 var loginCookie = loginResult.Item2["reddit_session"];
-                var user = new User { Authenticated = true, LoginCookie = loginCookie, Username = username };
+                var user = new User { Authenticated = true, LoginCookie = loginCookie, Username = username, NeedsCaptcha = false };
 
                 user.Me = await GetMe(user);
                 return user;
@@ -577,12 +577,15 @@ namespace BaconographyPortable.Model.Reddit
                 if (captcha != null)
                     CaptchaIden = captcha.Value<string>();
 
-                // If a user has told us to bug off this session, do as they say
-                if (!_settingsService.PromptForCaptcha)
-                    return response;
-
                 if (captcha != null && errors != null)
                 {
+                    var user = await _userService.GetUser();
+                    user.NeedsCaptcha = true;
+
+                    // If a user has told us to bug off this session, do as they say
+                    if (!_settingsService.PromptForCaptcha)
+                        return response;
+
                     CaptchaViewModel captchaVM = CaptchaViewModel.GetInstance(_baconProvider);
                     captchaVM.ShowCaptcha(CaptchaIden);
                 }

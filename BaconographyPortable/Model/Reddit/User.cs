@@ -14,5 +14,6 @@ namespace BaconographyPortable.Model.Reddit
         public string LoginCookie { get; set; }
         public bool Authenticated { get; set; }
         public Account Me { get; set; }
+        public bool NeedsCaptcha { get; set; }
     }
 }
