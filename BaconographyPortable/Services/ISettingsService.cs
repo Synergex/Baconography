@@ -23,6 +23,7 @@ namespace BaconographyPortable.Services
 		bool OrientationLock { get; set; }
 		string Orientation { get; set; }
         bool AllowPredictiveOfflining { get; set; }
+        bool PromptForCaptcha { get; set; }
 
         void ShowSettings();
         Task Persist();

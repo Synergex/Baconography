@@ -40,6 +40,7 @@ namespace BaconographyWP8.PlatformServices
 		public bool OrientationLock { get; set; }
 		public string Orientation { get; set; }
         public bool AllowPredictiveOfflining { get; set; }
+        public bool PromptForCaptcha { get; set; }
 
         public void ShowSettings()
         {
@@ -124,6 +125,8 @@ namespace BaconographyWP8.PlatformServices
                     AllowPredictiveOfflining = bool.Parse(predicitveOfflining);
                 else
                     AllowPredictiveOfflining = false;
+
+                PromptForCaptcha = true;
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }

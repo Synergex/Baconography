@@ -74,5 +74,10 @@ namespace BaconographyWP8.PlatformServices
         {
             get { return typeof(ComposeMessagePageView); }
         }
+
+        public Type CaptchaView
+        {
+            get { return typeof(CaptchaPageView); }
+        }
     }
 }

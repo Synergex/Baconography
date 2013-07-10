@@ -118,6 +118,9 @@
     <Compile Include="..\neutralservices\kitarodb\Thumbnails.cs">
       <Link>NeutralServices\KitaroDB\Thumbnails.cs</Link>
     </Compile>
+    <Compile Include="..\neutralservices\kitarodb\UsageStatistics.cs">
+      <Link>NeutralServices\KitaroDB\Thumbnails.cs</Link>
+    </Compile>
     <Compile Include="..\NeutralServices\OfflineDelayableRedditService.cs">
       <Link>NeutralServices\OfflineDelayableRedditService.cs</Link>
     </Compile>

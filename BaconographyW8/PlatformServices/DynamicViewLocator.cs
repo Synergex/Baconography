@@ -74,5 +74,10 @@ namespace BaconographyW8.PlatformServices
         {
             get { throw new NotImplementedException(); }
         }
+
+        public Type CaptchaView
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

@@ -172,6 +172,9 @@
     <Compile Include="View\ComposeMessagePageView.xaml.cs">
       <DependentUpon>ComposeMessagePageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\CaptchaPageView.xaml.cs">
+      <DependentUpon>CaptchaPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
     </Compile>
@@ -262,6 +265,10 @@
     <Page Include="View\ComposeMessagePageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CaptchaPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="View\MessagingPageView.xaml">
       <Generator>MSBuild:Compile</Generator>

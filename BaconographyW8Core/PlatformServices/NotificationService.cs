@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.UI.Notifications;
 
 namespace BaconographyW8.PlatformServices

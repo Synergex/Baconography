@@ -1,7 +1,9 @@
 ﻿using BaconographyPortable.Properties;
 using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,17 +19,19 @@ namespace BaconographyPortable.Model.Reddit
         protected ISimpleHttpService _simpleHttpService;
         protected IUserService _userService;
         protected INotificationService _notificationService;
+        protected IBaconProvider _baconProvider;
 
         Dictionary<string, string> _linkToOpMap = new Dictionary<string, string>();
         Dictionary<string, HashSet<string>> _subredditToModMap = new Dictionary<string, HashSet<string>>();
 
-        public virtual void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
+        public virtual void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService, IBaconProvider baconProvider)
         {
             _settingsService = settingsService;
             _offlineService = offlineService;
             _simpleHttpService = simpleHttpService;
             _userService = userService;
             _notificationService = notificationService;
+            _baconProvider = baconProvider;
         }
 
         public async Task<Account> GetMe()
@@ -528,6 +532,7 @@ namespace BaconographyPortable.Model.Reddit
 
             var arguments = new Dictionary<string, string>
             {
+                {"api_type", "json"},
                 {"kind", kind},
                 {"url", url},
                 {"title", title},
@@ -536,7 +541,54 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
+            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
+        }
+
+        private string CaptchaIden { get; set; }
+        private async Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri, bool queuedMessage = false)
+        {
+            if (!urlEncodedData.ContainsKey("api_type"))
+                urlEncodedData.Add("api_type", "json");
+
+            if (!String.IsNullOrEmpty(CaptchaIden))
+            {
+                if (urlEncodedData.ContainsKey("captcha"))
+                    urlEncodedData["captcha"] = CaptchaIden;
+                else
+                    urlEncodedData.Add("captcha", CaptchaIden);
+            }
+
+            string response = null;
+
+            response = await _simpleHttpService.SendPost(cookie, urlEncodedData, uri);
+
+            var jsonObject = JsonConvert.DeserializeObject(response) as JObject;
+            JToken captcha = null;
+            JToken errors = null;
+            JObject first = null;
+
+            if (jsonObject.First != null)
+                first = (jsonObject.First as JProperty).Value as JObject;
+
+            if (first != null)
+            {
+                first.TryGetValue("captcha", out captcha);
+                first.TryGetValue("errors", out errors);
+                if (captcha != null)
+                    CaptchaIden = captcha.Value<string>();
+
+                // If a user has told us to bug off this session, do as they say
+                if (!_settingsService.PromptForCaptcha)
+                    return response;
+
+                if (captcha != null && errors != null)
+                {
+                    CaptchaViewModel captchaVM = CaptchaViewModel.GetInstance(_baconProvider);
+                    captchaVM.ShowCaptcha(CaptchaIden);
+                }
+            }
+
+            return response;
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)
@@ -554,8 +606,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-
-            var temp = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
         public virtual async Task AddReply(string recipient, string subject, string message, string thing_id)
@@ -572,7 +623,6 @@ namespace BaconographyPortable.Model.Reddit
                 {"renderstyle", "html"},
                 {"uh", modhash}
             };
-
 
             var temp = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using KitaroDB;
 using Newtonsoft.Json;
-using Baconography.NeutralServices.KitaroDB.Util;
 using BaconographyPortable.Model.KitaroDB.ListingHelpers;
 
 namespace Baconography.NeutralServices.KitaroDB
@@ -51,10 +49,8 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             _subredditStatisticsDB = subredditStats;
             _domainStatisticsDB = domainStats;
-            _crc32 = new Crc32();
         }
 
-        Crc32 _crc32;
         DB _subredditStatisticsDB;
         DB _domainStatisticsDB;
 
@@ -106,7 +102,7 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             uint links = 0;
             uint comments = 0;
-            uint hash = Crc32.Compute(Crc32.StringGetBytes(domain));
+            uint hash = (uint)domain.GetHashCode();
             var keyspace = GenerateDomainHashKeyspace(hash);
 
             var dbCursor = await _domainStatisticsDB.SeekAsync(_domainStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
@@ -217,7 +213,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task<Tuple<uint, uint>> GetDomainAggregates(string domain)
         {
-            uint hash = Crc32.Compute(Crc32.StringGetBytes(domain));
+            uint hash = (uint)domain.GetHashCode();
             var keyspace = GenerateDomainHashKeyspace(hash);
             DBKey targetKey = _domainStatisticsDB.GetKeys()[0];
 

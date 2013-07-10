@@ -1,5 +1,4 @@
 using Baconography.NeutralServices.KitaroDB;
-using Baconography.NeutralServices.KitaroDB.Util;
 using BaconographyPortable.Messages;
 using BaconographyPortable.Model.KitaroDB.ListingHelpers;
 using BaconographyPortable.Model.Reddit;
@@ -482,7 +481,7 @@ namespace Baconography.NeutralServices
 
         public uint GetHash(string name)
         {
-            return Crc32.Compute(Crc32.StringGetBytes(name));
+            return (uint)name.GetHashCode();
         }
     }
 

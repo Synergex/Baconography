@@ -136,6 +136,7 @@
     <Compile Include="ViewModel\CommentViewModel.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
     <Compile Include="ViewModel\ComposeViewModel.cs" />
+    <Compile Include="ViewModel\CaptchaViewModel.cs" />
     <Compile Include="ViewModel\MessageViewModel.cs" />
     <Compile Include="ViewModel\MessagesViewModel.cs" />
     <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />

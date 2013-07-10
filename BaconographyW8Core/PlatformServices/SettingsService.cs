@@ -36,6 +36,7 @@ namespace BaconographyW8.PlatformServices
         public bool ApplyReadabliltyToLinks {get; set;}
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
+        public bool PromptForCaptcha { get; set; }
 
         public void ShowSettings()
         {
@@ -98,6 +99,8 @@ namespace BaconographyW8.PlatformServices
                     DefaultOfflineLinkCount = int.Parse(defaultOfflineLinkCount);
                 else
                     DefaultOfflineLinkCount = 25;
+
+                PromptForCaptcha = true;
             }
             catch
             {

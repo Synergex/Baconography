@@ -139,7 +139,7 @@ namespace BaconographyPortable.ViewModel
         private RelayCommand _send;
         private async void SendImpl()
         {
-            
+            _navigationService.GoBack();
             await _redditService.AddMessage(_recipient, _subject, _message);
             // TODO: Content for SENT view
             /*
@@ -177,7 +177,6 @@ namespace BaconographyPortable.ViewModel
                 }
             };
             */
-            _navigationService.GoBack();
         }
 
         public RelayCommand RefreshUser { get { return _refreshUser; } }

@@ -63,7 +63,8 @@ namespace BaconographyW8.PlatformServices
                 GetService<IOfflineService>(), 
                 GetService<ISimpleHttpService>(), 
                 GetService<IUserService>(), 
-                GetService<INotificationService>());
+                GetService<INotificationService>(),
+                this);
         }
 
         public async Task Initialize(Frame frame)
