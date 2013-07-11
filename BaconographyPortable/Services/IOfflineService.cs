@@ -18,7 +18,7 @@ namespace BaconographyPortable.Services
         Task StoreImages(IEnumerable<Tuple<string, string>> apiResults, string uri);
 
         Task StoreComments(Listing listing);
-        Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count);
+        Task<Listing> GetTopLevelComments(string permalink, int count);
         Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids);
 
         Task StoreMessages(User user, Listing listing);

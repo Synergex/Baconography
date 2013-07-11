@@ -326,7 +326,7 @@ namespace BaconographyPortable.Services.Impl
                 if (percentChange > 5)
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
-                var comments = await _offlineService.GetTopLevelComments(cachedLink.TypedData.SubredditId, cachedLink.TypedData.Name, limit ?? 500);
+                var comments = await _offlineService.GetTopLevelComments(permalink, limit ?? 500);
                 if (comments != null && comments.Data.Children.Count > 0)
                     return comments;
                 else

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BaconographyPortable.Model.Reddit;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Baconography.NeutralServices.KitaroDB
 {
@@ -24,8 +25,8 @@ namespace Baconography.NeutralServices.KitaroDB
         {
 			var db = await DB.CreateAsync(commentsDatabase, DBCreateFlags.None, 0, new DBKey[]
             {
-                new DBKey(12, 0, DBKeyFlags.Alpha, "link_id", false, false, false, 0),
-                new DBKey(8, 12, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
+                new DBKey(20, 0, DBKeyFlags.Alpha, "permalinkhash", false, false, false, 0),
+                new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
             });
             return db;
         }
@@ -49,56 +50,6 @@ namespace Baconography.NeutralServices.KitaroDB
 
         DB _commentsDB;
 
-        private byte[] GenerateCombinedKeyspace(string linkId, byte[] value)
-        {
-            var keyspace = new byte[12 + value.Length];
-
-            //these ids are stored in base 36 so we will never see unicode chars
-            for (int i = 0; i < 8 && i < linkId.Length; i++)
-                keyspace[i] = (byte)linkId[i];
-
-            value.CopyTo(keyspace, 12);
-
-            return keyspace;
-        }
-
-        //public async Task StoreComment(Thing thing, string subredditId, string linkId, string parentId, string name)
-        //{
-        //    ((Comment)thing.Data).BodyHtml = ""; //we dont need this and on large comments this causes problems for the max record size
-
-        //    var replies = ((Comment)thing.Data).Replies;
-        //    //try to keep down the number of async operations we have to do when reloading
-        //    if(replies != null && replies.Data.Children.Count > 2)
-        //        ((Comment)thing.Data).Replies = null;
-
-        //    var value = JsonConvert.SerializeObject(thing);
-        //    var encodedValue = Encoding.UTF8.GetBytes(value);
-
-        //    var keyspace = GenerateDirectKeyspace(subredditId, linkId, name);
-        //    var combinedSpace = GenerateCombinedKeyspace(subredditId, linkId, parentId, name, encodedValue);
-
-        //    var commentsCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-        //    if (commentsCursor != null)
-        //    {
-        //        using (commentsCursor)
-        //        {
-        //            await commentsCursor.UpdateAsync(combinedSpace);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        try
-        //        {
-        //            await _commentsDB.InsertAsync(combinedSpace);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //        }
-        //    }
-        //    if(replies != null && replies.Data.Children.Count > 0)
-        //        await StoreComments(replies);
-        //}
-
         public async Task Clear()
         {
             _commentsDB.Dispose();
@@ -106,6 +57,8 @@ namespace Baconography.NeutralServices.KitaroDB
 			await DB.PurgeAsync(commentsDatabase);
             _commentsDB = await GetDBInstance();
         }
+
+        SHA1 permalinkDigest = new SHA1Managed();
 
         public async Task StoreComments(Listing listing)
         {
@@ -120,13 +73,11 @@ namespace Baconography.NeutralServices.KitaroDB
 
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(listing)));
-                var recordBytes = new byte[compressedBytes.Length + 20];
-                var keyBytes = new byte[12];
-                Array.Copy(compressedBytes, 0, recordBytes, 20, compressedBytes.Length);
-                //the 12 bytes not written here will be filled with the current time stamp by kdb
-                //these ids are stored in base 36 so we will never see unicode chars
-                for (int i = 0; i < 12 && i < key.Length; i++)
-                    keyBytes[i] = recordBytes[i] = (byte)key[i];
+                var recordBytes = new byte[compressedBytes.Length + 28];
+                var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink));
+                Array.Copy(compressedBytes, 0, recordBytes, 28, compressedBytes.Length);
+                Array.Copy(keyBytes, 0, recordBytes, 0, keyBytes.Length);
+                
 
                 using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
                 {
@@ -149,11 +100,9 @@ namespace Baconography.NeutralServices.KitaroDB
             }
         }
 
-        public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
+        public async Task<Listing> GetTopLevelComments(string permalink, int count)
         {
-            var keyBytes = new byte[12];
-            for (int i = 0; i < 12 && i < linkId.Length; i++)
-                keyBytes[i] = (byte)linkId[i];
+            var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(permalink));
             bool badElement = false;
             try
             {
@@ -163,7 +112,7 @@ namespace Baconography.NeutralServices.KitaroDB
                     {
                         var gottenBlob = blobCursor.Get();
                         var compressor = new BaconographyPortable.Model.Compression.CompressionService();
-                        var decompressedBytes = compressor.Decompress(gottenBlob, 20);
+                        var decompressedBytes = compressor.Decompress(gottenBlob, 28);
                         var result = JsonConvert.DeserializeObject<Listing>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
                         return result;
                     }
