@@ -45,6 +45,56 @@ namespace BaconographyWP8.View
             _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
         }
 
+        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+        {
+            if (sortPopup.IsOpen == true)
+            {
+                sortPopup.IsOpen = false;
+                e.Cancel = true;
+            }
+            else
+            {
+                base.OnBackKeyPress(e);
+            }
+        }
+
+        private void MenuSort_Click(object sender, EventArgs e)
+        {
+            double height = 480;
+            double width = 325;
+
+            if (LayoutRoot.ActualHeight <= 480)
+                height = LayoutRoot.ActualHeight;
+
+            sortPopup.Height = height;
+            sortPopup.Width = width;
+
+            var commentsViewModel = DataContext as CommentsViewModel;
+            if (commentsViewModel == null)
+                return;
+
+
+            var child = sortPopup.Child as SelectSortTypeView;
+            if (child == null)
+                child = new SelectSortTypeView();
+            child.SortOrder = commentsViewModel.SortOrder;
+            child.Height = height;
+            child.Width = width;
+            child.button_ok.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+            {
+                sortPopup.IsOpen = false;
+                commentsViewModel.SortOrder = child.SortOrder;
+            };
+
+            child.button_cancel.Click += (object buttonSender, RoutedEventArgs buttonArgs) =>
+            {
+                sortPopup.IsOpen = false;
+            };
+
+            sortPopup.Child = child;
+            sortPopup.IsOpen = true;
+        }
+
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back)

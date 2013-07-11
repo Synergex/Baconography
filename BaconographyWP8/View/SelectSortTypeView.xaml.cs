@@ -36,24 +36,17 @@ namespace BaconographyWP8.View
 				SetValue(SortOrderProperty, value);
 				if (onCheckOrigin)
 					return;
-				switch (value)
-				{
-					case "/new/":
-						newRad.IsChecked = true;
-						break;
-					case "/top/":
-						topRad.IsChecked = true;
-						break;
-					case "/rising/":
-						risingRad.IsChecked = true;
-						break;
-					case "/controversial/":
-						controversialRad.IsChecked = true;
-						break;
-					default:
-						hotRad.IsChecked = true;
-						break;
-				}
+
+                if(value.Contains("new"))
+                    newRad.IsChecked = true;
+                else if(value.Contains("top"))
+                    topRad.IsChecked = true;
+                else if(value.Contains("rising"))
+                    risingRad.IsChecked = true;
+                else if(value.Contains("controversial"))
+                    controversialRad.IsChecked = true;
+                else
+                    hotRad.IsChecked = true;
 			}
 		}
 

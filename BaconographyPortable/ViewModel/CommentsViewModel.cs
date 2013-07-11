@@ -40,6 +40,45 @@ namespace BaconographyPortable.ViewModel
             _gotoUserDetails = new RelayCommand(GotoUserImpl);
         }
 
+        private string _sortOrder = "";
+        //  hot - ""
+        // /new/
+        // /controversial/
+        // /top/
+        // /rising/
+        public string SortOrder
+        {
+            get
+            {
+                return _sortOrder;
+            }
+            set
+            {
+                string orig = _sortOrder;
+                switch (value)
+                {
+                    case "new":
+                    case "top":
+                    case "rising":
+                    case "controversial":
+                        _sortOrder = value;
+                        break;
+
+                    case "":
+                    case "hot":
+                    default:
+                        _sortOrder = "";
+                        break;
+                }
+
+                if (_sortOrder != orig)
+                {
+                    Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : ""), _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+                    RaisePropertyChanged("Comments");
+                    RaisePropertyChanged("SortOrder");
+                }
+            }
+        }
         public override void Cleanup()
         {
             base.Cleanup();

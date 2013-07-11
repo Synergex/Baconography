@@ -354,9 +354,18 @@ namespace BaconographyPortable.Model.Reddit
                 var maxLimit = (await UserIsGold()) ? 1500 : 500;
                 var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-                var targetUri = limit == -1 ?
-                            string.Format("http://www.reddit.com{0}.json", permalink) :
-                            string.Format("http://www.reddit.com{0}.json?limit={1}", permalink, limit);
+                string targetUri = null;
+
+                if (permalink.Contains(".json?"))
+                {
+                    targetUri = "http://www.reddit.com" + permalink;
+                }
+                else
+                {
+                    targetUri = limit == -1 ?
+                                string.Format("http://www.reddit.com{0}.json", permalink) :
+                                string.Format("http://www.reddit.com{0}.json?limit={1}", permalink, limit);
+                }
 
                 Listing listing = null;
                 var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
