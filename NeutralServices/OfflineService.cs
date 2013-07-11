@@ -225,12 +225,12 @@ namespace Baconography.NeutralServices
             }
         }
 
-        public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
+        public async Task<Listing> GetTopLevelComments(string permalink, int count)
         {
             await Initialize();
             try
             {
-                return await _comments.GetTopLevelComments(subredditId, linkId, count);
+                return await _comments.GetTopLevelComments(permalink, count);
             }
             catch (Exception ex)
             {
