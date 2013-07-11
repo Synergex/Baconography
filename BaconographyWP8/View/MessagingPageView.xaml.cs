@@ -33,7 +33,7 @@ namespace BaconographyWP8.View
             var vm = this.DataContext as MessagesViewModel;
             if (vm != null)
             {
-                if (vm.Unread.Count > 0)
+                if (vm.HasMail)
                     pivot.SelectedIndex = 1;
             }
             UpdateMenuItems();

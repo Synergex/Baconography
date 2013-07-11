@@ -21,6 +21,10 @@ namespace BaconographyPortable.Services
         Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count);
         Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids);
 
+        Task StoreMessages(User user, Listing listing);
+        Task<Listing> GetMessages(User user);
+        Task<bool> UserHasOfflineMessages(User user);
+
         Task IncrementDomainStatistic(string domain, bool isLink);
         Task IncrementSubredditStatistic(string subredditId, bool isLink);
         Task<List<DomainAggregate>> GetDomainAggregates(int maxListSize, int threshold);

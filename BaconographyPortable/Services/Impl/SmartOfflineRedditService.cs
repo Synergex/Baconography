@@ -38,6 +38,8 @@ namespace BaconographyPortable.Services.Impl
         Stack<Link> _linkThingsAwaitingOfflining = new Stack<Link>();
         bool _isOfflining = false;
 
+        DateTime _lastMeCheck = DateTime.MinValue;
+
         const int TopSubsetMaximum = 10;
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, CancellationToken token)
         {
@@ -54,6 +56,19 @@ namespace BaconographyPortable.Services.Impl
                 {
                     if (await RunPeriodic() || token.IsCancellationRequested)
                         return;
+                }
+
+                var user = await _userService.GetUser();
+                if (user != null && (DateTime.Now - _lastMeCheck) >= TimeSpan.FromMinutes(10))
+                {
+                    _lastMeCheck = DateTime.Now;
+                    user.Me = await GetMe(user);
+                }
+
+                if ((user != null && user.Me != null && user.Me.HasMail)
+                    || !(await _offlineService.UserHasOfflineMessages(user)))
+                {
+                    await GetMessages(null);
                 }
 
                 if (_linkThingsAwaitingOfflining.Count > 0)
@@ -655,12 +670,52 @@ namespace BaconographyPortable.Services.Impl
             _redditService.AddFlairInfo(linkId, opName);
         }
 
-
-        public Task<Listing> GetMessages(int? limit)
+        Dictionary<string, Listing> _currentlyStoringMessages = new Dictionary<string, Listing>();
+        private Listing MaybeStoreMessages(User user, Listing listing)
         {
-            return _redditService.GetMessages(limit);
+            if (user == null || string.IsNullOrEmpty(user.Username))
+                return listing;
+
+            lock (_currentlyStoringMessages)
+            {
+                if (_currentlyStoringMessages.ContainsKey(user.Username))
+                    return listing;
+
+                _currentlyStoringMessages.Add(user.Username, listing);
+            }
+            _offlineService.StoreMessages(user, listing).ContinueWith(task =>
+            {
+                lock (_currentlyStoringMessages)
+                {
+                    _currentlyStoringMessages.Remove(user.Username);
+                }
+            });
+            return listing;
         }
 
+        public async Task<Listing> GetMessages(int? limit)
+        {
+            var user = await _userService.GetUser();
+            if (user == null || string.IsNullOrEmpty(user.Username))
+            {
+                return await _redditService.GetMessages(limit);
+            }
+
+            lock (_currentlyStoringMessages)
+            {
+                if (_currentlyStoringMessages.ContainsKey(user.Username))
+                    return _currentlyStoringMessages[user.Username];
+            }
+
+            if (user.Me != null && user.Me.HasMail)
+                return await _redditService.GetMessages(limit);
+
+            var messages = await _offlineService.GetMessages(user);
+            if (messages != null && messages.Data.Children.Count > 0)
+                return messages;
+            else
+                return MaybeStoreMessages(user, await _redditService.GetMessages(limit));
+        }
 
         public Task SubmitCaptcha(string captcha)
         {

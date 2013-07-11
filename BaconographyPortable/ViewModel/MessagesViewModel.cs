@@ -21,7 +21,6 @@ namespace BaconographyPortable.ViewModel
         IRedditService _redditService;
         INavigationService _navigationService;
         IDynamicViewLocator _dynamicViewLocator;
-        TypedThing<Link> _linkThing;
 
         public MessagesViewModel(IBaconProvider baconProvider)
         {
@@ -30,7 +29,6 @@ namespace BaconographyPortable.ViewModel
             _redditService = baconProvider.GetService<IRedditService>();
             _navigationService = baconProvider.GetService<INavigationService>();
             _dynamicViewLocator = baconProvider.GetService<IDynamicViewLocator>();
-
         }
 
         ComposeViewModel _composeVM;
@@ -61,14 +59,20 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public MessageViewModelCollection Messages { get; private set; }
-        public ObservableCollection<ViewModelBase> Unread
+        public bool HasMail
         {
             get
             {
-                return Messages.UnreadMessages;
+                var user = _userService.GetUser().Result;
+                if (user != null && user.Me != null)
+                {
+                    return user.Me.HasMail;
+                }
+                return false;
             }
         }
+
+        public MessageViewModelCollection Messages { get; private set; }
 
         public RelayCommand<MessagesViewModel> RefreshMessages { get { return _refreshMessages; } }
         static RelayCommand<MessagesViewModel> _refreshMessages = new RelayCommand<MessagesViewModel>(RefreshMessagesImpl);

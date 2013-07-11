@@ -18,10 +18,9 @@ namespace BaconographyPortable.ViewModel.Collections
         Dictionary<object, object> _state;
         ISystemServices _systemServices;
         ISettingsService _settingsService;
+        IUserService _userService;
         IBaconProvider _baconProvider;
         List<WeakReference> _timerHandles;
-
-        public ObservableCollection<ViewModelBase> UnreadMessages { get; private set; }
 
         public MessageViewModelCollection(IBaconProvider baconProvider)
         {
@@ -29,11 +28,11 @@ namespace BaconographyPortable.ViewModel.Collections
             _state = new Dictionary<object, object>();
             _baconProvider = baconProvider;
             _settingsService = baconProvider.GetService<ISettingsService>();
-            UnreadMessages = new ObservableCollection<ViewModelBase>();
-            //if (_settingsService.IsOnline())
+            _userService = baconProvider.GetService<IUserService>();
+            if (_settingsService.IsOnline())
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostMessages(baconProvider);
-            //else
-            //    _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
+            else
+                _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostMessages(baconProvider);
 
             //dont add to the observable collection all at once, make the view models on the background thread then start a ui timer to add them 10 at a time
             //to the actual observable collection leaving a bit of time in between so we dont block anything
@@ -79,16 +78,7 @@ namespace BaconographyPortable.ViewModel.Collections
             }
             if (thing.Data is Message)
             {
-                var oddNesting = false;
-                var depth = 0;
-                if (parent is MessageViewModel)
-                {
-                    //oddNesting = !((MessageViewModel)parent).OddNesting;
-                    //depth = ((MessageViewModel)parent).Depth + 1;
-                }
-
                 var messageViewModel = new MessageViewModel(_baconProvider, thing);
-                //commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Message)thing.Data).Replies, commentViewModel));
                 messageViewModel.Parent = parent as MessageViewModel;
                 return messageViewModel;
             }
@@ -125,8 +115,6 @@ namespace BaconographyPortable.ViewModel.Collections
                 topLevelVMCount++;
                 vmCount += CountVMChildren(vm);
                 targetCollection.Add(vm);
-                if (vm is MessageViewModel && (vm as MessageViewModel).IsNew)
-                    UnreadMessages.Add(vm);
 
                 if (vmCount > 15)
                     break;

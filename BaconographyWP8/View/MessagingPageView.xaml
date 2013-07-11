@@ -144,7 +144,7 @@
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                          HorizontalContentAlignment="Stretch"
-                         ItemsSource="{Binding Path=Unread}"
+                         ItemsSource="{Binding Path=Messages, Converter={StaticResource unreadMessagesConverter}}"
                          SelectionMode="Single"
                          SelectionChanged="List_SelectionChanged"
                          SelectedItem="{Binding SelectedItem, Mode=TwoWay}"

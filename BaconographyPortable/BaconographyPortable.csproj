@@ -62,6 +62,7 @@
     <Compile Include="Model\Compression\LZ4Codec.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe32.Dirty.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\PostMessages.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\UsageStatisticsAggregate.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />

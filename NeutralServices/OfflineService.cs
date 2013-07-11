@@ -225,6 +225,66 @@ namespace Baconography.NeutralServices
             }
         }
 
+        public async Task StoreMessages(User user, Listing listing)
+        {
+            await Initialize();
+            try
+            {
+                if (listing == null || listing.Data.Children.Count == 0)
+                    return;
+
+                if (user == null || String.IsNullOrEmpty(user.Username))
+                    return;
+
+                await StoreOrderedThings("messages-" + user.Username, listing.Data.Children);
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+            }
+        }
+
+        public async Task<Listing> GetMessages(User user)
+        {
+            await Initialize();
+
+            try
+            {
+                var things = await RetrieveOrderedThings("messages-" + user.Username, TimeSpan.FromDays(1));
+                return new Listing { Data = new ListingData { Children = things.ToList() } };
+            }
+            catch
+            {
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+            }
+        }
+
+        public async Task<bool> UserHasOfflineMessages(User user)
+        {
+            await Initialize();
+
+            if (user == null || string.IsNullOrEmpty(user.Username))
+                return false;
+
+            string key = "messages-" + user.Username;
+            using (var cursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.NoLock))
+            {
+                if (cursor != null)
+                {
+                    var gottenBlob = cursor.Get();
+                    var microseconds = BitConverter.ToInt64(gottenBlob, 4);
+                    var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
+                    var blobAge = DateTime.Now - updatedTime;
+                    if (blobAge <= TimeSpan.FromDays(1))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
         {
             await Initialize();
