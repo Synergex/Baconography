@@ -307,5 +307,8 @@ namespace BaconographyW8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+        public int ScreenWidth { get; set; }
+        public int ScreenHeight { get; set; }
     }
 }

@@ -39,6 +39,9 @@ namespace BaconographyPortable.Services
         bool EnableLockScreenImages { get; set; }
         string LockScreenReddit { get; set; }
 
+        int ScreenWidth { get; set; }
+        int ScreenHeight { get; set; }
+
         void ShowSettings();
         Task Persist();
         Task ClearHistory();

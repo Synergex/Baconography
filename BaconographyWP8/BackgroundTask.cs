@@ -339,6 +339,9 @@ namespace BaconographyWP8
             NotifyComplete();
         }
 
+        const string ReadMailGlyph = "\uE166";
+        const string UnreadMailGlyph = "\uE119";
+
         public static async Task MakeLockScreenControl(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, IBaconProvider baconProvider)
         {
             var user = (await userService.GetUser());
@@ -377,14 +380,45 @@ namespace BaconographyWP8
             imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
             if (imagesLinks.Count > 0)
             {
+                Shuffle(lockScreenMessages);
+
                 //TODO: download images one at a time, check resolution
                 //set LockScreenViewModel properties
                 //render to bitmap
                 //save bitmap
-                Shuffle(lockScreenMessages);
+                BitmapSource imageSource = new BitmapImage();
+                string bestSource = "";
+                for (int i = 0; i < imagesLinks.Count; i++)
+                {
+                    try
+                    {
+                        bestSource = ((Link)imagesLinks[i].Data).Url;
+                        var imageBytes = await imagesService.ImageBytesFromUrl(bestSource);
+                        if (imageBytes != null)
+                        {
+                            imageSource.SetSource(new MemoryStream(imageBytes));
+                        }
+
+                        if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
+                            continue;
+
+                        if (settingsService.HighresLockScreenOnly
+                            && (imageSource.PixelHeight < settingsService.ScreenHeight
+                                || imageSource.PixelWidth < settingsService.ScreenWidth))
+                            continue;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    break;
+                }
+
+                
                 ViewModelLocator.Initialize(baconProvider);
                 var vml = new ViewModelLocator();
-                vml.LockScreen.ImageSource = ((Link)imagesLinks.First().Data).Url;
+                vml.LockScreen.ImageSource = bestSource;
                 vml.LockScreen.OverlayItems = lockScreenMessages;
                 vml.LockScreen.OverlayOpacity = settingsService.OverlayOpacity;
             }
