@@ -89,8 +89,7 @@ namespace BaconographyWP8.PlatformServices
             SimpleIoc.Default.Register<ISuspensionService>(() => suspensionService);
             SimpleIoc.Default.Register<IViewModelContextService>(() => viewModelContextService);
 
-            redditService.Initialize(GetService<ISettingsService>(), 
-                GetService<IOfflineService>(), 
+            redditService.Initialize(GetService<ISettingsService>(),  
                 GetService<ISimpleHttpService>(), 
                 GetService<IUserService>(), 
                 GetService<INotificationService>(),

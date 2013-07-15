@@ -15,7 +15,6 @@ namespace BaconographyPortable.Model.Reddit
     public class RedditService : IRedditService
     {
         protected ISettingsService _settingsService;
-        protected IOfflineService _offlineService;
         protected ISimpleHttpService _simpleHttpService;
         protected IUserService _userService;
         protected INotificationService _notificationService;
@@ -24,10 +23,9 @@ namespace BaconographyPortable.Model.Reddit
         Dictionary<string, string> _linkToOpMap = new Dictionary<string, string>();
         Dictionary<string, HashSet<string>> _subredditToModMap = new Dictionary<string, HashSet<string>>();
 
-        public virtual void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService, IBaconProvider baconProvider)
+        public virtual void Initialize(ISettingsService settingsService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService, IBaconProvider baconProvider)
         {
             _settingsService = settingsService;
-            _offlineService = offlineService;
             _simpleHttpService = simpleHttpService;
             _userService = userService;
             _notificationService = notificationService;

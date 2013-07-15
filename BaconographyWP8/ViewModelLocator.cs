@@ -36,6 +36,7 @@ namespace BaconographyWP8
                 ServiceLocator.Current.GetInstance<SearchQueryViewModel>();
                 ServiceLocator.Current.GetInstance<MessagesViewModel>();
                 ServiceLocator.Current.GetInstance<CaptchaViewModel>();
+                ServiceLocator.Current.GetInstance<LockScreenViewModel>();
                 SimpleIoc.Default.Register<IDynamicViewLocator>(() => _baconProvider.GetService<IDynamicViewLocator>());
             }
         }
@@ -67,7 +68,7 @@ namespace BaconographyWP8
 				SimpleIoc.Default.Register<ReplyViewModel>();
                 SimpleIoc.Default.Register<MessagesViewModel>();
                 SimpleIoc.Default.Register<CaptchaViewModel>();
-
+                SimpleIoc.Default.Register<LockScreenViewModel>();
 
 				if (DesignerProperties.IsInDesignTool)
 				{
@@ -239,6 +240,14 @@ namespace BaconographyWP8
             get
             {
                 return CaptchaViewModel.GetInstance(_baconProvider);
+            }
+        }
+
+        public LockScreenViewModel LockScreen
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<LockScreenViewModel>();
             }
         }
     }
