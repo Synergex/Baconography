@@ -277,6 +277,22 @@ namespace BaconographyWP8
             {
                 throw new NotImplementedException();
             }
+
+
+            public Task StoreMessages(User user, Listing listing)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<Listing> GetMessages(User user)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<bool> UserHasOfflineMessages(User user)
+            {
+                throw new NotImplementedException();
+            }
         }
         //we must be very carefull how much memory is used during this, we are limited to 10 megs or we get shutdown
         //dont fully initialize things, just the bare minimum to get the job done
