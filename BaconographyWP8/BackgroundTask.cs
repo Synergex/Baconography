@@ -1,5 +1,6 @@
 ﻿using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using BaconographyWP8.Converters;
 using BaconographyWP8.PlatformServices;
 using BaconographyWP8.View;
 using BaconographyWP8.ViewModel;
@@ -347,12 +348,18 @@ namespace BaconographyWP8
             }
             //call for posts from front page
             var frontPageResult = await redditService.GetPostsBySubreddit("/", 3);
-            List<LockScreenMessage> lockScreenMessages = new List<LockScreenMessage>(frontPageResult.Data.Children.Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title }));
+            LinkGlyphConverter linkGlyphConverter = null;
+            if (App.Current.Resources.Contains("linkGlyphConverter"))
+            {
+                linkGlyphConverter = App.Current.Resources["linkGlyphConverter"] as LinkGlyphConverter;
+            }
+            List<LockScreenMessage> lockScreenMessages = new List<LockScreenMessage>(frontPageResult.Data.Children.Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             //maybe call for messages from logged in user
             if (user != null && user.LoginCookie != null)
             {
+
                 var messages = await redditService.GetMessages(5);
-                lockScreenMessages.AddRange(messages.Data.Children.Take(3).Select(thing => new LockScreenMessage { DisplayText = ((Message)thing.Data).Subject }));
+                lockScreenMessages.AddRange(messages.Data.Children.Take(3).Select(thing => new LockScreenMessage { DisplayText = ((Message)thing.Data).Subject, Glyph = "\uE119" }));
             }
             //maybe call for images from subreddit
 
