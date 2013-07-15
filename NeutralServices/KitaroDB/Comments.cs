@@ -7,7 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using BaconographyPortable.Model.Reddit;
 using System.Diagnostics;
+#if WINDOWS_PHONE
 using System.Security.Cryptography;
+#else
+using Windows.Security.Cryptography.Core;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
 
 namespace Baconography.NeutralServices.KitaroDB
 {
@@ -58,7 +63,11 @@ namespace Baconography.NeutralServices.KitaroDB
             _commentsDB = await GetDBInstance();
         }
 
+#if WINDOWS_PHONE
         SHA1 permalinkDigest = new SHA1Managed();
+#else
+        HashAlgorithmProvider permalinkDigest = HashAlgorithmProvider.OpenAlgorithm("SHA1");
+#endif
 
         public async Task StoreComments(Listing listing)
         {
@@ -74,7 +83,11 @@ namespace Baconography.NeutralServices.KitaroDB
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(listing)));
                 var recordBytes = new byte[compressedBytes.Length + 28];
+#if WINDOWS_PHONE
                 var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink));
+#else
+                var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink).AsBuffer()).ToArray();
+#endif
                 Array.Copy(compressedBytes, 0, recordBytes, 28, compressedBytes.Length);
                 Array.Copy(keyBytes, 0, recordBytes, 0, keyBytes.Length);
                 
@@ -102,7 +115,11 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task<Listing> GetTopLevelComments(string permalink, int count)
         {
+#if WINDOWS_PHONE
             var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(permalink));
+#else
+            var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(permalink).AsBuffer()).ToArray();
+#endif
             bool badElement = false;
             try
             {
