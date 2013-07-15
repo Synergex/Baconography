@@ -116,9 +116,9 @@
                             <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
 
                             <CheckBox Margin="12,0,0,0" Content="Use unread messages in lock screen overlay" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Use top posts in lock screen overlay" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Use top posts in lock screen overlay" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
                             <TextBlock Margin="12,0,0,0" Text="Opacity"/>
-                            <Slider Margin="12,0,0,0" Minimum="0" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
+                            <Slider Margin="12,0,0,0" Minimum="25" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
                             
                             
                         </StackPanel>

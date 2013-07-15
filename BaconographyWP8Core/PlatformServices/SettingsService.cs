@@ -50,6 +50,7 @@ namespace BaconographyWP8.PlatformServices
         public string ImageUpdateFrequency { get; set; }
         public string OverlayUpdateFrequency { get; set; }
         public bool MessagesInLockScreenOverlay { get; set; }
+        public bool PostsInLockScreenOverlay { get; set; }
         public int OverlayOpacity { get; set; }
         public string ImagesSubreddit { get; set; }
         public bool EnableLockScreenImages { get; set; }

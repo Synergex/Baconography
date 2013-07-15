@@ -33,6 +33,7 @@ namespace BaconographyPortable.Services
         string ImageUpdateFrequency { get; set; }
         string OverlayUpdateFrequency { get; set; }
         bool MessagesInLockScreenOverlay { get; set; }
+        bool PostsInLockScreenOverlay { get; set; }
         string ImagesSubreddit { get; set; }
         int OverlayOpacity { get; set; }
         bool EnableLockScreenImages { get; set; }

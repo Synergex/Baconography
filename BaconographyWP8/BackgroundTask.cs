@@ -316,7 +316,7 @@ namespace BaconographyWP8
                 { typeof(INotificationService), notificationService },
                 { typeof(INavigationService), navigationService },
                 { typeof(ISimpleHttpService), httpService },
-                { typeof(IImagesService), imagesService}
+                { typeof(IImagesService), imagesService }
             });
 
             redditService.Initialize(settingsService, httpService, userService, notificationService, baconProvider);
@@ -326,21 +326,42 @@ namespace BaconographyWP8
             //load settings from db
             //create reddit service
             //get user'
+            await MakeLockScreenControl(settingsService, redditService, userService, imagesService, baconProvider);
+
+            var lockScreenView = new LockScreen();
+            WriteableBitmap bitmap = new WriteableBitmap(lockScreenView, null);
+            var lockscreenJpg = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg", 4096);
+            bitmap.SaveJpeg(lockscreenJpg, bitmap.PixelWidth, bitmap.PixelHeight, 0, 100);
+            
+
+            //DONE
+            NotifyComplete();
+        }
+
+        public static async Task MakeLockScreenControl(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, IBaconProvider baconProvider)
+        {
             var user = (await userService.GetUser());
             if (user.Me != null && user.Me.HasMail)
             {
                 //toast the user that they have mail
             }
             //call for posts from front page
-            var frontPageResult = await redditService.GetPostsBySubreddit("/", 5);
+            var frontPageResult = await redditService.GetPostsBySubreddit("/", 3);
             List<LockScreenMessage> lockScreenMessages = new List<LockScreenMessage>(frontPageResult.Data.Children.Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title }));
             //maybe call for messages from logged in user
             if (user != null && user.LoginCookie != null)
             {
                 var messages = await redditService.GetMessages(5);
-                lockScreenMessages.AddRange(messages.Data.Children.Select(thing => new LockScreenMessage { DisplayText = ((Message)thing.Data).Subject }));
+                lockScreenMessages.AddRange(messages.Data.Children.Take(3).Select(thing => new LockScreenMessage { DisplayText = ((Message)thing.Data).Subject }));
             }
             //maybe call for images from subreddit
+
+
+            if (string.IsNullOrWhiteSpace(settingsService.ImagesSubreddit))
+            {
+                settingsService.ImagesSubreddit = "/r/earthporn";
+            }
+
             var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 25);
             var imagesLinks = imagesSubredditResult.Data.Children;
             Shuffle(imagesLinks);
@@ -359,15 +380,7 @@ namespace BaconographyWP8
                 vml.LockScreen.ImageSource = ((Link)imagesLinks.First().Data).Url;
                 vml.LockScreen.OverlayItems = lockScreenMessages;
                 vml.LockScreen.OverlayOpacity = settingsService.OverlayOpacity;
-
-                var lockScreenView = new LockScreen();
-                WriteableBitmap bitmap = new WriteableBitmap(lockScreenView, null);
-                var lockscreenJpg = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg", 4096);
-                bitmap.SaveJpeg(lockscreenJpg, bitmap.PixelWidth, bitmap.PixelHeight, 0, 100);
             }
-            
-            //DONE
-            NotifyComplete();
         }
 
         public static void Shuffle<T>(IList<T> list)

@@ -20,10 +20,10 @@
             <ImageBrush ImageSource="{Binding ImageSource}"/>
         </Grid.Background>
 
-        <ListBox ItemsSource="{Binding OverlayItems}" Opacity="{Binding OverlayOpacity}" Background ="{StaticResource PhoneForegroundBrush}">
+        <ListBox ItemsSource="{Binding OverlayItems}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
+                    <StackPanel Opacity="{Binding OverlayOpacity}" Background="{StaticResource PhoneBackgroundBrush}">
                         <TextBlock Text="{Binding DisplayText}"/>
                     </StackPanel>
                 </DataTemplate>

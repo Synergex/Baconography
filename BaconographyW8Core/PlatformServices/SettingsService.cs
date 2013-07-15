@@ -294,5 +294,18 @@ namespace BaconographyW8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+
+        public bool PostsInLockScreenOverlay
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

@@ -414,6 +414,10 @@ namespace BaconographyPortable.Model.Reddit
             try
             {
                 var messages = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                if (messages == "\"{}\"")
+                {
+                    return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+                }
                 // Hacky hack mcHackerson
                 messages = messages.Replace("\"kind\": \"t1\"", "\"kind\": \"t4.5\"");
                 return JsonConvert.DeserializeObject<Listing>(messages);

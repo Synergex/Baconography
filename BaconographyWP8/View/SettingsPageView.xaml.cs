@@ -65,8 +65,11 @@ namespace BaconographyWP8.View
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-lock:"));
         }
 
-        private void ShowLockScreenPreview(object sender, RoutedEventArgs e)
+        private async void ShowLockScreenPreview(object sender, RoutedEventArgs e)
         {
+            await BackgroundTask.MakeLockScreenControl(ServiceLocator.Current.GetInstance<ISettingsService>(), ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
+                ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
+
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
         }
