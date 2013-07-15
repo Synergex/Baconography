@@ -96,6 +96,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BackgroundTask.cs" />
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\OrientationManager.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
     <Compile Include="ViewModel\Collections\RedditViewModelCollection.cs" />
+    <Compile Include="ViewModel\LockScreenViewModel.cs" />
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
@@ -176,6 +178,9 @@
     </Compile>
     <Compile Include="View\CaptchaPageView.xaml.cs">
       <DependentUpon>CaptchaPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LockScreen.xaml.cs">
+      <DependentUpon>LockScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
@@ -271,6 +276,10 @@
     <Page Include="View\CaptchaPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LockScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MessagingPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -368,9 +377,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="BaconographyWP8_2013_07_01_13_14_09.sap" />
-    <None Include="BaconographyWP8_2013_07_09_09_39_41.sap" />
-    <None Include="BaconographyWP8_2013_07_09_09_48_09.sap" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">

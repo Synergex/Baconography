@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class SettingsService : ISettingsService, BaconProvider.IBaconService
+    public class SettingsService : ISettingsService, BaconProvider.IBaconService
     {
         IBaconProvider _baconProvider;
         bool _isOnline = true;
@@ -43,6 +43,17 @@ namespace BaconographyWP8.PlatformServices
         public bool PromptForCaptcha { get; set; }
         public bool AllowOver18Items { get; set; }
         public bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
+        public bool HighresLockScreenOnly { get; set; }
+        public bool EnableUpdates { get; set; }
+        public bool UpdateImagesOnlyWifi { get; set; }
+        public bool UpdateOverlayOnlyWifi { get; set; }
+        public string ImageUpdateFrequency { get; set; }
+        public string OverlayUpdateFrequency { get; set; }
+        public bool MessagesInLockScreenOverlay { get; set; }
+        public int OverlayOpacity { get; set; }
+        public string ImagesSubreddit { get; set; }
+        public bool EnableLockScreenImages { get; set; }
+        public string LockScreenReddit { get; set; }
 
         public void ShowSettings()
         {

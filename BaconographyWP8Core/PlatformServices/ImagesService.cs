@@ -13,7 +13,7 @@ using Windows.UI;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class ImagesService : IImagesService
+    public class ImagesService : IImagesService
     {
         private static async Task<StorageFile> SaveFileFromUriAsync(Uri fileUri, string localFileName, string localPath = "Images", NameCollisionOption collisionOption = NameCollisionOption.ReplaceExisting)
         {

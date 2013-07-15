@@ -59,5 +59,16 @@ namespace BaconographyWP8.View
 				preferences.Orientation = this.Orientation.ToString();
 			}
 		}
+
+        private async void ShowSystemLockScreenSettings(object sender, RoutedEventArgs e)
+        {
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-lock:"));
+        }
+
+        private void ShowLockScreenPreview(object sender, RoutedEventArgs e)
+        {
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate<LockScreen>(null);
+        }
 	}
 }

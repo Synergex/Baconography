@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib" 
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -43,7 +44,6 @@
         <!--Pivot Control-->
         <phone:Pivot Title="BACONOGRAPHY > SETTINGS"
                      x:Name="pivot" DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
-            <!--Pivot item one-->
             <phone:PivotItem Header="content">
                 <Grid>
                     <ScrollViewer>
@@ -77,7 +77,55 @@
                 </Grid>
             </phone:PivotItem>
 
-            <!--Pivot item two-->
+            <phone:PivotItem Header="lock screen">
+                <Grid>
+                    <ScrollViewer>
+                        <StackPanel Margin="12,0,12,0">
+                            <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
+                            <Button Margin="12,0,0,0" Content="System lock screen settings" BorderThickness="0" Click="ShowSystemLockScreenSettings"/>
+
+                            <Button Margin="12,0,0,0" Content="Preview lock screen" BorderThickness="0" Click="ShowLockScreenPreview"/>
+
+                            <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
+
+                            <TextBlock Margin="12,0,0,0" Text="Subreddit for lock screen images"/>
+                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
+
+                            <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
+
+                            <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
+                            <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyWifi, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyWifi, Mode=TwoWay}"/>
+
+                            <TextBlock Margin="12,0,0,0" Text="Image update frequency"/>
+                            <toolkit:ListPicker Margin="12,0,0,0" SelectionMode="Single" ExpansionMode="ExpansionAllowed" SelectedItem="{Binding ImageUpdateFrequency, Mode=TwoWay}">
+                                <sys:String>30 Minutes</sys:String>
+                                <sys:String>1 Hour</sys:String>
+                                <sys:String>6 Hours</sys:String>
+                                <sys:String>24 Hours</sys:String>
+                            </toolkit:ListPicker>
+
+                            <TextBlock Margin="12,0,0,0" Text="Overlay update frequency"/>
+                            <toolkit:ListPicker Margin="12,0,0,0" SelectionMode="Single" ExpansionMode="ExpansionAllowed" SelectedItem="{Binding OverlayUpdateFrequency, Mode=TwoWay}">
+                                <sys:String>15 Minutes</sys:String>
+                                <sys:String>30 Minutes</sys:String>
+                                <sys:String>1 Hour</sys:String>
+                            </toolkit:ListPicker>
+                            
+                            <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
+
+                            <CheckBox Margin="12,0,0,0" Content="Use unread messages in lock screen overlay" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Use top posts in lock screen overlay" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
+                            <TextBlock Margin="12,0,0,0" Text="Opacity"/>
+                            <Slider Margin="12,0,0,0" Minimum="0" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
+                            
+                            
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </phone:PivotItem>
+
             <phone:PivotItem Header="about">
                 <Grid>
                     <ScrollViewer>

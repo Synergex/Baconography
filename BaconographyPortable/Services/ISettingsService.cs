@@ -26,6 +26,17 @@ namespace BaconographyPortable.Services
         bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
         bool AllowPredictiveOfflining { get; set; }
         bool PromptForCaptcha { get; set; }
+        bool HighresLockScreenOnly { get; set; }
+        bool EnableUpdates { get; set; }
+        bool UpdateImagesOnlyWifi { get; set; }
+        bool UpdateOverlayOnlyWifi { get; set; }
+        string ImageUpdateFrequency { get; set; }
+        string OverlayUpdateFrequency { get; set; }
+        bool MessagesInLockScreenOverlay { get; set; }
+        string ImagesSubreddit { get; set; }
+        int OverlayOpacity { get; set; }
+        bool EnableLockScreenImages { get; set; }
+        string LockScreenReddit { get; set; }
 
         void ShowSettings();
         Task Persist();
