@@ -15,7 +15,7 @@
         <Grid.Background>
             <ImageBrush x:Name="backgroundImage" Stretch="UniformToFill" ImageSource="{Binding ImageSource}"/>
         </Grid.Background>
-        <Border CornerRadius="5" BorderThickness="1" Margin="12,32,12,12" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <Border CornerRadius="5" BorderThickness="1" Margin="12,38,12,12" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <Border.Background>
                 <SolidColorBrush x:Name="borderBackground" Color="Black" Opacity="{Binding OverlayOpacity}" />
             </Border.Background>
