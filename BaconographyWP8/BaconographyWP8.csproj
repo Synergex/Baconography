@@ -182,6 +182,12 @@
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LockScreenOverlayItem.xaml.cs">
+      <DependentUpon>LockScreenOverlayItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LockScreenViewControl.xaml.cs">
+      <DependentUpon>LockScreenViewControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
     </Compile>
@@ -278,6 +284,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\LockScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LockScreenOverlayItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LockScreenViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

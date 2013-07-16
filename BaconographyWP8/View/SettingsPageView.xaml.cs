@@ -84,10 +84,13 @@ namespace BaconographyWP8.View
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
 
             var vml = new ViewModelLocator();
-            var lockScreenView = new LockScreen();
+            //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
+            var lockScreenView = new LockScreenViewControl(vml.LockScreen);
             lockScreenView.Width = settingsService.ScreenWidth;
             lockScreenView.Height = settingsService.ScreenHeight;
             lockScreenView.UpdateLayout();
+            lockScreenView.Measure(new Size(settingsService.ScreenWidth, settingsService.ScreenHeight));
+            lockScreenView.Arrange(new Rect(0, 0, settingsService.ScreenWidth, settingsService.ScreenHeight));
             WriteableBitmap bitmap = new WriteableBitmap(settingsService.ScreenWidth, settingsService.ScreenHeight);
             bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
             bitmap.Invalidate();
