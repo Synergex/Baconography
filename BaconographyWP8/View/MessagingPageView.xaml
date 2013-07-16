@@ -41,6 +41,8 @@
                                     <TextBlock x:Name="AuthorField" Text="{Binding Author}" FontSize="34" FontFamily="Segoe UI" Foreground="{StaticResource PhoneForegroundBrush}" />
                                     <TextBlock x:Name="SubjectField" Text="{Binding Subject}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" Foreground="{StaticResource PhoneForegroundBrush}" />
                                     <TextBlock x:Name="PreviewField" Text="{Binding Preview}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" TextWrapping="NoWrap" Foreground="{StaticResource PhoneSubtleBrush}" />
+                                    <TextBlock x:Name="BodyField" Text="{Binding Body}" HorizontalAlignment="Left" Visibility="Collapsed"
+                                                      FontSize="19" FontFamily="Segoe UI" TextWrapping="Wrap" Foreground="{StaticResource PhoneContrastForegroundBrush}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                     <TextBlock x:Name="DateField" Text="{Binding CreatedUTC, Converter={StaticResource unixTimeConverter}}" />
@@ -83,6 +85,12 @@
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="TextWrapping" Storyboard.TargetName="SubjectField">
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="Wrap"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="PreviewField">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="BodyField">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
