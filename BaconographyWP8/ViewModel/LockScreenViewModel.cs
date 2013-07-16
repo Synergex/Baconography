@@ -57,12 +57,10 @@ namespace BaconographyWP8.ViewModel
             {
                 _displayText = value;
 
-                _displayText = _displayText.Replace("\r", " ").Replace("\n", " ");
+                _displayText = _displayText.Replace("\r", " ").Replace("\n", " ").Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim();
 
                 if (_displayText.Length > 100)
                     _displayText = _displayText.Substring(0, 100);
-
-                _displayText = _displayText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim();
             }
         }
         public string Glyph { get; set; }
