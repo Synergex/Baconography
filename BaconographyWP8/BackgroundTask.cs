@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace BaconographyWP8
@@ -387,13 +389,12 @@ namespace BaconographyWP8
                 //render to bitmap
                 //save bitmap
                 BitmapSource imageSource = new BitmapImage();
-                string bestSource = "";
                 for (int i = 0; i < imagesLinks.Count; i++)
                 {
                     try
                     {
-                        bestSource = ((Link)imagesLinks[i].Data).Url;
-                        var imageBytes = await imagesService.ImageBytesFromUrl(bestSource);
+                        var url = ((Link)imagesLinks[i].Data).Url;
+                        var imageBytes = await imagesService.ImageBytesFromUrl(url);
                         if (imageBytes != null)
                         {
                             imageSource.SetSource(new MemoryStream(imageBytes));
@@ -418,7 +419,9 @@ namespace BaconographyWP8
                 
                 ViewModelLocator.Initialize(baconProvider);
                 var vml = new ViewModelLocator();
-                vml.LockScreen.ImageSource = bestSource;
+                var image = new Image() { Source = imageSource, Stretch = System.Windows.Media.Stretch.UniformToFill, Width = settingsService.ScreenWidth, Height = settingsService.ScreenHeight };
+                image.UpdateLayout();
+                vml.LockScreen.ImageSource = new WriteableBitmap(image, new ScaleTransform() { ScaleX = 1, ScaleY = 1});
                 vml.LockScreen.OverlayItems = lockScreenMessages;
                 vml.LockScreen.OverlayOpacity = settingsService.OverlayOpacity;
             }

@@ -155,6 +155,18 @@ namespace BaconographyWP8.PlatformServices
                 else
                     AllowPredictiveOffliningOnMeteredConnection = false;
 
+                var overlayOpacity = await offlineService.GetSetting("OverlayOpacity");
+                if (!string.IsNullOrWhiteSpace(overlayOpacity))
+                    OverlayOpacity = int.Parse(overlayOpacity);
+                else
+                    OverlayOpacity = 40;
+
+                var highresLockScreenOnly = await offlineService.GetSetting("HighresLockScreenOnly");
+                if (!string.IsNullOrWhiteSpace(highresLockScreenOnly))
+                    HighresLockScreenOnly = bool.Parse(highresLockScreenOnly);
+                else
+                    HighresLockScreenOnly = false;
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -181,6 +193,8 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("AllowPredictiveOfflining", AllowPredictiveOfflining.ToString());
             await offlineService.StoreSetting("AllowPredictiveOffliningOnMeteredConnection", AllowPredictiveOffliningOnMeteredConnection.ToString());
             await offlineService.StoreSetting("AllowOver18Items", AllowOver18Items.ToString());
+            await offlineService.StoreSetting("OverlayOpacity", OverlayOpacity.ToString());
+            await offlineService.StoreSetting("HighresLockScreenOnly", HighresLockScreenOnly.ToString());
         }
 
 
