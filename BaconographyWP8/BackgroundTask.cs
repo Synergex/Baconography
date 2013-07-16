@@ -422,7 +422,9 @@ namespace BaconographyWP8
             {
 
                 var messages = await redditService.GetMessages(5);
-                lockScreenMessages.AddRange(messages.Data.Children.Take(3).Select(thing => new LockScreenMessage { DisplayText = ((Message)thing.Data).Subject, Glyph = "\uE119" }));
+                lockScreenMessages.AddRange(messages.Data.Children.Take(3).Select(thing => new LockScreenMessage {
+                    DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
+                    Glyph = "\uE119" }));
             }
             //maybe call for images from subreddit
 
