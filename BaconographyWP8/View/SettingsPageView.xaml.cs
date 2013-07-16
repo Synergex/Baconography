@@ -114,10 +114,7 @@ namespace BaconographyWP8.View
                 File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
             }
 
-            
-            vml.LockScreen.ImageSource = new BitmapImage(new Uri(targetFilePath));
-            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
-            _navigationService.Navigate<LockScreen>(null);
+            BackgroundTask.StartPeriodicAgent();
         }
 	}
 }
