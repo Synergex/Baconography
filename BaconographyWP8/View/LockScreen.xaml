@@ -17,7 +17,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot">
         <Grid.Background>
-            <ImageBrush ImageSource="{Binding ImageSource}"/>
+            <ImageBrush Stretch="UniformToFill" ImageSource="{Binding ImageSource}"/>
         </Grid.Background>
 
         <Border CornerRadius="5" BorderThickness="1" Margin="12" HorizontalAlignment="Stretch" VerticalAlignment="Top">

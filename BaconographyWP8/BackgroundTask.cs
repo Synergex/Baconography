@@ -442,11 +442,12 @@ namespace BaconographyWP8
             {
                 Shuffle(lockScreenMessages);
 
-                //TODO: download images one at a time, check resolution
+                //download images one at a time, check resolution
                 //set LockScreenViewModel properties
                 //render to bitmap
                 //save bitmap
-                BitmapSource imageSource = new BitmapImage();
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.CreateOptions = BitmapCreateOptions.None;
                 for (int i = 0; i < imagesLinks.Count; i++)
                 {
                     try
@@ -455,7 +456,11 @@ namespace BaconographyWP8
                         var imageBytes = await imagesService.ImageBytesFromUrl(url);
                         if (imageBytes != null)
                         {
-                            imageSource.SetSource(new MemoryStream(imageBytes));
+                            using (var stream = new MemoryStream(imageBytes))
+                            {
+                                stream.Seek(0, SeekOrigin.Begin);
+                                imageSource.SetSource(stream);
+                            }
                         }
 
                         if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
@@ -477,9 +482,7 @@ namespace BaconographyWP8
                 
                 ViewModelLocator.Initialize(baconProvider);
                 var vml = new ViewModelLocator();
-                var image = new Image() { Source = imageSource, Stretch = System.Windows.Media.Stretch.UniformToFill, Width = settingsService.ScreenWidth, Height = settingsService.ScreenHeight };
-                image.UpdateLayout();
-                vml.LockScreen.ImageSource = new WriteableBitmap(image, new ScaleTransform() { ScaleX = 1, ScaleY = 1});
+                vml.LockScreen.ImageSource = imageSource;
                 vml.LockScreen.OverlayItems = lockScreenMessages;
                 vml.LockScreen.OverlayOpacity = settingsService.OverlayOpacity;
             }

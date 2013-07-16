@@ -15,6 +15,9 @@ using BaconographyWP8.Common;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyPortable.Messages;
 using BaconographyPortable.ViewModel;
+using System.Windows.Media.Imaging;
+using System.IO;
+using System.Windows.Media;
 
 namespace BaconographyWP8.View
 {
@@ -70,6 +73,46 @@ namespace BaconographyWP8.View
             await BackgroundTask.MakeLockScreenControl(ServiceLocator.Current.GetInstance<ISettingsService>(), ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
 
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate<LockScreen>(null);
+        }
+
+        private async void SetLockScreen(object sender, RoutedEventArgs e)
+        {
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            await BackgroundTask.MakeLockScreenControl(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
+                ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
+
+            var vml = new ViewModelLocator();
+            var lockScreenView = new LockScreen();
+            lockScreenView.Width = settingsService.ScreenWidth;
+            lockScreenView.Height = settingsService.ScreenHeight;
+            lockScreenView.UpdateLayout();
+            WriteableBitmap bitmap = new WriteableBitmap(settingsService.ScreenWidth, settingsService.ScreenHeight);
+            bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
+            bitmap.Invalidate();
+            string targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg";
+            if (File.Exists(targetFilePath))
+            {
+                targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
+            }
+            var lockscreenJpg = File.Create(targetFilePath);
+            bitmap.SaveJpeg(lockscreenJpg, settingsService.ScreenWidth, settingsService.ScreenHeight, 0, 100);
+            lockscreenJpg.Flush(true);
+            lockscreenJpg.Close();
+            BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false);
+
+            if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
+            {
+                File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg");
+            }
+            else if (targetFilePath.EndsWith("lockscreen.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg"))
+            {
+                File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
+            }
+
+            
+            vml.LockScreen.ImageSource = new BitmapImage(new Uri(targetFilePath));
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
         }

@@ -86,6 +86,8 @@
 
                             <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
 
+                            <Button Margin="12,0,0,0" Content="Set lock screen" Click="SetLockScreen"/>
+
                             <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
 
                             <TextBlock Margin="12,0,0,0" Text="Subreddit for lock screen images"/>
