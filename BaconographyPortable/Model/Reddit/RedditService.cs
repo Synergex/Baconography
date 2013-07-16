@@ -537,7 +537,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async Task AddPost(string kind, string url, string subreddit, string title)
+        public virtual async Task AddPost(string kind, string url, string text, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
 
@@ -546,8 +546,9 @@ namespace BaconographyPortable.Model.Reddit
                 {"api_type", "json"},
                 {"kind", kind},
                 {"url", url},
+                {"text", text},
                 {"title", title},
-                {"r", subreddit},
+                {"sr", subreddit},
                 {"renderstyle", "html" },
                 {"uh", modhash}
             };

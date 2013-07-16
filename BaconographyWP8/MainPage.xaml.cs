@@ -177,10 +177,13 @@ namespace BaconographyWP8
             {
                 if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]))
                     ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Mail]);
+                if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Submit]))
+                    ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Submit]);
             }
             else
             {
                 ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Mail]);
+                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Submit]);
             }
 		}
 
@@ -224,6 +227,17 @@ namespace BaconographyWP8
             }
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate(typeof(MessagingPageView), null);
+        }
+
+        private void MenuSubmit_Click(object sender, EventArgs e)
+        {
+            var locator = App.Current.Resources["Locator"] as ViewModelLocator;
+            if (locator != null)
+            {
+                locator.Submit.RefreshUser.Execute(locator.Submit);
+            }
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate(typeof(ComposePostPageView), null);
         }
 
 		private void MenuManage_Click(object sender, EventArgs e)
@@ -279,7 +293,8 @@ namespace BaconographyWP8
 			Manage,
 			Close,
 			Pin,
-            Mail
+            Mail,
+            Submit
 		}
 
 		private void BuildMenu()
@@ -320,6 +335,11 @@ namespace BaconographyWP8
             appMenuItems[(int)MenuEnum.Mail].Text = "mail";
             appMenuItems[(int)MenuEnum.Mail].IsEnabled = true;
             appMenuItems[(int)MenuEnum.Mail].Click += MenuMail_Click;
+
+            appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Submit].Text = "new post";
+            appMenuItems[(int)MenuEnum.Submit].IsEnabled = true;
+            appMenuItems[(int)MenuEnum.Submit].Click += MenuSubmit_Click;
 
 			ApplicationBar.MenuItems.Clear();
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
