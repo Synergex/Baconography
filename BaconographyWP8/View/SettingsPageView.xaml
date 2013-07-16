@@ -82,9 +82,9 @@
                     <ScrollViewer>
                         <StackPanel Margin="12,0,12,0">
                             <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
-                            <Button Margin="12,0,0,0" Content="System lock screen settings" BorderThickness="0" Click="ShowSystemLockScreenSettings"/>
+                            <Button Margin="12,0,0,0" Content="System lock screen settings" Click="ShowSystemLockScreenSettings"/>
 
-                            <Button Margin="12,0,0,0" Content="Preview lock screen" BorderThickness="0" Click="ShowLockScreenPreview"/>
+                            <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
 
                             <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
 

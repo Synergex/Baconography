@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace BaconographyWP8.ViewModel
 {
@@ -23,7 +24,7 @@ namespace BaconographyWP8.ViewModel
             OverlayOpacity = settingsService.OverlayOpacity;
         }
 
-        public string ImageSource { get; set; }
+        public ImageSource ImageSource { get; set; }
         public IEnumerable<LockScreenMessage> OverlayItems  { get; set; }
 
         float _overlayOpacity;

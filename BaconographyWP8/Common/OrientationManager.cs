@@ -29,6 +29,9 @@ namespace BaconographyWP8.Common
 				_settingsService = _baconProvider.GetService<ISettingsService>();
 			}
 
+            //_settingsService.ScreenHeight = (int)App  RootFrame.ActualHeight;
+            //_settingsService.ScreenHeight = (int)App.RootFrame.ActualWidth;
+
 			Messenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			Messenger.Default.Register<OrientationChangedMessage>(this, OnOrientationChanged);
             Messenger.Default.Register<LoadingMessage>(this, OnLoading);
@@ -87,6 +90,8 @@ namespace BaconographyWP8.Common
 			}
 
 			Orientation = message.Orientation;
+            _settingsService.ScreenHeight = (int)App.Current.Host.Content.ActualHeight;
+            _settingsService.ScreenWidth = (int)App.Current.Host.Content.ActualWidth;
 		}
 
 		private void OnSettingsChanged(SettingsChangedMessage message)
