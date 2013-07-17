@@ -416,6 +416,7 @@
     <Content Include="Assets\ApplicationIcon.png" />
     <Content Include="Assets\ApplicationIconSmall.png" />
     <Content Include="Assets\BaconographyKitaroPlug.png" />
+    <Content Include="Assets\DefaultLockScreen.png" />
     <Content Include="Assets\Icons\cancel.png" />
     <Content Include="Assets\Icons\delete.png" />
     <Content Include="Assets\Icons\new.png" />
