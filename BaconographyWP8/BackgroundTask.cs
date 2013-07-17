@@ -298,6 +298,63 @@ namespace BaconographyWP8
                 throw new NotImplementedException();
             }
         }
+
+        public static void RemoveAgent(string name)
+        {
+            try
+            {
+                ScheduledActionService.Remove(name);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        public static void StartPeriodicAgent()
+        {
+            string periodicTaskName = "PeriodicAgent";
+
+            // Obtain a reference to the period task, if one exists
+            var periodicTask = ScheduledActionService.Find(periodicTaskName) as PeriodicTask;
+
+            // If the task already exists and background agents are enabled for the
+            // application, you must remove the task and then add it again to update 
+            // the schedule
+            if (periodicTask != null)
+            {
+                RemoveAgent(periodicTaskName);
+            }
+
+            periodicTask = new PeriodicTask(periodicTaskName);
+
+            // The description is required for periodic agents. This is the string that the user
+            // will see in the background services Settings page on the device.
+            periodicTask.Description = "This demonstrates a periodic task.";
+
+            // Place the call to Add in a try block in case the user has disabled agents.
+            try
+            {
+                ScheduledActionService.Add(periodicTask);
+
+            }
+            catch (InvalidOperationException exception)
+            {
+                if (exception.Message.Contains("BNS Error: The action is disabled"))
+                {
+                    MessageBox.Show("Background agents for this application have been disabled by the user.");
+                }
+
+                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
+                {
+                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
+
+                }
+            }
+            catch (SchedulerServiceException)
+            {
+            }
+        }
+
         //we must be very carefull how much memory is used during this, we are limited to 10 megs or we get shutdown
         //dont fully initialize things, just the bare minimum to get the job done
         protected override async void OnInvoke(ScheduledTask task)
@@ -481,7 +538,7 @@ namespace BaconographyWP8
                     break;
                 }
 
-                
+
                 ViewModelLocator.Initialize(baconProvider);
                 var vml = new ViewModelLocator();
                 vml.LockScreen.ImageSource = imageSource;
