@@ -13,6 +13,15 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="800" d:DesignWidth="480">
+    <UserControl.Resources>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <local:LinkView/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:AdvertisementViewModel">
+            <!-- Comment out the AdvertisementView to disable advertising -->
+            <local:AdvertisementView Margin="-12,0,0,0"/>
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <common:FixedLongListSelector Name="linksView"
                 DataContext="{Binding}"
@@ -33,9 +42,7 @@
             </common:FixedLongListSelector.ListHeaderTemplate>
             <common:FixedLongListSelector.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <local:LinkView/>
-                    </StackPanel>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
                 </DataTemplate>
             </common:FixedLongListSelector.ItemTemplate>
         </common:FixedLongListSelector>

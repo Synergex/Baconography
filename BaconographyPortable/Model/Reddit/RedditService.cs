@@ -454,7 +454,7 @@ namespace BaconographyPortable.Model.Reddit
                 var listing = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                 var newListing = JsonConvert.DeserializeObject<Listing>(listing);
 
-                return MaybeFilterForNSFW(newListing);
+                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
             }
             catch (Exception ex)
             {
@@ -745,8 +745,6 @@ namespace BaconographyPortable.Model.Reddit
 
 		private Listing MaybeInjectAdvertisements(Listing source)
 		{
-			return source;
-
 			int count = source.Data.Children.Count;
 			for (int i = 9; i < count; i += 10)
 			{

@@ -167,6 +167,9 @@
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\AdvertisementView.xaml.cs">
+      <DependentUpon>AdvertisementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\CommentsView.xaml.cs">
       <DependentUpon>CommentsView.xaml</DependentUpon>
     </Compile>
@@ -268,6 +271,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\AboutUserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AdvertisementView.xaml">
+      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CommentsView.xaml">
@@ -498,6 +505,9 @@
   <ItemGroup>
     <SDKReference Include="KitaroDBSDK_WP8, Version=2.0.0.0">
       <Name>KitaroDB for Windows Phone 8</Name>
+    </SDKReference>
+    <SDKReference Include="MSAdvertising, Version=6.1">
+      <Name>Microsoft Advertising SDK for Windows Phone 8 %28XAML%29</Name>
     </SDKReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
