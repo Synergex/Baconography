@@ -43,7 +43,7 @@ namespace BaconographyWP8.Common
 
         RedditView MapViewModel(ViewModelBase viewModel)
         {
-            return new RedditView();
+            return new RedditView() { Margin = new Thickness(0,0,0,0), Padding = new Thickness(0,0,0,0) };
         }
 
         int inflightLoadId = 0;

@@ -9,12 +9,16 @@
     
     <ad:AdControl
         x:Name="advertisement"
-        ApplicationId="test_client" AdUnitId="Image480_80"
+        ApplicationId="2377fac1-233e-42ea-bc16-c84f48ee5a51" AdUnitId="136591"
         Height="80" Width="480"
-        IsAutoRefreshEnabled="False"
+        IsAutoRefreshEnabled="True"
         AdRefreshed="AdControl_AdRefreshed"
         ErrorOccurred="AdControl_ErrorOccurred"
-        BorderThickness="0"/>
+        BorderThickness="0"
+        Padding="0"
+        Background="Blue"
+        Margin="0"/>
 
     <!--ApplicationId="test_client" AdUnitId="Image480_80"-->
+    <!--ApplicationId="2377fac1-233e-42ea-bc16-c84f48ee5a51" AdUnitId="136591"-->
 </UserControl>
