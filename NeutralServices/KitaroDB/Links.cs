@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Baconography.NeutralServices.KitaroDB
@@ -17,6 +18,7 @@ namespace Baconography.NeutralServices.KitaroDB
     {
 		private static string linksDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\links_v3.ism";
 
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static Task<Links> _instanceTask;
         private static async Task<DB> CreateDB()
         {
@@ -85,6 +87,8 @@ namespace Baconography.NeutralServices.KitaroDB
 
                 using (var commentsCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), keySpace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (commentsCursor != null)
                         await commentsCursor.UpdateAsync(combinedSpace);
 
@@ -272,6 +276,11 @@ namespace Baconography.NeutralServices.KitaroDB
                 Debug.WriteLine(errorCode);
                 throw;
             }
+        }
+
+        internal void Terminate()
+        {
+            _terminateSource.Cancel();
         }
     }
 }

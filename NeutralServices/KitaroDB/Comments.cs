@@ -14,6 +14,8 @@ using Windows.Security.Cryptography.Core;
 using System.Runtime.InteropServices.WindowsRuntime;
 #endif
 
+using System.Threading;
+
 namespace Baconography.NeutralServices.KitaroDB
 {
     class Comments
@@ -21,6 +23,7 @@ namespace Baconography.NeutralServices.KitaroDB
 		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v3.ism";
 
         private static Task<Comments> _instanceTask;
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static async Task<Comments> GetInstanceImpl()
         {
             return new Comments(await GetDBInstance());
@@ -90,10 +93,13 @@ namespace Baconography.NeutralServices.KitaroDB
 #endif
                 Array.Copy(compressedBytes, 0, recordBytes, 28, compressedBytes.Length);
                 Array.Copy(keyBytes, 0, recordBytes, 0, keyBytes.Length);
-                
 
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (blobCursor != null)
                     {
                         await blobCursor.UpdateAsync(recordBytes);
@@ -154,5 +160,10 @@ namespace Baconography.NeutralServices.KitaroDB
             
         }
 
+
+        internal void Terminate()
+        {
+            _terminateSource.Cancel();
+        }
     }
 }

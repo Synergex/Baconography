@@ -7,6 +7,7 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using KitaroDB;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Baconography.NeutralServices.KitaroDB
 {
@@ -14,6 +15,7 @@ namespace Baconography.NeutralServices.KitaroDB
     {
 		private static string subredditsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\subreddits_v2.ism";
 
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static Task<Subreddits> _instanceTask;
         private static async Task<Subreddits> GetInstanceImpl()
         {
@@ -95,23 +97,25 @@ namespace Baconography.NeutralServices.KitaroDB
             var keyspace = GenerateNameKeyspace(((Subreddit)thing.Data).DisplayName);
             var combinedSpace = GenerateCombinedKeyspace(((Subreddit)thing.Data).DisplayName, ((Subreddit)thing.Data).Name, encodedValue);
 
-            var subredditsCursor = await _subredditsDB.SeekAsync(_subredditsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
-            if (subredditsCursor != null)
+            using (var subredditsCursor = await _subredditsDB.SeekAsync(_subredditsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
             {
-                using (subredditsCursor)
+                if (_terminateSource.IsCancellationRequested)
+                    return;
+
+                if (subredditsCursor != null)
                 {
-                    if(((Subreddit)thing.Data).Description != null)
+                    if (((Subreddit)thing.Data).Description != null)
                         await subredditsCursor.UpdateAsync(combinedSpace);
                 }
-            }
-            else
-            {
-                try
+                else
                 {
-                    await _subredditsDB.InsertAsync(combinedSpace);
-                }
-                catch (Exception ex)
-                {
+                    try
+                    {
+                        await _subredditsDB.InsertAsync(combinedSpace);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                 }
             }
         }
@@ -146,6 +150,11 @@ namespace Baconography.NeutralServices.KitaroDB
             }
             else
                 return null;
+        }
+
+        internal void Terminate()
+        {
+            _terminateSource.Cancel();
         }
     }
 }

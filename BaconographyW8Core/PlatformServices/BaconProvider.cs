@@ -18,12 +18,13 @@ namespace BaconographyW8.PlatformServices
     {
         public BaconProvider(IEnumerable<Tuple<Type, Object>> initialServices)
         {
+            var suspensionService = new SuspensionService();
             var redditService = new RedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
             var settingsService = new SettingsService();
-            var offlineService = new OfflineService(redditService, notificationService, settingsService);
+            var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
             var navigationService = new NavigationService();
@@ -34,7 +35,7 @@ namespace BaconographyW8.PlatformServices
             var smartOfflineService = new SmartOfflineService();
             var smartRedditService = new SmartOfflineRedditService();
             var viewModelContextService = new ViewModelContextService();
-            var suspensionService = new SuspensionService();
+            
 
             _services = new Dictionary<Type, object>
             {

@@ -96,8 +96,8 @@ namespace BaconographyWP8BackgroundTask.Hacks
                 var decodedJson = JSON.JsonDecode(meString);
                 var data = JSON.GetValue(decodedJson, "data");
 
-                var hasMail = JSON.GetValue(decodedJson, "has_mail") as Nullable<bool>;
-                var hasModMail = JSON.GetValue(decodedJson, "has_mod_mail") as Nullable<bool>;
+                var hasMail = JSON.GetValue(data, "has_mail") as Nullable<bool>;
+                var hasModMail = JSON.GetValue(data, "has_mod_mail") as Nullable<bool>;
 
 
                 return (hasMail ?? false) || (hasModMail ?? false);

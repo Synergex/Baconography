@@ -21,12 +21,13 @@ namespace BaconographyWP8.PlatformServices
             WebRequest.RegisterPrefix("http://", SharpGIS.WebRequestCreator.GZip);
             WebRequest.RegisterPrefix("https://", SharpGIS.WebRequestCreator.GZip);
 
+            var suspensionService = new SuspensionService();
             var redditService = new RedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
             var settingsService = new SettingsService();
-            var offlineService = new OfflineService(redditService, notificationService, settingsService);
+            var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
             var navigationService = new NavigationServices();
@@ -38,7 +39,7 @@ namespace BaconographyWP8.PlatformServices
             var oomService = new OOMService();
             var smartOfflineService = new SmartOfflineService();
             var viewModelContextService = new ViewModelContextService();
-            var suspensionService = new SuspensionService();
+            
 
 
             _services = new Dictionary<Type, object>

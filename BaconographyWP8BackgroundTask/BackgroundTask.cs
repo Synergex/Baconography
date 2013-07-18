@@ -3,6 +3,8 @@ using BaconographyWP8BackgroundControls.View;
 using BaconographyWP8BackgroundTask.Hacks;
 using Microsoft.Phone.Info;
 using Microsoft.Phone.Scheduler;
+using Microsoft.Phone.Shell;
+using Procurios.Public;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -148,173 +150,185 @@ namespace BaconographyWP8
         //dont fully initialize things, just the bare minimum to get the job done
         protected override async void OnInvoke(ScheduledTask task)
         {
-            //Dictionary<string, string> settingsCache;
-            //using (var settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None))
-            //{
-            //    settingsCache = new Dictionary<string, string>();
-            //    //load all of the settings up front so we dont spend so much time going back and forth
-            //    var cursor = await settingsDb.SeekAsync(DBReadFlags.NoLock);
-            //    if (cursor != null)
-            //    {
-            //        using (cursor)
-            //        {
-            //            do
-            //            {
-            //                settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
-            //            } while (await cursor.MoveNextAsync());
-            //        }
-            //    }
-            //}
-            TinyRedditService redditService = null;
-            bool hasMail = false;
-            if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskCookie.txt"))
+            
+            if (task.Name == "LockScreen_Updater")
             {
-                using (var cookieFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskCookie.txt"))
-                {
-                    byte[] taskCookieBytes = new byte[1024];
-                    int readBytes = cookieFile.Read(taskCookieBytes, 0, 1024);
-
-                    var cookie = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
-                    redditService = new TinyRedditService(null, null, cookie);
-                    hasMail = await redditService.HasMail();
-                }
-            }
-            //Account loggedInUser = null;
-            //using (var userDb = await DB.CreateAsync(userInfoDbPath, DBCreateFlags.None, 1024,
-            //        new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) }))
-            //{
-            //    List<UserCredential> credentials = new List<UserCredential>();
-            //    try
-            //    {
-            //        var userCredentialsCursor = await userDb.SelectAsync(userDb.GetKeys().First(), "credentials", DBReadFlags.NoLock);
-            //        if (userCredentialsCursor != null)
-            //        {
-            //            using (userCredentialsCursor)
-            //            {
-            //                do
-            //                {
-            //                    var credential = JsonConvert.DeserializeObject<UserCredential>(userCredentialsCursor.GetString());
-            //                    credentials.Add(credential);
-            //                } while (await userCredentialsCursor.MoveNextAsync());
-            //            }
-            //        }
-            //    }
-            //    catch
-            //    {
-            //        //let it fail
-            //    }
-
-            //    var defaultCredential = credentials.FirstOrDefault(credential => credential.IsDefault);
-            //    if (defaultCredential != null)
-            //    {
-            //        if (!string.IsNullOrWhiteSpace(defaultCredential.LoginCookie))
-            //        {
-            //            redditService = new TinyRedditService(defaultCredential.Username, "", defaultCredential.LoginCookie);
-            //            loggedInUser = await redditService.GetMe();
-            //        }
-            //    }
-            //}
-
-            if (redditService == null)
-                redditService = new TinyRedditService(null, null, null);
+                //even though this only takes up 500k (because of the dll load + a thread stack existing in the async call) with large image compositing 
+                //we dont have enough ram to fit anything other than absolute basic .net libraries, this is only an issue in periodic
+                //Dictionary<string, string> settingsCache;
+                //using (var settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None))
+                //{
+                //    settingsCache = new Dictionary<string, string>();
+                //    //load all of the settings up front so we dont spend so much time going back and forth
+                //    var cursor = await settingsDb.SeekAsync(DBReadFlags.NoLock);
+                //    if (cursor != null)
+                //    {
+                //        using (cursor)
+                //        {
+                //            do
+                //            {
+                //                settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                //            } while (await cursor.MoveNextAsync());
+                //        }
+                //    }
+                //}
 
 
-            LockScreenViewModel lockScreenViewModel = new LockScreenViewModel();
 
-            lockScreenViewModel.ImageSource = "lockScreenCache.jpg";
-            lockScreenViewModel.OverlayOpacity = 0.25f;
-            //if (settingsCache.ContainsKey("OverlayOpacity"))
-            //{
-            //    lockScreenViewModel.OverlayOpacity = ((float)Int32.Parse(settingsCache["OverlayOpacity"])) / 100.0f;
-            //}
-
-            if (hasMail)
-            {
-                //get messages and notify user if a new message has appeared
-                //add messages to the list if they are unread
-                var messages = await redditService.GetNewMessages(null);
-                if (messages != null)
-                {
-                    foreach (var message in messages)
-                    {
-                        lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });
-                    }
-                }
-                messages = null;
-            }
-
-            var links = await redditService.GetPostsBySubreddit("/", null);
-            if (links != null)
-            {
-                //the goal is 6 items in the list, if thats not filled with messages then fill it with links
-                foreach (var link in links)
-                {
-                    if (lockScreenViewModel.OverlayItems.Count > 5)
-                        break;
-
-                    lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = link.Item1, Glyph = GetGlyph(link.Item2) });
-                }
-            }
-            redditService = null;
-            links = null;
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
-            {
+                string lockScreenImage = "lockScreenCache1.jpg";
+                int opacity = 35;
+                TinyRedditService redditService = null;
+                bool hasMail = false;
                 try
                 {
-                    Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
-                    //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
-                    var lockScreenView = new LockScreenViewControl(lockScreenViewModel);
-                    lockScreenView.Width = 480;
-                    lockScreenView.Height = 800;
-                    lockScreenView.UpdateLayout();
-                    lockScreenView.Measure(new Size(480, 800));
-                    lockScreenView.Arrange(new Rect(0, 0, 480, 800));
-                    Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
-                    WriteableBitmap bitmap = new WriteableBitmap(480, 800);
-                    Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
-                    bitmap.Render(lockScreenView, new ScaleTransform { ScaleX = 1.0f, ScaleY = 1.0f });
-                    bitmap.Invalidate();
-                    lockScreenView = null; //nuke the UI just incase the jpeg encoder overruns memory
-                    string targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg";
-                    if (File.Exists(targetFilePath))
+                    if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                     {
-                        targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
-                    }
-                    var lockscreenJpg = File.Create(targetFilePath);
-                    bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
-                    lockscreenJpg.Flush(true);
-                    lockscreenJpg.Close();
-                    BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false);
+                        using (var cookieFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                        {
+                            byte[] taskCookieBytes = new byte[4096];
+                            int readBytes = cookieFile.Read(taskCookieBytes, 0, 4096);
 
-                    if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
-                    {
-                        File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg");
-                    }
-                    else if (targetFilePath.EndsWith("lockscreen.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg"))
-                    {
-                        File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
+                            var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
+                            var decodedJson = JSON.JsonDecode(json);
+
+                            var cookie = JSON.GetValue(decodedJson, "cookie") as string;
+                            var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
+                            var linkReddit = JSON.GetValue(decodedJson, "link_reddit") as string;
+                            var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
+                            var tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
+
+                            Shuffle(lockScreenImages);
+                            lockScreenImage = (lockScreenImages.FirstOrDefault() as string) ?? "lockScreenCache1.jpg";
+
+                            if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
+
+                            redditService = new TinyRedditService(null, null, cookie);
+                            hasMail = await redditService.HasMail();
+                        }
                     }
                 }
-                catch (Exception ex)
+                catch 
                 {
-                    var exString = ex.ToString();
-                    Debug.WriteLine(exString);
+                    if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                        File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
                 }
 
-                //DONE
-                NotifyComplete();
-            });
+                if (redditService == null)
+                    redditService = new TinyRedditService(null, null, null);
+
+
+                LockScreenViewModel lockScreenViewModel = new LockScreenViewModel();
+
+                lockScreenViewModel.ImageSource = lockScreenImage;
+                lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
+                //if (settingsCache.ContainsKey("OverlayOpacity"))
+                //{
+                //    lockScreenViewModel.OverlayOpacity = ((float)Int32.Parse(settingsCache["OverlayOpacity"])) / 100.0f;
+                //}
+
+                if (hasMail)
+                {
+                    //get messages and notify user if a new message has appeared
+                    //add messages to the list if they are unread
+                    var messages = await redditService.GetNewMessages(null);
+                    if (messages != null)
+                    {
+                        bool toasted = false;
+                        foreach (var message in messages)
+                        {
+                            if (!toasted)
+                            {
+                                toasted = true;
+                                ShellToast toast = new ShellToast();
+                                toast.Title = "New message";
+                                toast.Content = message;
+                                toast.NavigationUri = new Uri("/View/MessagingPageView.xaml");
+                                toast.Show();
+                            }
+
+                            lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });
+                        }
+                    }
+                    messages = null;
+                }
+
+                var links = await redditService.GetPostsBySubreddit("/", null);
+                if (links != null)
+                {
+                    //the goal is 6 items in the list, if thats not filled with messages then fill it with links
+                    foreach (var link in links)
+                    {
+                        if (lockScreenViewModel.OverlayItems.Count > 5)
+                            break;
+
+                        lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = link.Item1, Glyph = GetGlyph(link.Item2) });
+                    }
+                }
+                redditService = null;
+                links = null;
+                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    try
+                    {
+                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
+                        //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
+                        var lockScreenView = new LockScreenViewControl(lockScreenViewModel);
+                        lockScreenView.Width = 480;
+                        lockScreenView.Height = 800;
+                        lockScreenView.UpdateLayout();
+                        lockScreenView.Measure(new Size(480, 800));
+                        lockScreenView.Arrange(new Rect(0, 0, 480, 800));
+                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
+                        WriteableBitmap bitmap = new WriteableBitmap(480, 800);
+                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
+                        bitmap.Render(lockScreenView, new ScaleTransform { ScaleX = 1.0f, ScaleY = 1.0f });
+                        bitmap.Invalidate();
+                        lockScreenView = null; //nuke the UI just incase the jpeg encoder overruns memory
+                        string targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg";
+                        if (File.Exists(targetFilePath))
+                        {
+                            targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
+                        }
+                        var lockscreenJpg = File.Create(targetFilePath);
+                        bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
+                        lockscreenJpg.Flush(true);
+                        lockscreenJpg.Close();
+                        BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false, true);
+
+                        if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
+                        {
+                            File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg");
+                        }
+                        else if (targetFilePath.EndsWith("lockscreen.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg"))
+                        {
+                            File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
+                        }
+                    }
+                    catch { }
+
+                    //DONE
+                    NotifyComplete();
+                });
+            }
+            else //must be the resource intensive task, we get 10 minutes and a normal amount of ram to work with
+            {
+                //we get to load of the full set of dlls we have
+                //we want to download new images for the lock/tiles
+                //we want to download image api/images/links/comments from the users pinned reddits
+                //so when they wake up in the morning everything is fast
+                //this task only runs when we're on wifi so there shouldnt be any concerns about bandwidth
+            }
         }
 
         const string ReadMailGlyph = "\uE166";
         const string UnreadMailGlyph = "\uE119";
 
-        public static async void LockHelper(string filePathOfTheImage, bool isAppResource)
+        public static async void LockHelper(string filePathOfTheImage, bool isAppResource, bool supressInit)
         {
             try
             {
                 var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
-                if (!isProvider)
+                if (!isProvider && !supressInit)
                 {
                     // If you're not the provider, this call will prompt the user for permission.
                     // Calling RequestAccessAsync from a background agent is not allowed.
@@ -337,7 +351,7 @@ namespace BaconographyWP8
                     // Set the lock screen background image.
                     Windows.Phone.System.UserProfile.LockScreen.SetImageUri(uri);
                 }
-                else
+                else if(!supressInit)
                 {
                     MessageBox.Show("You said no, so I can't update your background.");
                 }
