@@ -28,10 +28,6 @@ namespace BaconographyPortable.Services
         bool PromptForCaptcha { get; set; }
         bool HighresLockScreenOnly { get; set; }
         bool EnableUpdates { get; set; }
-        bool UpdateImagesOnlyWifi { get; set; }
-        bool UpdateOverlayOnlyWifi { get; set; }
-        string ImageUpdateFrequency { get; set; }
-        string OverlayUpdateFrequency { get; set; }
         bool MessagesInLockScreenOverlay { get; set; }
         bool PostsInLockScreenOverlay { get; set; }
         string ImagesSubreddit { get; set; }

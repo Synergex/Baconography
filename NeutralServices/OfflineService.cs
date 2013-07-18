@@ -25,13 +25,36 @@ namespace Baconography.NeutralServices
         private string _imageApiFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism";
         private string _imageFileName = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism";
 
-        public OfflineService(IRedditService redditService, INotificationService notificationService, ISettingsService settingsService)
+        public OfflineService(IRedditService redditService, INotificationService notificationService, ISettingsService settingsService, ISuspensionService suspensionService)
         {
             _redditService = redditService;
             _notificationService = notificationService;
             _settingsService = settingsService;
+            _suspensionService = suspensionService;
+            _suspensionService.Suspending += _suspensionService_Suspending;
         }
 
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
+
+        void _suspensionService_Suspending()
+        {
+            _terminateSource.Cancel();
+            _instanceTask = null;
+            _hasQueuedActions = false;
+
+            if (_comments != null)
+                _comments.Terminate();
+
+            if (_links != null)
+                _links.Terminate();
+
+            if (_subreddits != null)
+                _subreddits.Terminate();
+
+            if (_statistics != null)
+                _statistics.Terminate();
+        }
+        ISuspensionService _suspensionService;
         INotificationService _notificationService;
         IRedditService _redditService;
         ISettingsService _settingsService;
@@ -42,10 +65,20 @@ namespace Baconography.NeutralServices
         {
             try
             {
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _comments = await Comments.GetInstance();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _links = await Links.GetInstance();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _subreddits = await Subreddits.GetInstance();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _statistics = await UsageStatistics.GetInstance();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
 
                 //tell the key value pair infrastructure to allow duplicates
                 //we dont really have a key, all we actually wanted was an ordered queue
@@ -53,9 +86,14 @@ namespace Baconography.NeutralServices
                 _actionsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\actions_v2.ism", DBCreateFlags.None,
                     ushort.MaxValue - 100,
                     new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) });
-
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.None);
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None);
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v3.ism", DBCreateFlags.None, 0,
                     new DBKey[] 
                     { 
@@ -63,8 +101,15 @@ namespace Baconography.NeutralServices
                         new DBKey(8, 4, DBKeyFlags.AutoTime, "timestamp", false, true, false, 1) 
                     });
 
+                if (_terminateSource.IsCancellationRequested)
+                    return;
+
                 _imageAPIDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism", DBCreateFlags.None);
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 _imageDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism", DBCreateFlags.None);
+                if (_terminateSource.IsCancellationRequested)
+                    return;
 
                 //get our initial action queue state
                 var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
@@ -78,6 +123,8 @@ namespace Baconography.NeutralServices
                         do
                         {
                             _clickHistory.Add(historyCursor.GetString());
+                            if (_terminateSource.IsCancellationRequested)
+                                return;
                         } while (await historyCursor.MoveNextAsync());
                     }
                 }
@@ -92,6 +139,8 @@ namespace Baconography.NeutralServices
                         do
                         {
                             _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                            if (_terminateSource.IsCancellationRequested)
+                                return;
                         } while (await cursor.MoveNextAsync());
                     }
                 }
@@ -162,12 +211,16 @@ namespace Baconography.NeutralServices
         public async Task IncrementDomainStatistic(string domain, bool isLink)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             await _statistics.IncrementDomain(domain, isLink);
         }
 
         public async Task IncrementSubredditStatistic(string subredditId, bool isLink)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             await _statistics.IncrementSubreddit(subredditId, isLink);
         }
 
@@ -206,6 +259,8 @@ namespace Baconography.NeutralServices
         public async Task StoreComments(Listing listing)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             try
             {
                 if (listing == null || listing.Data.Children.Count == 0)
@@ -215,13 +270,15 @@ namespace Baconography.NeutralServices
                 if (linkThing != null)
                 {
                     await _links.StoreLink(listing.Data.Children.First());
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                 }
 
                 await _comments.StoreComments(listing);
             }
             catch (Exception ex)
             {
-                _notificationService.CreateErrorNotification(ex);
+                //_notificationService.CreateErrorNotification(ex);
             }
         }
 
@@ -240,7 +297,7 @@ namespace Baconography.NeutralServices
             }
             catch (Exception ex)
             {
-                _notificationService.CreateErrorNotification(ex);
+                //_notificationService.CreateErrorNotification(ex);
             }
         }
 
@@ -331,7 +388,7 @@ namespace Baconography.NeutralServices
             }
             catch (Exception ex)
             {
-                _notificationService.CreateErrorNotification(ex);
+                //_notificationService.CreateErrorNotification(ex);
             }
         }
 
@@ -360,8 +417,13 @@ namespace Baconography.NeutralServices
                 //the 8 bytes not written here will be filled with the current time stamp by kdb
                 Array.Copy(BitConverter.GetBytes(key.GetHashCode()), recordBytes, 4);
 
+                if (_terminateSource.IsCancellationRequested)
+                    return;
+
                 using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (blobCursor != null)
                     {
                         await blobCursor.UpdateAsync(recordBytes);
@@ -387,7 +449,8 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
-
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 var thingBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(thing));
                 var recordBytes = new byte[thingBytes.Length + 12];
                 Array.Copy(thingBytes, 0, recordBytes, 12, thingBytes.Length);
@@ -396,6 +459,8 @@ namespace Baconography.NeutralServices
 
                 using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (blobCursor != null)
                     {
                         await blobCursor.UpdateAsync(recordBytes);
@@ -510,6 +575,8 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 if (!_settingsCache.ContainsKey(name))
                 {
                     _settingsCache.Add(name, value);
@@ -522,6 +589,10 @@ namespace Baconography.NeutralServices
                 if (cursor != null)
                 {
                     cursor.Dispose();
+
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
+
                     if(!string.IsNullOrEmpty(value))
                         await _settingsDb.UpdateAsync(name, value);
                     else
@@ -561,6 +632,8 @@ namespace Baconography.NeutralServices
         public async Task StoreHistory(string link)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             if (!_clickHistory.Contains(link))
             {
                 _clickHistory.Add(link);
@@ -591,6 +664,8 @@ namespace Baconography.NeutralServices
         public async Task EnqueueAction(string actionName, Dictionary<string, string> parameters)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             _hasQueuedActions = true;
             await _actionsDb.InsertAsync("action", JsonConvert.SerializeObject(new { Name = actionName, Parameters = parameters }));
         }
@@ -634,9 +709,13 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 var uriBytes = Encoding.UTF8.GetBytes(uri);
                 using (var apiCursor = await _imageDb.SeekAsync(_imageDb.GetKeys()[0], uriBytes, DBReadFlags.NoLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (apiCursor != null)
                     {
                         await _imageDb.UpdateAsync(uriBytes, bytes);
@@ -661,11 +740,14 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
-
+                if (_terminateSource.IsCancellationRequested)
+                    return;
                 var apiString = JsonConvert.SerializeObject(apiResults);
 
                 using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uri, DBReadFlags.NoLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (apiCursor != null)
                     {
                         await _imageAPIDb.UpdateAsync(uri, apiString);
@@ -718,6 +800,8 @@ namespace Baconography.NeutralServices
         public async Task StoreSubreddit(TypedThing<Subreddit> subreddit)
         {
             await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return;
             await _subreddits.StoreSubreddit(subreddit);
         }
     }

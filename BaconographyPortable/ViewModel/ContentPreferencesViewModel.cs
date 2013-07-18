@@ -151,58 +151,6 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public bool UpdateImagesOnlyWifi
-        {
-            get
-            {
-                return _settingsService.UpdateImagesOnlyWifi;
-            }
-            set
-            {
-                _settingsService.UpdateImagesOnlyWifi = value;
-                RaisePropertyChanged("UpdateImagesOnlyWifi");
-            }
-        }
-
-        public bool UpdateOverlayOnlyWifi
-        {
-            get
-            {
-                return _settingsService.UpdateOverlayOnlyWifi;
-            }
-            set
-            {
-                _settingsService.UpdateOverlayOnlyWifi = value;
-                RaisePropertyChanged("UpdateOverlayOnlyWifi");
-            }
-        }
-
-        public string ImageUpdateFrequency
-        {
-            get
-            {
-                return _settingsService.ImageUpdateFrequency;
-            }
-            set
-            {
-                _settingsService.ImageUpdateFrequency = value;
-                RaisePropertyChanged("ImageUpdateFrequency");
-            }
-        }
-
-        public string OverlayUpdateFrequency
-        {
-            get
-            {
-                return _settingsService.OverlayUpdateFrequency;
-            }
-            set
-            {
-                _settingsService.OverlayUpdateFrequency = value;
-                RaisePropertyChanged("OverlayUpdateFrequency");
-            }
-        }
-
         public bool MessagesInLockScreenOverlay
         {
             get

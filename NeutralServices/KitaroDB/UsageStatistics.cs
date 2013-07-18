@@ -9,6 +9,7 @@ using KitaroDB;
 using Newtonsoft.Json;
 using BaconographyPortable.Model.KitaroDB.ListingHelpers;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Baconography.NeutralServices.KitaroDB
 {
@@ -17,6 +18,7 @@ namespace Baconography.NeutralServices.KitaroDB
         private static string subredditStatisticsPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\subreddit_statistics_v2.ism";
         private static string domainStatisticsPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\domain_statistics_v2.ism";
 
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static Task<UsageStatistics> _instanceTask;
         private static async Task<UsageStatistics> GetInstanceImpl()
         {
@@ -110,6 +112,8 @@ namespace Baconography.NeutralServices.KitaroDB
 
                 using (var dbCursor = await _domainStatisticsDB.SeekAsync(_domainStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (dbCursor != null)
                     {
                         // Decode cursor
@@ -157,6 +161,8 @@ namespace Baconography.NeutralServices.KitaroDB
 
                 using (var dbCursor = await _subredditStatisticsDB.SeekAsync(_subredditStatisticsDB.GetKeys()[0], keyspace, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
                     if (dbCursor != null)
                     {
 
@@ -288,6 +294,11 @@ namespace Baconography.NeutralServices.KitaroDB
                 .Take(maxSize)
                 .ToList();
             return retval;
+        }
+
+        internal void Terminate()
+        {
+            _terminateSource.Cancel();
         }
     }
 }

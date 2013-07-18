@@ -45,10 +45,6 @@ namespace BaconographyWP8.PlatformServices
         public bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
         public bool HighresLockScreenOnly { get; set; }
         public bool EnableUpdates { get; set; }
-        public bool UpdateImagesOnlyWifi { get; set; }
-        public bool UpdateOverlayOnlyWifi { get; set; }
-        public string ImageUpdateFrequency { get; set; }
-        public string OverlayUpdateFrequency { get; set; }
         public bool MessagesInLockScreenOverlay { get; set; }
         public bool PostsInLockScreenOverlay { get; set; }
         public int OverlayOpacity { get; set; }
@@ -166,6 +162,38 @@ namespace BaconographyWP8.PlatformServices
                     HighresLockScreenOnly = bool.Parse(highresLockScreenOnly);
                 else
                     HighresLockScreenOnly = false;
+
+                var messagesInLockScreenOverlay = await offlineService.GetSetting("MessagesInLockScreenOverlay");
+                if (!string.IsNullOrWhiteSpace(messagesInLockScreenOverlay))
+                    MessagesInLockScreenOverlay = bool.Parse(messagesInLockScreenOverlay);
+                else
+                    MessagesInLockScreenOverlay = true;
+
+                var enableUpdates = await offlineService.GetSetting("EnableUpdates");
+                if (!string.IsNullOrWhiteSpace(enableUpdates))
+                    EnableUpdates = bool.Parse(enableUpdates);
+                else
+                    EnableUpdates = false;
+
+                var postsInLockScreenOverlay = await offlineService.GetSetting("PostsInLockScreenOverlay");
+                if (!string.IsNullOrWhiteSpace(postsInLockScreenOverlay))
+                    PostsInLockScreenOverlay = bool.Parse(postsInLockScreenOverlay);
+                else
+                    PostsInLockScreenOverlay = true;
+
+                var imagesSubreddit = await offlineService.GetSetting("ImagesSubreddit");
+				if (!string.IsNullOrWhiteSpace(imagesSubreddit))
+					ImagesSubreddit = imagesSubreddit;
+				else
+                    ImagesSubreddit = "/r/earthporn";
+
+                var lockScreenReddit = await offlineService.GetSetting("LockScreenReddit");
+				if (!string.IsNullOrWhiteSpace(lockScreenReddit))
+					LockScreenReddit = lockScreenReddit;
+				else
+					LockScreenReddit = "/";
+
+
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
