@@ -16,6 +16,7 @@ namespace BaconographyWP8.ViewModel
 
         public string ImageSource { get; set; }
         public List<LockScreenMessage> OverlayItems  { get; set; }
+        public int NumberOfItems { get; set; }
 
         float _overlayOpacity;
         public float OverlayOpacity

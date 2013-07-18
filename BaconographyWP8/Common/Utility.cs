@@ -42,6 +42,7 @@ namespace BaconographyWP8.Common
         {
             public string cookie;
             public string opacity;
+            public string number_of_items;
             public string link_reddit;
             public string[] lock_images;
             public string[] tile_images;
@@ -59,7 +60,7 @@ namespace BaconographyWP8.Common
 
                 using (var taskCookieFile = File.OpenWrite(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), link_reddit = settingsService.LockScreenReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
@@ -260,7 +261,7 @@ namespace BaconographyWP8.Common
             if (user.Me != null && (user.Me.HasMail || user.Me.HasModMail))
             {
                 //toast the user that they have mail
-                ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("you have new mail");
+                //ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("you have new mail");
             }
             
             LinkGlyphConverter linkGlyphConverter = new LinkGlyphConverter();
@@ -277,12 +278,12 @@ namespace BaconographyWP8.Common
                 }));
             }
 
-            if (settingsService.PostsInLockScreenOverlay)
+            if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {
                 //call for posts from selected subreddit (defaults to front page)
                 var frontPageResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10);
                 Shuffle(frontPageResult.Data.Children);
-                lockScreenMessages.AddRange(frontPageResult.Data.Children.Take(6 - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
+                lockScreenMessages.AddRange(frontPageResult.Data.Children.Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             }
 
             List<string> shuffledLockScreenImages = new List<string>(lockScreenImages);

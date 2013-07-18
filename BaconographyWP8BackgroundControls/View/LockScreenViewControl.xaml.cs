@@ -40,9 +40,16 @@ namespace BaconographyWP8BackgroundControls.View
             InitializeComponent();
             backgroundImage.ImageSource = GetImageFromIsolatedStorage(lockScreenViewModel.ImageSource);
             borderBackground.Opacity = lockScreenViewModel.OverlayOpacity;
-            foreach (var item in lockScreenViewModel.OverlayItems)
+            if (lockScreenViewModel.NumberOfItems > 0)
             {
-                itemsControl.Items.Add(new LockScreenOverlayItem(item));
+                foreach (var item in lockScreenViewModel.OverlayItems)
+                {
+                    itemsControl.Items.Add(new LockScreenOverlayItem(item));
+                }
+            }
+            else
+            {
+                itemsControl.Visibility = System.Windows.Visibility.Collapsed;
             }
         }
     }

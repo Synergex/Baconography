@@ -178,6 +178,7 @@ namespace BaconographyWP8
                 string lockScreenImage = "lockScreenCache1.jpg";
                 string linkReddit = "/";
                 int opacity = 35;
+                int numberOfItems = 6;
                 TinyRedditService redditService = null;
                 bool hasMail = false;
                 try
@@ -194,6 +195,7 @@ namespace BaconographyWP8
 
                             var cookie = JSON.GetValue(decodedJson, "cookie") as string;
                             var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
+                            var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
                             linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
                             var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
                             var tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
@@ -202,6 +204,7 @@ namespace BaconographyWP8
                             lockScreenImage = (lockScreenImages.FirstOrDefault() as string) ?? "lockScreenCache1.jpg";
 
                             if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
+                            if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
 
                             redditService = new TinyRedditService(null, null, cookie);
                             hasMail = await redditService.HasMail();
@@ -222,6 +225,7 @@ namespace BaconographyWP8
 
                 lockScreenViewModel.ImageSource = lockScreenImage;
                 lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
+                lockScreenViewModel.NumberOfItems = numberOfItems;
                 //if (settingsCache.ContainsKey("OverlayOpacity"))
                 //{
                 //    lockScreenViewModel.OverlayOpacity = ((float)Int32.Parse(settingsCache["OverlayOpacity"])) / 100.0f;
@@ -259,7 +263,7 @@ namespace BaconographyWP8
                     //the goal is 6 items in the list, if thats not filled with messages then fill it with links
                     foreach (var link in links)
                     {
-                        if (lockScreenViewModel.OverlayItems.Count > 5)
+                        if (lockScreenViewModel.OverlayItems.Count > numberOfItems - 1)
                             break;
 
                         lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = link.Item1, Glyph = GetGlyph(link.Item2) });
