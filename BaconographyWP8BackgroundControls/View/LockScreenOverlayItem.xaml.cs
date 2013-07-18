@@ -9,7 +9,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BaconographyWP8.ViewModel;
 
-namespace BaconographyWP8.View
+namespace BaconographyWP8BackgroundControls.View
 {
     public partial class LockScreenOverlayItem : UserControl
     {

@@ -18,6 +18,8 @@ using BaconographyPortable.ViewModel;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Media;
+using BaconographyWP8BackgroundControls.View;
+using System.Text;
 
 namespace BaconographyWP8.View
 {
@@ -70,8 +72,13 @@ namespace BaconographyWP8.View
 
         private async void ShowLockScreenPreview(object sender, RoutedEventArgs e)
         {
-            await BackgroundTask.MakeLockScreenControl(ServiceLocator.Current.GetInstance<ISettingsService>(), ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
+            var viewModel = await Utility.MakeLockScreenControl(ServiceLocator.Current.GetInstance<ISettingsService>(), ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
+
+            var vml = new ViewModelLocator();
+            vml.LockScreen.ImageSource = viewModel.ImageSource;
+            vml.LockScreen.OverlayItems = viewModel.OverlayItems;
+            vml.LockScreen.OverlayOpacity = viewModel.OverlayOpacity;
 
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
@@ -79,13 +86,27 @@ namespace BaconographyWP8.View
 
         private async void SetLockScreen(object sender, RoutedEventArgs e)
         {
+            var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            var loginCookie = (await userService.GetUser()).LoginCookie;
+            if (!string.IsNullOrWhiteSpace(loginCookie))
+            {
+                using (var taskCookieFile = File.OpenWrite(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskCookie.txt"))
+                {
+                    var cookieBytes = Encoding.UTF8.GetBytes(loginCookie);
+                    taskCookieFile.Write(cookieBytes, 0, cookieBytes.Length);
+                }
+            }
+            else if(File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskCookie.txt"))
+            {
+                File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskCookie.txt");
+            }
+            
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-            await BackgroundTask.MakeLockScreenControl(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
+            var lockScreenViewModel = await Utility.MakeLockScreenControl(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), ServiceLocator.Current.GetInstance<IUserService>(),
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<IBaconProvider>());
 
-            var vml = new ViewModelLocator();
             //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
-            var lockScreenView = new LockScreenViewControl(vml.LockScreen);
+            var lockScreenView = new LockScreenViewControl(lockScreenViewModel);
             lockScreenView.Width = settingsService.ScreenWidth;
             lockScreenView.Height = settingsService.ScreenHeight;
             lockScreenView.UpdateLayout();

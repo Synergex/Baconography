@@ -344,6 +344,12 @@ namespace BaconographyWP8.PlatformServices
             return _userInfoDb;
         }
 
+        public void CloseDB()
+        {
+            _userInfoDb.Dispose();
+            _userInfoDb = null;
+        }
+
 		private class PasswordData
 		{
 			[JsonProperty("lastcookie")]

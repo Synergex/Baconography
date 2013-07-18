@@ -96,7 +96,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BackgroundTask.cs" />
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\OrientationManager.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
@@ -118,29 +117,29 @@
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
     <Compile Include="Converters\CommentVisibilityConverter.cs" />
-    <Compile Include="Converters\UnreadMessagesConverter.cs" />
-    <Compile Include="Converters\UnixTimeConverter.cs" />
-    <Compile Include="Converters\DomainConverter.cs" />
-    <Compile Include="Converters\ExtendedLinkConverter.cs" />
-    <Compile Include="Converters\LinkedPictureViewHeaderConverter.cs" />
-    <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
-    <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
-    <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
-    <Compile Include="Converters\TotalPointsConverter.cs" />
-    <Compile Include="Converters\VoteColorConverter.cs" />
-    <Compile Include="Converters\DepthMarginConverter.cs" />
-    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
-    <Compile Include="Converters\LinkGlyphConverter.cs" />
-    <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\DepthColorConverter.cs" />
+    <Compile Include="Converters\DepthMarginConverter.cs" />
+    <Compile Include="Converters\DomainConverter.cs" />
     <Compile Include="Converters\ExtendedCommentConverter.cs" />
+    <Compile Include="Converters\ExtendedLinkConverter.cs" />
+    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
+    <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Converters\LinkedPictureViewHeaderConverter.cs" />
+    <Compile Include="Converters\LinkGlyphConverter.cs" />
     <Compile Include="Converters\MarkdownConverter.cs" />
     <Compile Include="Converters\PortableAsyncCollectionConverter.cs" />
     <Compile Include="Converters\PreviewDataConverter.cs" />
+    <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
     <Compile Include="Converters\ReplyConverter.cs" />
+    <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
     <Compile Include="Converters\TimeRelationConverter.cs" />
+    <Compile Include="Converters\TotalPointsConverter.cs" />
+    <Compile Include="Converters\UnixTimeConverter.cs" />
+    <Compile Include="Converters\UnreadMessagesConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
+    <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\VoteIndicatorConverter.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -160,7 +159,6 @@
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
     <Compile Include="ViewModel\Collections\RedditViewModelCollection.cs" />
-    <Compile Include="ViewModel\LockScreenViewModel.cs" />
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
@@ -181,12 +179,6 @@
     </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\LockScreenOverlayItem.xaml.cs">
-      <DependentUpon>LockScreenOverlayItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\LockScreenViewControl.xaml.cs">
-      <DependentUpon>LockScreenViewControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
@@ -284,14 +276,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\LockScreen.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\LockScreenOverlayItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\LockScreenViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -441,6 +425,14 @@
       <Project>{386BE814-A21A-4A84-ABF3-F9B61130D4F2}</Project>
       <Name>BaconographyPortable</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BaconographyWP8BackgroundControls\BaconographyWP8BackgroundControls.csproj">
+      <Project>{4110A30E-1B48-45F6-AA6B-1ACDC817C286}</Project>
+      <Name>BaconographyWP8BackgroundControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BaconographyWP8BackgroundTask\BaconographyWP8BackgroundTask.csproj">
+      <Project>{BE26EFCC-E6B7-4B84-B339-CF89C8A81076}</Project>
+      <Name>BaconographyWP8BackgroundTask</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BaconographyWP8Core\BaconographyWP8Core.csproj">
       <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
       <Name>BaconographyWP8Core</Name>
@@ -481,6 +473,15 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>..\packages\Microsoft.Net.Http.2.1.10\lib\sl4-windowsphone71\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions">
+      <HintPath>..\packages\Microsoft.Net.Http.2.1.10\lib\sl4-windowsphone71\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives">
+      <HintPath>..\packages\Microsoft.Net.Http.2.1.10\lib\sl4-windowsphone71\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -504,4 +505,5 @@
   -->
   <ProjectExtensions />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />
 </Project>

@@ -1,8 +1,4 @@
-﻿using BaconographyPortable.Messages;
-using BaconographyPortable.Services;
-using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Practices.ServiceLocation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,17 +11,11 @@ namespace BaconographyWP8.ViewModel
     {
         public LockScreenViewModel()
         {
-            Messenger.Default.Register<SettingsChangedMessage>(this, settingsChanged);
+            OverlayItems = new List<LockScreenMessage>();
         }
 
-        private void settingsChanged(SettingsChangedMessage obj)
-        {
-            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-            OverlayOpacity = settingsService.OverlayOpacity;
-        }
-
-        public ImageSource ImageSource { get; set; }
-        public IEnumerable<LockScreenMessage> OverlayItems  { get; set; }
+        public string ImageSource { get; set; }
+        public List<LockScreenMessage> OverlayItems  { get; set; }
 
         float _overlayOpacity;
         public float OverlayOpacity

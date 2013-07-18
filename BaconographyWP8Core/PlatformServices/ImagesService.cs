@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Windows.Storage;
@@ -33,6 +34,58 @@ namespace BaconographyWP8.PlatformServices
         public Task<byte[]> ImageBytesFromUrl(string url)
         {
             return ImageBytesFromUrl(url, false);
+        }
+
+        public static async Task<Stream> ImageStreamFromUrl(string url)
+        {
+            var uri = new Uri(url);
+
+            string filename = Path.GetFileName(uri.LocalPath);
+
+            if (filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg") || filename.EndsWith(".gif"))
+            {
+            }
+            else
+            {
+                var targetHost = uri.DnsSafeHost.ToLower(); //make sure we can compare caseless
+                IEnumerable<Tuple<string, string>> imageAPIResults = null;
+                switch (targetHost)
+                {
+                    case "imgur.com":
+                        imageAPIResults = await Imgur.GetImagesFromUri("", uri);
+                        break;
+                    case "min.us":
+                        imageAPIResults = await Minus.GetImagesFromUri("", uri);
+                        break;
+                    case "www.quickmeme.com":
+                    case "i.qkme.me":
+                    case "quickmeme.com":
+                    case "qkme.me":
+                        imageAPIResults = Quickmeme.GetImagesFromUri("", uri);
+                        break;
+                    case "memecrunch.com":
+                        imageAPIResults = Memecrunch.GetImagesFromUri("", uri);
+                        break;
+                    case "www.flickr.com":
+                    case "flickr.com":
+                        imageAPIResults = await Flickr.GetImagesFromUri("", uri);
+                        break;
+                }
+
+                if (imageAPIResults != null)
+                {
+                    uri = new Uri(imageAPIResults.First().Item2);
+                    filename = Path.GetFileName(uri.LocalPath);
+                }
+            }
+
+
+            if (!(filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg") || filename.EndsWith(".gif")))
+                return null;
+
+            HttpClient c = new HttpClient();
+            var pic_response = await c.GetAsync(url, HttpCompletionOption.ResponseContentRead);
+            return await pic_response.Content.ReadAsStreamAsync();
         }
 
         public async Task<byte[]> ImageBytesFromUrl(string url, bool isRetry)
