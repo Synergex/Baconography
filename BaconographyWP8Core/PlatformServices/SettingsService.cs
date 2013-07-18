@@ -185,7 +185,7 @@ namespace BaconographyWP8.PlatformServices
 				if (!string.IsNullOrWhiteSpace(imagesSubreddit))
 					ImagesSubreddit = imagesSubreddit;
 				else
-                    ImagesSubreddit = "/r/earthporn";
+                    ImagesSubreddit = "/r/earthporn+InfrastructurePorn+MachinePorn";
 
                 var lockScreenReddit = await offlineService.GetSetting("LockScreenReddit");
 				if (!string.IsNullOrWhiteSpace(lockScreenReddit))
@@ -223,6 +223,11 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("AllowOver18Items", AllowOver18Items.ToString());
             await offlineService.StoreSetting("OverlayOpacity", OverlayOpacity.ToString());
             await offlineService.StoreSetting("HighresLockScreenOnly", HighresLockScreenOnly.ToString());
+            await offlineService.StoreSetting("MessagesInLockScreenOverlay", MessagesInLockScreenOverlay.ToString());
+            await offlineService.StoreSetting("EnableUpdates", EnableUpdates.ToString());
+            await offlineService.StoreSetting("PostsInLockScreenOverlay", PostsInLockScreenOverlay.ToString());
+            await offlineService.StoreSetting("ImagesSubreddit", ImagesSubreddit.ToString());
+            await offlineService.StoreSetting("LockScreenReddit", LockScreenReddit.ToString());
         }
 
 

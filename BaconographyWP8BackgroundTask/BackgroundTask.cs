@@ -176,6 +176,7 @@ namespace BaconographyWP8
 
 
                 string lockScreenImage = "lockScreenCache1.jpg";
+                string linkReddit = "/";
                 int opacity = 35;
                 TinyRedditService redditService = null;
                 bool hasMail = false;
@@ -193,7 +194,7 @@ namespace BaconographyWP8
 
                             var cookie = JSON.GetValue(decodedJson, "cookie") as string;
                             var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
-                            var linkReddit = JSON.GetValue(decodedJson, "link_reddit") as string;
+                            linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
                             var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
                             var tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
 
@@ -242,7 +243,7 @@ namespace BaconographyWP8
                                 ShellToast toast = new ShellToast();
                                 toast.Title = "New message";
                                 toast.Content = message;
-                                toast.NavigationUri = new Uri("/View/MessagingPageView.xaml");
+                                toast.NavigationUri = new Uri("/View/MessagingPageView.xaml", UriKind.Relative);
                                 toast.Show();
                             }
 
@@ -252,7 +253,7 @@ namespace BaconographyWP8
                     messages = null;
                 }
 
-                var links = await redditService.GetPostsBySubreddit("/", null);
+                var links = await redditService.GetPostsBySubreddit(linkReddit, null);
                 if (links != null)
                 {
                     //the goal is 6 items in the list, if thats not filled with messages then fill it with links
