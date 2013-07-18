@@ -324,30 +324,6 @@ namespace BaconographyW8.PlatformServices
             }
         }
 
-        public bool PredictiveOffline
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool IntensiveOffline
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public int OfflineCacheDays
         {
             get

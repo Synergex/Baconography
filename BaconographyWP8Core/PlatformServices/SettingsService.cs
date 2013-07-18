@@ -54,8 +54,6 @@ namespace BaconographyWP8.PlatformServices
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
 
-        public bool PredictiveOffline { get; set; }
-        public bool IntensiveOffline { get; set; }
         public int OverlayItemCount { get; set; }
         public int OfflineCacheDays { get; set; }
 
@@ -210,20 +208,6 @@ namespace BaconographyWP8.PlatformServices
                 else
                     OfflineCacheDays = 2;
 
-                var predictiveOffline = await offlineService.GetSetting("PredictiveOffline");
-                if (!string.IsNullOrWhiteSpace(predictiveOffline))
-                    PredictiveOffline = bool.Parse(predictiveOffline);
-                else
-                    PredictiveOffline = false;
-
-                var intensiveOffline = await offlineService.GetSetting("IntensiveOffline");
-                if (!string.IsNullOrWhiteSpace(intensiveOffline))
-                    IntensiveOffline = bool.Parse(intensiveOffline);
-                else
-                    IntensiveOffline = false;
-
-
-
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -252,8 +236,6 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("AllowOver18Items", AllowOver18Items.ToString());
             await offlineService.StoreSetting("OverlayOpacity", OverlayOpacity.ToString());
             await offlineService.StoreSetting("HighresLockScreenOnly", HighresLockScreenOnly.ToString());
-            await offlineService.StoreSetting("PredictiveOffline", PredictiveOffline.ToString());
-            await offlineService.StoreSetting("IntensiveOffline", IntensiveOffline.ToString());
             await offlineService.StoreSetting("OverlayItemCount", OverlayItemCount.ToString());
             await offlineService.StoreSetting("OfflineCacheDays", OfflineCacheDays.ToString());
         }

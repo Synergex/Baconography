@@ -43,6 +43,9 @@ namespace BaconographyPortable.Services.Impl
         const int TopSubsetMaximum = 10;
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, CancellationToken token)
         {
+            if (!_settingsService.AllowPredictiveOfflining)
+                return;
+
             //dont want to do this more then one at a time
             if (_isOfflining)
                 return;

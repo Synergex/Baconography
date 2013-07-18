@@ -217,29 +217,29 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public bool PredictiveOffline
+        public bool AllowPredictiveOfflining
         {
             get
             {
-                return _settingsService.PredictiveOffline;
+                return _settingsService.AllowPredictiveOfflining;
             }
             set
             {
-                _settingsService.PredictiveOffline = value;
-                RaisePropertyChanged("PredictiveOffline");
+                _settingsService.AllowPredictiveOfflining = value;
+                RaisePropertyChanged("AllowPredictiveOfflining");
             }
         }
 
-        public bool IntensiveOffline
+        public bool AllowPredictiveOffliningOnMeteredConnection
         {
             get
             {
-                return _settingsService.IntensiveOffline;
+                return _settingsService.AllowPredictiveOffliningOnMeteredConnection;
             }
             set
             {
-                _settingsService.IntensiveOffline = value;
-                RaisePropertyChanged("IntensiveOffline");
+                _settingsService.AllowPredictiveOffliningOnMeteredConnection = value;
+                RaisePropertyChanged("AllowPredictiveOffliningOnMeteredConnection");
             }
         }
 

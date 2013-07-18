@@ -74,9 +74,9 @@
                             </StackPanel>
                             
                             <CheckBox Margin="12,0,0,0" Content="Predictive offline caching"
-                                IsChecked="{Binding PredictiveOffline, Mode=TwoWay}" />
+                                IsChecked="{Binding AllowPredictiveOfflining, Mode=TwoWay}" />
                             <CheckBox Margin="12,0,0,0" Content="Overnight offline caching"
-                                IsChecked="{Binding IntensiveOffline, Mode=TwoWay}" />
+                                IsChecked="{Binding AllowPredictiveOffliningOnMeteredConnection, Mode=TwoWay}" />
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="24,0,0,0" Text="Cleanup data every"/>
                                 <TextBlock Margin="6,0,0,0" Text="{Binding OfflineCacheDays}" />
@@ -84,18 +84,6 @@
                             </StackPanel>
                             <Slider Margin="12,0,0,0" Minimum="1" Maximum="7" Value="{Binding OfflineCacheDays, Mode=TwoWay}"/>
                             <Button Margin="0,-12,0,0" Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
-                            
-                            <!--
-                            <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
-                            <CheckBox Margin="5,0,5,0" Content="fast download"
-                                IsChecked="{Binding OfflineOnlyGetsFirstSet, Mode=TwoWay}" />
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontSize="22" Margin="17,0,0,5" Text="number of top level comments" />
-                                <TextBlock FontSize="22" Margin="10,0,0,0" Text="{Binding MaxTopLevelOfflineComments, Mode=OneWay}"/>
-                            </StackPanel>
-
-                            <Slider Margin="5,0,5,0" Value="{Binding MaxTopLevelOfflineComments, Mode=TwoWay}" Maximum="5000" Minimum="5"></Slider>
-                            -->
 
                         </StackPanel>
                     </ScrollViewer>

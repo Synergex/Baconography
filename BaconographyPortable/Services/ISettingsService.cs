@@ -35,8 +35,6 @@ namespace BaconographyPortable.Services
         int OverlayItemCount { get; set; }
         bool EnableLockScreenImages { get; set; }
         string LockScreenReddit { get; set; }
-        bool PredictiveOffline { get; set; }
-        bool IntensiveOffline { get; set; }
         int OfflineCacheDays { get; set; }
 
         int ScreenWidth { get; set; }
