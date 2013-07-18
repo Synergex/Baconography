@@ -32,6 +32,14 @@ namespace Baconography.NeutralServices
             _settingsService = settingsService;
             _suspensionService = suspensionService;
             _suspensionService.Suspending += _suspensionService_Suspending;
+            _suspensionService.Resuming += _suspensionService_Resuming;
+        }
+
+        void _suspensionService_Resuming()
+        {
+            _terminateSource = new CancellationTokenSource();
+            _instanceTask = null;
+            _hasQueuedActions = false;
         }
 
         CancellationTokenSource _terminateSource = new CancellationTokenSource();

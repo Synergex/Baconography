@@ -61,6 +61,17 @@ namespace BaconographyWP8.View
             else
             {
                 base.OnBackKeyPress(e);
+
+            }
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.NavigationMode == NavigationMode.New && this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
+            {
+                pivot.SelectedIndex = 1;
             }
         }
 
@@ -110,6 +121,9 @@ namespace BaconographyWP8.View
 
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
+
+            var lockScreen = new ViewModelLocator().LockScreen;
+            lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
 
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);

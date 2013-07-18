@@ -173,7 +173,6 @@ namespace BaconographyWP8.Common
                         }
 
                         results.Add(string.Format("lockScreenCache{0}.jpg", i.ToString()));
-                        break;
                     }
                     catch
                     {
@@ -245,7 +244,6 @@ namespace BaconographyWP8.Common
                         }
 
                         results.Add(string.Format("tileCache{0}.jpg", i.ToString()));
-                        break;
                     }
                     catch
                     {

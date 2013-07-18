@@ -35,6 +35,7 @@ namespace BaconographyWP8
 		ISettingsService _settingsService;
         IViewModelContextService _viewModelContextService;
         ISmartOfflineService _smartOfflineService;
+        INavigationService _navigationService;
         public MainPage()
         {
             InitializeComponent();
@@ -46,6 +47,7 @@ namespace BaconographyWP8
 			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
+            _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
@@ -112,6 +114,13 @@ namespace BaconographyWP8
                     {
                         ServiceLocator.Current.GetInstance<IBaconProvider>().GetService<INotificationService>().CreateNotification("Invalid main page uri state, please PM /u/hippiehunter with details");
                     }
+                }
+                else if (this.NavigationContext.QueryString.ContainsKey("WallpaperSettings"))
+                {
+                    _navigationService.Navigate<SettingsPageView>("lockscreen");
+                    while (NavigationService.BackStack.Count() > 0)
+                        NavigationService.RemoveBackEntry();
+                    return;
                 }
             }
 
