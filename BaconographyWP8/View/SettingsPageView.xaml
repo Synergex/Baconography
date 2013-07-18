@@ -63,17 +63,27 @@
                                 Checked="OrientationLock_Checked"
                                 Unchecked="OrientationLock_Unchecked"/>
 
-                            <TextBlock FontWeight="SemiBold" Text="OFFLINE CONTENT"/>
-                            <CheckBox Margin="12,0,0,0" Content="Predictive offline caching"
-                                IsChecked="{Binding LeftHandedMode, Mode=TwoWay}" />
-                            <CheckBox Margin="36,0,0,0" Content="Overnight offline caching"
-                                IsChecked="{Binding LeftHandedMode, Mode=TwoWay}" />
-                            <Button Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
-                            <!--  On/Off Predictive
-                            Resource Intensive Task (how to word? overnight?)
-                            Cache age? Cleanup
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock HorizontalAlignment="Left" FontWeight="SemiBold" Text="OFFLINE CONTENT"/>
+                                <Button 
+                                    Margin="20,-1,0,0"
+                                    FontFamily="Segoe UI Symbol" FontSize="14"
+                                    Width="34" Height="34"
+                                    Tap="HelpOfflineButton_Tap"
+                                    Content="&#xE11B;" Style="{StaticResource RoundButtonStyle}"/>
+                            </StackPanel>
                             
-                            -->
+                            <CheckBox Margin="12,0,0,0" Content="Predictive offline caching"
+                                IsChecked="{Binding PredictiveOffline, Mode=TwoWay}" />
+                            <CheckBox Margin="12,0,0,0" Content="Overnight offline caching"
+                                IsChecked="{Binding IntensiveOffline, Mode=TwoWay}" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="24,0,0,0" Text="Cleanup data every"/>
+                                <TextBlock Margin="6,0,0,0" Text="{Binding OfflineCacheDays}" />
+                                <TextBlock Margin="6,0,0,0" Text="days" />
+                            </StackPanel>
+                            <Slider Margin="12,0,0,0" Minimum="1" Maximum="7" Value="{Binding OfflineCacheDays, Mode=TwoWay}"/>
+                            <Button Margin="0,-12,0,0" Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
                             
                             <!--
                             <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
@@ -107,7 +117,7 @@
                             <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
 
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
+                            <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
 
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
@@ -178,6 +188,8 @@
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>
+
+        <Popup x:Name="helpPopup" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
     
 </phone:PhoneApplicationPage>
