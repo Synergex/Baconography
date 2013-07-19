@@ -75,7 +75,7 @@
                             <CheckBox Margin="12,0,0,0" Content="Predictive offline caching"
                                 IsChecked="{Binding AllowPredictiveOfflining, Mode=TwoWay}" />
                             <CheckBox Margin="12,0,0,0" Content="Overnight offline caching"
-                                IsChecked="{Binding AllowPredictiveOffliningOnMeteredConnection, Mode=TwoWay}" />
+                                IsChecked="{Binding EnableOvernightUpdates, Mode=TwoWay}" />
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="24,0,0,0" Text="Cleanup data every"/>
                                 <TextBlock Margin="6,0,0,0" Text="{Binding OfflineCacheDays}" />
@@ -95,20 +95,25 @@
                         <StackPanel Margin="12,0,12,0">
                             <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
                             <Button Margin="12,0,0,0" Content="System lock screen settings" Click="ShowSystemLockScreenSettings"/>
-
                             <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
-
                             <Button Margin="12,0,0,0" Content="Set lock screen" Click="SetLockScreen"/>
-
+                            
                             <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
-
+                            
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
                             <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
 
+                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen posts:"/>
+                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
+
+                            <TextBlock FontWeight="SemiBold" Text="LIVE TILE"/>
+                            <TextBlock Margin="24,0,0,0" Text="Subreddit for live tile posts:"/>
+                            <TextBox Margin="12,0,0,0" Text="{Binding LiveTileReddit, Mode=TwoWay}"/>
+
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyWifi, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyWifi, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyOnWifi, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
                             
                             <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
                             <CheckBox Margin="12,0,0,0" Content="Show unread messages" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>

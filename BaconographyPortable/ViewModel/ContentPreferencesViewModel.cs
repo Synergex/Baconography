@@ -113,6 +113,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string LiveTileReddit
+        {
+            get
+            {
+                return _settingsService.LiveTileReddit;
+            }
+            set
+            {
+                _settingsService.LiveTileReddit = value;
+                RaisePropertyChanged("LiveTileReddit");
+            }
+        }
+
         public string ImagesSubreddit
         {
             get
@@ -149,6 +162,45 @@ namespace BaconographyPortable.ViewModel
             {
                 _settingsService.EnableUpdates = value;
                 RaisePropertyChanged("EnableUpdates");
+            }
+        }
+
+        public bool EnableOvernightUpdates
+        {
+            get
+            {
+                return _settingsService.EnableOvernightUpdates;
+            }
+            set
+            {
+                _settingsService.EnableOvernightUpdates = value;
+                RaisePropertyChanged("EnableOvernightUpdates");
+            }
+        }
+
+        public bool UpdateOverlayOnlyOnWifi
+        {
+            get
+            {
+                return _settingsService.UpdateOverlayOnlyOnWifi;
+            }
+            set
+            {
+                _settingsService.UpdateOverlayOnlyOnWifi = value;
+                RaisePropertyChanged("UpdateOverlayOnlyOnWifi");
+            }
+        }
+
+        public bool UpdateImagesOnlyOnWifi
+        {
+            get
+            {
+                return _settingsService.UpdateImagesOnlyOnWifi;
+            }
+            set
+            {
+                _settingsService.UpdateImagesOnlyOnWifi = value;
+                RaisePropertyChanged("UpdateImagesOnlyOnWifi");
             }
         }
 

@@ -221,7 +221,7 @@ namespace BaconographyWP8.Common
         public static async Task<IEnumerable<string>> MakeTileImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
             List<string> results = new List<string>();
-            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 100);
+            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LiveTileReddit, 100);
             var imagesLinks = linksSubredditResult.Data.Children;
             if (imagesLinks.Count > 0)
             {
