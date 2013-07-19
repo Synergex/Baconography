@@ -14,6 +14,7 @@ using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -36,6 +37,14 @@ namespace BaconographyWP8.View
 		{
             UpdateMenuItems();
 		}
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+                e.Cancel = true;
+            else
+                base.OnNavigatingFrom(e);
+        }
 
         private void Send_Click(object sender, EventArgs e)
         {

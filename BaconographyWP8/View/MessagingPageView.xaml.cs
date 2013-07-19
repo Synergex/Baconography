@@ -40,6 +40,14 @@ namespace BaconographyWP8.View
             base.OnNavigatedTo(e);
         }
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+                e.Cancel = true;
+            else
+                base.OnNavigatingFrom(e);
+        }
+
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			base.OnNavigatedFrom(e);

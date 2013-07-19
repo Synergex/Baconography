@@ -42,7 +42,8 @@ namespace BaconographyWP8.View
             {
                 e.Cancel = true;
             }
-            _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
+            else
+                _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
         }
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)

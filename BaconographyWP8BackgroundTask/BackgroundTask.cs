@@ -1,5 +1,6 @@
 ﻿using BaconographyWP8.ViewModel;
 using BaconographyWP8BackgroundControls.View;
+using BaconographyWP8BackgroundTask;
 using BaconographyWP8BackgroundTask.Hacks;
 using Microsoft.Phone.Info;
 using Microsoft.Phone.Scheduler;
@@ -21,29 +22,6 @@ namespace BaconographyWP8
 {
     public class BackgroundTask : ScheduledTaskAgent
     {
-
-        /// <remarks>
-        /// ScheduledAgent constructor, initializes the UnhandledException handler
-        /// </remarks>
-        static BackgroundTask()
-        {
-            // Subscribe to the managed exception handler
-            Deployment.Current.Dispatcher.BeginInvoke(delegate
-            {
-                Application.Current.UnhandledException += UnhandledException;
-            });
-        }
-
-        /// Code to execute on Unhandled Exceptions
-        private static void UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
-        {
-            if (Debugger.IsAttached)
-            {
-                // An unhandled exception has occurred; break into the debugger
-                Debugger.Break();
-            }
-        }
-        
         public static void RemoveAgent(string name)
         {
             try
@@ -55,9 +33,12 @@ namespace BaconographyWP8
             }
         }
 
+        public static readonly string periodicTaskName = "LockScreen_Updater";
+        public static readonly string intensiveTaskName = "Intensive_Baconography_Updater";
+
         public static void StartPeriodicAgent()
         {
-            string periodicTaskName = "LockScreen_Updater";
+            
 
             // Obtain a reference to the period task, if one exists
             var periodicTask = ScheduledActionService.Find(periodicTaskName) as PeriodicTask;
@@ -80,6 +61,51 @@ namespace BaconographyWP8
             {
                 ScheduledActionService.Add(periodicTask);
                 ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+            }
+            catch (InvalidOperationException exception)
+            {
+                if (exception.Message.Contains("BNS Error: The action is disabled"))
+                {
+                    MessageBox.Show("Background agents for this application have been disabled by the user.");
+                }
+
+                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
+                {
+                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
+
+                }
+            }
+            catch (SchedulerServiceException)
+            {
+            }
+        }
+
+
+        public static void StartIntensiveAgent()
+        {
+            
+
+            // Obtain a reference to the period task, if one exists
+            var intensiveTask = ScheduledActionService.Find(intensiveTaskName) as ResourceIntensiveTask;
+
+            // If the task already exists and background agents are enabled for the
+            // application, you must remove the task and then add it again to update 
+            // the schedule
+            if (intensiveTask != null)
+            {
+                RemoveAgent(intensiveTaskName);
+            }
+
+            intensiveTask = new ResourceIntensiveTask(intensiveTaskName);
+            // The description is required for periodic agents. This is the string that the user
+            // will see in the background services Settings page on the device.
+            intensiveTask.Description = "This task does all of the heavy lifting for the lock screen updater and overnight offlining support";
+
+            // Place the call to Add in a try block in case the user has disabled agents.
+            try
+            {
+                ScheduledActionService.Add(intensiveTask);
+                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
             }
             catch (InvalidOperationException exception)
             {
@@ -151,7 +177,7 @@ namespace BaconographyWP8
         protected override async void OnInvoke(ScheduledTask task)
         {
             
-            if (task.Name == "LockScreen_Updater")
+            if (task.Name == periodicTaskName)
             {
                 //even though this only takes up 500k (because of the dll load + a thread stack existing in the async call) with large image compositing 
                 //we dont have enough ram to fit anything other than absolute basic .net libraries, this is only an issue in periodic
@@ -348,10 +374,7 @@ namespace BaconographyWP8
             else //must be the resource intensive task, we get 10 minutes and a normal amount of ram to work with
             {
                 //we get to load of the full set of dlls we have
-                //we want to download new images for the lock/tiles
-                //we want to download image api/images/links/comments from the users pinned reddits
-                //so when they wake up in the morning everything is fast
-                //this task only runs when we're on wifi so there shouldnt be any concerns about bandwidth
+                await IntensiveTask.Run(NotifyComplete);
             }
         }
 
