@@ -298,6 +298,7 @@ namespace BaconographyW8.PlatformServices
 
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
+        public bool AllowAdvertising { get; set; }
 
 
         public int OverlayItemCount

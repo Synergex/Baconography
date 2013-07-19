@@ -745,6 +745,9 @@ namespace BaconographyPortable.Model.Reddit
 
 		private Listing MaybeInjectAdvertisements(Listing source)
 		{
+            if (!_settingsService.AllowAdvertising)
+                return source;
+
 			int count = source.Data.Children.Count;
 			for (int i = 9; i < count; i += 10)
 			{
