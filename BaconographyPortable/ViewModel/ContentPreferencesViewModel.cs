@@ -99,18 +99,6 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public bool EnableLockScreenImages
-        {
-            get
-            {
-                return _settingsService.EnableLockScreenImages;
-            }
-            set
-            {
-                _settingsService.EnableLockScreenImages = value;
-                RaisePropertyChanged("EnableLockScreenImages");
-            }
-        }
 
         public string LockScreenReddit
         {
@@ -253,6 +241,19 @@ namespace BaconographyPortable.ViewModel
             {
                 _settingsService.OfflineCacheDays = value;
                 RaisePropertyChanged("OfflineCacheDays");
+            }
+        }
+
+        public bool AllowAdvertising
+        {
+            get
+            {
+                return _settingsService.AllowAdvertising;
+            }
+            set
+            {
+                _settingsService.AllowAdvertising = value;
+                RaisePropertyChanged("AllowAdvertising");
             }
         }
         

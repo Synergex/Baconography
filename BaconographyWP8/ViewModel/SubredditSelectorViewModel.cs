@@ -88,7 +88,8 @@ namespace BaconographyPortable.ViewModel
         {
             // Stop the timer so it doesn't fire again unless rescheduled
             RevokeQueryTimer();
-            Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
+            if (Subreddits != null)
+                Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
         }
 
         public AboutSubredditViewModel SelectedSubreddit

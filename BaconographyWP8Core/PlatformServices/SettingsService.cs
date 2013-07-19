@@ -49,13 +49,14 @@ namespace BaconographyWP8.PlatformServices
         public bool PostsInLockScreenOverlay { get; set; }
         public int OverlayOpacity { get; set; }
         public string ImagesSubreddit { get; set; }
-        public bool EnableLockScreenImages { get; set; }
         public string LockScreenReddit { get; set; }
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
         public bool EnableOvernightUpdates { get; set; }
         public bool UpdateOverlayOnlyOnWifi { get; set; }
         public bool UpdateImagesOnlyOnWifi { get; set; }
+
+        public bool AllowAdvertising { get; set; }
 
         public int OverlayItemCount { get; set; }
         public int OfflineCacheDays { get; set; }
@@ -228,6 +229,12 @@ namespace BaconographyWP8.PlatformServices
                     UpdateImagesOnlyOnWifi = bool.Parse(updateImagesOnlyOnWifi);
                 else
                     UpdateImagesOnlyOnWifi = true;
+
+                var allowAdvertising = await offlineService.GetSetting("AllowAdvertising");
+                if (!string.IsNullOrWhiteSpace(allowAdvertising))
+                    AllowAdvertising = bool.Parse(allowAdvertising);
+                else
+                    AllowAdvertising = false;
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
