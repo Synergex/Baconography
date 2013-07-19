@@ -53,7 +53,6 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<CloseSubredditMessage>(this, OnCloseSubreddit);
 			MessengerInstance.Register<ReorderSubredditMessage>(this, OnReorderSubreddit);
 			MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
-			_pivotItems = new RedditViewModelCollection(_baconProvider);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
             _subreddits.CollectionChanged += _subreddits_CollectionChanged;
@@ -65,18 +64,21 @@ namespace BaconographyPortable.ViewModel
 				await _baconProvider.GetService<ISettingsService>().Persist();
 		}
 
-
-        void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        bool _currentlySavingSubreddits = false;
+        async void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (!_initialLoad)
+            if (_currentlySavingSubreddits)
+                return;
+
+            try
             {
-                Task currentTask;
-                if (_subredditSavingTask != null && _subredditSavingTask.TryGetTarget(out currentTask))
-                {
-                    currentTask.ContinueWith(async (o) => await SaveSubreddits());
-                }
-                else
-                    _subredditSavingTask = new WeakReference<Task>(SaveSubreddits());
+                _currentlySavingSubreddits = true;
+                await SaveSubreddits();
+            }
+            catch { }
+            finally
+            {
+                _currentlySavingSubreddits = false;
             }
         }
 
@@ -230,35 +232,47 @@ namespace BaconographyPortable.ViewModel
 
 		public async Task SaveSubreddits()
 		{
-            await _offlineService.StoreOrderedThings("pivotsubreddits", Subreddits);
+            try
+            {
+                await _offlineService.StoreOrderedThings("pivotsubreddits", Subreddits);
+            }
+            catch { }
+
 		}
 
 		public async Task LoadSubreddits()
 		{
-            var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits", TimeSpan.FromDays(1024));
-
-            //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
-
-			if (subreddits == null || subreddits.Count() == 0)
-				subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
-                
-            foreach (var sub in subreddits)
+            try
             {
-                if (sub.Data is Subreddit && ((Subreddit)sub.Data).Id != null)
-                {
-                    var message = new SelectSubredditMessage();
-                    message.Subreddit = new TypedThing<Subreddit>(sub);
-					ChangeSubreddit(message, false);
-                }
-            }
+                var subreddits = await _offlineService.RetrieveOrderedThings("pivotsubreddits", TimeSpan.FromDays(1024));
 
-			Messenger.Default.Send<SelectIndexMessage>(
-				new SelectIndexMessage
-				{
-					TypeContext = typeof(MainPageViewModel),
-					Index = 0
-				}
-			);
+                //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
+
+                if (subreddits == null || subreddits.Count() == 0)
+                    subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
+
+                foreach (var sub in subreddits)
+                {
+                    if (sub.Data is Subreddit && ((Subreddit)sub.Data).Id != null)
+                    {
+                        var message = new SelectSubredditMessage();
+                        message.Subreddit = new TypedThing<Subreddit>(sub);
+                        ChangeSubreddit(message, false);
+                    }
+                }
+
+                Messenger.Default.Send<SelectIndexMessage>(
+                    new SelectIndexMessage
+                    {
+                        TypeContext = typeof(MainPageViewModel),
+                        Index = 0
+                    }
+                );
+            }
+            catch 
+            {
+                _notificationService.CreateNotification("Failed loading subreddits list, file corruption may be present");
+            }
 		}
 
 		private bool _loggedIn;

@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Windows.Networking.Connectivity;
 
 namespace BaconographyWP8.Common
 {
@@ -57,13 +58,36 @@ namespace BaconographyWP8.Common
                 if (loadingActiveLockScreen)
                     return;
 
+                var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+                var connectionCostType = connectionProfile.GetConnectionCost().NetworkCostType;
+
                 loadingActiveLockScreen = true;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 
                 var loginCookie = (await userService.GetUser()).LoginCookie;
-                var lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
-                var tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
 
+                IEnumerable<string> lockScreenImages = new string[0];
+                IEnumerable<string> tileImages = new string[0];
+
+                if (settingsService.UpdateImagesOnlyOnWifi && connectionCostType == NetworkCostType.Unrestricted)
+                {
+                    lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
+                    tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
+
+                }
+                else if(File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    //find the images we used last time
+                    using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                    {
+                        byte[] taskCookieBytes = new byte[4096];
+                        var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
+                        var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
+                        var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
+                        lockScreenImages = taskSettings.lock_images;
+                        tileImages = taskSettings.tile_images;
+                    }
+                }
                 using (var taskCookieFile = File.OpenWrite(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
                     TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };

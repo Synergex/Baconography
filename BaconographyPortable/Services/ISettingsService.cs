@@ -28,6 +28,9 @@ namespace BaconographyPortable.Services
         bool PromptForCaptcha { get; set; }
         bool HighresLockScreenOnly { get; set; }
         bool EnableUpdates { get; set; }
+        bool EnableOvernightUpdates { get; set; }
+        bool UpdateOverlayOnlyOnWifi { get; set; }
+        bool UpdateImagesOnlyOnWifi { get; set; }
         bool MessagesInLockScreenOverlay { get; set; }
         bool PostsInLockScreenOverlay { get; set; }
         string ImagesSubreddit { get; set; }

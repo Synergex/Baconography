@@ -53,6 +53,9 @@ namespace BaconographyWP8.PlatformServices
         public string LockScreenReddit { get; set; }
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
+        public bool EnableOvernightUpdates { get; set; }
+        public bool UpdateOverlayOnlyOnWifi { get; set; }
+        public bool UpdateImagesOnlyOnWifi { get; set; }
 
         public int OverlayItemCount { get; set; }
         public int OfflineCacheDays { get; set; }
@@ -207,6 +210,24 @@ namespace BaconographyWP8.PlatformServices
                     OfflineCacheDays = int.Parse(offlineCacheDays);
                 else
                     OfflineCacheDays = 2;
+
+                var enableOvernightUpdates = await offlineService.GetSetting("EnableOvernightUpdates");
+                if (!string.IsNullOrWhiteSpace(enableOvernightUpdates))
+                    EnableOvernightUpdates = bool.Parse(enableOvernightUpdates);
+                else
+                    EnableOvernightUpdates = true;
+
+                var updateOverlayOnlyOnWifi = await offlineService.GetSetting("UpdateOverlayOnlyOnWifi");
+                if (!string.IsNullOrWhiteSpace(updateOverlayOnlyOnWifi))
+                    UpdateOverlayOnlyOnWifi = bool.Parse(updateOverlayOnlyOnWifi);
+                else
+                    UpdateOverlayOnlyOnWifi = false;
+
+                var updateImagesOnlyOnWifi = await offlineService.GetSetting("UpdateImagesOnlyOnWifi");
+                if (!string.IsNullOrWhiteSpace(updateImagesOnlyOnWifi))
+                    UpdateImagesOnlyOnWifi = bool.Parse(updateImagesOnlyOnWifi);
+                else
+                    UpdateImagesOnlyOnWifi = true;
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }

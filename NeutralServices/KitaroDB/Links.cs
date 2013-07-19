@@ -50,7 +50,13 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             if (_instanceTask == null)
             {
-                _instanceTask = GetInstanceImpl();
+                lock (typeof(Links))
+                {
+                    if (_instanceTask == null)
+                    {
+                        _instanceTask = GetInstanceImpl();
+                    }
+                }
             }
             return _instanceTask;
         }
@@ -175,19 +181,20 @@ namespace Baconography.NeutralServices.KitaroDB
                 for (int i = 0; i < 8 && i < subredditId.Length; i++)
                     keyspace[i] = (byte)subredditId[i];
 
-                var linkCursor = await _linksDB.SelectAsync(_linksDB.GetKeys().First(), keyspace);
-
-                if (after != null && linkCursor != null)
+                using (var linkCursor = await _linksDB.SelectAsync(_linksDB.GetKeys().First(), keyspace))
                 {
-                    var afterKeyspace = new byte[16];
+                    if (after != null && linkCursor != null)
+                    {
+                        var afterKeyspace = new byte[16];
 
-                    for (int i = 0; i < 16 && i < after.Length + 10; i++)
-                        afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
+                        for (int i = 0; i < 16 && i < after.Length + 10; i++)
+                            afterKeyspace[i] = (byte)after[i + 2]; //skip ahead past the after type identifier
 
-                    await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
+                        await linkCursor.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
+                    }
+
+                    return await DeserializeCursor(linkCursor, 25);
                 }
-
-                return await DeserializeCursor(linkCursor, 25);
             }
             catch (Exception ex)
             {
@@ -199,25 +206,25 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task<Listing> AllLinks(string after)
         {
+            DBCursor linkCursor = null;
             try
             {
-            DBCursor linkCursor;
+                if (after != null && after.Length > 0)
+                {
+                    var afterKeyspace = new byte[16];
 
-            if (after != null && after.Length > 0)
-            {
-                var afterKeyspace = new byte[16];
+                    for (int i = 0; i < 16 && i < after.Length; i++)
+                        afterKeyspace[i] = (byte)after[i]; //skip ahead past the after type identifier
 
-                for (int i = 0; i < 16 && i < after.Length; i++)
-                    afterKeyspace[i] = (byte)after[i]; //skip ahead past the after type identifier
+                    linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
+                }
+                else
+                {
+                    linkCursor = await _linksDB.SeekAsync(DBReadFlags.NoLock);
+                }
 
-                linkCursor = await _linksDB.SeekAsync(_linksDB.GetKeys().First(), afterKeyspace, DBReadFlags.NoLock);
-            }
-            else
-            {
-                linkCursor = await _linksDB.SeekAsync(DBReadFlags.NoLock);
-            }
-
-            return await DeserializeCursor(linkCursor, 25);
+                return await DeserializeCursor(linkCursor, 25);
+                
             }
             catch (Exception ex)
             {
@@ -225,14 +232,18 @@ namespace Baconography.NeutralServices.KitaroDB
                 Debug.WriteLine(errorCode);
                 return new Listing { Data = new ListingData { Children = new List<Thing>() } };
             }
+            finally
+            {
+                if (linkCursor != null)
+                    linkCursor.Dispose();
+            }
         }
 
         public async Task<TypedThing<Link>> GetLink(string url, string id, TimeSpan maxAge)
         {
+            DBCursor linkCursor = null;
             try
             {
-                DBCursor linkCursor = null;
-
                 if (!string.IsNullOrWhiteSpace(url))
                 {
                     var urlKeyspace = BitConverter.GetBytes(url.GetHashCode());
@@ -275,6 +286,11 @@ namespace Baconography.NeutralServices.KitaroDB
                 var errorCode = DBError.TranslateError((uint)ex.HResult);
                 Debug.WriteLine(errorCode);
                 throw;
+            }
+            finally
+            {
+                if (linkCursor != null)
+                    linkCursor.Dispose();
             }
         }
 

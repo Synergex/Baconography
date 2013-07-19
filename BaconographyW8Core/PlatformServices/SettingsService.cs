@@ -37,7 +37,9 @@ namespace BaconographyW8.PlatformServices
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
         public bool PromptForCaptcha { get; set; }
-
+        public bool EnableOvernightUpdates { get; set; }
+        public bool UpdateOverlayOnlyOnWifi { get; set; }
+        public bool UpdateImagesOnlyOnWifi { get; set; }
         public void ShowSettings()
         {
             

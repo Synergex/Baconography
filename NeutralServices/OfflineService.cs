@@ -112,10 +112,10 @@ namespace Baconography.NeutralServices
                 if (_terminateSource.IsCancellationRequested)
                     return;
 
-                _imageAPIDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism", DBCreateFlags.None);
+                _imageAPIDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism", DBCreateFlags.None, 64000);
                 if (_terminateSource.IsCancellationRequested)
                     return;
-                _imageDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism", DBCreateFlags.None);
+                _imageDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism", DBCreateFlags.None, 0);
                 if (_terminateSource.IsCancellationRequested)
                     return;
 
@@ -201,6 +201,14 @@ namespace Baconography.NeutralServices
         public async Task Clear()
         {
             await Initialize();
+
+            if (_terminateSource.IsCancellationRequested)
+                return;
+
+            _terminateSource.Cancel();
+
+            await Task.Delay(1000);
+
             await _comments.Clear();
             await _links.Clear();
             await PurgeDB(_historyDb, _historyFileName);
@@ -208,6 +216,9 @@ namespace Baconography.NeutralServices
             await PurgeDB(_blobStoreDb, _blobsFileName);
             await PurgeDB(_imageAPIDb, _imageApiFileName);
             await PurgeDB(_imageDb, _imageFileName);
+
+            _terminateSource = new CancellationTokenSource();
+
             await ReInitialize();
         }
         private async Task PurgeDB(DB db, string filename)
@@ -752,18 +763,19 @@ namespace Baconography.NeutralServices
                 if (_terminateSource.IsCancellationRequested)
                     return;
                 var apiString = JsonConvert.SerializeObject(apiResults);
-
-                using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uri, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
+                var uriBytes = Encoding.UTF8.GetBytes(uri);
+                var apiBytes = Encoding.UTF8.GetBytes(apiString);
+                using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uriBytes, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
                     if (_terminateSource.IsCancellationRequested)
                         return;
                     if (apiCursor != null)
                     {
-                        await _imageAPIDb.UpdateAsync(uri, apiString);
+                        await _imageAPIDb.UpdateAsync(uriBytes, apiBytes);
                     }
                     else
                     {
-                        await _imageAPIDb.InsertAsync(uri, apiString);
+                        await _imageAPIDb.InsertAsync(uriBytes, apiBytes);
                     }
                 }
             }

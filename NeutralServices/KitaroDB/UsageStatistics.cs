@@ -43,7 +43,13 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             if (_instanceTask == null)
             {
-                _instanceTask = GetInstanceImpl();
+                lock (typeof(UsageStatistics))
+                {
+                    if (_instanceTask == null)
+                    {
+                        _instanceTask = GetInstanceImpl();
+                    }
+                }
             }
             return _instanceTask;
         }
@@ -206,19 +212,19 @@ namespace Baconography.NeutralServices.KitaroDB
             var keyspace = GenerateSubIdKeyspace(id);
             DBKey targetKey = _subredditStatisticsDB.GetKeys()[0];
 
-            var cursor = await _subredditStatisticsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock);
-            if (cursor != null)
+            using (var cursor = await _subredditStatisticsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock))
             {
-                using (cursor)
+                if (cursor != null)
                 {
                     var currentRecord = cursor.Get();
                     uint links = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize).Take(4).ToArray(), 0);
                     uint comments = BitConverter.ToUInt32(currentRecord.Skip(SubIdKeySpaceSize + 4).Take(4).ToArray(), 0);
                     return new Tuple<uint, uint>(links, comments);
+
                 }
+                else
+                    return null;
             }
-            else
-                return null;
         }
 
         public async Task<Tuple<uint, uint>> GetDomainAggregates(string domain)
@@ -227,19 +233,19 @@ namespace Baconography.NeutralServices.KitaroDB
             var keyspace = GenerateDomainHashKeyspace(hash);
             DBKey targetKey = _domainStatisticsDB.GetKeys()[0];
 
-            var cursor = await _domainStatisticsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock);
-            if (cursor != null)
+            using (var cursor = await _domainStatisticsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock))
             {
-                using (cursor)
+                if (cursor != null)
                 {
                     var currentRecord = cursor.Get();
                     var links = BitConverter.ToUInt32(currentRecord.Skip(DomainHashKeySpaceSize).Take(4).ToArray(), 0);
                     var comments = BitConverter.ToUInt32(currentRecord.Skip(DomainHashKeySpaceSize + 4).Take(4).ToArray(), 0);
                     return new Tuple<uint, uint>(links, comments);
+
                 }
+                else
+                    return null;
             }
-            else
-                return null;
         }
 
         public async Task<List<SubredditAggregate>> GetSubredditAggregateList(int maxSize, int threshold)

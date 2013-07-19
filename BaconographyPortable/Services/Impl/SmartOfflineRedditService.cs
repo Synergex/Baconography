@@ -196,46 +196,14 @@ namespace BaconographyPortable.Services.Impl
             return listing;
         }
 
-        public async Task<HashSet<string>> GetSubscribedSubreddits()
+        public Task<HashSet<string>> GetSubscribedSubreddits()
         {
-            var user = await _userService.GetUser();
-            //this can change on a whim, but lets be frugal and only ask for it once per day
-            IEnumerable<Thing> subscribedSubreddits = await _offlineService.RetrieveOrderedThings("user-sub:" + user.Username, TimeSpan.FromDays(1));
-            if (subscribedSubreddits == null)
-            {
-                var subscribedSubredditsListing = MaybeStoreSubscribedSubredditListing(await _redditService.GetSubscribedSubredditListing(), user);
-                if (subscribedSubredditsListing != null)
-                    subscribedSubreddits = subscribedSubredditsListing.Data.Children;
-            }
-
-            if (subscribedSubreddits != null)
-            {
-                var hashifyListing = new Func<Thing, string>((thing) =>
-                {
-                    if (thing.Data is Subreddit)
-                    {
-                        return ((Subreddit)thing.Data).Name;
-                    }
-                    else
-                        return null;
-                });
-                return new HashSet<string>(subscribedSubreddits
-                    .Select(hashifyListing)
-                    .Where(str => str != null));
-            }
-            else
-                return new HashSet<string>();
+            return _redditService.GetSubscribedSubreddits();
         }
 
-        public async Task<Listing> GetSubscribedSubredditListing()
+        public Task<Listing> GetSubscribedSubredditListing()
         {
-            var user = await _userService.GetUser();
-            //this can change on a whim, but lets be frugal and only ask for it once per day
-            var subscribedSubreddits = await _offlineService.RetrieveOrderedThings("user-sub:" + user.Username, TimeSpan.FromDays(1));
-            if (subscribedSubreddits == null)
-                return MaybeStoreSubscribedSubredditListing(await _redditService.GetSubscribedSubredditListing(), user);
-            else
-                return new Listing { Data = new ListingData { Children = subscribedSubreddits.ToList() } };
+            return _redditService.GetSubscribedSubredditListing();
         }
 
         public Task<Listing> GetDefaultSubreddits()
@@ -243,20 +211,9 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.GetDefaultSubreddits();
         }
 
-        private Listing MaybeStoreSubreddits(Listing listing)
+        public Task<Listing> GetSubreddits(int? limit)
         {
-            if(listing.Data.Children.Count > 0)
-                _offlineService.StoreOrderedThings("subreddits:", listing.Data.Children);
-            return listing;
-        }
-
-        public async Task<Listing> GetSubreddits(int? limit)
-        {
-            var cachedSubreddits = await _offlineService.RetrieveOrderedThings("subreddits:", TimeSpan.FromDays(30));
-            if (cachedSubreddits != null && cachedSubreddits.Count() > 0)
-                return new Listing { Data = new ListingData { Children = cachedSubreddits.ToList() } };
-            else
-                return MaybeStoreSubreddits(await _redditService.GetSubreddits(limit));
+            return _redditService.GetSubreddits(limit);
         }
 
         public Task<TypedThing<Subreddit>> GetSubreddit(string name)
@@ -269,9 +226,19 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.GetPostsByUser(username, limit);
         }
 
+        List<Task> activeMaybeTasks = new List<Task>();
         private Listing MaybeStorePostsBySubreddit(Listing listing)
         {
-            _offlineService.StoreLinks(listing);
+            var maybeTask = _offlineService.StoreLinks(listing);
+            activeMaybeTasks.Add(maybeTask);
+            maybeTask.ContinueWith(task =>
+                {
+                    lock (activeMaybeTasks)
+                    {
+                        activeMaybeTasks.Remove(maybeTask);
+                    }
+                });
+            
             return listing;
         }
 

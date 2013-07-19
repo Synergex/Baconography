@@ -31,7 +31,13 @@ namespace Baconography.NeutralServices.KitaroDB
         {
             if (_instanceTask == null)
             {
-                _instanceTask = GetInstanceImpl();
+                lock (typeof(Subreddits))
+                {
+                    if (_instanceTask == null)
+                    {
+                        _instanceTask = GetInstanceImpl();
+                    }
+                }
             }
             return _instanceTask;
         }
@@ -122,34 +128,41 @@ namespace Baconography.NeutralServices.KitaroDB
 
         public async Task<Thing> GetSubreddit(string id = null, string name = null)
         {
-            byte[] keyspace = null;
-            DBKey targetKey = null;
-            if (id != null)
+            try
             {
-                keyspace = GenerateIdKeyspace(id);
-                targetKey = _subredditsDB.GetKeys()[1];
-            }
-            else if (name != null)
-            {
-                keyspace = GenerateNameKeyspace(name);
-                targetKey = _subredditsDB.GetKeys()[0];
-            }
-            else
-                throw new ArgumentNullException("id/name");
-
-            var subredditCursor = await _subredditsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock);
-            if (subredditCursor != null)
-            {
-                using (subredditCursor)
+                byte[] keyspace = null;
+                DBKey targetKey = null;
+                if (id != null)
                 {
-                    var currentRecord = subredditCursor.Get();
-                    var decodedListing = Encoding.UTF8.GetString(currentRecord, SubredditKeySpaceSize, currentRecord.Length - SubredditKeySpaceSize);
-                    var deserializedComment = JsonConvert.DeserializeObject<Thing>(decodedListing);
-                    return deserializedComment;
+                    keyspace = GenerateIdKeyspace(id);
+                    targetKey = _subredditsDB.GetKeys()[1];
+                }
+                else if (name != null)
+                {
+                    keyspace = GenerateNameKeyspace(name);
+                    targetKey = _subredditsDB.GetKeys()[0];
+                }
+                else
+                    throw new ArgumentNullException("id/name");
+
+                using (var subredditCursor = await _subredditsDB.SeekAsync(targetKey, keyspace, DBReadFlags.NoLock))
+                {
+                    if (subredditCursor != null)
+                    {
+                        var currentRecord = subredditCursor.Get();
+                        var decodedListing = Encoding.UTF8.GetString(currentRecord, SubredditKeySpaceSize, currentRecord.Length - SubredditKeySpaceSize);
+                        var deserializedComment = JsonConvert.DeserializeObject<Thing>(decodedListing);
+                        return deserializedComment;
+
+                    }
+                    else
+                        return null;
                 }
             }
-            else
+            catch
+            {
                 return null;
+            }
         }
 
         internal void Terminate()

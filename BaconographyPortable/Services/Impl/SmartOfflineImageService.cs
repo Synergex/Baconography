@@ -146,12 +146,6 @@ namespace BaconographyPortable.Services.Impl
             }
         }
 
-        private IEnumerable<Tuple<string, string>> MaybeStoreImagesFromUrl(IEnumerable<Tuple<string, string>> images, string url)
-        {
-            _offlineService.StoreImages(images, url);
-            return images;
-        }
-
         public async Task<IEnumerable<Tuple<string, string>>> GetImagesFromUrl(string title, string url)
         {
             if (IsImageAPI(url))
@@ -160,7 +154,11 @@ namespace BaconographyPortable.Services.Impl
                 if (cachedResult != null)
                     return cachedResult;
                 else
-                    return MaybeStoreImagesFromUrl(await _imagesService.GetImagesFromUrl(title, url), url);
+                {
+                    var results = await _imagesService.GetImagesFromUrl(title, url);
+                    await _offlineService.StoreImages(results, url);
+                    return results;
+                }
             }
             else if (IsImage(url))
             {
@@ -195,35 +193,10 @@ namespace BaconographyPortable.Services.Impl
             return _imagesService.SaveFileFromUriAsync(fileUri, localFileName, localPath, replaceIfExists);
         }
 
-        private byte[] MaybeStoreImageBytes(byte[] bytes, string url)
+        public Task<byte[]> ImageBytesFromUrl(string url)
         {
-            lock (this)
-                ActiveImages[url] = new WeakReference<byte[]>(bytes);
-            
-            _offlineService.StoreImage(bytes, url);
-            return bytes;
-        }
-
-        public async Task<byte[]> ImageBytesFromUrl(string url)
-        {
-            lock (_activeImages)
-            {
-                WeakReference<byte[]> loadedBytesRef;
-                byte[] loadedBytes;
-                if (_activeImages.TryGetValue(url, out loadedBytesRef) && loadedBytesRef.TryGetTarget(out loadedBytes))
-                    return loadedBytes;
-            }
-
-            var cachedResult = await _offlineService.GetImage(url);
-            if (cachedResult != null)
-            {
-                lock (this)
-                    ActiveImages[url] = new WeakReference<byte[]>(cachedResult);
-
-                return cachedResult;
-            }
-            else
-                return MaybeStoreImageBytes(await _imagesService.ImageBytesFromUrl(url), url);
+            //there doesnt seem to be any reason to cache image bytes, the os is doing a fine job of it at least on WP8
+            return _imagesService.ImageBytesFromUrl(url);
         }
     }
 }
