@@ -243,6 +243,19 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("OfflineCacheDays");
             }
         }
+
+        public bool AllowAdvertising
+        {
+            get
+            {
+                return _settingsService.AllowAdvertising;
+            }
+            set
+            {
+                _settingsService.AllowAdvertising = value;
+                RaisePropertyChanged("AllowAdvertising");
+            }
+        }
         
 
         public RelayCommand ClearOffline
