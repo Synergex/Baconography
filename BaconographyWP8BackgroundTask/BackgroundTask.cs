@@ -60,7 +60,7 @@ namespace BaconographyWP8
             try
             {
                 ScheduledActionService.Add(periodicTask);
-                ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
             }
             catch (InvalidOperationException exception)
             {
@@ -105,7 +105,7 @@ namespace BaconographyWP8
             try
             {
                 ScheduledActionService.Add(intensiveTask);
-                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+                ScheduledActionService.LaunchForTest(intensiveTaskName, TimeSpan.FromSeconds(60));
             }
             catch (InvalidOperationException exception)
             {
@@ -374,7 +374,7 @@ namespace BaconographyWP8
             else //must be the resource intensive task, we get 10 minutes and a normal amount of ram to work with
             {
                 //we get to load of the full set of dlls we have
-                await IntensiveTask.Run(NotifyComplete);
+                await IntensiveTask.Run(NotifyComplete, Deployment.Current.Dispatcher);
             }
         }
 

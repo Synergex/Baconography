@@ -124,7 +124,15 @@ namespace Baconography.NeutralServices.KitaroDB
             {
                 if (link.Data is Link)
                 {
-                    await StoreLink(link);
+                    try
+                    {
+                        await StoreLink(link);
+                    }
+                    catch(Exception ex)
+                    {
+                        var errorText = DBError.TranslateError((uint)ex.HResult);
+                        Debug.WriteLine(errorText);
+                    }
                 }
             }
         }

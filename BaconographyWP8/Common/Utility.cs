@@ -23,7 +23,7 @@ using Windows.Networking.Connectivity;
 
 namespace BaconographyWP8.Common
 {
-	class Utility
+	public class Utility
 	{
 		public static SolidColorBrush GetColorFromHexa(string hexaColor)
 		{
@@ -69,7 +69,7 @@ namespace BaconographyWP8.Common
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
 
-                if (settingsService.UpdateImagesOnlyOnWifi && connectionCostType == NetworkCostType.Unrestricted)
+                if (!settingsService.UpdateImagesOnlyOnWifi || connectionCostType == NetworkCostType.Unrestricted)
                 {
                     lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
                     tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
@@ -129,8 +129,11 @@ namespace BaconographyWP8.Common
                 {
                     File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
                 }
-                if(!supressInit)
+                if (!supressInit)
+                {
                     BackgroundTask.StartPeriodicAgent();
+                    BackgroundTask.StartIntensiveAgent();
+                }
 
             }
             catch
@@ -148,7 +151,7 @@ namespace BaconographyWP8.Common
         {
             List<string> results = new List<string>();
             var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 25);
-            var imagesLinks = imagesSubredditResult.Data.Children;
+            var imagesLinks = new List<Thing>(imagesSubredditResult.Data.Children);
             Shuffle(imagesLinks);
 
             imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
@@ -222,7 +225,7 @@ namespace BaconographyWP8.Common
         {
             List<string> results = new List<string>();
             var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 100);
-            var imagesLinks = linksSubredditResult.Data.Children;
+            var imagesLinks = new List<Thing>(linksSubredditResult.Data.Children);
             if (imagesLinks.Count > 0)
             {
                 //download images one at a time, check resolution
@@ -315,9 +318,9 @@ namespace BaconographyWP8.Common
             if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {
                 //call for posts from selected subreddit (defaults to front page)
-                var frontPageResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10);
-                Shuffle(frontPageResult.Data.Children);
-                lockScreenMessages.AddRange(frontPageResult.Data.Children.Where(thing => thing.Data is Link).Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
+                var frontPageResult = new List<Thing>((await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10)).Data.Children);
+                Shuffle(frontPageResult);
+                lockScreenMessages.AddRange(frontPageResult.Where(thing => thing.Data is Link).Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             }
 
             List<string> shuffledLockScreenImages = new List<string>(lockScreenImages);

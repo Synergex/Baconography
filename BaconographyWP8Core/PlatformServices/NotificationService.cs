@@ -18,11 +18,21 @@ namespace BaconographyWP8.PlatformServices
         TaskScheduler _scheduler;
         public NotificationService()
         {
-            _scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            try
+            {
+                _scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            }
+            catch
+            {
+                _scheduler = null;
+                //we're running in the background task disable the notifications
+            }
         }
 
         public void CreateNotification(string text)
         {
+            if (_scheduler == null)
+                return;
             Task.Factory.StartNew(() =>
                 {
                     ToastPrompt toast = new ToastPrompt();
@@ -37,6 +47,8 @@ namespace BaconographyWP8.PlatformServices
 
         public void CreateErrorNotification(Exception exception)
         {
+            if (_scheduler == null)
+                return;
             Task.Factory.StartNew(() =>
                 {
                     if (exception is System.Net.WebException)
@@ -68,6 +80,8 @@ namespace BaconographyWP8.PlatformServices
 
         public void CreateKitaroDBNotification(string text)
         {
+            if (_scheduler == null)
+                return;
             Task.Factory.StartNew(() =>
                 {
                     ToastPrompt toast = new ToastPrompt();
