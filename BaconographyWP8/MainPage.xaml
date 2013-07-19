@@ -86,7 +86,7 @@
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar x:Name="appBar" Mode="Minimized" IsVisible="True"
+        <shell:ApplicationBar x:Name="appBar" Mode="Default" IsVisible="True" StateChanged="appBar_StateChanged"
                               IsMenuEnabled="True" >
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="_" />
