@@ -47,22 +47,6 @@
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
     <Grid>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" FontSize="24" Foreground="{StaticResource PhoneForegroundBrush}" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"/>
-            <RichTextBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" TextWrapping="NoWrap">
-                <Paragraph x:Name="slashMe" FontSize="28" FontFamily="Palatino Linotype">
-                    <Run Text="{Binding ElementName=albumPivot, Path=SelectedItem, Converter={StaticResource linkedPictureViewHeaderConverter}}"/>
-                </Paragraph>
-            </RichTextBox>
-        </Grid>
         <phone:Pivot HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Margin="0" Padding="0" x:Name="albumPivot"
                         ItemsSource="{Binding Path=Pictures}"
@@ -79,6 +63,14 @@
             </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
+                          MinWidth="430">
+                        <local:PivotCountIndicator Height="30"
+                            ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
+                            SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
+                            Visibility="{Binding ElementName=pageRoot, Path=DataContext.IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <local:LoadIndicatorView />
+                    </Grid>
                 </DataTemplate>
             </phone:Pivot.TitleTemplate>
             <phone:Pivot.HeaderTemplate>
@@ -86,5 +78,18 @@
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
         </phone:Pivot>
+        <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66">
+            <StackPanel>
+                <TextBlock Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"
+                           x:Name="caption" Tap="Caption_Tap"/>
+            </StackPanel>
+            <!--
+            <RichTextBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" TextWrapping="NoWrap">
+                <Paragraph x:Name="slashMe" FontSize="28" FontFamily="Palatino Linotype">
+                    <Run Text="{Binding ElementName=albumPivot, Path=SelectedItem, Converter={StaticResource linkedPictureViewHeaderConverter}}"/>
+                </Paragraph>
+            </RichTextBox>
+            -->
+        </Grid>
     </Grid>
 </phone:PhoneApplicationPage>

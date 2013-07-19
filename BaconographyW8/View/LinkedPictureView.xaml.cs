@@ -50,7 +50,8 @@ namespace BaconographyW8.View
 
             if (pictureData == null && pageState != null && pageState.ContainsKey("NavagationData"))
             {
-                _navData = pictureData = pageState["NavagationData"] as IEnumerable<Tuple<string, string>>;
+                var data = pageState["NavagationData"] as Tuple<string,IEnumerable<Tuple<string, string>>>;
+                _navData = pictureData = data.Item2;
             }
 
             if (pictureData != null)

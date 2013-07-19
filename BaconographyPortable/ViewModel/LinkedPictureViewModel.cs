@@ -80,6 +80,12 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string LinkTitle
+        {
+            get;
+            set;
+        }
+
         public bool IsAlbum
         {
             get

@@ -42,7 +42,7 @@ namespace BaconographyWP8.View
 			_imageOrigins = new Dictionary<object, string>();
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
-            Typography.SetFraction(slashMe, System.Windows.FontFraction.Slashed);
+            //Typography.SetFraction(slashMe, System.Windows.FontFraction.Slashed);
         }
 
 		private Dictionary<object, string> _imageOrigins;
@@ -54,20 +54,20 @@ namespace BaconographyWP8.View
 				_pictureData = this.State["PictureViewModelData"] as string;
 				if (_pictureData != null)
 				{
-                    var deserializedObject = JsonConvert.DeserializeObject<IEnumerable<Tuple<string, string>>>(_pictureData);
+                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(_pictureData);
                     if (deserializedObject != null)
                     {
-                        _pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
+                        _pictureViewModel = new LinkedPictureViewModel { LinkTitle = deserializedObject.Item1, Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
                     }
 				}
 			}
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
 				var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
-				var deserializedObject = JsonConvert.DeserializeObject<IEnumerable<Tuple<string, string>>>(unescapedData);
+                var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(unescapedData);
 				if (deserializedObject != null)
 				{
-                    _pictureViewModel = new LinkedPictureViewModel { Pictures = deserializedObject.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
+                    _pictureViewModel = new LinkedPictureViewModel { LinkTitle = deserializedObject.Item1, Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
 					_pictureData = unescapedData;
 				}
 			}
@@ -158,6 +158,20 @@ namespace BaconographyWP8.View
 				}
 			}
 		}
+
+        private void Caption_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
+            {
+                caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
+                caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+            }
+            else
+            {
+                caption.TextWrapping = System.Windows.TextWrapping.Wrap;
+                caption.TextTrimming = System.Windows.TextTrimming.None;
+            }
+        }
 		
     }
 }
