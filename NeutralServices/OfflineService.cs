@@ -720,7 +720,7 @@ namespace Baconography.NeutralServices
                 if (_terminateSource.IsCancellationRequested)
                     return;
                 var uriBytes = Encoding.UTF8.GetBytes(uri);
-                using (var apiCursor = await _imageDb.SeekAsync(_imageDb.GetKeys()[0], uriBytes, DBReadFlags.NoLock))
+                using (var apiCursor = await _imageDb.SeekAsync(_imageDb.GetKeys()[0], uriBytes, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
                     if (_terminateSource.IsCancellationRequested)
                         return;
@@ -748,11 +748,12 @@ namespace Baconography.NeutralServices
             try
             {
                 await Initialize();
+
                 if (_terminateSource.IsCancellationRequested)
                     return;
                 var apiString = JsonConvert.SerializeObject(apiResults);
 
-                using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uri, DBReadFlags.NoLock))
+                using (var apiCursor = await _imageAPIDb.SeekAsync(_imageAPIDb.GetKeys()[0], uri, DBReadFlags.AutoLock | DBReadFlags.WaitOnLock))
                 {
                     if (_terminateSource.IsCancellationRequested)
                         return;
@@ -769,7 +770,6 @@ namespace Baconography.NeutralServices
             catch (Exception ex)
             {
                 var errorText = DBError.TranslateError((uint)ex.HResult);
-                //throw new Exception(errorText);
                 Debug.WriteLine(errorText);
                 Debug.WriteLine(ex.ToString());
             }

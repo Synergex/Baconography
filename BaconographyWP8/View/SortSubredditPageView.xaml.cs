@@ -38,6 +38,14 @@ namespace BaconographyWP8.View
 		private object newListLastItem;
 		private object subbedListLastItem;
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+                e.Cancel = true;
+            else
+                base.OnNavigatingFrom(e);
+        }
+
 		void newList_ItemRealized(object sender, ItemRealizationEventArgs e)
 		{
 			newListLastItem = e.Container.Content;

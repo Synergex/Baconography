@@ -31,6 +31,14 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+                e.Cancel = true;
+            else
+                base.OnNavigatingFrom(e);
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -75,9 +83,39 @@ namespace BaconographyWP8.View
             }
         }
 
-		protected override void OnNavigatedFrom(NavigationEventArgs e)
+		protected override async void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage());
+
+            //start the background/intensive updators if their settings are enabled
+            //otherwise remove them
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            bool doneActiveLockScreen = false;
+            if (settingsService.EnableUpdates)
+            {
+                doneActiveLockScreen = true;
+                await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
+                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
+                BackgroundTask.StartPeriodicAgent();
+            }
+            else
+                BackgroundTask.RemoveAgent(BackgroundTask.periodicTaskName);
+
+
+            //TODO this is the wrong setting to control this with
+            if (settingsService.AllowPredictiveOfflining)
+            {
+                if(!doneActiveLockScreen)
+                    await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
+                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
+
+                BackgroundTask.StartIntensiveAgent();
+            }
+            else
+            {
+                BackgroundTask.RemoveAgent(BackgroundTask.intensiveTaskName);
+            }
 			base.OnNavigatedFrom(e);
 		}
 

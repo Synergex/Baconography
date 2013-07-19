@@ -13,6 +13,7 @@ using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -42,6 +43,14 @@ namespace BaconographyWP8.View
 			}
 			base.OnNavigatedTo(e);
 		}
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "//MainPage.xaml" && e.IsCancelable)
+                e.Cancel = true;
+            else
+                base.OnNavigatingFrom(e);
+        }
 
 		private void ShowMoreButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{

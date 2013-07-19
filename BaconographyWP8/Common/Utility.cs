@@ -49,10 +49,15 @@ namespace BaconographyWP8.Common
             public string[] tile_images;
         }
 
+        private static bool loadingActiveLockScreen = false;
         public static async Task DoActiveLockScreen(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, INotificationService notificationService, bool supressInit)
         {
             try
             {
+                if (loadingActiveLockScreen)
+                    return;
+
+                loadingActiveLockScreen = true;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 
                 var loginCookie = (await userService.GetUser()).LoginCookie;
@@ -110,6 +115,7 @@ namespace BaconographyWP8.Common
             }
             finally
             {
+                loadingActiveLockScreen = false;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             }
         }

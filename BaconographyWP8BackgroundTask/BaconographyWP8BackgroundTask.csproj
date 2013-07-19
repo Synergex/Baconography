@@ -89,13 +89,36 @@
     <Compile Include="BackgroundTask.cs" />
     <Compile Include="Hacks\Thing.cs" />
     <Compile Include="Hacks\TinyRedditService.cs" />
+    <Compile Include="IntensiveTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BaconographyPortable\BaconographyPortable.csproj">
+      <Project>{386BE814-A21A-4A84-ABF3-F9B61130D4F2}</Project>
+      <Name>BaconographyPortable</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BaconographyWP8BackgroundControls\BaconographyWP8BackgroundControls.csproj">
       <Project>{4110A30E-1B48-45F6-AA6B-1ACDC817C286}</Project>
       <Name>BaconographyWP8BackgroundControls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BaconographyWP8Core\BaconographyWP8Core.csproj">
+      <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
+      <Name>BaconographyWP8Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="KitaroDBSDK_WP8, Version=2.0.0.0">
+      <Name>KitaroDB for Windows Phone 8</Name>
+    </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\portable-net45+wp80+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />

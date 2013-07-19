@@ -193,14 +193,6 @@ namespace BaconographyPortable.ViewModel
 
 		private void OnSubredditChanged(SelectSubredditMessage message)
 		{
-			if (Subreddits.Count == 3 || Subreddits.Count == 5)
-			{
-				_notificationService.CreateNotification("Warning: Adding too many pinned subreddits can cause slow application performance when navigating between views. We recommend using four or fewer for this release.");
-			}
-			else if (Subreddits.Count >= 7)
-			{
-				_notificationService.CreateNotification("Warning: At eight or more pinned subreddits you are likely to see greatly decreased application performance. We recommend using five or fewer for this release.");
-			}
 			ChangeSubreddit(message, !message.AddOnly);
 		}
 
