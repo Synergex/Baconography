@@ -291,7 +291,7 @@ namespace BaconographyWP8
                     //the goal is 6 items in the list, if thats not filled with messages then fill it with links
                     foreach (var link in links)
                     {
-                        if (lockScreenViewModel.OverlayItems.Count > numberOfItems - 1)
+                        if (lockScreenViewModel.OverlayItems.Count > (numberOfItems - 1))
                             break;
 
                         lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = link.Item1, Glyph = GetGlyph(link.Item2) });

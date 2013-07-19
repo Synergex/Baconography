@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Model.Reddit;
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,18 @@ namespace BaconographyWP8.Converters
                     filename = Path.GetFileName(uri.LocalPath);
                     targetHost = uri.DnsSafeHost.ToLower();
                     subreddit = commentsViewModel.Subreddit;
+                }
+                else if (value is Link)
+                {
+                    var link = value as Link;
+
+                    if (link.IsSelf)
+                        return DetailsGlyph;
+
+                    uri = new Uri(link.Url);
+                    filename = uri.AbsolutePath;
+                    targetHost = uri.DnsSafeHost.ToLower();
+                    subreddit = link.Subreddit;
                 }
 
                 if (subreddit == "videos" ||
