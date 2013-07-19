@@ -469,20 +469,21 @@ namespace BaconographyPortable.Services.Impl
             }
         }
 
-        public async Task AddPost(string kind, string url, string subreddit, string title)
+        public async Task AddPost(string kind, string url, string text, string subreddit, string title)
         {
             try
             {
-                if (kind == null || url == null || subreddit == null || title == null)
+                if (kind == null || url == null || text == null || subreddit == null || title == null)
                     return;
 
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddPost(kind, url, subreddit, title);
+                    await _redditService.AddPost(kind, url, text, subreddit, title);
                 else
                     await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
                     { 
                         { "kind", kind }, 
-                        { "url", url }, 
+                        { "url", url },
+                        { "text", text},
                         { "subreddit", subreddit }, 
                         { "title", title } 
                     });
@@ -500,6 +501,7 @@ namespace BaconographyPortable.Services.Impl
                     { 
                         { "kind", kind }, 
                         { "url", url }, 
+                        { "text", text},
                         { "subreddit", subreddit }, 
                         { "title", title } 
                     }).Start();
@@ -624,7 +626,7 @@ namespace BaconographyPortable.Services.Impl
                                 }
                             case "AddPost":
                                 {
-                                    await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
+                                    await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
                                     break;
                                 }
                             case "AddVote":

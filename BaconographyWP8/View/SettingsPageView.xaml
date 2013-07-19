@@ -18,6 +18,10 @@
     shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
     DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
 
+    <!--
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    -->
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -50,17 +54,39 @@
                     <ScrollViewer>
                         <StackPanel Margin="12,0,12,0">
                             <TextBlock FontWeight="SemiBold" Text="CONTENT"/>
-                            <CheckBox Margin="12,0,0,0" Content="allow NSFW (over 18) content"
+                            <CheckBox Margin="12,0,0,0" Content="Allow NSFW (over 18) content"
                                 IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
 
                             <TextBlock FontWeight="SemiBold" Text="LAYOUT"/>
-                            <CheckBox Margin="12,0,0,0" Content="left-handed mode"
+                            <CheckBox Margin="12,0,0,0" Content="Left-handed mode"
                                 IsChecked="{Binding LeftHandedMode, Mode=TwoWay}" />
-                            <CheckBox Margin="12,0,0,0" Content="orientation lock"
+                            <CheckBox Margin="12,0,0,0" Content="Orientation lock"
                                 IsChecked="{Binding OrientationLock, Mode=TwoWay}"
                                 Checked="OrientationLock_Checked"
                                 Unchecked="OrientationLock_Unchecked"/>
-                            <Button Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock HorizontalAlignment="Left" FontWeight="SemiBold" Text="OFFLINE CONTENT"/>
+                                <Button 
+                                    Margin="20,-1,0,0"
+                                    FontFamily="Segoe UI Symbol" FontSize="14"
+                                    Width="34" Height="34"
+                                    Tap="HelpOfflineButton_Tap"
+                                    Content="&#xE11B;" Style="{StaticResource RoundButtonStyle}"/>
+                            </StackPanel>
+                            
+                            <CheckBox Margin="12,0,0,0" Content="Predictive offline caching"
+                                IsChecked="{Binding PredictiveOffline, Mode=TwoWay}" />
+                            <CheckBox Margin="12,0,0,0" Content="Overnight offline caching"
+                                IsChecked="{Binding IntensiveOffline, Mode=TwoWay}" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="24,0,0,0" Text="Cleanup data every"/>
+                                <TextBlock Margin="6,0,0,0" Text="{Binding OfflineCacheDays}" />
+                                <TextBlock Margin="6,0,0,0" Text="days" />
+                            </StackPanel>
+                            <Slider Margin="12,0,0,0" Minimum="1" Maximum="7" Value="{Binding OfflineCacheDays, Mode=TwoWay}"/>
+                            <Button Margin="0,-12,0,0" Content="Clear Offline Data" Command="{Binding ClearOffline}"/>
+                            
                             <!--
                             <TextBlock FontWeight="SemiBold" Text="OFFLINE COMMENTS"/>
                             <CheckBox Margin="5,0,5,0" Content="fast download"
@@ -89,40 +115,32 @@
 
                             <Button Margin="12,0,0,0" Content="Set lock screen" Click="SetLockScreen"/>
 
+                            <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
 
-                            <TextBlock Margin="12,0,0,0" Text="Subreddit for lock screen images"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
-
-                            <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
+                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
+                            <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
 
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyWifi, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyWifi, Mode=TwoWay}"/>
-
-                            <TextBlock Margin="12,0,0,0" Text="Image update frequency"/>
-                            <toolkit:ListPicker Margin="12,0,0,0" SelectionMode="Single" ExpansionMode="ExpansionAllowed" SelectedItem="{Binding ImageUpdateFrequency, Mode=TwoWay}">
-                                <sys:String>30 Minutes</sys:String>
-                                <sys:String>1 Hour</sys:String>
-                                <sys:String>6 Hours</sys:String>
-                                <sys:String>24 Hours</sys:String>
-                            </toolkit:ListPicker>
-
-                            <TextBlock Margin="12,0,0,0" Text="Overlay update frequency"/>
-                            <toolkit:ListPicker Margin="12,0,0,0" SelectionMode="Single" ExpansionMode="ExpansionAllowed" SelectedItem="{Binding OverlayUpdateFrequency, Mode=TwoWay}">
-                                <sys:String>15 Minutes</sys:String>
-                                <sys:String>30 Minutes</sys:String>
-                                <sys:String>1 Hour</sys:String>
-                            </toolkit:ListPicker>
                             
                             <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
+                            <CheckBox Margin="12,0,0,0" Content="Show unread messages" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Show top posts" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
 
-                            <CheckBox Margin="12,0,0,0" Content="Use unread messages in lock screen overlay" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Use top posts in lock screen overlay" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
-                            <TextBlock Margin="12,0,0,0" Text="Opacity"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="24,0,0,0" Text="Number of Items"/>
+                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayItemCount}" />
+                            </StackPanel>
+                            <Slider Margin="12,0,0,0" Minimum="0" Maximum="6" Value="{Binding OverlayItemCount, Mode=TwoWay}"/>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="24,0,0,0" Text="Opacity"/>
+                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayOpacity}" />
+                            </StackPanel>
                             <Slider Margin="12,0,0,0" Minimum="25" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
-                            
                             
                         </StackPanel>
                     </ScrollViewer>
@@ -172,6 +190,8 @@
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>
+
+        <Popup x:Name="helpPopup" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
     
 </phone:PhoneApplicationPage>

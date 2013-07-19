@@ -221,7 +221,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
         {
-            var maxLimit = (await UserIsGold()) ? 1500 : 25;
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
             if (subreddit == null)
@@ -454,7 +454,7 @@ namespace BaconographyPortable.Model.Reddit
                 var listing = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                 var newListing = JsonConvert.DeserializeObject<Listing>(listing);
 
-                return MaybeFilterForNSFW(newListing);
+                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
             }
             catch (Exception ex)
             {
@@ -537,7 +537,7 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async Task AddPost(string kind, string url, string subreddit, string title)
+        public virtual async Task AddPost(string kind, string url, string text, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
 
@@ -546,8 +546,9 @@ namespace BaconographyPortable.Model.Reddit
                 {"api_type", "json"},
                 {"kind", kind},
                 {"url", url},
+                {"text", text},
                 {"title", title},
-                {"r", subreddit},
+                {"sr", subreddit},
                 {"renderstyle", "html" },
                 {"uh", modhash}
             };
@@ -744,8 +745,6 @@ namespace BaconographyPortable.Model.Reddit
 
 		private Listing MaybeInjectAdvertisements(Listing source)
 		{
-			return source;
-
 			int count = source.Data.Children.Count;
 			for (int i = 9; i < count; i += 10)
 			{

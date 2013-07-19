@@ -54,6 +54,11 @@ namespace BaconographyWP8.PlatformServices
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
 
+        public bool PredictiveOffline { get; set; }
+        public bool IntensiveOffline { get; set; }
+        public int OverlayItemCount { get; set; }
+        public int OfflineCacheDays { get; set; }
+
         public void ShowSettings()
         {
             
@@ -193,6 +198,30 @@ namespace BaconographyWP8.PlatformServices
 				else
 					LockScreenReddit = "/";
 
+                var overlayItemCount = await offlineService.GetSetting("OverlayItemCount");
+                if (!string.IsNullOrWhiteSpace(overlayItemCount))
+                    OverlayItemCount = int.Parse(overlayItemCount);
+                else
+                    OverlayItemCount = 5;
+
+                var offlineCacheDays = await offlineService.GetSetting("OfflineCacheDays");
+                if (!string.IsNullOrWhiteSpace(offlineCacheDays))
+                    OfflineCacheDays = int.Parse(offlineCacheDays);
+                else
+                    OfflineCacheDays = 2;
+
+                var predictiveOffline = await offlineService.GetSetting("PredictiveOffline");
+                if (!string.IsNullOrWhiteSpace(predictiveOffline))
+                    PredictiveOffline = bool.Parse(predictiveOffline);
+                else
+                    PredictiveOffline = false;
+
+                var intensiveOffline = await offlineService.GetSetting("IntensiveOffline");
+                if (!string.IsNullOrWhiteSpace(intensiveOffline))
+                    IntensiveOffline = bool.Parse(intensiveOffline);
+                else
+                    IntensiveOffline = false;
+
 
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
@@ -228,6 +257,10 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("PostsInLockScreenOverlay", PostsInLockScreenOverlay.ToString());
             await offlineService.StoreSetting("ImagesSubreddit", ImagesSubreddit.ToString());
             await offlineService.StoreSetting("LockScreenReddit", LockScreenReddit.ToString());
+            await offlineService.StoreSetting("PredictiveOffline", PredictiveOffline.ToString());
+            await offlineService.StoreSetting("IntensiveOffline", IntensiveOffline.ToString());
+            await offlineService.StoreSetting("OverlayItemCount", OverlayItemCount.ToString());
+            await offlineService.StoreSetting("OfflineCacheDays", OfflineCacheDays.ToString());
         }
 
 

@@ -69,6 +69,7 @@ namespace BaconographyWP8
                 SimpleIoc.Default.Register<MessagesViewModel>();
                 SimpleIoc.Default.Register<CaptchaViewModel>();
                 SimpleIoc.Default.Register<LockScreenViewModel>();
+                SimpleIoc.Default.Register<ComposePostViewModel>();
 
 				if (DesignerProperties.IsInDesignTool)
 				{
@@ -248,6 +249,14 @@ namespace BaconographyWP8
             get
             {
                 return ServiceLocator.Current.GetInstance<LockScreenViewModel>();
+            }
+        }
+
+        public ComposePostViewModel Submit
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<ComposePostViewModel>();
             }
         }
     }

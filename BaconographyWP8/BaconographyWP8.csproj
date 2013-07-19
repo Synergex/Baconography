@@ -165,6 +165,9 @@
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\AdvertisementView.xaml.cs">
+      <DependentUpon>AdvertisementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\CommentsView.xaml.cs">
       <DependentUpon>CommentsView.xaml</DependentUpon>
     </Compile>
@@ -176,6 +179,12 @@
     </Compile>
     <Compile Include="View\CaptchaPageView.xaml.cs">
       <DependentUpon>CaptchaPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ComposePostPageView.xaml.cs">
+      <DependentUpon>ComposePostPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
@@ -259,6 +268,10 @@
     <Page Include="View\AboutUserView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\AdvertisementView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\CommentsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -272,6 +285,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CaptchaPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ComposePostPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\HelpView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -386,6 +407,8 @@
     <Content Include="Assets\ApplicationIcon.png" />
     <Content Include="Assets\ApplicationIconSmall.png" />
     <Content Include="Assets\BaconographyKitaroPlug.png" />
+    <Content Include="Assets\BaconographyPhoneIconWide.png" />
+    <Content Include="Assets\DefaultLockScreen.png" />
     <Content Include="Assets\Icons\cancel.png" />
     <Content Include="Assets\Icons\delete.png" />
     <Content Include="Assets\Icons\new.png" />
@@ -493,6 +516,9 @@
     <SDKReference Include="KitaroDBSDK_WP8, Version=2.0.0.0">
       <Name>KitaroDB for Windows Phone 8</Name>
     </SDKReference>
+    <SDKReference Include="MSAdvertising, Version=6.1">
+      <Name>Microsoft Advertising SDK for Windows Phone 8 %28XAML%29</Name>
+    </SDKReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
@@ -505,5 +531,4 @@
   -->
   <ProjectExtensions />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />
 </Project>

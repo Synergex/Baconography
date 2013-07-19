@@ -106,11 +106,12 @@ namespace BaconographyWP8.PlatformServices
                 if (tpl.Value is IBaconService)
                     await ((IBaconService)tpl.Value).Initialize(this);
             }
-
             //var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
             //await redditService.RunQueue(null);
             
         }
+
+        
 
         private Dictionary<Type, object> _services;
         public T GetService<T>() where T : class

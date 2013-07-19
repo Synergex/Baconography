@@ -32,8 +32,12 @@ namespace BaconographyPortable.Services
         bool PostsInLockScreenOverlay { get; set; }
         string ImagesSubreddit { get; set; }
         int OverlayOpacity { get; set; }
+        int OverlayItemCount { get; set; }
         bool EnableLockScreenImages { get; set; }
         string LockScreenReddit { get; set; }
+        bool PredictiveOffline { get; set; }
+        bool IntensiveOffline { get; set; }
+        int OfflineCacheDays { get; set; }
 
         int ScreenWidth { get; set; }
         int ScreenHeight { get; set; }

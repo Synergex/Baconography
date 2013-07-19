@@ -125,6 +125,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public string ImagesSubreddit
+        {
+            get
+            {
+                return _settingsService.ImagesSubreddit;
+            }
+            set
+            {
+                _settingsService.ImagesSubreddit = value;
+                RaisePropertyChanged("ImagesSubreddit");
+            }
+        }
+
         public bool HighresLockScreenOnly
         {
             get
@@ -188,6 +201,58 @@ namespace BaconographyPortable.ViewModel
             {
                 _settingsService.PostsInLockScreenOverlay = value;
                 RaisePropertyChanged("PostsInLockScreenOverlay");
+            }
+        }
+
+        public int OverlayItemCount
+        {
+            get
+            {
+                return _settingsService.OverlayItemCount;
+            }
+            set
+            {
+                _settingsService.OverlayItemCount = value;
+                RaisePropertyChanged("OverlayItemCount");
+            }
+        }
+
+        public bool PredictiveOffline
+        {
+            get
+            {
+                return _settingsService.PredictiveOffline;
+            }
+            set
+            {
+                _settingsService.PredictiveOffline = value;
+                RaisePropertyChanged("PredictiveOffline");
+            }
+        }
+
+        public bool IntensiveOffline
+        {
+            get
+            {
+                return _settingsService.IntensiveOffline;
+            }
+            set
+            {
+                _settingsService.IntensiveOffline = value;
+                RaisePropertyChanged("IntensiveOffline");
+            }
+        }
+
+        public int OfflineCacheDays
+        {
+            get
+            {
+                return _settingsService.OfflineCacheDays;
+            }
+            set
+            {
+                _settingsService.OfflineCacheDays = value;
+                RaisePropertyChanged("OfflineCacheDays");
             }
         }
         
