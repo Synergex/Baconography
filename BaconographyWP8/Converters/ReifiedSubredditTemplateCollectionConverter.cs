@@ -20,7 +20,7 @@ namespace BaconographyWP8.Converters
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             ObservableCollection<PivotItem> boundControls = new ObservableCollection<PivotItem>();
-            var redditViewModelCollection = value as RedditViewModelCollection;
+            var redditViewModelCollection = value as ObservableCollection<ViewModelBase>;
             redditViewModelCollection.CollectionChanged += (sender, arg) => redditViewModelCollection_CollectionChanged(sender, arg, boundControls);
             foreach (var viewModel in redditViewModelCollection)
             {

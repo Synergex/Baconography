@@ -56,6 +56,8 @@ namespace BaconographyPortable.ViewModel
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
             _subreddits.CollectionChanged += _subreddits_CollectionChanged;
+
+            _pivotItems = new RedditViewModelCollection();
         }
 
 		private async void OnSettingsChanged(SettingsChangedMessage message)

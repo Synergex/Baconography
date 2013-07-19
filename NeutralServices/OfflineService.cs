@@ -539,7 +539,6 @@ namespace Baconography.NeutralServices
         public async Task<IEnumerable<Thing>> RetrieveOrderedThings(string key, TimeSpan maxAge)
         {
             await Initialize();
-            bool badElement = false;
             try
             {
                 using (var blobCursor = await _blobStoreDb.SeekAsync(_blobStoreDb.GetKeys()[0], BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock))
@@ -560,25 +559,12 @@ namespace Baconography.NeutralServices
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                badElement = true;
+                var errorString = DBError.TranslateError((uint)ex.HResult);
+                Debug.WriteLine(errorString);
             }
 
-            if (badElement)
-            {
-                try
-                {
-                    using (var badCursor = await _blobStoreDb.SeekAsync(BitConverter.GetBytes(key.GetHashCode()), DBReadFlags.WaitOnLock | DBReadFlags.AutoLock))
-                    {
-                        if (badCursor != null)
-                            await badCursor.DeleteAsync();
-                    }
-                }
-                catch
-                {
-                }
-            }
             return null;
         }
 

@@ -15,13 +15,5 @@ namespace BaconographyWP8.ViewModel.Collections
 {
     public class RedditViewModelCollection : ObservableCollection<ViewModelBase>
     {
-        Dictionary<object, object> _state;
-        ISystemServices _systemServices;
-        IBaconProvider _baconProvider;
-
-
-		public RedditViewModelCollection(IBaconProvider baconProvider)
-        {
-        }
     }
 }
