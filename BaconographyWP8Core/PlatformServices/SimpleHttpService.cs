@@ -109,7 +109,7 @@ namespace BaconographyWP8.PlatformServices
 
             var getResult = await GetResponseAsync(request);
 
-            if (getResult.StatusCode == HttpStatusCode.OK)
+            if (getResult != null && getResult.StatusCode == HttpStatusCode.OK)
             {
                 return await Task<string>.Run(() =>
                 {

@@ -31,6 +31,16 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            if (e.NavigationMode == NavigationMode.New && this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
+            {
+                pivot.SelectedIndex = 1;
+            }
+        }
+
         protected void OpenHelp(string topic, string content)
         {
             double height = LayoutRoot.ActualHeight - 24;
@@ -62,16 +72,6 @@ namespace BaconographyWP8.View
             {
                 base.OnBackKeyPress(e);
 
-            }
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-
-            if (e.NavigationMode == NavigationMode.New && this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
-            {
-                pivot.SelectedIndex = 1;
             }
         }
 

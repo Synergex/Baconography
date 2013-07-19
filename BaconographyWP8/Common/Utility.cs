@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,6 +131,9 @@ namespace BaconographyWP8.Common
                 BitmapImage imageSource = null;
                 for (int i = 0; i < imagesLinks.Count; i++)
                 {
+                    if (!(imagesLinks[i].Data is Link))
+                        continue;
+
                     try
                     {
                         var url = ((Link)imagesLinks[i].Data).Url;
@@ -166,14 +170,14 @@ namespace BaconographyWP8.Common
                         bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
                         bitmap.Invalidate();
 
-                        using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", i.ToString())))
+                        using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", results.Count.ToString())))
                         {
                             bitmap.SaveJpeg(theFile, 480, 800, 0, 100);
                             theFile.Flush(true);
                             theFile.Close();
                         }
 
-                        results.Add(string.Format("lockScreenCache{0}.jpg", i.ToString()));
+                        results.Add(string.Format("lockScreenCache{0}.jpg", results.Count.ToString()));
                     }
                     catch
                     {
@@ -187,11 +191,8 @@ namespace BaconographyWP8.Common
         public static async Task<IEnumerable<string>> MakeTileImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
             List<string> results = new List<string>();
-            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 25);
+            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 100);
             var imagesLinks = linksSubredditResult.Data.Children;
-            Shuffle(imagesLinks);
-
-            imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
             if (imagesLinks.Count > 0)
             {
                 //download images one at a time, check resolution
@@ -201,6 +202,9 @@ namespace BaconographyWP8.Common
                 BitmapImage imageSource = null;
                 for (int i = 0; i < imagesLinks.Count; i++)
                 {
+                    if (!(imagesLinks[i].Data is Link))
+                        continue;
+
                     try
                     {
                         var url = ((Link)imagesLinks[i].Data).Url;
@@ -220,10 +224,6 @@ namespace BaconographyWP8.Common
                         if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
                             continue;
 
-                        if (settingsService.HighresLockScreenOnly
-                            && (imageSource.PixelHeight < 800
-                                || imageSource.PixelWidth < 480))
-                            continue;
 
                         Image lockScreenView = new Image();
                         lockScreenView.Width = 691;
@@ -237,14 +237,18 @@ namespace BaconographyWP8.Common
                         bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
                         bitmap.Invalidate();
 
-                        using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\tileCache{0}.jpg", i.ToString())))
+                        using (var store = IsolatedStorageFile.GetUserStoreForApplication())
                         {
-                            bitmap.SaveJpeg(theFile, 691, 336, 0, 100);
-                            theFile.Flush(true);
-                            theFile.Close();
+                            var filename = string.Format("/Shared/ShellContent/tileCache{0}.jpg", results.Count.ToString());
+                            using (var st = new IsolatedStorageFileStream(filename, FileMode.Create, FileAccess.Write, store))
+                            {
+                                bitmap.SaveJpeg(st, 691, 336, 0, 90);
+                            }
                         }
 
-                        results.Add(string.Format("tileCache{0}.jpg", i.ToString()));
+                        results.Add(string.Format("tileCache{0}.jpg", results.Count.ToString()));
+                        if (results.Count > 17)
+                            break;
                     }
                     catch
                     {
@@ -271,7 +275,7 @@ namespace BaconographyWP8.Common
             if (user != null && user.LoginCookie != null && settingsService.MessagesInLockScreenOverlay)
             {
                 var messages = await redditService.GetMessages(null);
-                lockScreenMessages.AddRange(messages.Data.Children.Where(thing => ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
+                lockScreenMessages.AddRange(messages.Data.Children.Where(thing => thing.Data is Message && ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
                 {
                     DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
                     Glyph = ((Message)thing.Data).New ? UnreadMailGlyph : ReadMailGlyph
@@ -283,7 +287,7 @@ namespace BaconographyWP8.Common
                 //call for posts from selected subreddit (defaults to front page)
                 var frontPageResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10);
                 Shuffle(frontPageResult.Data.Children);
-                lockScreenMessages.AddRange(frontPageResult.Data.Children.Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
+                lockScreenMessages.AddRange(frontPageResult.Data.Children.Where(thing => thing.Data is Link).Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             }
 
             List<string> shuffledLockScreenImages = new List<string>(lockScreenImages);

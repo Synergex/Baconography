@@ -221,7 +221,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
         {
-            var maxLimit = (await UserIsGold()) ? 1500 : 25;
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
             if (subreddit == null)

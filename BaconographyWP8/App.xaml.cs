@@ -15,6 +15,8 @@ using Microsoft.Phone.Info;
 using System.Windows.Media;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyWP8.Messages;
+using BaconographyWP8.Common;
+using System.Linq;
 
 namespace BaconographyWP8
 {
@@ -128,10 +130,35 @@ namespace BaconographyWP8
 			}
 			else
 			{
-				_baconProvider.Initialize(RootFrame);
+				_baconProvider.Initialize(RootFrame).ContinueWith(task =>
+                    {
+                        _baconProvider.GetService<ISmartOfflineService>().OffliningOpportunity += BaconProvider_OffliningOpportunity;
+                    });
 			}
             _oomService = _baconProvider.GetService<IOOMService>();
 		}
+
+        DateTime lastUpdatedLiveStuff = new DateTime();
+
+        async void BaconProvider_OffliningOpportunity(OffliningOpportunityPriority arg1, NetworkConnectivityStatus arg2, System.Threading.CancellationToken arg3)
+        {
+            try
+            {
+                var settingsService = _baconProvider.GetService<ISettingsService>();
+                if (lastUpdatedLiveStuff > DateTime.Now.Subtract(new TimeSpan(0, 4, 0, 0, 0)) &&
+                    settingsService.EnableUpdates &&
+                    (Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication || ShellTile.ActiveTiles.FirstOrDefault() != null))
+                {
+                    if (arg2 == NetworkConnectivityStatus.Unmetered || arg2 == NetworkConnectivityStatus.Wifi)
+                    {
+                        await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
+                            _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), false);
+                    }
+                    lastUpdatedLiveStuff = DateTime.Now;
+                }
+            }
+            catch { }
+        }
 
         // Code to execute when the application is launching (eg, from Start)
         // This code will not execute when the application is reactivated

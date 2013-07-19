@@ -176,11 +176,13 @@ namespace BaconographyWP8
 
 
                 string lockScreenImage = "lockScreenCache1.jpg";
+                List<object> tileImages = new List<object>();
                 string linkReddit = "/";
                 int opacity = 35;
                 int numberOfItems = 6;
                 TinyRedditService redditService = null;
                 bool hasMail = false;
+                int messageCount = 0;
                 try
                 {
                     if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
@@ -198,7 +200,7 @@ namespace BaconographyWP8
                             var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
                             linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
                             var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
-                            var tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
+                            tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
 
                             Shuffle(lockScreenImages);
                             lockScreenImage = (lockScreenImages.FirstOrDefault() as string) ?? "lockScreenCache1.jpg";
@@ -250,7 +252,7 @@ namespace BaconographyWP8
                                 toast.NavigationUri = new Uri("/View/MessagingPageView.xaml", UriKind.Relative);
                                 toast.Show();
                             }
-
+                            messageCount++;
                             lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });
                         }
                     }
@@ -308,6 +310,34 @@ namespace BaconographyWP8
                         {
                             File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
                         }
+                        var activeTiles = ShellTile.ActiveTiles;
+                        var activeTile = activeTiles.FirstOrDefault();
+                        if(activeTile != null)
+                        {
+                            var uris = new List<Uri>();
+
+                            Shuffle(tileImages);
+
+                            foreach (var image in tileImages.Take(9))
+                            {
+                                uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
+                            }
+
+                            if (uris.Count == 0)
+                            {
+                                uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
+                            }
+
+                            CycleTileData cycleTile = new CycleTileData()
+                            {
+                                Title = "Baconography",
+                                Count = messageCount,
+                                SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
+                                CycleImages = uris
+                            };
+                            activeTile.Update(cycleTile);
+                        }
+
                     }
                     catch { }
 
