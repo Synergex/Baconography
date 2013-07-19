@@ -179,20 +179,17 @@ namespace BaconographyWP8
 				loginItemText = "login";
 			}
 
-            if(appMenuItems.Count > (int)MenuEnum.Login)
-                appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
+            appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 
             if (loggedIn)
             {
-                if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]))
-                    ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Mail]);
-                if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Submit]))
-                    ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Submit]);
+                appBarButtons[(int)ButtonEnum.Mail].IsEnabled = true;
+                appMenuItems[(int)MenuEnum.Submit].IsEnabled = true;
             }
             else
             {
-                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Mail]);
-                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Submit]);
+                appBarButtons[(int)ButtonEnum.Mail].IsEnabled = false;
+                appMenuItems[(int)MenuEnum.Submit].IsEnabled = false;
             }
 		}
 
@@ -293,28 +290,80 @@ namespace BaconographyWP8
 		}
 
 		List<ApplicationBarMenuItem> appMenuItems;
+        List<ApplicationBarIconButton> appBarButtons;
 
 		enum MenuEnum
 		{
 			Login = 0,
-			Sort,
-			Settings,
-			Manage,
+            Submit,
 			Close,
-			Pin,
+			Pin
+            /*
+            Sort,
             Mail,
-            Submit
+            Settings,
+            Manage,*/
 		}
+
+        enum ButtonEnum
+        {
+            ManageSubreddits = 0,
+            Mail,
+            Settings,
+            Sort
+        }
 
 		private void BuildMenu()
 		{
+            appBarButtons = new List<ApplicationBarIconButton>();
 			appMenuItems = new List<ApplicationBarMenuItem>();
+
+            appBarButtons.Add(new ApplicationBarIconButton());
+            appBarButtons[(int)ButtonEnum.ManageSubreddits].IconUri = new Uri("\\Assets\\Icons\\manage.png", UriKind.Relative);
+            appBarButtons[(int)ButtonEnum.ManageSubreddits].Text = "manage subs";
+            appBarButtons[(int)ButtonEnum.ManageSubreddits].IsEnabled = true;
+            appBarButtons[(int)ButtonEnum.ManageSubreddits].Click += MenuManage_Click;
+
+            appBarButtons.Add(new ApplicationBarIconButton());
+            appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+            appBarButtons[(int)ButtonEnum.Mail].Text = "mail";
+            appBarButtons[(int)ButtonEnum.Mail].IsEnabled = false;
+            appBarButtons[(int)ButtonEnum.Mail].Click += MenuMail_Click;
+
+            appBarButtons.Add(new ApplicationBarIconButton());
+            appBarButtons[(int)ButtonEnum.Settings].IconUri = new Uri("\\Assets\\Icons\\settings.png", UriKind.Relative);
+            appBarButtons[(int)ButtonEnum.Settings].Text = "settings";
+            appBarButtons[(int)ButtonEnum.Settings].IsEnabled = true;
+            appBarButtons[(int)ButtonEnum.Settings].Click += MenuSettings_Click;
+
+            appBarButtons.Add(new ApplicationBarIconButton());
+            appBarButtons[(int)ButtonEnum.Sort].IconUri = new Uri("\\Assets\\Icons\\sort.png", UriKind.Relative);
+            appBarButtons[(int)ButtonEnum.Sort].Text = "sort";
+            appBarButtons[(int)ButtonEnum.Sort].IsEnabled = true;
+            appBarButtons[(int)ButtonEnum.Sort].Click += MenuSort_Click;
+
+            ApplicationBar.Buttons.Clear();
+            try
+            {
+                foreach (var button in appBarButtons)
+                    ApplicationBar.Buttons.Add(button as IApplicationBarIconButton);
+            }
+            catch (Exception e)
+            {
+
+            }
 
 			appMenuItems.Add(new ApplicationBarMenuItem());
 			appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 			appMenuItems[(int)MenuEnum.Login].IsEnabled = true;
 			appMenuItems[(int)MenuEnum.Login].Click += MenuLogin_Click;
 
+            appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Submit].Text = "new post";
+            appMenuItems[(int)MenuEnum.Submit].IsEnabled = false;
+            appMenuItems[(int)MenuEnum.Submit].Click += MenuSubmit_Click;
+
+            /*
 			appMenuItems.Add(new ApplicationBarMenuItem());
 			appMenuItems[(int)MenuEnum.Sort].Text = "sort";
 			appMenuItems[(int)MenuEnum.Sort].IsEnabled = true;
@@ -329,6 +378,7 @@ namespace BaconographyWP8
 			appMenuItems[(int)MenuEnum.Manage].Text = "manage subreddits";
 			appMenuItems[(int)MenuEnum.Manage].IsEnabled = true;
 			appMenuItems[(int)MenuEnum.Manage].Click += MenuManage_Click;
+            */
 
 			appMenuItems.Add(new ApplicationBarMenuItem());
 			appMenuItems[(int)MenuEnum.Close].Text = "close subreddit";
@@ -340,21 +390,21 @@ namespace BaconographyWP8
 			appMenuItems[(int)MenuEnum.Pin].IsEnabled = true;
 			appMenuItems[(int)MenuEnum.Pin].Click += MenuPin_Click;
 
+            /*
             appMenuItems.Add(new ApplicationBarMenuItem());
             appMenuItems[(int)MenuEnum.Mail].Text = "mail";
             appMenuItems[(int)MenuEnum.Mail].IsEnabled = true;
             appMenuItems[(int)MenuEnum.Mail].Click += MenuMail_Click;
-
-            appMenuItems.Add(new ApplicationBarMenuItem());
-            appMenuItems[(int)MenuEnum.Submit].Text = "new post";
-            appMenuItems[(int)MenuEnum.Submit].IsEnabled = true;
-            appMenuItems[(int)MenuEnum.Submit].Click += MenuSubmit_Click;
+            */            
 
 			ApplicationBar.MenuItems.Clear();
+            ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
+            ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Submit]);
+            /*
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Sort]);
-			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
+            */
 		}
 
 		private void UpdateMenuItems()
@@ -362,30 +412,49 @@ namespace BaconographyWP8
 			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
 				BuildMenu();
 
-            
-
-            int threshold = ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Mail]) ? 5 : 4;
-            if (pivot.SelectedItem is PivotItem && 
+            if (pivot.SelectedItem is PivotItem &&
                 ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel &&
                 ((RedditViewModel)((PivotItem)pivot.SelectedItem).DataContext).IsTemporary)
-			{
-				if (ApplicationBar.MenuItems.Count == threshold)
-				{
-					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Close]);
-					ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Pin]);
-				}
-			}
-            else if (ApplicationBar.MenuItems.Count > threshold)
-			{
-				ApplicationBar.MenuItems.RemoveAt(0);
-				ApplicationBar.MenuItems.RemoveAt(0);
-			}
+            {
+                if (!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Close]))
+                {
+                    ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Close]);
+                    ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Pin]);
+                }
+            }
+            else if (ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Close]))
+            {
+                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Close]);
+                ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Pin]);
+            }
 		}
 
 		private void OnLoadedPivotItem(object sender, PivotItemEventArgs e)
 		{
 			UpdateMenuItems();
 		}
+
+        int appBarState = 0;
+        private void appBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
+        {
+            if (appBarState == 2)
+                appBarState = 0;
+            else
+                appBarState++;
+
+            switch (appBarState)
+            {
+                case 0:
+                    ApplicationBar.Mode = ApplicationBarMode.Default;
+                    break;
+                case 1:
+                    ApplicationBar.Mode = ApplicationBarMode.Default;
+                    break;
+                case 2:
+                    ApplicationBar.Mode = ApplicationBarMode.Minimized;
+                    break;
+            }
+        }
 
         // Sample code for building a localized ApplicationBar
         //private void BuildLocalizedApplicationBar()

@@ -411,10 +411,14 @@
     <Content Include="Assets\DefaultLockScreen.png" />
     <Content Include="Assets\Icons\cancel.png" />
     <Content Include="Assets\Icons\delete.png" />
+    <Content Include="Assets\Icons\email.png" />
+    <Content Include="Assets\Icons\manage.png" />
     <Content Include="Assets\Icons\new.png" />
     <Content Include="Assets\Icons\refresh.png" />
     <Content Include="Assets\Icons\reply.png" />
     <Content Include="Assets\Icons\send.png" />
+    <Content Include="Assets\Icons\settings.png" />
+    <Content Include="Assets\Icons\sort.png" />
     <Content Include="Assets\reddit.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
