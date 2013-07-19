@@ -99,18 +99,6 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public bool EnableLockScreenImages
-        {
-            get
-            {
-                return _settingsService.EnableLockScreenImages;
-            }
-            set
-            {
-                _settingsService.EnableLockScreenImages = value;
-                RaisePropertyChanged("EnableLockScreenImages");
-            }
-        }
 
         public string LockScreenReddit
         {

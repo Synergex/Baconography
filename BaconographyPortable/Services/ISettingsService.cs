@@ -33,7 +33,6 @@ namespace BaconographyPortable.Services
         string ImagesSubreddit { get; set; }
         int OverlayOpacity { get; set; }
         int OverlayItemCount { get; set; }
-        bool EnableLockScreenImages { get; set; }
         string LockScreenReddit { get; set; }
         int OfflineCacheDays { get; set; }
 

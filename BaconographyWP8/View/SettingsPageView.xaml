@@ -99,7 +99,6 @@
                             <Button Margin="12,0,0,0" Content="Set lock screen" Click="SetLockScreen"/>
 
                             <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Use images from subreddit for lock screen" IsChecked="{Binding EnableLockScreenImages, Mode=TwoWay}"/>
 
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
                             <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>

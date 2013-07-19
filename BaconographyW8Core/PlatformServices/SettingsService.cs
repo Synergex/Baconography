@@ -271,18 +271,6 @@ namespace BaconographyW8.PlatformServices
             }
         }
 
-        public bool EnableLockScreenImages
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public string LockScreenReddit
         {
             get

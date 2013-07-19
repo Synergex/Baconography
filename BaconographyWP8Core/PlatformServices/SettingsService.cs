@@ -49,7 +49,6 @@ namespace BaconographyWP8.PlatformServices
         public bool PostsInLockScreenOverlay { get; set; }
         public int OverlayOpacity { get; set; }
         public string ImagesSubreddit { get; set; }
-        public bool EnableLockScreenImages { get; set; }
         public string LockScreenReddit { get; set; }
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
