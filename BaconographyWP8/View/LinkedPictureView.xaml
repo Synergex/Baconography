@@ -69,7 +69,6 @@
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
                             SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
                             Visibility="{Binding ElementName=pageRoot, Path=DataContext.IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
-                        <local:LoadIndicatorView />
                     </Grid>
                 </DataTemplate>
             </phone:Pivot.TitleTemplate>
@@ -81,7 +80,7 @@
         <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66">
             <StackPanel>
                 <TextBlock Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"
-                           x:Name="caption" Tap="Caption_Tap"/>
+                           x:Name="caption" ManipulationStarted="Caption_ManipulationStarted"/>
             </StackPanel>
             <!--
             <RichTextBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" TextWrapping="NoWrap">

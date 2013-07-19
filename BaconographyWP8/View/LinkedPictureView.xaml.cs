@@ -172,6 +172,20 @@ namespace BaconographyWP8.View
                 caption.TextTrimming = System.Windows.TextTrimming.None;
             }
         }
+
+        private void Caption_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        {
+            if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
+            {
+                caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
+                caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+            }
+            else
+            {
+                caption.TextWrapping = System.Windows.TextWrapping.Wrap;
+                caption.TextTrimming = System.Windows.TextTrimming.None;
+            }
+        }
 		
     }
 }
