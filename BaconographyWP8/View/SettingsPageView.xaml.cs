@@ -103,8 +103,7 @@ namespace BaconographyWP8.View
                 BackgroundTask.RemoveAgent(BackgroundTask.periodicTaskName);
 
 
-            //TODO this is the wrong setting to control this with
-            if (settingsService.AllowPredictiveOfflining)
+            if (settingsService.EnableOvernightUpdates)
             {
                 if(!doneActiveLockScreen)
                     await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
