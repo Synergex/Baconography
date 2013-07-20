@@ -97,10 +97,10 @@ namespace BaconographyWP8.View
                 doneActiveLockScreen = true;
                 await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
-                BackgroundTask.StartPeriodicAgent();
+                Utility.StartPeriodicAgent();
             }
             else
-                BackgroundTask.RemoveAgent(BackgroundTask.periodicTaskName);
+                Utility.RemoveAgent(BackgroundTask.periodicTaskName);
 
 
             if (settingsService.EnableOvernightUpdates)
@@ -109,11 +109,11 @@ namespace BaconographyWP8.View
                     await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
 
-                BackgroundTask.StartIntensiveAgent();
+                Utility.StartIntensiveAgent();
             }
             else
             {
-                BackgroundTask.RemoveAgent(BackgroundTask.intensiveTaskName);
+                Utility.RemoveAgent(BackgroundTask.intensiveTaskName);
             }
 			base.OnNavigatedFrom(e);
 		}

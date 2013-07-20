@@ -6,6 +6,7 @@ using BaconographyWP8.PlatformServices;
 using BaconographyWP8.ViewModel;
 using BaconographyWP8BackgroundControls.View;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Scheduler;
 using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
@@ -139,10 +140,10 @@ namespace BaconographyWP8.Common
                 if (!supressInit)
                 {
                     if(settingsService.EnableUpdates)
-                        BackgroundTask.StartPeriodicAgent();
+                        StartPeriodicAgent();
 
                     if(settingsService.EnableOvernightUpdates)
-                        BackgroundTask.StartIntensiveAgent();
+                        StartIntensiveAgent();
                 }
 
             }
@@ -154,6 +155,109 @@ namespace BaconographyWP8.Common
             {
                 loadingActiveLockScreen = false;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+        }
+
+        public static void RemoveAgent(string name)
+        {
+            try
+            {
+                ScheduledActionService.Remove(name);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        public static readonly string periodicTaskName = "LockScreen_Updater";
+        public static readonly string intensiveTaskName = "Intensive_Baconography_Updater";
+
+        public static void StartPeriodicAgent()
+        {
+
+
+            // Obtain a reference to the period task, if one exists
+            var periodicTask = ScheduledActionService.Find(periodicTaskName) as PeriodicTask;
+
+            // If the task already exists and background agents are enabled for the
+            // application, you must remove the task and then add it again to update 
+            // the schedule
+            if (periodicTask != null)
+            {
+                RemoveAgent(periodicTaskName);
+            }
+
+            periodicTask = new PeriodicTask(periodicTaskName);
+            // The description is required for periodic agents. This is the string that the user
+            // will see in the background services Settings page on the device.
+            periodicTask.Description = "Keeps your lockscreen up to date with the latest redditing";
+
+            // Place the call to Add in a try block in case the user has disabled agents.
+            try
+            {
+                ScheduledActionService.Add(periodicTask);
+                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+            }
+            catch (InvalidOperationException exception)
+            {
+                if (exception.Message.Contains("BNS Error: The action is disabled"))
+                {
+                    MessageBox.Show("Background agents for this application have been disabled by the user.");
+                }
+
+                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
+                {
+                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
+
+                }
+            }
+            catch (SchedulerServiceException)
+            {
+            }
+        }
+
+
+        public static void StartIntensiveAgent()
+        {
+
+
+            // Obtain a reference to the period task, if one exists
+            var intensiveTask = ScheduledActionService.Find(intensiveTaskName) as ResourceIntensiveTask;
+
+            // If the task already exists and background agents are enabled for the
+            // application, you must remove the task and then add it again to update 
+            // the schedule
+            if (intensiveTask != null)
+            {
+                RemoveAgent(intensiveTaskName);
+            }
+
+            intensiveTask = new ResourceIntensiveTask(intensiveTaskName);
+            // The description is required for periodic agents. This is the string that the user
+            // will see in the background services Settings page on the device.
+            intensiveTask.Description = "This task does all of the heavy lifting for the lock screen updater and overnight offlining support";
+
+            // Place the call to Add in a try block in case the user has disabled agents.
+            try
+            {
+                ScheduledActionService.Add(intensiveTask);
+                //ScheduledActionService.LaunchForTest(intensiveTaskName, TimeSpan.FromSeconds(60));
+            }
+            catch (InvalidOperationException exception)
+            {
+                if (exception.Message.Contains("BNS Error: The action is disabled"))
+                {
+                    MessageBox.Show("Background agents for this application have been disabled by the user.");
+                }
+
+                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
+                {
+                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
+
+                }
+            }
+            catch (SchedulerServiceException)
+            {
             }
         }
 

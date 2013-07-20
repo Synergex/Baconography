@@ -23,109 +23,6 @@ namespace BaconographyWP8
 {
     public class BackgroundTask : ScheduledTaskAgent
     {
-        public static void RemoveAgent(string name)
-        {
-            try
-            {
-                ScheduledActionService.Remove(name);
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        public static readonly string periodicTaskName = "LockScreen_Updater";
-        public static readonly string intensiveTaskName = "Intensive_Baconography_Updater";
-
-        public static void StartPeriodicAgent()
-        {
-            
-
-            // Obtain a reference to the period task, if one exists
-            var periodicTask = ScheduledActionService.Find(periodicTaskName) as PeriodicTask;
-
-            // If the task already exists and background agents are enabled for the
-            // application, you must remove the task and then add it again to update 
-            // the schedule
-            if (periodicTask != null)
-            {
-                RemoveAgent(periodicTaskName);
-            }
-
-            periodicTask = new PeriodicTask(periodicTaskName);
-            // The description is required for periodic agents. This is the string that the user
-            // will see in the background services Settings page on the device.
-            periodicTask.Description = "Keeps your lockscreen up to date with the latest redditing";
-
-            // Place the call to Add in a try block in case the user has disabled agents.
-            try
-            {
-                ScheduledActionService.Add(periodicTask);
-                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
-            }
-            catch (InvalidOperationException exception)
-            {
-                if (exception.Message.Contains("BNS Error: The action is disabled"))
-                {
-                    MessageBox.Show("Background agents for this application have been disabled by the user.");
-                }
-
-                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
-                {
-                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
-
-                }
-            }
-            catch (SchedulerServiceException)
-            {
-            }
-        }
-
-
-        public static void StartIntensiveAgent()
-        {
-            
-
-            // Obtain a reference to the period task, if one exists
-            var intensiveTask = ScheduledActionService.Find(intensiveTaskName) as ResourceIntensiveTask;
-
-            // If the task already exists and background agents are enabled for the
-            // application, you must remove the task and then add it again to update 
-            // the schedule
-            if (intensiveTask != null)
-            {
-                RemoveAgent(intensiveTaskName);
-            }
-
-            intensiveTask = new ResourceIntensiveTask(intensiveTaskName);
-            // The description is required for periodic agents. This is the string that the user
-            // will see in the background services Settings page on the device.
-            intensiveTask.Description = "This task does all of the heavy lifting for the lock screen updater and overnight offlining support";
-
-            // Place the call to Add in a try block in case the user has disabled agents.
-            try
-            {
-                ScheduledActionService.Add(intensiveTask);
-                ScheduledActionService.LaunchForTest(intensiveTaskName, TimeSpan.FromSeconds(60));
-            }
-            catch (InvalidOperationException exception)
-            {
-                if (exception.Message.Contains("BNS Error: The action is disabled"))
-                {
-                    MessageBox.Show("Background agents for this application have been disabled by the user.");
-                }
-
-                if (exception.Message.Contains("BNS Error: The maximum number of ScheduledActions of this type have already been added."))
-                {
-                    // No user action required. The system prompts the user when the hard limit of periodic tasks has been reached.
-
-                }
-            }
-            catch (SchedulerServiceException)
-            {
-            }
-        }
-
         const string NavRightGlyph = "\uE0AD";
         const string PhotoGlyph = "\uE114";
         const string VideoGlyph = "\uE116";
@@ -171,6 +68,8 @@ namespace BaconographyWP8
 
             return WebGlyph;
         }
+        public static readonly string periodicTaskName = "LockScreen_Updater";
+        public static readonly string intensiveTaskName = "Intensive_Baconography_Updater";
 
         private string userInfoDbPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\userinfodb.ism";
         //we must be very carefull how much memory is used during this, we are limited to 10 megs or we get shutdown
@@ -513,10 +412,6 @@ namespace BaconographyWP8
 
                     // Set the lock screen background image.
                     Windows.Phone.System.UserProfile.LockScreen.SetImageUri(uri);
-                }
-                else if(!supressInit)
-                {
-                    MessageBox.Show("You said no, so I can't update your background.");
                 }
             }
             catch (System.Exception ex)
