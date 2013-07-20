@@ -387,7 +387,7 @@ namespace BaconographyWP8
                             {
                                 using (var cacheStream = await redditService.CacheUrl(link.Item2)) 
                                 {
-                                    while(cacheStream.CanRead && cacheStream.Length > cacheStream.Position)
+                                    while (cacheStream != null && cacheStream.CanRead && cacheStream.Length > cacheStream.Position)
                                     {
                                         //things get stuffed up if we dont read the bytes from the requests
                                         cacheStream.Read(cacheBuffer, 0, 1024);
