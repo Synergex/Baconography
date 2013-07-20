@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Windows.Networking.Connectivity;
 
 namespace BaconographyWP8.Common
@@ -97,6 +98,8 @@ namespace BaconographyWP8.Common
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
                 }
 
+                //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
+                await Task.Yield();
 
                 var lockScreenViewModel = await MakeLockScreenControl(settingsService, redditService, userService, lockScreenImages);
 
@@ -119,6 +122,9 @@ namespace BaconographyWP8.Common
                 bitmap.SaveJpeg(lockscreenJpg, settingsService.ScreenWidth, settingsService.ScreenHeight, 0, 100);
                 lockscreenJpg.Flush(true);
                 lockscreenJpg.Close();
+
+                //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
+                await Task.Yield();
 
                 BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false, supressInit);
 
@@ -213,7 +219,8 @@ namespace BaconographyWP8.Common
                             theFile.Flush(true);
                             theFile.Close();
                         }
-
+                        //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
+                        await Task.Yield();
                         results.Add(string.Format("lockScreenCache{0}.jpg", results.Count.ToString()));
                     }
                     catch
@@ -287,6 +294,9 @@ namespace BaconographyWP8.Common
                         results.Add(string.Format("tileCache{0}.jpg", results.Count.ToString()));
                         if (results.Count > 17)
                             break;
+
+                        //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
+                        await Task.Yield();
                     }
                     catch
                     {
