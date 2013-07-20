@@ -67,30 +67,43 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         private async Task<Listing> UncachedLoad(Dictionary<object, object> state)
         {
-            Listing resultListing = null;
-            var user = await _userService.GetUser();
-            if (user != null && user.Me != null)
+            var orderedThings = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1));
+            if (orderedThings != null)
             {
-                resultListing = await _redditService.GetSubscribedSubredditListing();
+
+                state["SubscribedSubreddits"] = HashifyListing(orderedThings);
+                var things = await _offlineService.RetrieveOrderedThings("reddits:", TimeSpan.FromDays(1024));
+                if (things.Count() == 0)
+                    things = new List<Thing>() { GetFrontPageThing() };
+                return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
             }
             else
             {
-                resultListing = await _redditService.GetDefaultSubreddits();
+                Listing resultListing = null;
+                var user = await _userService.GetUser();
+                if (user != null && user.Me != null)
+                {
+                    resultListing = await _redditService.GetSubscribedSubredditListing();
+                }
+                else
+                {
+                    resultListing = await _redditService.GetDefaultSubreddits();
+                }
+
+                if (resultListing != null && resultListing.Data != null && resultListing.Data.Children != null)
+                {
+                    state["SubscribedSubreddits"] = HashifyListing(resultListing.Data.Children);
+                    await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
+                }
+                else
+                    state["SubscribedSubreddits"] = new HashSet<string>();
+
+                var subreddits = await _redditService.GetSubreddits(null);
+                subreddits.Data.Children.Insert(0, GetFrontPageThing());
+
+                await _offlineService.StoreOrderedThings("reddits:", subreddits.Data.Children.Take(20));
+                return subreddits;
             }
-
-            if (resultListing != null && resultListing.Data != null && resultListing.Data.Children != null)
-            {
-                state["SubscribedSubreddits"] = HashifyListing(resultListing.Data.Children);
-                await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
-            }
-            else
-                state["SubscribedSubreddits"] = new HashSet<string>();
-
-            var subreddits = await _redditService.GetSubreddits(null);
-			subreddits.Data.Children.Insert(0, GetFrontPageThing());
-
-            await _offlineService.StoreOrderedThings("reddits:", subreddits.Data.Children.Take(20));
-            return subreddits;
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

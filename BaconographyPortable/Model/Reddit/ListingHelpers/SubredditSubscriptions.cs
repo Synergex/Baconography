@@ -32,19 +32,27 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         private async Task<Listing> UncachedLoad()
         {
-            Listing resultListing = null;
-            var user = await _userService.GetUser();
-            if (user != null && user.Me != null)
+            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1));
+            if (things != null)
             {
-                resultListing = await _redditService.GetSubscribedSubredditListing();
+                return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
             }
             else
             {
-                resultListing = await _redditService.GetDefaultSubreddits();
-            }
+                Listing resultListing = null;
+                var user = await _userService.GetUser();
+                if (user != null && user.Me != null)
+                {
+                    resultListing = await _redditService.GetSubscribedSubredditListing();
+                }
+                else
+                {
+                    resultListing = await _redditService.GetDefaultSubreddits();
+                }
 
-            await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
-            return resultListing;
+                await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
+                return resultListing;
+            }
         }
 
         public Task<Listing> Refresh(Dictionary<object, object> state)

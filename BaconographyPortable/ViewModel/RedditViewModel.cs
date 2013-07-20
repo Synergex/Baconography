@@ -95,7 +95,8 @@ namespace BaconographyPortable.ViewModel
 
                 _selectedSubreddit = message.Subreddit;
                 SelectedLink = null;
-                RefreshLinks();
+                if(!message.DontRefresh)
+                    RefreshLinks();
 
 				Heading = _selectedSubreddit.Data.DisplayName;
 

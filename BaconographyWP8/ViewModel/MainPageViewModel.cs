@@ -55,7 +55,6 @@ namespace BaconographyPortable.ViewModel
 			MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 
 			_subreddits = new ObservableCollection<TypedThing<Subreddit>>();
-            _subreddits.CollectionChanged += _subreddits_CollectionChanged;
 
             _pivotItems = new RedditViewModelCollection();
         }
@@ -210,6 +209,7 @@ namespace BaconographyPortable.ViewModel
                 var newReddit = new RedditViewModel(_baconProvider);
                 newReddit.DetachSubredditMessage();
                 newReddit.AssignSubreddit(message);
+                
                 if (PivotItems.Count > 0)
                     PivotItems.Insert(PivotItems.Count, newReddit);
                 else
@@ -259,9 +259,13 @@ namespace BaconographyPortable.ViewModel
                     {
                         var message = new SelectSubredditMessage();
                         message.Subreddit = new TypedThing<Subreddit>(sub);
+                        message.DontRefresh = true;
                         ChangeSubreddit(message, false);
                     }
                 }
+
+
+                _subreddits.CollectionChanged += _subreddits_CollectionChanged;
 
                 Messenger.Default.Send<SelectIndexMessage>(
                     new SelectIndexMessage

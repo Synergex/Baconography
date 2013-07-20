@@ -310,9 +310,7 @@ namespace BaconographyWP8
                         lockScreenView.UpdateLayout();
                         lockScreenView.Measure(new Size(480, 800));
                         lockScreenView.Arrange(new Rect(0, 0, 480, 800));
-                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
                         WriteableBitmap bitmap = new WriteableBitmap(480, 800);
-                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
                         bitmap.Render(lockScreenView, new ScaleTransform { ScaleX = 1.0f, ScaleY = 1.0f });
                         bitmap.Invalidate();
                         lockScreenView = null; //nuke the UI just incase the jpeg encoder overruns memory
@@ -422,8 +420,6 @@ namespace BaconographyWP8
                                     try
                                     {
                                         liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
-                                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-                                        GC.WaitForPendingFinalizers();
                                     }
                                     catch 
                                     {
@@ -453,7 +449,7 @@ namespace BaconographyWP8
 
             using (var cacheStream = await redditService.CacheUrl(link.Item2))
             {
-                if (cacheStream.Length > 250000)
+                if (cacheStream.Length > 200000)
                     return liveTileCounter;
 
                 imageSource.SetSource(cacheStream);
@@ -474,7 +470,7 @@ namespace BaconographyWP8
             WriteableBitmap bitmap = new WriteableBitmap(691, 336);
             bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
             bitmap.Invalidate();
-
+            lockScreenView.Source = null;
             using (var store = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 var filename = string.Format("/Shared/ShellContent/tileCache{0}.jpg", liveTileCounter.ToString());
