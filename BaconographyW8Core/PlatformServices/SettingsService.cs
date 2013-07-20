@@ -326,5 +326,18 @@ namespace BaconographyW8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+
+        public string LiveTileReddit
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

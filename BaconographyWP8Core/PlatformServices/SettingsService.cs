@@ -50,6 +50,7 @@ namespace BaconographyWP8.PlatformServices
         public int OverlayOpacity { get; set; }
         public string ImagesSubreddit { get; set; }
         public string LockScreenReddit { get; set; }
+        public string LiveTileReddit { get; set; }
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }
         public bool EnableOvernightUpdates { get; set; }
@@ -104,7 +105,7 @@ namespace BaconographyWP8.PlatformServices
                     HighlightAlreadyClickedLinks = true;
 
                 var applyReadabliltyToLinksString = await offlineService.GetSetting("ApplyReadabliltyToLinks");
-                if (!string.IsNullOrWhiteSpace(allowOver18String))
+                if (!string.IsNullOrWhiteSpace(applyReadabliltyToLinksString))
                     ApplyReadabliltyToLinks = bool.Parse(applyReadabliltyToLinksString);
                 else
                     ApplyReadabliltyToLinks = false;
@@ -180,7 +181,7 @@ namespace BaconographyWP8.PlatformServices
                 if (!string.IsNullOrWhiteSpace(enableUpdates))
                     EnableUpdates = bool.Parse(enableUpdates);
                 else
-                    EnableUpdates = false;
+                    EnableUpdates = true;
 
                 var postsInLockScreenOverlay = await offlineService.GetSetting("PostsInLockScreenOverlay");
                 if (!string.IsNullOrWhiteSpace(postsInLockScreenOverlay))
@@ -199,6 +200,12 @@ namespace BaconographyWP8.PlatformServices
 					LockScreenReddit = lockScreenReddit;
 				else
 					LockScreenReddit = "/";
+
+                var liveTileReddit = await offlineService.GetSetting("LiveTileReddit");
+                if (!string.IsNullOrWhiteSpace(liveTileReddit))
+                    LiveTileReddit = liveTileReddit;
+                else
+                    LiveTileReddit = "/";
 
                 var overlayItemCount = await offlineService.GetSetting("OverlayItemCount");
                 if (!string.IsNullOrWhiteSpace(overlayItemCount))
@@ -271,6 +278,10 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("PostsInLockScreenOverlay", PostsInLockScreenOverlay.ToString());
             await offlineService.StoreSetting("ImagesSubreddit", ImagesSubreddit.ToString());
             await offlineService.StoreSetting("LockScreenReddit", LockScreenReddit.ToString());
+            await offlineService.StoreSetting("AllowAdvertising", AllowAdvertising.ToString());
+            await offlineService.StoreSetting("EnableOvernightUpdates", EnableOvernightUpdates.ToString());
+            await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());
+            await offlineService.StoreSetting("UpdateImagesOnlyOnWifi", UpdateImagesOnlyOnWifi.ToString());
         }
 
 

@@ -46,6 +46,7 @@ namespace BaconographyWP8.Common
             public string opacity;
             public string number_of_items;
             public string link_reddit;
+            public string live_reddit;
             public string[] lock_images;
             public string[] tile_images;
         }
@@ -90,7 +91,7 @@ namespace BaconographyWP8.Common
                 }
                 using (var taskCookieFile = File.OpenWrite(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, live_reddit = settingsService.LiveTileReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
@@ -131,8 +132,11 @@ namespace BaconographyWP8.Common
                 }
                 if (!supressInit)
                 {
-                    BackgroundTask.StartPeriodicAgent();
-                    BackgroundTask.StartIntensiveAgent();
+                    if(settingsService.EnableUpdates)
+                        BackgroundTask.StartPeriodicAgent();
+
+                    if(settingsService.EnableOvernightUpdates)
+                        BackgroundTask.StartIntensiveAgent();
                 }
 
             }
@@ -224,8 +228,9 @@ namespace BaconographyWP8.Common
         public static async Task<IEnumerable<string>> MakeTileImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
             List<string> results = new List<string>();
-            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 100);
+            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LiveTileReddit, 100);
             var imagesLinks = new List<Thing>(linksSubredditResult.Data.Children);
+
             if (imagesLinks.Count > 0)
             {
                 //download images one at a time, check resolution
@@ -330,6 +335,7 @@ namespace BaconographyWP8.Common
             vml.ImageSource = shuffledLockScreenImages.FirstOrDefault();
             vml.OverlayItems = lockScreenMessages;
             vml.OverlayOpacity = settingsService.OverlayOpacity;
+            vml.NumberOfItems = settingsService.OverlayItemCount;
             return vml;
         }
 

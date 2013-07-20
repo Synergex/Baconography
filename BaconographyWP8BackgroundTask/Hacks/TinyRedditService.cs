@@ -61,6 +61,24 @@ namespace BaconographyWP8BackgroundTask.Hacks
             return taskComplete.Task;
         }
 
+        public async Task<Stream> CacheUrl(string url)
+        {
+            HttpWebRequest request = HttpWebRequest.CreateHttp(url);
+            request.AllowReadStreamBuffering = true;
+            request.AllowWriteStreamBuffering = true;
+            request.Method = "GET";
+            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+
+            using (var getResult = await GetResponseAsync(request))
+            {
+                if (getResult.StatusCode == HttpStatusCode.OK)
+                {
+                    return getResult.GetResponseStream();
+                }
+            }
+            return null;
+        }
+
         public async Task<string> SendGet(string cookie, string uri)
         {
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
@@ -154,7 +172,7 @@ namespace BaconographyWP8BackgroundTask.Hacks
                 return Enumerable.Empty<Tuple<string, string>>();
             }
 
-            var targetUri = string.Format("http://www.reddit.com{0}.json", subreddit);
+            var targetUri = string.Format("http://www.reddit.com{0}.json?limit={1}", subreddit, limit ?? 25);
             try
             {
                 List<Tuple<string, string>> result = new List<Tuple<string, string>>();

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -177,88 +178,86 @@ namespace BaconographyWP8
         protected override async void OnInvoke(ScheduledTask task)
         {
             
-            if (task.Name == periodicTaskName)
+            //even though this only takes up 500k (because of the dll load + a thread stack existing in the async call) with large image compositing 
+            //we dont have enough ram to fit anything other than absolute basic .net libraries, this is only an issue in periodic
+            //Dictionary<string, string> settingsCache;
+            //using (var settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None))
+            //{
+            //    settingsCache = new Dictionary<string, string>();
+            //    //load all of the settings up front so we dont spend so much time going back and forth
+            //    var cursor = await settingsDb.SeekAsync(DBReadFlags.NoLock);
+            //    if (cursor != null)
+            //    {
+            //        using (cursor)
+            //        {
+            //            do
+            //            {
+            //                settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+            //            } while (await cursor.MoveNextAsync());
+            //        }
+            //    }
+            //}
+
+
+
+            string lockScreenImage = "lockScreenCache1.jpg";
+            List<object> tileImages = new List<object>();
+            string linkReddit = "/";
+            string liveReddit = "/";
+            int opacity = 35;
+            int numberOfItems = 6;
+            TinyRedditService redditService = null;
+            bool hasMail = false;
+            int messageCount = 0;
+            try
             {
-                //even though this only takes up 500k (because of the dll load + a thread stack existing in the async call) with large image compositing 
-                //we dont have enough ram to fit anything other than absolute basic .net libraries, this is only an issue in periodic
-                //Dictionary<string, string> settingsCache;
-                //using (var settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None))
-                //{
-                //    settingsCache = new Dictionary<string, string>();
-                //    //load all of the settings up front so we dont spend so much time going back and forth
-                //    var cursor = await settingsDb.SeekAsync(DBReadFlags.NoLock);
-                //    if (cursor != null)
-                //    {
-                //        using (cursor)
-                //        {
-                //            do
-                //            {
-                //                settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
-                //            } while (await cursor.MoveNextAsync());
-                //        }
-                //    }
-                //}
-
-
-
-                string lockScreenImage = "lockScreenCache1.jpg";
-                List<object> tileImages = new List<object>();
-                string linkReddit = "/";
-                int opacity = 35;
-                int numberOfItems = 6;
-                TinyRedditService redditService = null;
-                bool hasMail = false;
-                int messageCount = 0;
-                try
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                    using (var cookieFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                     {
-                        using (var cookieFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                        {
-                            byte[] taskCookieBytes = new byte[4096];
-                            int readBytes = cookieFile.Read(taskCookieBytes, 0, 4096);
+                        byte[] taskCookieBytes = new byte[4096];
+                        int readBytes = cookieFile.Read(taskCookieBytes, 0, 4096);
 
-                            var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
-                            var decodedJson = JSON.JsonDecode(json);
+                        var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
+                        var decodedJson = JSON.JsonDecode(json);
 
-                            var cookie = JSON.GetValue(decodedJson, "cookie") as string;
-                            var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
-                            var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
-                            linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
-                            var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
-                            tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
+                        var cookie = JSON.GetValue(decodedJson, "cookie") as string;
+                        var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
+                        var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
+                        linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
+                        linkReddit = (JSON.GetValue(decodedJson, "live_reddit") as string) ?? "/";
+                        var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
+                        tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
 
-                            Shuffle(lockScreenImages);
-                            lockScreenImage = (lockScreenImages.FirstOrDefault() as string) ?? "lockScreenCache1.jpg";
+                        Shuffle(lockScreenImages);
+                        lockScreenImage = (lockScreenImages.FirstOrDefault() as string) ?? "lockScreenCache1.jpg";
 
-                            if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
-                            if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
+                        if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
+                        if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
 
-                            redditService = new TinyRedditService(null, null, cookie);
-                            hasMail = await redditService.HasMail();
-                        }
+                        redditService = new TinyRedditService(null, null, cookie);
+                        hasMail = await redditService.HasMail();
                     }
                 }
-                catch 
-                {
-                    if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                        File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
-                }
+            }
+            catch 
+            {
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
+            }
 
-                if (redditService == null)
-                    redditService = new TinyRedditService(null, null, null);
+            if (redditService == null)
+                redditService = new TinyRedditService(null, null, null);
 
 
-                LockScreenViewModel lockScreenViewModel = new LockScreenViewModel();
+            LockScreenViewModel lockScreenViewModel = new LockScreenViewModel();
 
-                lockScreenViewModel.ImageSource = lockScreenImage;
-                lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
-                lockScreenViewModel.NumberOfItems = numberOfItems;
-                //if (settingsCache.ContainsKey("OverlayOpacity"))
-                //{
-                //    lockScreenViewModel.OverlayOpacity = ((float)Int32.Parse(settingsCache["OverlayOpacity"])) / 100.0f;
-                //}
+            lockScreenViewModel.ImageSource = lockScreenImage;
+            lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
+            lockScreenViewModel.NumberOfItems = numberOfItems;
 
+            if (task.Name == periodicTaskName)
+            {
                 if (hasMail)
                 {
                     //get messages and notify user if a new message has appeared
@@ -338,7 +337,7 @@ namespace BaconographyWP8
                         }
                         var activeTiles = ShellTile.ActiveTiles;
                         var activeTile = activeTiles.FirstOrDefault();
-                        if(activeTile != null)
+                        if (activeTile != null)
                         {
                             var uris = new List<Uri>();
 
@@ -371,11 +370,121 @@ namespace BaconographyWP8
                     NotifyComplete();
                 });
             }
-            else //must be the resource intensive task, we get 10 minutes and a normal amount of ram to work with
+            else
             {
-                //we get to load of the full set of dlls we have
-                await IntensiveTask.Run(NotifyComplete, Deployment.Current.Dispatcher);
+                try
+                {
+                    //do the resource intensive task
+                    //cache as many images as we can for later
+                    //try to make new live tile images, we might OOM though so catch and quit
+
+                    var links = await redditService.GetPostsBySubreddit(linkReddit, 100);
+                    if (links != null)
+                    {
+                        var cacheBuffer = new byte[1024];
+                        foreach (var link in links)
+                        {
+                            //we should probably try to put some kind of primative version of the image api logic here
+                            if (link.Item2.EndsWith(".jpg") || link.Item2.EndsWith(".jpeg") || link.Item2.EndsWith(".png"))
+                            {
+                                using (var cacheStream = await redditService.CacheUrl(link.Item2)) 
+                                {
+                                    while(cacheStream.CanRead && cacheStream.Length > cacheStream.Position)
+                                    {
+                                        //things get stuffed up if we dont read the bytes from the requests
+                                        cacheStream.Read(cacheBuffer, 0, 1024);
+                                    }
+                                };
+                            }
+                        }
+                    }
+
+                    var liveTileLinks = links;
+                    if (linkReddit != liveReddit)
+                    {
+                        liveTileLinks = await redditService.GetPostsBySubreddit(liveReddit, 100);
+                    }
+
+                    Deployment.Current.Dispatcher.BeginInvoke(async () =>
+                    {
+                        try
+                        {
+                            int liveTileCounter = 0;
+                            foreach (var link in liveTileLinks)
+                            {
+                                //we dont rewrite settings because we dont have enough ram to load the neccisary dlls
+                                //so there is no point in downloading more live tile images then we started with
+                                if (liveTileCounter >= tileImages.Count)
+                                    break;
+
+                                if (link.Item2.EndsWith(".jpg") || link.Item2.EndsWith(".jpeg") || link.Item2.EndsWith(".png"))
+                                {
+                                    try
+                                    {
+                                        liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
+                                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                                        GC.WaitForPendingFinalizers();
+                                    }
+                                    catch 
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        catch { }
+                        finally
+                        {
+                            NotifyComplete();
+                        }
+                    });
+                }
+                catch
+                {
+                    NotifyComplete();
+                }
             }
+        }
+
+        private static async Task<int> BuildTileImage(TinyRedditService redditService, int liveTileCounter, Tuple<string, string> link)
+        {
+            var imageSource = new BitmapImage();
+            imageSource.CreateOptions = BitmapCreateOptions.None;
+
+            using (var cacheStream = await redditService.CacheUrl(link.Item2))
+            {
+                if (cacheStream.Length > 250000)
+                    return liveTileCounter;
+
+                imageSource.SetSource(cacheStream);
+            }
+
+            if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
+                return liveTileCounter;
+
+            //snag as many images as we can into existing live tile slots
+            Image lockScreenView = new Image();
+            lockScreenView.Width = 691;
+            lockScreenView.Height = 336;
+            lockScreenView.Source = imageSource;
+            lockScreenView.Stretch = Stretch.UniformToFill;
+            lockScreenView.UpdateLayout();
+            lockScreenView.Measure(new Size(691, 336));
+            lockScreenView.Arrange(new Rect(0, 0, 691, 336));
+            WriteableBitmap bitmap = new WriteableBitmap(691, 336);
+            bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
+            bitmap.Invalidate();
+
+            using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                var filename = string.Format("/Shared/ShellContent/tileCache{0}.jpg", liveTileCounter.ToString());
+                using (var st = new IsolatedStorageFileStream(filename, FileMode.Create, FileAccess.Write, store))
+                {
+                    bitmap.SaveJpeg(st, 691, 336, 0, 90);
+                    liveTileCounter++;
+                }
+            }
+            return liveTileCounter;
         }
 
         const string ReadMailGlyph = "\uE166";
