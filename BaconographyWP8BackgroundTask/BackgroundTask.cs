@@ -195,43 +195,70 @@ namespace BaconographyWP8
                         lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = link.Item1, Glyph = GetGlyph(link.Item2) });
                     }
                 }
+
+                List<Tuple<string, string>> liveTileImageUrls = new List<Tuple<string, string>>();
+                var liveTileLinks = await redditService.GetPostsBySubreddit(liveReddit, 100);
+                foreach (var link in liveTileLinks)
+                {
+                    if (link.Item2.EndsWith(".jpg") || link.Item2.EndsWith(".jpeg") || link.Item2.EndsWith(".png"))
+                    {
+                        liveTileImageUrls.Add(link);
+                    }
+
+                    //pick up a few extra just in case we have to throw some away due to sizing
+                    if (liveTileImageUrls.Count > 20)
+                        break;
+                }
+
+                liveTileLinks = null;
                 redditService = null;
                 links = null;
-                Deployment.Current.Dispatcher.BeginInvoke(() =>
+
+                Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                    BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
+                    int liveTileCounter = 0;
+
+                    foreach (var existingLiveTileImage in tileImages)
+                    {
+                        try
+                        {
+                            var dateTime = File.GetLastWriteTime(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\Shared\\ShellContent\\" + existingLiveTileImage);
+                            if ((DateTime.Now - dateTime).Hours < 4)
+                            {
+                                //dont nuke files newer than 4 hours
+                                //also file ages should grow as the number gets larger
+                                liveTileCounter++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.ToString());
+                        }
+                    }
+
+                    foreach (var link in liveTileImageUrls)
+                    {
+                        //we dont rewrite settings because we dont have enough ram to load the neccisary dlls
+                        //so there is no point in downloading more live tile images then we started with
+                        if (liveTileCounter >= tileImages.Count)
+                            break;
+
+                        
+                        try
+                        {
+                            liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
+                        }
+                        catch
+                        {
+                            break;
+                        }
+                        
+                    }
+
                     try
                     {
-                        Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
-                        //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
-                        var lockScreenView = new LockScreenViewControl(lockScreenViewModel);
-                        lockScreenView.Width = 480;
-                        lockScreenView.Height = 800;
-                        lockScreenView.UpdateLayout();
-                        lockScreenView.Measure(new Size(480, 800));
-                        lockScreenView.Arrange(new Rect(0, 0, 480, 800));
-                        WriteableBitmap bitmap = new WriteableBitmap(480, 800);
-                        bitmap.Render(lockScreenView, new ScaleTransform { ScaleX = 1.0f, ScaleY = 1.0f });
-                        bitmap.Invalidate();
-                        lockScreenView = null; //nuke the UI just incase the jpeg encoder overruns memory
-                        string targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg";
-                        if (File.Exists(targetFilePath))
-                        {
-                            targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
-                        }
-                        var lockscreenJpg = File.Create(targetFilePath);
-                        bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
-                        lockscreenJpg.Flush(true);
-                        lockscreenJpg.Close();
-                        BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false, true);
-
-                        if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
-                        {
-                            File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg");
-                        }
-                        else if (targetFilePath.EndsWith("lockscreen.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg"))
-                        {
-                            File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
-                        }
                         var activeTiles = ShellTile.ActiveTiles;
                         var activeTile = activeTiles.FirstOrDefault();
                         if (activeTile != null)
@@ -259,7 +286,6 @@ namespace BaconographyWP8
                             };
                             activeTile.Update(cycleTile);
                         }
-
                     }
                     catch { }
 
@@ -341,6 +367,45 @@ namespace BaconographyWP8
             }
         }
 
+        private static void BuildLockScreen(List<object> tileImages, int messageCount, LockScreenViewModel lockScreenViewModel)
+        {
+            try
+            {
+                //nasty nasty hack for stupid platform limitation, no data binding if you're not in the visual tree
+                var lockScreenView = new LockScreenViewControl(lockScreenViewModel);
+                lockScreenView.Width = 480;
+                lockScreenView.Height = 800;
+                lockScreenView.UpdateLayout();
+                lockScreenView.Measure(new Size(480, 800));
+                lockScreenView.Arrange(new Rect(0, 0, 480, 800));
+                WriteableBitmap bitmap = new WriteableBitmap(480, 800);
+                bitmap.Render(lockScreenView, new ScaleTransform { ScaleX = 1.0f, ScaleY = 1.0f });
+                bitmap.Invalidate();
+                lockScreenView.Dispose();
+                lockScreenView = null; //nuke the UI just incase the jpeg encoder overruns memory
+                string targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg";
+                if (File.Exists(targetFilePath))
+                {
+                    targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
+                }
+                var lockscreenJpg = File.Create(targetFilePath);
+                bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
+                lockscreenJpg.Flush(true);
+                lockscreenJpg.Close();
+                BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false, true);
+
+                if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg");
+                }
+                else if (targetFilePath.EndsWith("lockscreen.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg"))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
+                }
+            }
+            catch { }
+        }
+
         private static async Task<int> BuildTileImage(TinyRedditService redditService, int liveTileCounter, Tuple<string, string> link)
         {
             var imageSource = new BitmapImage();
@@ -348,8 +413,11 @@ namespace BaconographyWP8
 
             using (var cacheStream = await redditService.CacheUrl(link.Item2))
             {
-                if (cacheStream.Length > 200000)
-                    return liveTileCounter;
+                var dimensions = GetJpegDimensions(cacheStream);
+                cacheStream.Seek(0, SeekOrigin.Begin);
+
+                if((dimensions.Height * dimensions.Width * 4) > (1024 * 1536))
+                    return liveTileCounter; 
 
                 imageSource.SetSource(cacheStream);
             }
@@ -419,6 +487,67 @@ namespace BaconographyWP8
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
             }
         }
+
+
+        public static Dimensions GetJpegDimensions(Stream fs)
+        {
+            if (!fs.CanSeek) throw new ArgumentException("Stream must be seekable");
+            long blockStart;
+            var buf = new byte[4];
+            fs.Read(buf, 0, 4);
+            if (buf.SequenceEqual(new byte[] { 0xff, 0xd8, 0xff, 0xe0 }))
+            {
+                blockStart = fs.Position;
+                fs.Read(buf, 0, 2);
+                var blockLength = ((buf[0] << 8) + buf[1]);
+                fs.Read(buf, 0, 4);
+                if (Encoding.UTF8.GetString(buf, 0, 4) == "JFIF"
+                    && fs.ReadByte() == 0)
+                {
+                    blockStart += blockLength;
+                    while (blockStart < fs.Length)
+                    {
+                        fs.Position = blockStart;
+                        fs.Read(buf, 0, 4);
+                        blockLength = ((buf[2] << 8) + buf[3]);
+                        if (blockLength >= 7 && buf[0] == 0xff && buf[1] == 0xc0)
+                        {
+                            fs.Position += 1;
+                            fs.Read(buf, 0, 4);
+                            var height = (buf[0] << 8) + buf[1];
+                            var width = (buf[2] << 8) + buf[3];
+                            return new Dimensions(width, height);
+                        }
+                        blockStart += blockLength + 2;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public class Dimensions
+        {
+            private readonly int width;
+            private readonly int height;
+            public Dimensions(int width, int height)
+            {
+                this.width = width;
+                this.height = height;
+            }
+            public int Width
+            {
+                get { return width; }
+            }
+            public int Height
+            {
+                get { return height; }
+            }
+            public override string ToString()
+            {
+                return string.Format("width:{0}, height:{1}", Width, Height);
+            }
+        }
+
 
         public static void Shuffle<T>(IList<T> list)
         {

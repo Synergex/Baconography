@@ -11,6 +11,7 @@ using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
@@ -81,17 +82,15 @@ namespace BaconographyWP8.Common
                 else if(File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
                     //find the images we used last time
-                    using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                    var taskSettings = LoadTaskSettings();
+                    if (taskSettings != null)
                     {
-                        byte[] taskCookieBytes = new byte[4096];
-                        var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
-                        var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
-                        var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
-                        lockScreenImages = taskSettings.lock_images;
-                        tileImages = taskSettings.tile_images;
+                        lockScreenImages = taskSettings.Value.lock_images;
+                        tileImages = taskSettings.Value.tile_images;
                     }
                 }
-                using (var taskCookieFile = File.OpenWrite(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+
+                using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
                     TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, live_reddit = settingsService.LiveTileReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
@@ -196,7 +195,7 @@ namespace BaconographyWP8.Common
             try
             {
                 ScheduledActionService.Add(periodicTask);
-                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+                ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
             }
             catch (InvalidOperationException exception)
             {
@@ -261,8 +260,49 @@ namespace BaconographyWP8.Common
             }
         }
 
+        static TaskSettings? LoadTaskSettings()
+        {
+            try
+            {
+                using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    byte[] taskCookieBytes = new byte[4096];
+                    var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
+                    var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
+                    var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
+                    return taskSettings;
+                }
+            }
+            catch
+            {
+                //bad file dont know how it got messed up but kill it
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
+                }
+                return null;
+            }
+        }
+
         public static async Task<IEnumerable<string>> MakeLockScreenImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
+            try
+            {
+                //find the images we used last time
+                var lockScreenSettings = LoadTaskSettings();
+
+                if (lockScreenSettings != null && lockScreenSettings.Value.lock_images != null && lockScreenSettings.Value.lock_images.Length > 0)
+                {
+                    var dateTime = File.GetLastWriteTime(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
+                    if ((DateTime.Now - dateTime).TotalDays < 5)
+                        return lockScreenSettings.Value.lock_images;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
             List<string> results = new List<string>();
             var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 25);
             var imagesLinks = new List<Thing>(imagesSubredditResult.Data.Children);
@@ -302,7 +342,7 @@ namespace BaconographyWP8.Common
                                     var dimensions = GetJpegDimensions(stream);
                                     stream.Seek(0, SeekOrigin.Begin);
                                     //bigger than 16 megs when loaded means we need to chuck it
-                                    if ((dimensions.Height * dimensions.Width * 4) > 16 * 1024 * 1024)
+                                    if (dimensions == null || (dimensions.Height * dimensions.Width * 4) > 16 * 1024 * 1024)
                                         continue;
                                 }
                                 else if (stream.Length > 1024 * 1024) //its too big drop it

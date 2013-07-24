@@ -14,7 +14,7 @@ using System.IO;
 
 namespace BaconographyWP8BackgroundControls.View
 {
-    public partial class LockScreenViewControl : UserControl
+    public partial class LockScreenViewControl : UserControl, IDisposable
     {
         public LockScreenViewControl()
         {
@@ -40,7 +40,7 @@ namespace BaconographyWP8BackgroundControls.View
             InitializeComponent();
             backgroundImage.ImageSource = GetImageFromIsolatedStorage(lockScreenViewModel.ImageSource);
             borderBackground.Opacity = lockScreenViewModel.OverlayOpacity;
-            if (lockScreenViewModel.NumberOfItems > 0)
+            if (lockScreenViewModel.NumberOfItems > 0 && lockScreenViewModel.OverlayItems.Count > 0)
             {
                 foreach (var item in lockScreenViewModel.OverlayItems)
                 {
@@ -51,6 +51,12 @@ namespace BaconographyWP8BackgroundControls.View
             {
                 itemsControl.Visibility = System.Windows.Visibility.Collapsed;
             }
+        }
+
+        public void Dispose()
+        {
+            backgroundImage.ImageSource = null;
+            itemsControl.Items.Clear();
         }
     }
 }
