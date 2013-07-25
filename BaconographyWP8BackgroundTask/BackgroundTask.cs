@@ -97,7 +97,13 @@ namespace BaconographyWP8
             //    }
             //}
 
-
+            if (task.LastExitReason != AgentExitReason.Completed && task.LastExitReason != AgentExitReason.None)
+            {
+                ShellToast toast = new ShellToast();
+                toast.Title = "Background task crash reason";
+                toast.Content = task.LastExitReason.ToString();
+                toast.Show();
+            }
 
             string lockScreenImage = "lockScreenCache1.jpg";
             List<object> tileImages = new List<object>();
@@ -225,7 +231,7 @@ namespace BaconographyWP8
                         try
                         {
                             var dateTime = File.GetLastWriteTime(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\Shared\\ShellContent\\" + existingLiveTileImage);
-                            if ((DateTime.Now - dateTime).Hours < 4)
+                            if ((DateTime.Now - dateTime).TotalHours < 4)
                             {
                                 //dont nuke files newer than 4 hours
                                 //also file ages should grow as the number gets larger
