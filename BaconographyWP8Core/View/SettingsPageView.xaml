@@ -61,6 +61,8 @@
                                 IsChecked="{Binding OrientationLock, Mode=TwoWay}"
                                 Checked="OrientationLock_Checked"
                                 Unchecked="OrientationLock_Unchecked"/>
+                            <CheckBox Margin="12,0,0,0" Content="Tap title for comments"
+                                IsChecked="{Binding TapForComments, Mode=TwoWay}" />
 
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock HorizontalAlignment="Left" FontWeight="SemiBold" Text="OFFLINE CONTENT"/>

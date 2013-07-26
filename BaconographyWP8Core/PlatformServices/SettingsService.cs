@@ -56,6 +56,7 @@ namespace BaconographyWP8.PlatformServices
         public bool EnableOvernightUpdates { get; set; }
         public bool UpdateOverlayOnlyOnWifi { get; set; }
         public bool UpdateImagesOnlyOnWifi { get; set; }
+        public bool TapForComments { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -243,6 +244,12 @@ namespace BaconographyWP8.PlatformServices
                 else
                     AllowAdvertising = false;
 
+                var tapForComments = await offlineService.GetSetting("TapForComments");
+                if (!string.IsNullOrWhiteSpace(tapForComments))
+                    TapForComments = bool.Parse(tapForComments);
+                else
+                    TapForComments = true;
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -282,6 +289,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("EnableOvernightUpdates", EnableOvernightUpdates.ToString());
             await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());
             await offlineService.StoreSetting("UpdateImagesOnlyOnWifi", UpdateImagesOnlyOnWifi.ToString());
+            await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
         }
 
 
