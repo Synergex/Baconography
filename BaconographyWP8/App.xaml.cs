@@ -147,16 +147,14 @@ namespace BaconographyWP8
             try
             {
                 var settingsService = _baconProvider.GetService<ISettingsService>();
-                if (lastUpdatedLiveStuff > DateTime.Now.Subtract(new TimeSpan(0, 4, 0, 0, 0)) &&
-                    settingsService.EnableUpdates &&
+                if (((DateTime.Now - settingsService.LastUpdatedImages).TotalHours > 4) &&
+                    Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsNetworkAvailable && 
                     (Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication || ShellTile.ActiveTiles.FirstOrDefault() != null))
                 {
-                    if (arg2 == NetworkConnectivityStatus.Unmetered || arg2 == NetworkConnectivityStatus.Wifi)
-                    {
-                        await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
-                            _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), false);
-                    }
-                    lastUpdatedLiveStuff = DateTime.Now;
+                    await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
+                        _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), false);
+
+                    settingsService.LastUpdatedImages = DateTime.Now;
                 }
             }
             catch { }

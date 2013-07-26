@@ -217,10 +217,17 @@ namespace BaconographyWP8
                 Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
                     Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                        GC.WaitForPendingFinalizers();
+                    }
+
                     BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
                     //it appears to take a few runs to knock down the memory, probably a native reference counting issue
                     //thats why we also have to wait for pending finalizers
-                    for (int i = 0; i < 3; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
                         GC.WaitForPendingFinalizers();
@@ -451,7 +458,7 @@ namespace BaconographyWP8
                 }
             }
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
                 GC.WaitForPendingFinalizers();

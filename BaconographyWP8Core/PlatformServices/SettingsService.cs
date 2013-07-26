@@ -61,6 +61,7 @@ namespace BaconographyWP8.PlatformServices
 
         public int OverlayItemCount { get; set; }
         public int OfflineCacheDays { get; set; }
+        public DateTime LastUpdatedImages { get; set; }
 
         public void ShowSettings()
         {
@@ -243,6 +244,14 @@ namespace BaconographyWP8.PlatformServices
                 else
                     AllowAdvertising = false;
 
+
+
+                var lastUpdatedImages = await offlineService.GetSetting("LastUpdatedImages");
+                if (!string.IsNullOrWhiteSpace(lastUpdatedImages))
+                    LastUpdatedImages = DateTime.Parse(lastUpdatedImages);
+                else
+                    LastUpdatedImages = new DateTime();
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -282,6 +291,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("EnableOvernightUpdates", EnableOvernightUpdates.ToString());
             await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());
             await offlineService.StoreSetting("UpdateImagesOnlyOnWifi", UpdateImagesOnlyOnWifi.ToString());
+            await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
         }
 
 
@@ -290,5 +300,8 @@ namespace BaconographyWP8.PlatformServices
             var offlineService = _baconProvider.GetService<IOfflineService>();
             await offlineService.ClearHistory();
         }
+
+
+        
     }
 }

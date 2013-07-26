@@ -127,8 +127,7 @@ namespace BaconographyWP8BackgroundTask.Hacks
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
-            request.AllowAutoRedirect = true;
-            request.Headers["Accept-Encoding"] = "identity";
+            request.AllowReadStreamBuffering = true;
             var cookieContainer = new CookieContainer();
             request.CookieContainer = cookieContainer;
 
@@ -137,11 +136,11 @@ namespace BaconographyWP8BackgroundTask.Hacks
 
             using (var getResult = await GetResponseAsync(request))
             {
-                if (getResult.StatusCode == HttpStatusCode.OK && (getResult.ContentLength < 1024 * 256 || getResult.ContentLength == 4294967295))
+                if (getResult.StatusCode == HttpStatusCode.OK)
                 {
                     using (var responseStream = getResult.GetResponseStream())
                     {
-                        using (var sr = new StreamReader(responseStream, Encoding.UTF8, false, 4096, false))
+                        using (var sr = new StreamReader(responseStream))
                         {
                             var result = sr.ReadToEnd();
                             return result;

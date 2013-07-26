@@ -73,7 +73,8 @@ namespace BaconographyWP8.Common
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
 
-                if (!settingsService.UpdateImagesOnlyOnWifi || connectionCostType == NetworkCostType.Unrestricted)
+                if ((settingsService.UpdateImagesOnlyOnWifi && Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsWiFiEnabled) ||
+                    (connectionCostType != NetworkCostType.Variable))
                 {
                     lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
                     tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
@@ -118,10 +119,13 @@ namespace BaconographyWP8.Common
                 {
                     targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
                 }
-                var lockscreenJpg = File.Create(targetFilePath);
-                bitmap.SaveJpeg(lockscreenJpg, settingsService.ScreenWidth, settingsService.ScreenHeight, 0, 100);
-                lockscreenJpg.Flush(true);
-                lockscreenJpg.Close();
+
+                using (var lockscreenJpg = File.Create(targetFilePath))
+                {
+                    bitmap.SaveJpeg(lockscreenJpg, settingsService.ScreenWidth, settingsService.ScreenHeight, 0, 100);
+                    lockscreenJpg.Flush(true);
+                    lockscreenJpg.Close();
+                }
 
                 //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                 await Task.Yield();
@@ -294,7 +298,7 @@ namespace BaconographyWP8.Common
                 if (lockScreenSettings != null && lockScreenSettings.Value.lock_images != null && lockScreenSettings.Value.lock_images.Length > 0)
                 {
                     var dateTime = File.GetLastWriteTime(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
-                    if ((DateTime.Now - dateTime).TotalDays < 5)
+                    if ((DateTime.Now - dateTime).TotalDays < 3)
                         return lockScreenSettings.Value.lock_images;
                 }
             }
@@ -304,9 +308,8 @@ namespace BaconographyWP8.Common
             }
 
             List<string> results = new List<string>();
-            var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 25);
+            var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 100);
             var imagesLinks = new List<Thing>(imagesSubredditResult.Data.Children);
-            Shuffle(imagesLinks);
 
             imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
             if (imagesLinks.Count > 0)
@@ -389,6 +392,9 @@ namespace BaconographyWP8.Common
                         //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                         await Task.Yield();
                         results.Add(string.Format("lockScreenCache{0}.jpg", results.Count.ToString()));
+
+                        if (results.Count > 10)
+                            break;
                     }
                     catch (OutOfMemoryException oom)
                     {

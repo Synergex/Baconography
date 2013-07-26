@@ -44,6 +44,7 @@ namespace BaconographyPortable.Services
 
         int ScreenWidth { get; set; }
         int ScreenHeight { get; set; }
+        DateTime LastUpdatedImages { get; set; }
 
         void ShowSettings();
         Task Persist();
