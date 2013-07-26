@@ -199,7 +199,7 @@ namespace BaconographyWP8.Common
             try
             {
                 ScheduledActionService.Add(periodicTask);
-                ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
             }
             catch (InvalidOperationException exception)
             {

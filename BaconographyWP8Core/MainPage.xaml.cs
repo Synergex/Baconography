@@ -24,10 +24,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight;
 using BaconographyWP8Core.Common;
+using BaconographyWP8.Converters;
 
 namespace BaconographyWP8
 {
-	[ViewUri("/MainPage.xaml")]
+    [ViewUri("/BaconographyWP8Core;component/MainPage.xaml")]
     public partial class MainPage : PhoneApplicationPage
     {
 
@@ -96,7 +97,7 @@ namespace BaconographyWP8
                         //we're at a point where it should be completed
                         if (pivot.DataContext != null && pivot.ItemsSource == null)
                         {
-                            pivot.ItemsSource = ((MainPageViewModel)pivot.DataContext).PivotItems;
+                            pivot.ItemsSource = new ReifiedSubredditTemplateCollectionConverter().Convert(((MainPageViewModel)pivot.DataContext).PivotItems, null, null, null) as System.Collections.IEnumerable;
                         }
                         var unescapedData = Uri.UnescapeDataString(this.NavigationContext.QueryString["data"]);
                         var deserializedObject = JsonConvert.DeserializeObject<SelectTemporaryRedditMessage>(unescapedData);
