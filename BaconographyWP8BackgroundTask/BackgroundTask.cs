@@ -97,14 +97,6 @@ namespace BaconographyWP8
             //    }
             //}
 
-            if (task.LastExitReason != AgentExitReason.Completed && task.LastExitReason != AgentExitReason.None)
-            {
-                ShellToast toast = new ShellToast();
-                toast.Title = "Background task crash reason";
-                toast.Content = task.LastExitReason.ToString();
-                toast.Show();
-            }
-
             string lockScreenImage = "lockScreenCache1.jpg";
             List<object> tileImages = new List<object>();
             string linkReddit = "/";
@@ -140,8 +132,11 @@ namespace BaconographyWP8
                         if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
                         if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
 
-                        redditService = new TinyRedditService(null, null, cookie);
-                        hasMail = await redditService.HasMail();
+                        if (!string.IsNullOrWhiteSpace(cookie))
+                        {
+                            redditService = new TinyRedditService(null, null, cookie);
+                            hasMail = await redditService.HasMail();
+                        }
                     }
                 }
             }
@@ -217,13 +212,19 @@ namespace BaconographyWP8
                 }
 
                 liveTileLinks = null;
-                redditService = null;
                 links = null;
 
                 Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
-                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                    Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
                     BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
+                    //it appears to take a few runs to knock down the memory, probably a native reference counting issue
+                    //thats why we also have to wait for pending finalizers
+                    for (int i = 0; i < 3; i++)
+                    {
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                        GC.WaitForPendingFinalizers();
+                    }
                     int liveTileCounter = 0;
 
                     foreach (var existingLiveTileImage in tileImages)
@@ -244,11 +245,12 @@ namespace BaconographyWP8
                         }
                     }
 
+                    int startTileCounter = liveTileCounter;
                     foreach (var link in liveTileImageUrls)
                     {
                         //we dont rewrite settings because we dont have enough ram to load the neccisary dlls
                         //so there is no point in downloading more live tile images then we started with
-                        if (liveTileCounter >= tileImages.Count)
+                        if (liveTileCounter >= tileImages.Count || (liveTileCounter - startTileCounter) > 4)
                             break;
 
                         
@@ -394,10 +396,12 @@ namespace BaconographyWP8
                 {
                     targetFilePath = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg";
                 }
-                var lockscreenJpg = File.Create(targetFilePath);
-                bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
-                lockscreenJpg.Flush(true);
-                lockscreenJpg.Close();
+                using (var lockscreenJpg = File.Create(targetFilePath))
+                {
+                    bitmap.SaveJpeg(lockscreenJpg, 480, 800, 0, 100);
+                    lockscreenJpg.Flush(true);
+                    lockscreenJpg.Close();
+                }
                 BackgroundTask.LockHelper(Path.GetFileName(targetFilePath), false, true);
 
                 if (targetFilePath.EndsWith("lockscreenAlt.jpg") && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreen.jpg"))
@@ -416,16 +420,9 @@ namespace BaconographyWP8
         {
             var imageSource = new BitmapImage();
             imageSource.CreateOptions = BitmapCreateOptions.None;
-
-            using (var cacheStream = await redditService.CacheUrl(link.Item2))
+            if(! await redditService.SetSourceUrl(link.Item2, imageSource))
             {
-                var dimensions = GetJpegDimensions(cacheStream);
-                cacheStream.Seek(0, SeekOrigin.Begin);
-
-                if((dimensions.Height * dimensions.Width * 4) > (1024 * 1536))
-                    return liveTileCounter; 
-
-                imageSource.SetSource(cacheStream);
+                return liveTileCounter;
             }
 
             if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
@@ -453,6 +450,13 @@ namespace BaconographyWP8
                     liveTileCounter++;
                 }
             }
+
+            for (int i = 0; i < 3; i++)
+            {
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                GC.WaitForPendingFinalizers();
+            }
+
             return liveTileCounter;
         }
 

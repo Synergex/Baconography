@@ -1,4 +1,5 @@
-﻿using Procurios.Public;
+﻿using BaconographyWP8;
+using Procurios.Public;
 //using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace BaconographyWP8BackgroundTask.Hacks
 {
@@ -64,28 +66,69 @@ namespace BaconographyWP8BackgroundTask.Hacks
         public async Task<Stream> CacheUrl(string url)
         {
             HttpWebRequest request = HttpWebRequest.CreateHttp(url);
-            request.AllowReadStreamBuffering = true;
-            request.AllowWriteStreamBuffering = true;
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
 
-            using (var getResult = await GetResponseAsync(request))
+            var getResult = await GetResponseAsync(request);
+            if (getResult.StatusCode == HttpStatusCode.OK && (getResult.ContentLength < 1024 * 256 || getResult.ContentLength == 4294967295))
             {
                 if (getResult.StatusCode == HttpStatusCode.OK)
                 {
                     return getResult.GetResponseStream();
                 }
             }
+
+            if (getResult != null)
+                getResult.Dispose();
+
             return null;
+        }
+
+        public async Task<bool> SetSourceUrl(string url, BitmapImage image)
+        {
+            HttpWebRequest request = HttpWebRequest.CreateHttp(url);
+            request.AllowReadStreamBuffering = true;
+            request.Method = "GET";
+            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+
+            using (var getResult = await GetResponseAsync(request))
+            {
+                if (getResult.StatusCode == HttpStatusCode.OK && (getResult.ContentLength < 1024 * 256 || getResult.ContentLength == 4294967295))
+                {
+                    using (var responseStream = getResult.GetResponseStream())
+                    {
+                        var dimensions = BackgroundTask.GetJpegDimensions(responseStream);
+                        responseStream.Seek(0, SeekOrigin.Begin);
+                        if (dimensions == null || (dimensions.Height * dimensions.Width * 4) > (1024 * 1536))
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                image.SetSource(responseStream);
+                            }
+                            catch
+                            {
+                                //force bad debug traces to know we were here
+                                throw;
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         public async Task<string> SendGet(string cookie, string uri)
         {
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
-            request.AllowReadStreamBuffering = false;
-            request.AllowWriteStreamBuffering = false;
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+            request.AllowAutoRedirect = true;
+            request.Headers["Accept-Encoding"] = "identity";
             var cookieContainer = new CookieContainer();
             request.CookieContainer = cookieContainer;
 
@@ -94,12 +137,15 @@ namespace BaconographyWP8BackgroundTask.Hacks
 
             using (var getResult = await GetResponseAsync(request))
             {
-                if (getResult.StatusCode == HttpStatusCode.OK)
+                if (getResult.StatusCode == HttpStatusCode.OK && (getResult.ContentLength < 1024 * 256 || getResult.ContentLength == 4294967295))
                 {
-                    using (var sr = new StreamReader(getResult.GetResponseStream()))
+                    using (var responseStream = getResult.GetResponseStream())
                     {
-                        var result = sr.ReadToEnd();
-                        return result;
+                        using (var sr = new StreamReader(responseStream, Encoding.UTF8, false, 4096, false))
+                        {
+                            var result = sr.ReadToEnd();
+                            return result;
+                        }
                     }
                 }
             }

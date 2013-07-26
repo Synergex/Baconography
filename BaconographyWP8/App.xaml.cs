@@ -17,6 +17,7 @@ using GalaSoft.MvvmLight.Messaging;
 using BaconographyWP8.Messages;
 using BaconographyWP8.Common;
 using System.Linq;
+using BaconographyWP8Core.Common;
 
 namespace BaconographyWP8
 {
@@ -37,6 +38,7 @@ namespace BaconographyWP8
         /// </summary>
         public App()
         {
+            Styles.Resources = this.Resources;
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 

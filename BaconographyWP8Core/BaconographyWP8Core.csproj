@@ -16,6 +16,7 @@
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <SilverlightApplication>false</SilverlightApplication>
     <ValidateXaml>true</ValidateXaml>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -106,6 +107,14 @@
     <Compile Include="..\NeutralServices\VideoService.cs">
       <Link>NeutralServices\VideoService.cs</Link>
     </Compile>
+	<Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+	<Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="Common\Styles.cs" />
     <Compile Include="PlatformServices\BaconProvider.cs" />
     <Compile Include="PlatformServices\ImageAPI\Deviantart.cs" />
     <Compile Include="PlatformServices\ImageAPI\Flickr.cs" />
@@ -124,12 +133,318 @@
     <Compile Include="PlatformServices\UserService.cs" />
     <Compile Include="PlatformServices\WebViewWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaticCommands.cs" />
+    <Compile Include="ViewModelLocator.cs" />
     <Compile Include="ViewUriAttribute.cs" />
+    <Compile Include="Common\ContextDataButton.cs" />
+    <Compile Include="Common\OrientationManager.cs" />
+    <Compile Include="Common\DataTemplateSelector.cs" />
+    <Compile Include="Common\FixedLongListSelector.cs" />
+    <Compile Include="Common\ImageTypeSelector.cs" />
+    <Compile Include="Common\LinkViewLayoutManager.cs" />
+    <Compile Include="Common\RedditViewPivotItemControl.cs" />
+    <Compile Include="Common\ReorderListBox.cs" />
+    <Compile Include="Common\ReorderListBoxItem.cs" />
+    <Compile Include="Common\StateAwarePage.cs" />
+    <Compile Include="Common\Transitions.cs" />
+    <Compile Include="Common\TypedTemplateSelector.cs" />
+    <Compile Include="Common\Utility.cs" />
+    <Compile Include="Converters\AlternatingColorConverter.cs" />
+    <Compile Include="Converters\AuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\BooleanToZeroBasedIndexConverter.cs" />
+    <Compile Include="Converters\BooleanVisibilityConverter.cs" />
+    <Compile Include="Converters\CachedImageConverter.cs" />
+    <Compile Include="Converters\ColorBrightnessConverter.cs" />
+    <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\CommentVisibilityConverter.cs" />
+    <Compile Include="Converters\DepthColorConverter.cs" />
+    <Compile Include="Converters\DepthMarginConverter.cs" />
+    <Compile Include="Converters\DomainConverter.cs" />
+    <Compile Include="Converters\ExtendedCommentConverter.cs" />
+    <Compile Include="Converters\ExtendedLinkConverter.cs" />
+    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
+    <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
+    <Compile Include="Converters\IntegerAdditonConverter.cs" />
+    <Compile Include="Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Converters\LinkedPictureViewHeaderConverter.cs" />
+    <Compile Include="Converters\LinkGlyphConverter.cs" />
+    <Compile Include="Converters\MarkdownConverter.cs" />
+    <Compile Include="Converters\PortableAsyncCollectionConverter.cs" />
+    <Compile Include="Converters\PreviewDataConverter.cs" />
+    <Compile Include="Converters\ReifiedSubredditTemplateCollectionConverter.cs" />
+    <Compile Include="Converters\ReplyConverter.cs" />
+    <Compile Include="Converters\SubredditPinnedUnpinnedConverter.cs" />
+    <Compile Include="Converters\TimeRelationConverter.cs" />
+    <Compile Include="Converters\TotalPointsConverter.cs" />
+    <Compile Include="Converters\UnixTimeConverter.cs" />
+    <Compile Include="Converters\UnreadMessagesConverter.cs" />
+    <Compile Include="Converters\VisitedLinkConverter.cs" />
+    <Compile Include="Converters\VoteColorConverter.cs" />
+    <Compile Include="Converters\VoteIndicatorConverter.cs" />
+    <Compile Include="Messages\CloseSubredditMessage.cs" />
+    <Compile Include="Messages\ReorderSubredditMessage.cs" />
+    <Compile Include="Messages\SelectIndexMessage.cs" />
+    <Compile Include="Messages\OrientationChangedMessage.cs" />
+    <Compile Include="PlatformServices\DynamicViewLocator.cs" />
+    <Compile Include="ViewModel\Collections\RedditViewModelCollection.cs" />
+    <Compile Include="ViewModel\LoginPageViewModel.cs" />
+    <Compile Include="ViewModel\MainPageViewModel.cs" />
+    <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
+    <Compile Include="View\AboutUserView.xaml.cs">
+      <DependentUpon>AboutUserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\AdvertisementView.xaml.cs">
+      <DependentUpon>AdvertisementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CommentsView.xaml.cs">
+      <DependentUpon>CommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CommentView.xaml.cs">
+      <DependentUpon>CommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ComposeMessagePageView.xaml.cs">
+      <DependentUpon>ComposeMessagePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CaptchaPageView.xaml.cs">
+      <DependentUpon>CaptchaPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ComposePostPageView.xaml.cs">
+      <DependentUpon>ComposePostPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\HelpView.xaml.cs">
+      <DependentUpon>HelpView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LockScreen.xaml.cs">
+      <DependentUpon>LockScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MessagingPageView.xaml.cs">
+      <DependentUpon>MessagingPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExtendedLinkView.xaml.cs">
+      <DependentUpon>ExtendedLinkView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PullToRefreshView.xaml.cs">
+      <DependentUpon>PullToRefreshView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ScalingGifView.xaml.cs">
+      <DependentUpon>ScalingGifView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SelectSortTypeView.xaml.cs">
+      <DependentUpon>SelectSortTypeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SortSubredditPageView.xaml.cs">
+      <DependentUpon>SortSubredditPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingsPageView.xaml.cs">
+      <DependentUpon>SettingsPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExtendedCommentView.xaml.cs">
+      <DependentUpon>ExtendedCommentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ImagePreviewWithButtonView.xaml.cs">
+      <DependentUpon>ImagePreviewWithButtonView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkedPictureView.xaml.cs">
+      <DependentUpon>LinkedPictureView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkView.xaml.cs">
+      <DependentUpon>LinkView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\MarkdownButton.xaml.cs">
+      <DependentUpon>MarkdownButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoginPageView.xaml.cs">
+      <DependentUpon>LoginPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MoreCommentsView.xaml.cs">
+      <DependentUpon>MoreCommentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PicturePreviewView.xaml.cs">
+      <DependentUpon>PicturePreviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\RedditView.xaml.cs">
+      <DependentUpon>RedditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LoadIndicatorView.xaml.cs">
+      <DependentUpon>LoadIndicatorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ReplyViewPage.xaml.cs">
+      <DependentUpon>ReplyViewPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ScalingPictureView.xaml.cs">
+      <DependentUpon>ScalingPictureView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubredditView.xaml.cs">
+      <DependentUpon>SubredditView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\VotableView.xaml.cs">
+      <DependentUpon>VotableView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PivotCountIndicator.xaml.cs">
+      <DependentUpon>PivotCountIndicator.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="View\AboutUserView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AdvertisementView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ComposeMessagePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CaptchaPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ComposePostPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\HelpView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LockScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MessagingPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedLinkView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\PullToRefreshView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SelectSortTypeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SortSubredditPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SettingsPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedCommentView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ImagePreviewWithButtonView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LinkedPictureView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LinkView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Common\MarkdownButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoginPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MoreCommentsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PicturePreviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\RedditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LoadIndicatorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\DataDeclarations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="View\ReplyViewPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScalingPictureView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SubredditView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VotableView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PivotCountIndicator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README_FIRST.txt" />
+    <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
+    <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaconographyPortable\BaconographyPortable.csproj">
       <Project>{386BE814-A21A-4A84-ABF3-F9B61130D4F2}</Project>
       <Name>BaconographyPortable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BaconographyWP8BackgroundControls\BaconographyWP8BackgroundControls.csproj">
+      <Project>{4110A30E-1B48-45F6-AA6B-1ACDC817C286}</Project>
+      <Name>BaconographyWP8BackgroundControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj">
+      <Project>{30BEDEDE-3224-49FA-9340-8A82447619CB}</Project>
+      <Name>ImageTools.Controls.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.IO.Gif.Phone\ImageTools.IO.Gif.Phone.csproj">
+      <Project>{58E343B0-5342-4266-8F2E-E1D0554B9D11}</Project>
+      <Name>ImageTools.IO.Gif.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Phone\ImageTools.Phone.csproj">
+      <Project>{5876DA9E-C3DF-4D27-835F-DF998658CB6E}</Project>
+      <Name>ImageTools.Phone</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Utils.Phone\ImageTools.Utils.Phone.csproj">
+      <Project>{F05F81AE-91FD-435D-9AC8-E53980B071A9}</Project>
+      <Name>ImageTools.Utils.Phone</Name>
     </ProjectReference>
     <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
       <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>
@@ -152,6 +467,9 @@
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Phone.Controls.Toolkit">
+      <HintPath>..\packages\WPToolkit.4.2013.06.11\lib\wp8\Microsoft.Phone.Controls.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
@@ -176,10 +494,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Toolkit.Content\ApplicationBar.Cancel.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
   </ItemGroup>
@@ -187,6 +501,13 @@
     <SDKReference Include="KitaroDBSDK_WP8, Version=2.0.0.0">
       <Name>KitaroDB for Windows Phone 8</Name>
     </SDKReference>
+    <SDKReference Include="MSAdvertising, Version=6.1">
+      <Name>Microsoft Advertising SDK for Windows Phone 8 %28XAML%29</Name>
+    </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
