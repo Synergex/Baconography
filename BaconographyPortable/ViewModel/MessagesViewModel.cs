@@ -29,6 +29,12 @@ namespace BaconographyPortable.ViewModel
             _redditService = baconProvider.GetService<IRedditService>();
             _navigationService = baconProvider.GetService<INavigationService>();
             _dynamicViewLocator = baconProvider.GetService<IDynamicViewLocator>();
+            MessengerInstance.Register<UserLoggedInMessage>(this, UserLoggedIn);
+        }
+
+        private void UserLoggedIn(UserLoggedInMessage obj)
+        {
+            Messages = new MessageViewModelCollection(_baconProvider);
         }
 
         ComposeViewModel _composeVM;
@@ -72,7 +78,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public MessageViewModelCollection Messages { get; private set; }
+        MessageViewModelCollection _messages;
+        public MessageViewModelCollection Messages
+        {
+            get
+            {
+                return _messages;
+            }
+            set
+            {
+                _messages = value;
+                RaisePropertyChanged("Messages");
+            }
+        }
 
         public RelayCommand<MessagesViewModel> RefreshMessages { get { return _refreshMessages; } }
         static RelayCommand<MessagesViewModel> _refreshMessages = new RelayCommand<MessagesViewModel>(RefreshMessagesImpl);

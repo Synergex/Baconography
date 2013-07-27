@@ -88,20 +88,20 @@ namespace BaconographyPortable.ViewModel.Collections
 
         int CountVMChildren(ViewModelBase vm)
         {
-            /*
-            if (vm is MessageViewModel)
-            {
-                int counter = 1;
-                var messageVM = vm as MessageViewModel;
-                foreach (var reply in messageVM.Replies)
-                {
-                    counter += CountVMChildren(reply);
-                }
-                return counter;
-            }
-            else
-                return 1;
-            */
+            
+            //if (vm is MessageViewModel)
+            //{
+            //    int counter = 1;
+            //    var messageVM = vm as MessageViewModel;
+            //    foreach (var reply in messageVM.Replies)
+            //    {
+            //        counter += CountVMChildren(reply);
+            //    }
+            //    return counter;
+            //}
+            //else
+            //    return 1;
+            
             return 0;
         }
 
@@ -132,18 +132,18 @@ namespace BaconographyPortable.ViewModel.Collections
 
         async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
-            /*
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetMore(ids, _state);
+            
+            //Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            //var initialListing = await _listingProvider.GetMore(ids, _state);
 
-            var remainingVMs = await MapListing(initialListing, parent);
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
-                {
-                    RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
-                    (targetCollection ?? this).Remove(removeMe);
-                }, new TimeSpan(200), true)));
-            */
+            //var remainingVMs = await MapListing(initialListing, parent);
+            //Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            //_timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
+            //    {
+            //        RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
+            //        (targetCollection ?? this).Remove(removeMe);
+            //    }, new TimeSpan(200), true)));
+            
         }
 
         public void Dispose()
