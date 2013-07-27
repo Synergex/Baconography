@@ -23,6 +23,7 @@ namespace BaconographyPortable.ViewModel
         IImagesService _imagesService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        ISettingsService _settingsService;
         bool _isPreviewShown;
 		bool _isExtendedOptionsShown;
         bool _loading;
@@ -36,6 +37,7 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _imagesService = _baconProvider.GetService<IImagesService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
+            _settingsService = _baconProvider.GetService<ISettingsService>();
             _isPreviewShown = false;
 			_isExtendedOptionsShown = false;
             _loading = false;
@@ -285,7 +287,14 @@ namespace BaconographyPortable.ViewModel
 
 		public void GotoComments()
 		{
-			NavigateToCommentsImpl(this);
+            if (_settingsService.TapForComments)
+            {
+			    NavigateToCommentsImpl(this);
+            }
+            else
+            {
+                IsExtendedOptionsShown = !IsExtendedOptionsShown;
+            }
 		}
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
@@ -298,10 +307,10 @@ namespace BaconographyPortable.ViewModel
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
-        {
+        {            
             UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
-			vm.RaisePropertyChanged("Url");
-            UpdateUsageStatistics(vm, true);
+            vm.RaisePropertyChanged("Url");
+            UpdateUsageStatistics(vm, true);   
         }
 
         private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)

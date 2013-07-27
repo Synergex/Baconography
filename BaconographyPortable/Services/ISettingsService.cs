@@ -39,6 +39,7 @@ namespace BaconographyPortable.Services
         string LockScreenReddit { get; set; }
         string LiveTileReddit { get; set; }
         int OfflineCacheDays { get; set; }
+        bool TapForComments { get; set; }
 
         bool AllowAdvertising { get; set; }
 

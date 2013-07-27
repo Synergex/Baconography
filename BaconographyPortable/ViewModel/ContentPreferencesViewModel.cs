@@ -59,6 +59,19 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
+        public bool TapForComments
+        {
+            get
+            {
+                return _settingsService.TapForComments;
+            }
+            set
+            {
+                _settingsService.TapForComments = value;
+                RaisePropertyChanged("TapForComments");
+            }
+        }
+
         public bool AllowNSFWContent
         {
             get

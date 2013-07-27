@@ -40,6 +40,7 @@ namespace BaconographyW8.PlatformServices
         public bool EnableOvernightUpdates { get; set; }
         public bool UpdateOverlayOnlyOnWifi { get; set; }
         public bool UpdateImagesOnlyOnWifi { get; set; }
+        public bool TapForComments { get; set; }
         public void ShowSettings()
         {
             
@@ -102,6 +103,12 @@ namespace BaconographyW8.PlatformServices
                 else
                     DefaultOfflineLinkCount = 25;
 
+                var tapForComments = await offlineService.GetSetting("TapForComments");
+                if (!string.IsNullOrWhiteSpace(tapForComments))
+                    TapForComments = bool.Parse(tapForComments);
+                else
+                    TapForComments = true;
+
                 PromptForCaptcha = true;
             }
             catch
@@ -130,6 +137,7 @@ namespace BaconographyW8.PlatformServices
             await offlineService.StoreSetting("ApplyReadabliltyToLinks", ApplyReadabliltyToLinks.ToString());
             await offlineService.StoreSetting("PreferImageLinksForTiles", PreferImageLinksForTiles.ToString());
             await offlineService.StoreSetting("DefaultOfflineLinkCount", DefaultOfflineLinkCount.ToString());
+            await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
         }
 
 

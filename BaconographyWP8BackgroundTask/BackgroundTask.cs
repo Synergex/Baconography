@@ -76,27 +76,6 @@ namespace BaconographyWP8
         //dont fully initialize things, just the bare minimum to get the job done
         protected override async void OnInvoke(ScheduledTask task)
         {
-            
-            //even though this only takes up 500k (because of the dll load + a thread stack existing in the async call) with large image compositing 
-            //we dont have enough ram to fit anything other than absolute basic .net libraries, this is only an issue in periodic
-            //Dictionary<string, string> settingsCache;
-            //using (var settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None))
-            //{
-            //    settingsCache = new Dictionary<string, string>();
-            //    //load all of the settings up front so we dont spend so much time going back and forth
-            //    var cursor = await settingsDb.SeekAsync(DBReadFlags.NoLock);
-            //    if (cursor != null)
-            //    {
-            //        using (cursor)
-            //        {
-            //            do
-            //            {
-            //                settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
-            //            } while (await cursor.MoveNextAsync());
-            //        }
-            //    }
-            //}
-
             string lockScreenImage = "lockScreenCache1.jpg";
             List<object> tileImages = new List<object>();
             string linkReddit = "/";
@@ -165,6 +144,7 @@ namespace BaconographyWP8
                     var messages = await redditService.GetNewMessages(null);
                     if (messages != null)
                     {
+                        //File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.
                         bool toasted = false;
                         foreach (var message in messages)
                         {
@@ -214,16 +194,16 @@ namespace BaconographyWP8
                 liveTileLinks = null;
                 links = null;
 
+                Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
+
+                for (int i = 0; i < 2; i++)
+                {
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                    GC.WaitForPendingFinalizers();
+                }
+
                 Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
-                    Debug.WriteLine(DeviceStatus.ApplicationCurrentMemoryUsage);
-
-                    for (int i = 0; i < 2; i++)
-                    {
-                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-                        GC.WaitForPendingFinalizers();
-                    }
-
                     BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
                     //it appears to take a few runs to knock down the memory, probably a native reference counting issue
                     //thats why we also have to wait for pending finalizers
@@ -420,7 +400,13 @@ namespace BaconographyWP8
                     File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ShellToast toast = new ShellToast();
+                toast.Title = "Failure";
+                toast.Content = ex.ToString();
+                toast.Show();
+            }
         }
 
         private static async Task<int> BuildTileImage(TinyRedditService redditService, int liveTileCounter, Tuple<string, string> link)

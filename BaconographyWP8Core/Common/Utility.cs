@@ -187,6 +187,14 @@ namespace BaconographyWP8.Common
             // the schedule
             if (periodicTask != null)
             {
+                if (periodicTask.LastExitReason == AgentExitReason.None && periodicTask.IsScheduled)
+                    return;
+
+                if (periodicTask.LastExitReason != AgentExitReason.Completed)
+                {
+                    MessageBox.Show(periodicTask.LastExitReason.ToString());
+                }
+
                 RemoveAgent(periodicTaskName);
             }
 

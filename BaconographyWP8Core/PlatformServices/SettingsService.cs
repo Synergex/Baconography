@@ -56,6 +56,7 @@ namespace BaconographyWP8.PlatformServices
         public bool EnableOvernightUpdates { get; set; }
         public bool UpdateOverlayOnlyOnWifi { get; set; }
         public bool UpdateImagesOnlyOnWifi { get; set; }
+        public bool TapForComments { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -244,13 +245,17 @@ namespace BaconographyWP8.PlatformServices
                 else
                     AllowAdvertising = false;
 
-
-
                 var lastUpdatedImages = await offlineService.GetSetting("LastUpdatedImages");
                 if (!string.IsNullOrWhiteSpace(lastUpdatedImages))
                     LastUpdatedImages = DateTime.Parse(lastUpdatedImages);
                 else
                     LastUpdatedImages = new DateTime();
+
+                var tapForComments = await offlineService.GetSetting("TapForComments");
+                if (!string.IsNullOrWhiteSpace(tapForComments))
+                    TapForComments = bool.Parse(tapForComments);
+                else
+                    TapForComments = true;
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
@@ -292,6 +297,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());
             await offlineService.StoreSetting("UpdateImagesOnlyOnWifi", UpdateImagesOnlyOnWifi.ToString());
             await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
+            await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
         }
 
 
@@ -300,8 +306,5 @@ namespace BaconographyWP8.PlatformServices
             var offlineService = _baconProvider.GetService<IOfflineService>();
             await offlineService.ClearHistory();
         }
-
-
-        
     }
 }
