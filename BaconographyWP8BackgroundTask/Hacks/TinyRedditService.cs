@@ -177,17 +177,38 @@ namespace BaconographyWP8BackgroundTask.Hacks
 
             try
             {
+                HashSet<string> existingMessages = new HashSet<string>();
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                {
+                    using (var bgTaskToastedMessages = File.OpenText(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                    {
+                        while (!bgTaskToastedMessages.EndOfStream)
+                        {
+                            var msgId = bgTaskToastedMessages.ReadLine();
+                            if(!existingMessages.Contains(msgId))
+                                existingMessages.Add(msgId);
+                        }
+                    }
+
+                }
+
                 var result = new List<string>();
                 var messages = await SendGet(_loginCookie, targetUri);
                 var decodedJson = JSON.JsonDecode(messages);
                 var children = JSON.GetValue(JSON.GetValue(decodedJson, "data"), "children") as List<object>;
-
+                var messageNames = new List<string>();
                 foreach (var child in children)
                 {
                     var data = JSON.GetValue(child, "data");
                     var isNew = JSON.GetValue(data, "new") as Nullable<bool>;
+                    var name = JSON.GetValue(data, "name") as string;
+
+                    if (existingMessages.Contains(name))
+                        continue;
+
                     if (isNew ?? false)
                     {
+                        messageNames.Add(name);
                         var subject = JSON.GetValue(data, "subject") as string;
                         var wasComment = JSON.GetValue(data, "was_comment") as Nullable<bool>;
                         if (wasComment ?? false)
@@ -202,6 +223,18 @@ namespace BaconographyWP8BackgroundTask.Hacks
                     }
                     
                 }
+
+                if (result.Count > 0)
+                {
+                    using (var bgTaskToastedMessages = File.CreateText(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                    {
+                        foreach(var messageName in messageNames)
+                        {
+                            bgTaskToastedMessages.WriteLine(messageName);
+                        }
+                    }
+                }
+
                 return result;
             }
             catch (Exception ex)

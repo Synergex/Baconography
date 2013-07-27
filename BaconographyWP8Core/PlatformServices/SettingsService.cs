@@ -255,7 +255,7 @@ namespace BaconographyWP8.PlatformServices
                 if (!string.IsNullOrWhiteSpace(tapForComments))
                     TapForComments = bool.Parse(tapForComments);
                 else
-                    TapForComments = true;
+                    TapForComments = false;
 
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }

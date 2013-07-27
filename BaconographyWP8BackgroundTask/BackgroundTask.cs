@@ -144,7 +144,7 @@ namespace BaconographyWP8
                     var messages = await redditService.GetNewMessages(null);
                     if (messages != null)
                     {
-                        //File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.
+                        
                         bool toasted = false;
                         foreach (var message in messages)
                         {
