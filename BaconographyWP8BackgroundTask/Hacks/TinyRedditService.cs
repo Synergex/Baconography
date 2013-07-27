@@ -171,7 +171,7 @@ namespace BaconographyWP8BackgroundTask.Hacks
             }
         }
 
-        public async Task<IEnumerable<string>> GetNewMessages(int? limit)
+        public async Task<Tuple<IEnumerable<string>, int>> GetNewMessages(int? limit)
         {
             var targetUri = "http://www.reddit.com/message/inbox/.json";
 
@@ -197,17 +197,20 @@ namespace BaconographyWP8BackgroundTask.Hacks
                 var decodedJson = JSON.JsonDecode(messages);
                 var children = JSON.GetValue(JSON.GetValue(decodedJson, "data"), "children") as List<object>;
                 var messageNames = new List<string>();
+                int newMessages = 0;
                 foreach (var child in children)
                 {
                     var data = JSON.GetValue(child, "data");
                     var isNew = JSON.GetValue(data, "new") as Nullable<bool>;
                     var name = JSON.GetValue(data, "name") as string;
 
-                    if (existingMessages.Contains(name))
-                        continue;
-
                     if (isNew ?? false)
                     {
+                        newMessages++;
+
+                        if (existingMessages.Contains(name))
+                            continue;
+
                         messageNames.Add(name);
                         var subject = JSON.GetValue(data, "subject") as string;
                         var wasComment = JSON.GetValue(data, "was_comment") as Nullable<bool>;
@@ -235,11 +238,11 @@ namespace BaconographyWP8BackgroundTask.Hacks
                     }
                 }
 
-                return result;
+                return Tuple.Create<IEnumerable<string>, int>(result, newMessages);
             }
             catch (Exception ex)
             {
-                return Enumerable.Empty<string>();
+                return Tuple.Create(Enumerable.Empty<string>(), 0);
             }
         }
 

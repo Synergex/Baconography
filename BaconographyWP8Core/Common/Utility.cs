@@ -188,7 +188,10 @@ namespace BaconographyWP8.Common
             if (periodicTask != null)
             {
                 if (periodicTask.LastExitReason == AgentExitReason.None && periodicTask.IsScheduled)
+                {
+                    ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(20));
                     return;
+                }
 
                 if (periodicTask.LastExitReason != AgentExitReason.Completed)
                 {
@@ -207,7 +210,7 @@ namespace BaconographyWP8.Common
             try
             {
                 ScheduledActionService.Add(periodicTask);
-                //ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(10));
+                ScheduledActionService.LaunchForTest(periodicTaskName, TimeSpan.FromSeconds(20));
             }
             catch (InvalidOperationException exception)
             {

@@ -141,10 +141,11 @@ namespace BaconographyWP8
                 {
                     //get messages and notify user if a new message has appeared
                     //add messages to the list if they are unread
-                    var messages = await redditService.GetNewMessages(null);
+                    var messagesTpl = await redditService.GetNewMessages(null);
+                    var messages = messagesTpl.Item1;
+                    messageCount = messagesTpl.Item2;
                     if (messages != null)
                     {
-                        
                         bool toasted = false;
                         foreach (var message in messages)
                         {
@@ -157,10 +158,10 @@ namespace BaconographyWP8
                                 toast.NavigationUri = new Uri("/View/MessagingPageView.xaml", UriKind.Relative);
                                 toast.Show();
                             }
-                            messageCount++;
                             lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });
                         }
                     }
+                    messagesTpl = null;
                     messages = null;
                 }
 

@@ -22,7 +22,8 @@ namespace BaconographyPortable.Services.Impl
         {
             lock (this)
             {
-                _contextStack.Pop();
+                if(_contextStack.Count > 0)
+                    _contextStack.Pop();
             }
         }
 
