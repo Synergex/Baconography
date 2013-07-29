@@ -347,5 +347,30 @@ namespace BaconographyW8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+
+        public DateTime LastUpdatedImages
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public DateTime LastCleanedCache
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }
