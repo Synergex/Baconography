@@ -72,6 +72,22 @@ namespace Baconography.NeutralServices.KitaroDB
         HashAlgorithmProvider permalinkDigest = HashAlgorithmProvider.OpenAlgorithm("SHA1");
 #endif
 
+        private void StripCommentData(List<Thing> things)
+        {
+            if (things == null)
+                return;
+
+            foreach (var thing in things)
+            {
+                if (thing.Data is Comment)
+                {
+                    ((Comment)thing.Data).BodyHtml = "";
+                    if(((Comment)thing.Data).Replies != null)
+                        StripCommentData(((Comment)thing.Data).Replies.Data.Children);
+                }
+            }
+        }
+
         public async Task StoreComments(Listing listing)
         {
             try
@@ -79,6 +95,9 @@ namespace Baconography.NeutralServices.KitaroDB
                 var linkThing = listing.Data.Children.First();
                 if (!(linkThing.Data is Link))
                     return;
+
+                //we can cut down on IO by about 50% by stripping out the HTML bodies of comments since we dont have any need for them
+                StripCommentData(listing.Data.Children);
 
                 string key = ((Link)linkThing.Data).Name;
                 

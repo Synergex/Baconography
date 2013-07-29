@@ -180,8 +180,8 @@ namespace BaconographyPortable.Services.Impl
                     IEnumerable<ViewModelBase> importantLinks = loadedLinks;
                     if (_firstRedditViewModel.TopVisibleLink != null)
                         importantLinks = loadedLinks.SkipWhile(vm => vm != _firstRedditViewModel.TopVisibleLink);
-                    
-                    return importantLinks.OfType<LinkViewModel>().Select(vm => vm.LinkThing );
+
+                    return importantLinks.OfType<LinkViewModel>().Select(vm => vm.LinkThing);
                 }
                 else
                     return Enumerable.Empty<TypedThing<Link>>();

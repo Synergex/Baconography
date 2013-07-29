@@ -234,24 +234,12 @@ namespace BaconographyWP8
                     }
 
                     int startTileCounter = liveTileCounter;
-                    foreach (var link in liveTileImageUrls)
+                    var liveTileLink = liveTileImageUrls.FirstOrDefault();
+                    try
                     {
-                        //we dont rewrite settings because we dont have enough ram to load the neccisary dlls
-                        //so there is no point in downloading more live tile images then we started with
-                        if (liveTileCounter >= tileImages.Count || (liveTileCounter - startTileCounter) > 4)
-                            break;
-
-                        
-                        try
-                        {
-                            liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
-                        }
-                        catch
-                        {
-                            break;
-                        }
-                        
+                        liveTileCounter = await BuildTileImage(redditService, liveTileCounter, liveTileLink);
                     }
+                    catch { }
 
                     try
                     {
@@ -263,7 +251,12 @@ namespace BaconographyWP8
 
                             Shuffle(tileImages);
 
-                            foreach (var image in tileImages.Take(9))
+                            if (startTileCounter != liveTileCounter)
+                            {
+                                uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
+                            }
+
+                            foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
                             {
                                 uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
                             }

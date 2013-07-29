@@ -361,8 +361,8 @@ namespace BaconographyPortable.Model.Reddit
                 else
                 {
                     targetUri = limit == -1 ?
-                                string.Format("http://www.reddit.com{0}.json", permalink) :
-                                string.Format("http://www.reddit.com{0}.json?limit={1}", permalink, limit);
+                                string.Format("http://www.reddit.com{0}.json?depth=5", permalink) :
+                                string.Format("http://www.reddit.com{0}.json?limit={1}&depth=5", permalink, limit);
                 }
 
                 Listing listing = null;

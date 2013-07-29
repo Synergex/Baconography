@@ -292,6 +292,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("PostsInLockScreenOverlay", PostsInLockScreenOverlay.ToString());
             await offlineService.StoreSetting("ImagesSubreddit", ImagesSubreddit.ToString());
             await offlineService.StoreSetting("LockScreenReddit", LockScreenReddit.ToString());
+            await offlineService.StoreSetting("LiveTileReddit", LiveTileReddit.ToString());
             await offlineService.StoreSetting("AllowAdvertising", AllowAdvertising.ToString());
             await offlineService.StoreSetting("EnableOvernightUpdates", EnableOvernightUpdates.ToString());
             await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());

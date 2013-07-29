@@ -36,6 +36,7 @@ namespace BaconographyPortable.Services.Impl
         }
 
         Stack<Link> _linkThingsAwaitingOfflining = new Stack<Link>();
+        HashSet<string> _recentlyLoadedComments = new HashSet<string>();
         bool _isOfflining = false;
 
         DateTime _lastMeCheck = DateTime.MinValue;
@@ -76,10 +77,17 @@ namespace BaconographyPortable.Services.Impl
 
                 if (_linkThingsAwaitingOfflining.Count > 0)
                 {
-                    var linkThingToOffline = _linkThingsAwaitingOfflining.Pop();
-                    //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
-                    //and it will get stored if we havent or if its too far out of date
-                    await GetCommentsOnPost(linkThingToOffline.SubredditId, linkThingToOffline.Permalink, null);
+                    while (!token.IsCancellationRequested)
+                    {
+                        var linkThingToOffline = _linkThingsAwaitingOfflining.Pop();
+                        if (_recentlyLoadedComments.Contains(linkThingToOffline.Permalink))
+                        {
+                            //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
+                            //and it will get stored if we havent or if its too far out of date
+                            await GetCommentsOnPost(linkThingToOffline.SubredditId, linkThingToOffline.Permalink, null);
+                            _recentlyLoadedComments.Add(linkThingToOffline.Permalink);
+                        }
+                    }
                 }
                 else
                 {
@@ -101,7 +109,11 @@ namespace BaconographyPortable.Services.Impl
                             targetDomains.Add(domain);
                     }
 
-                    var filteredLinks = newLinks.Where(p => targetDomains.Contains(p.Domain) || subs.Contains(p.SubredditId));
+                    var filteredLinks = newLinks.Where(p => targetDomains.Contains(p.Domain) || subs.Contains(p.SubredditId)).ToList();
+                    if (filteredLinks.Count < 5)
+                    {
+                        filteredLinks = newLinks;
+                    }
                     _linkThingsAwaitingOfflining = new Stack<Link>(filteredLinks);
                 }
             }
