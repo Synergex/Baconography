@@ -62,6 +62,7 @@ namespace BaconographyWP8.PlatformServices
 
         public int OverlayItemCount { get; set; }
         public int OfflineCacheDays { get; set; }
+        public DateTime LastCleanedCache { get; set; }
         public DateTime LastUpdatedImages { get; set; }
 
         public void ShowSettings()
@@ -251,6 +252,12 @@ namespace BaconographyWP8.PlatformServices
                 else
                     LastUpdatedImages = new DateTime();
 
+                var lastCleanedCache = await offlineService.GetSetting("LastCleanedCache");
+                if (!string.IsNullOrWhiteSpace(lastCleanedCache))
+                    LastCleanedCache = DateTime.Parse(lastCleanedCache);
+                else
+                    LastCleanedCache = new DateTime();
+
                 var tapForComments = await offlineService.GetSetting("TapForComments");
                 if (!string.IsNullOrWhiteSpace(tapForComments))
                     TapForComments = bool.Parse(tapForComments);
@@ -298,6 +305,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("UpdateOverlayOnlyOnWifi", UpdateOverlayOnlyOnWifi.ToString());
             await offlineService.StoreSetting("UpdateImagesOnlyOnWifi", UpdateImagesOnlyOnWifi.ToString());
             await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
+            await offlineService.StoreSetting("LastCleanedCache", LastCleanedCache.ToString());
             await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
         }
 

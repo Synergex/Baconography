@@ -192,7 +192,6 @@ namespace Baconography.NeutralServices
         DB _settingsDb;
         DB _historyDb;
         DB _actionsDb;
-        DB _thumbnailsDb;
         DB _blobStoreDb;
         DB _imageAPIDb;
         DB _imageDb;
@@ -298,6 +297,40 @@ namespace Baconography.NeutralServices
             catch (Exception ex)
             {
                 //_notificationService.CreateErrorNotification(ex);
+            }
+        }
+
+        public async Task CleanupAll(TimeSpan olderThan, System.Threading.CancellationToken token)
+        {
+            await Initialize();
+            await Cleanup(_comments._commentsDB, 20, olderThan, token);
+            await Cleanup(_blobStoreDb, 4, olderThan, token);
+            await Cleanup(_links._linksDB, 20, olderThan, token);
+        }
+
+        public static async Task Cleanup(DB db, int timeStampIndex, TimeSpan olderThan, CancellationToken cancelToken)
+        {
+            using (var blobCursor = await db.SeekAsync(DBReadFlags.WaitOnLock))
+            {
+                if (blobCursor == null)
+                    return;
+                do
+                {
+                    if (cancelToken.IsCancellationRequested)
+                        return;
+
+                    var gottenBlob = blobCursor.Get();
+
+                    var microseconds = BitConverter.ToInt64(gottenBlob, timeStampIndex);
+                    var updatedTime = new DateTime(microseconds * 10).AddYears(1969);
+                    var blobAge = DateTime.Now - updatedTime;
+                    if (blobAge >= olderThan)
+                    {
+                        await blobCursor.DeleteAsync();
+                    }
+
+                } while (await blobCursor.MoveNextAsync());
+
             }
         }
 

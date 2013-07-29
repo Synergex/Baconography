@@ -66,7 +66,7 @@ namespace Baconography.NeutralServices.KitaroDB
             _linksDB = db;
         }
 
-        DB _linksDB;
+        internal DB _linksDB;
         private static int LinkKeySpaceSize = 36;
         private static int PrimaryKeySpaceSize = 20;
         public async Task StoreLink(Thing link)

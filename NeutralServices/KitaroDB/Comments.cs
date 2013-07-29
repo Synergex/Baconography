@@ -51,12 +51,14 @@ namespace Baconography.NeutralServices.KitaroDB
             return _instanceTask;
         }
 
+        
+
         private Comments(DB db)
         {
             _commentsDB = db;
         }
 
-        DB _commentsDB;
+        internal DB _commentsDB;
 
         public async Task Clear()
         {

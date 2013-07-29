@@ -11,6 +11,7 @@ namespace BaconographyPortable.Services
     public interface IOfflineService
     {
         Task Clear();
+        Task CleanupAll(TimeSpan olderThan, System.Threading.CancellationToken token);
         //an async method that returns async loaded image info tuples
         Task<IEnumerable<Tuple<string, string>>> GetImages(string uri);
         Task<byte[]> GetImage(string uri);

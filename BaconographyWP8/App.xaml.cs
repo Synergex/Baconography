@@ -156,6 +156,12 @@ namespace BaconographyWP8
 
                     settingsService.LastUpdatedImages = DateTime.Now;
                 }
+
+                if (!arg3.IsCancellationRequested && (DateTime.Now - settingsService.LastCleanedCache).TotalDays > settingsService.OfflineCacheDays)
+                {
+                    await _baconProvider.GetService<IOfflineService>().CleanupAll(new TimeSpan(settingsService.OfflineCacheDays, 0, 0), arg3);
+                    settingsService.LastCleanedCache = DateTime.Now;
+                }
             }
             catch { }
         }

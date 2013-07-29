@@ -40,12 +40,13 @@ namespace BaconographyPortable.Services
         string LiveTileReddit { get; set; }
         int OfflineCacheDays { get; set; }
         bool TapForComments { get; set; }
-
+       
         bool AllowAdvertising { get; set; }
 
         int ScreenWidth { get; set; }
         int ScreenHeight { get; set; }
         DateTime LastUpdatedImages { get; set; }
+        DateTime LastCleanedCache { get; set; }
 
         void ShowSettings();
         Task Persist();
