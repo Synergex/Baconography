@@ -140,14 +140,13 @@ namespace BaconographyWP8.Common
                 {
                     File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockscreenAlt.jpg");
                 }
-                if (!supressInit)
-                {
-                    if(settingsService.EnableUpdates)
-                        StartPeriodicAgent();
 
-                    if(settingsService.EnableOvernightUpdates)
-                        StartIntensiveAgent();
-                }
+                if(settingsService.EnableUpdates)
+                    StartPeriodicAgent();
+
+                if(settingsService.EnableOvernightUpdates)
+                    StartIntensiveAgent();
+                
 
             }
             catch

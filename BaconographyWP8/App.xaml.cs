@@ -152,7 +152,7 @@ namespace BaconographyWP8
                     (Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication || ShellTile.ActiveTiles.FirstOrDefault() != null))
                 {
                     await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
-                        _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), false);
+                        _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), true);
 
                     settingsService.LastUpdatedImages = DateTime.Now;
                 }
