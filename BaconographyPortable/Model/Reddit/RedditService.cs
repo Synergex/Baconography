@@ -354,9 +354,19 @@ namespace BaconographyPortable.Model.Reddit
 
                 string targetUri = null;
 
+                if (permalink.Contains("reddit.com"))
+                {
+                    permalink = permalink.Substring(permalink.IndexOf("reddit.com") + "reddit.com".Length);
+                }
+
                 if (permalink.Contains(".json?"))
                 {
                     targetUri = "http://www.reddit.com" + permalink;
+                }
+                else if (permalink.Contains("?"))
+                {
+                    var queryPos = permalink.IndexOf("?");
+                    targetUri = string.Format("http://www.reddit.com{0}.json{1}", permalink.Remove(queryPos), permalink.Substring(queryPos));
                 }
                 else
                 {

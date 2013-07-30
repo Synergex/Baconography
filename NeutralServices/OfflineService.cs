@@ -304,7 +304,6 @@ namespace Baconography.NeutralServices
         {
             await Initialize();
             await Cleanup(_comments._commentsDB, 20, olderThan, token);
-            await Cleanup(_blobStoreDb, 4, olderThan, token);
             await Cleanup(_links._linksDB, 20, olderThan, token);
         }
 
@@ -360,7 +359,10 @@ namespace Baconography.NeutralServices
             try
             {
                 var things = await RetrieveOrderedThings("messages-" + user.Username, TimeSpan.FromDays(1));
-                return new Listing { Data = new ListingData { Children = things.ToList() } };
+                if (things == null)
+                    return new Listing { Data = new ListingData { Children = new List<Thing>() } };
+                else
+                    return new Listing { Data = new ListingData { Children = things.ToList() } };
             }
             catch
             {
