@@ -98,7 +98,8 @@
                             <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
                             <Button Margin="12,0,0,0" Content="System lock screen settings" Click="ShowSystemLockScreenSettings"/>
                             <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
-                            <Button Margin="12,0,0,0" Content="Set lock screen" Click="SetLockScreen"/>
+                            <Button Margin="12,0,0,0" Content="Set reddit lock screen" Click="SetLockScreen"/>
+                            <Button Margin="12,0,0,0" Content="Set image lock screen" Click="PickLockScreen"/>
                             
                             <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
                             

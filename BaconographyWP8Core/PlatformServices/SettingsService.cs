@@ -57,6 +57,7 @@ namespace BaconographyWP8.PlatformServices
         public bool UpdateOverlayOnlyOnWifi { get; set; }
         public bool UpdateImagesOnlyOnWifi { get; set; }
         public bool TapForComments { get; set; }
+        public bool UseImagePickerForLockScreen { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -264,6 +265,14 @@ namespace BaconographyWP8.PlatformServices
                 else
                     TapForComments = false;
 
+                var useImagePickerForLockScreen = await offlineService.GetSetting("UseImagePickerForLockScreen");
+                if (!string.IsNullOrWhiteSpace(useImagePickerForLockScreen))
+                    UseImagePickerForLockScreen = bool.Parse(useImagePickerForLockScreen);
+                else
+                    UseImagePickerForLockScreen = false;
+
+                
+
 				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -307,6 +316,7 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
             await offlineService.StoreSetting("LastCleanedCache", LastCleanedCache.ToString());
             await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
+            await offlineService.StoreSetting("UseImagePickerForLockScreen", UseImagePickerForLockScreen.ToString());
         }
 
 

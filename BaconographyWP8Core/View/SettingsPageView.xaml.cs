@@ -83,38 +83,9 @@ namespace BaconographyWP8.View
             }
         }
 
-		protected override async void OnNavigatedFrom(NavigationEventArgs e)
+		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage());
-
-            //start the background/intensive updators if their settings are enabled
-            //otherwise remove them
-            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-            var userService = ServiceLocator.Current.GetInstance<IUserService>();
-            bool doneActiveLockScreen = false;
-            if (settingsService.EnableUpdates)
-            {
-                doneActiveLockScreen = true;
-                await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
-                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
-                Utility.StartPeriodicAgent();
-            }
-            else
-                Utility.RemoveAgent(Utility.periodicTaskName);
-
-
-            if (settingsService.EnableOvernightUpdates)
-            {
-                if(!doneActiveLockScreen)
-                    await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
-                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
-
-                Utility.StartIntensiveAgent();
-            }
-            else
-            {
-                Utility.RemoveAgent(Utility.intensiveTaskName);
-            }
 			base.OnNavigatedFrom(e);
 		}
 
@@ -173,9 +144,38 @@ namespace BaconographyWP8.View
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
+            settingsService.UseImagePickerForLockScreen = false;
+
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
             
+        }
+
+        private void PickLockScreen(object sender, RoutedEventArgs e)
+        {
+            var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+
+            Microsoft.Phone.Tasks.PhotoChooserTask picker = new Microsoft.Phone.Tasks.PhotoChooserTask();
+            picker.Completed += picker_Completed;
+            picker.Show();
+        }
+
+        async void picker_Completed(object sender, Microsoft.Phone.Tasks.PhotoResult e)
+        {
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            if (e.Error == null)
+            {
+                using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
+                {
+                    e.ChosenPhoto.CopyTo(lockscreenFile);
+                }
+                settingsService.UseImagePickerForLockScreen = true;
+
+                await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
+                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
+            }
         }
 
         private void HelpOfflineButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)

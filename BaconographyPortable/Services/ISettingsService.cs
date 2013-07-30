@@ -31,6 +31,7 @@ namespace BaconographyPortable.Services
         bool EnableOvernightUpdates { get; set; }
         bool UpdateOverlayOnlyOnWifi { get; set; }
         bool UpdateImagesOnlyOnWifi { get; set; }
+        bool UseImagePickerForLockScreen { get; set; }
         bool MessagesInLockScreenOverlay { get; set; }
         bool PostsInLockScreenOverlay { get; set; }
         string ImagesSubreddit { get; set; }

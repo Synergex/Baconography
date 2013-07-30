@@ -57,7 +57,15 @@ namespace BaconographyWP8.View
                     var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(_pictureData);
                     if (deserializedObject != null)
                     {
-                        _pictureViewModel = new LinkedPictureViewModel { LinkTitle = deserializedObject.Item1, Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
+                        _pictureViewModel = new LinkedPictureViewModel 
+                        { 
+                            LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                            Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
+                            { 
+                                Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                                ImageSource = tpl.Item2, Url = tpl.Item2 
+                            }) 
+                        };
                     }
 				}
 			}
@@ -67,7 +75,15 @@ namespace BaconographyWP8.View
                 var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(unescapedData);
 				if (deserializedObject != null)
 				{
-                    _pictureViewModel = new LinkedPictureViewModel { LinkTitle = deserializedObject.Item1, Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 }) };
+                    _pictureViewModel = new LinkedPictureViewModel 
+                    { 
+                        LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                        Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
+                        { 
+                            Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                            ImageSource = tpl.Item2, Url = tpl.Item2 
+                        }) 
+                    };
 					_pictureData = unescapedData;
 				}
 			}

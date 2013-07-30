@@ -321,7 +321,20 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("AllowAdvertising");
             }
         }
-        
+
+
+        public bool UseImagePickerForLockScreen
+        {
+            get
+            {
+                return _settingsService.UseImagePickerForLockScreen;
+            }
+            set
+            {
+                _settingsService.UseImagePickerForLockScreen = value;
+                RaisePropertyChanged("UseImagePickerForLockScreen");
+            }
+        }
 
         public RelayCommand ClearOffline
         {

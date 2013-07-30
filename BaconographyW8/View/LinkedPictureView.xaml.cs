@@ -63,10 +63,10 @@ namespace BaconographyW8.View
                     if (renderer != null)
                     {
                         renderer.Visible = true;
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = renderer, Url = tpl.Item2 };
+                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = renderer, Url = tpl.Item2 };
                     }
                     else
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1, ImageSource = tpl.Item2, Url = tpl.Item2 };
+                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = tpl.Item2, Url = tpl.Item2 };
                 })
                 .ToArray();
 

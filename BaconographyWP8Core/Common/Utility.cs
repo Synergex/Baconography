@@ -76,7 +76,8 @@ namespace BaconographyWP8.Common
                 if ((settingsService.UpdateImagesOnlyOnWifi && Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsWiFiEnabled) ||
                     (connectionCostType != NetworkCostType.Variable))
                 {
-                    lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
+                    if(!settingsService.UseImagePickerForLockScreen)
+                        lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
                     tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
 
                 }
@@ -86,9 +87,15 @@ namespace BaconographyWP8.Common
                     var taskSettings = LoadTaskSettings();
                     if (taskSettings != null)
                     {
-                        lockScreenImages = taskSettings.Value.lock_images;
+                        if (!settingsService.UseImagePickerForLockScreen)
+                            lockScreenImages = taskSettings.Value.lock_images;
                         tileImages = taskSettings.Value.tile_images;
                     }
+                }
+
+                if (settingsService.UseImagePickerForLockScreen)
+                {
+                    lockScreenImages = new string[] { Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg" };
                 }
 
                 using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
