@@ -144,6 +144,10 @@ namespace BaconographyWP8.View
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
+            if (settingsService.UseImagePickerForLockScreen && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
+            {
+                File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
+            }
             settingsService.UseImagePickerForLockScreen = false;
 
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
