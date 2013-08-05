@@ -181,6 +181,7 @@
     <Content Include="Assets\DefaultLockScreen.png" />
     <Content Include="Assets\Icons\delete.png" />
     <Content Include="Assets\Icons\email.png" />
+    <Content Include="Assets\Icons\goto.png" />
     <Content Include="Assets\Icons\manage.png" />
     <Content Include="Assets\Icons\new.png" />
     <Content Include="Assets\Icons\refresh.png" />
