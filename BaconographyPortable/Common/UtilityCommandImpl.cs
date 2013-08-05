@@ -79,6 +79,9 @@ namespace BaconographyPortable.Common
         //Comment:
 		private static Regex _commentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
+        //User Multireddit:
+        private static Regex _userMultiredditRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/m/[a-zA-Z0-9_]+/?");
+
 		//User:
 		private static Regex _userRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/?");
 
@@ -148,6 +151,25 @@ namespace BaconographyPortable.Common
                     navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
                 else
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
+            }
+            else if (_userMultiredditRegex.IsMatch(str))
+            {
+                var nameIndex = str.LastIndexOf("/u/");
+                var multiIndex = str.LastIndexOf("/m/");
+                string userName = "";
+                string multiName = str.Substring(multiIndex + 3);
+                if (nameIndex < 0)
+                {
+                    nameIndex = str.LastIndexOf("/user/");
+                    userName = str.Substring(nameIndex + 6, multiIndex - nameIndex);
+                }
+                else
+                {
+                    userName = str.Substring(nameIndex + 3, multiIndex - nameIndex);
+                }
+
+
+                // TODO: Nav to multireddit
             }
 			else if (_userRegex.IsMatch(str))
 			{
