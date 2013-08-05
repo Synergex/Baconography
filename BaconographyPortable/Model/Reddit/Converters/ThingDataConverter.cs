@@ -58,6 +58,9 @@ namespace BaconographyPortable.Model.Reddit.Converters
 								case "ad":
 									targetThing.Data = new Advertisement();
 									break;
+                                case "LabeledMulti":
+                                    targetThing.Data = new LabeledMulti();
+                                    break;
 								case null:
 									targetThing.Kind = "t5";
 									targetThing.Data = new Subreddit();

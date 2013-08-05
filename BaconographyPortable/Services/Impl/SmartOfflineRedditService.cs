@@ -77,7 +77,7 @@ namespace BaconographyPortable.Services.Impl
 
                 if (_linkThingsAwaitingOfflining.Count > 0)
                 {
-                    while (!token.IsCancellationRequested)
+                    while (!token.IsCancellationRequested && _linkThingsAwaitingOfflining.Count > 0)
                     {
                         var linkThingToOffline = _linkThingsAwaitingOfflining.Pop();
                         if (_recentlyLoadedComments.Contains(linkThingToOffline.Permalink))

@@ -812,6 +812,34 @@ namespace BaconographyPortable.Model.Reddit
             return AuthorFlairKind.None;
         }
 
+        private async Task<Listing> GetUserMultis(Listing listing)
+        {
+            var targetUri = string.Format("http://www.reddit.com/api/multi/mine.json");
+
+            try
+            {
+                var subreddits = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                if (subreddits == "[]")
+                    return listing;
+                else
+                {
+                    var currentUser = await _userService.GetUser();
+                    var userMultis = JsonConvert.DeserializeObject<Thing[]>(subreddits);
+                    foreach (var thing in userMultis)
+                    {
+                        var labeledMulti = new TypedThing<LabeledMulti>(thing);
+                        var multiPath = labeledMulti.Data.Path;
+
+                        multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
+
+                        listing.Data.Children.Insert(0, (new Thing { Kind = "t5", Data = new Subreddit { DisplayName = labeledMulti.Data.Name, Title = labeledMulti.Data.Name, Url = multiPath, Headertitle = labeledMulti.Data.Name, Over18 = false } }));
+                    }
+                }
+            }
+                //this api is most likely still in flux just silently fail if they break us down the line
+            catch {}
+            return listing;
+        }
 
         public async Task<Listing> GetSubscribedSubredditListing()
         {
@@ -826,7 +854,7 @@ namespace BaconographyPortable.Model.Reddit
                 if (subreddits == "\"{}\"")
                     return await GetDefaultSubreddits();
                 else
-                    return JsonConvert.DeserializeObject<Listing>(subreddits);
+                    return await GetUserMultis(JsonConvert.DeserializeObject<Listing>(subreddits));
 
             }
             catch (Exception ex)

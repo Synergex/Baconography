@@ -64,6 +64,9 @@ namespace BaconographyPortable.Services.Impl
             if (_inflightOfflining)
                 return;
 
+            if (!_settingsService.AllowPredictiveOfflining)
+                return;
+
             _inflightOfflining = true;
             try
             {

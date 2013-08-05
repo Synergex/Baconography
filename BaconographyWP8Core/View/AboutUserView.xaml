@@ -50,8 +50,6 @@
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
-        <local:LoadIndicatorView VerticalAlignment="Top" />
-
         <common:FixedLongListSelector Margin="10,20,0,0" HorizontalAlignment="Stretch"
                 BorderThickness="0" VerticalAlignment="Stretch" 
                 ScrollViewer.VerticalScrollBarVisibility="Auto"

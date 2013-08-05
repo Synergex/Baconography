@@ -60,20 +60,20 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
             state["SubscribedSubreddits"] = HashifyListing(orderedThings);
             var things = await _offlineService.RetrieveOrderedThings("reddits:", TimeSpan.FromDays(1024));
-			if (things.Count() == 0)
+            if (things == null || things.Count() == 0)
 				things = new List<Thing>() { GetFrontPageThing() };
             return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
         }
 
         private async Task<Listing> UncachedLoad(Dictionary<object, object> state)
         {
-            var orderedThings = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1));
+            var orderedThings = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1024));
             if (orderedThings != null)
             {
 
                 state["SubscribedSubreddits"] = HashifyListing(orderedThings);
                 var things = await _offlineService.RetrieveOrderedThings("reddits:", TimeSpan.FromDays(1024));
-                if (things.Count() == 0)
+                if (things == null || things.Count() == 0)
                     things = new List<Thing>() { GetFrontPageThing() };
                 return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
             }
