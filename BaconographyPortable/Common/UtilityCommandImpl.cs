@@ -155,21 +155,38 @@ namespace BaconographyPortable.Common
             else if (_userMultiredditRegex.IsMatch(str))
             {
                 var nameIndex = str.LastIndexOf("/u/");
-                var multiIndex = str.LastIndexOf("/m/");
-                string userName = "";
-                string multiName = str.Substring(multiIndex + 3);
+                string subredditName = "";
                 if (nameIndex < 0)
                 {
                     nameIndex = str.LastIndexOf("/user/");
-                    userName = str.Substring(nameIndex + 6, multiIndex - nameIndex);
+                    subredditName = str.Substring(nameIndex);
                 }
                 else
                 {
-                    userName = str.Substring(nameIndex + 3, multiIndex - nameIndex);
+                    subredditName = str.Substring(nameIndex);
                 }
 
+                subredditName = subredditName.Replace("/u/", "/user/");
 
-                // TODO: Nav to multireddit
+                TypedThing<Subreddit> subreddit = null;
+
+                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                if (settingsService.IsOnline())
+                {
+                    subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                }
+                else
+                {
+                    var thing = await offlineService.GetSubreddit(subredditName);
+                    if (thing != null)
+                        subreddit = new TypedThing<Subreddit>(thing);
+                }
+
+                if (subreddit != null)
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                else
+                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
             }
 			else if (_userRegex.IsMatch(str))
 			{
