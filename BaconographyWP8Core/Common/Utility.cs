@@ -58,6 +58,9 @@ namespace BaconographyWP8.Common
 
         private static string CleanRedditLink(string userInput, User user)
         {
+            if (userInput == "/")
+                return userInput;
+
             var selfMulti = "/" + user.Username + "/m/";
             if(userInput.Contains(selfMulti))
             {
@@ -73,6 +76,8 @@ namespace BaconographyWP8.Common
                 return "/" + userInput;
             else if (userInput.StartsWith("/") && !userInput.StartsWith("/r/"))
                 return "/r" + userInput;
+            else if (userInput.StartsWith("/r/"))
+                return userInput;
             else
                 return "/r/" + userInput;
         }
