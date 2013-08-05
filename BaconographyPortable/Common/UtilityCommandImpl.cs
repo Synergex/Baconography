@@ -79,6 +79,9 @@ namespace BaconographyPortable.Common
         //Comment:
 		private static Regex _commentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
+        //User Multireddit:
+        private static Regex _userMultiredditRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/m/[a-zA-Z0-9_]+/?");
+
 		//User:
 		private static Regex _userRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_]+/?");
 
@@ -128,6 +131,42 @@ namespace BaconographyPortable.Common
             {
                 var nameIndex = str.LastIndexOf("/r/");
                 var subredditName = str.Substring(nameIndex + 3);
+
+                TypedThing<Subreddit> subreddit = null;
+
+                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                if (settingsService.IsOnline())
+                {
+                    subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                }
+                else
+                {
+                    var thing = await offlineService.GetSubreddit(subredditName);
+                    if (thing != null)
+                        subreddit = new TypedThing<Subreddit>(thing);
+                }
+
+                if (subreddit != null)
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                else
+                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
+            }
+            else if (_userMultiredditRegex.IsMatch(str))
+            {
+                var nameIndex = str.LastIndexOf("/u/");
+                string subredditName = "";
+                if (nameIndex < 0)
+                {
+                    nameIndex = str.LastIndexOf("/user/");
+                    subredditName = str.Substring(nameIndex);
+                }
+                else
+                {
+                    subredditName = str.Substring(nameIndex);
+                }
+
+                subredditName = subredditName.Replace("/u/", "/user/");
 
                 TypedThing<Subreddit> subreddit = null;
 
