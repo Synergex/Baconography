@@ -119,6 +119,9 @@ namespace BaconographyWP8.View
                 // TODO: If item in current pivot selected, enable reply/delete
                 if (vm.SelectedItem != null)
                 {
+                    if (vm.SelectedItem.IsPostReply || vm.SelectedItem.IsCommentReply || vm.SelectedItem.IsUserMention)
+                        _appBarButtons[1].Text = "context";
+
                     _appBarButtons[1].IsEnabled = true;
                 }
                 else

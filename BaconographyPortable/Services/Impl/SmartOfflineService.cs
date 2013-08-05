@@ -60,8 +60,10 @@ namespace BaconographyPortable.Services.Impl
                 var targetLink = targetThing.Data as Link;
                 try
                 {
-                    await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
-                    await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
+                    if(!string.IsNullOrWhiteSpace(targetLink.Domain))
+                        await _offlineService.IncrementDomainStatistic(targetLink.Domain, link);
+                    if (!string.IsNullOrWhiteSpace(targetLink.SubredditId))
+                        await _offlineService.IncrementSubredditStatistic(targetLink.SubredditId, link);
                 }
                 catch
                 {

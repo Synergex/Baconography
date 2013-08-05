@@ -111,8 +111,15 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<MessagesViewModel> _replyToMessage = new RelayCommand<MessagesViewModel>(ReplyToMessageImpl);
         private static void ReplyToMessageImpl(MessagesViewModel vm)
         {
-            vm._composeVM = new ComposeViewModel(vm._baconProvider, vm.SelectedItem);
-            vm._navigationService.Navigate(vm._dynamicViewLocator.ComposeView, null);
+            if (vm.SelectedItem.IsPostReply || vm.SelectedItem.IsCommentReply || vm.SelectedItem.IsUserMention)
+            {
+                UtilityCommandImpl.GotoLinkImpl("http://reddit.com" + vm.SelectedItem.Context, null);
+            }
+            else
+            {
+                vm._composeVM = new ComposeViewModel(vm._baconProvider, vm.SelectedItem);
+                vm._navigationService.Navigate(vm._dynamicViewLocator.ComposeView, null);
+            }
         }
     }
 }
