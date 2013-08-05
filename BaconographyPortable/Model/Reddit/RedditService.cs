@@ -176,26 +176,59 @@ namespace BaconographyPortable.Model.Reddit
             else if (name == "all")
                 return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = "all", Url = "/r/all", Name = "all", DisplayName="all", Title="all", Id="t5_fakeid" } });
 
-            var targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
+            string targetUri;
+            if (!name.Contains("/m/"))
+            {
+                targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
+                try
+                {
+                    var comments = await _simpleHttpService.UnAuthedGet(targetUri);
+                    //error page
+                    if (comments.ToLower().StartsWith("<!doctype html>"))
+                    {
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
+                    }
+                    else
+                    {
+                        return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _notificationService.CreateErrorNotification(ex);
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+                }
+            }
+            else
+            {
+                targetUri = string.Format("http://www.reddit.com/api/multi/{0}.json", name);
+                try
+                {
+                    var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                    //error page
+                    if (comments.ToLower().StartsWith("<!doctype html>"))
+                    {
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
+                    }
+                    else
+                    {
+                        var currentUser = await _userService.GetUser();
+                        var labeledMulti = new TypedThing<LabeledMulti>(JsonConvert.DeserializeObject<Thing>(comments));
+                        var multiPath = labeledMulti.Data.Path;
 
-            try
-            {
-                var comments = await _simpleHttpService.UnAuthedGet(targetUri);
-                //error page
-                if (comments.ToLower().StartsWith("<!doctype html>"))
-                {
-                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
+                        multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
+
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { DisplayName = labeledMulti.Data.Name, Title = labeledMulti.Data.Name, Url = multiPath, Headertitle = labeledMulti.Data.Name, Over18 = false } });
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                    _notificationService.CreateErrorNotification(ex);
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
                 }
             }
-            catch (Exception ex)
-            {
-                _notificationService.CreateErrorNotification(ex);
-                return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
-            }
+
+            
         }
 
         public async Task<Listing> GetPostsByUser(string username, int? limit)
