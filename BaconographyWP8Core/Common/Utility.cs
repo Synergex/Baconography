@@ -55,6 +55,29 @@ namespace BaconographyWP8.Common
         }
 
         private static bool loadingActiveLockScreen = false;
+
+        private static string CleanRedditLink(string userInput, User user)
+        {
+            var selfMulti = "/" + user.Username + "/m/";
+            if(userInput.Contains(selfMulti))
+            {
+                return "/me/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+            }
+
+            if (userInput.StartsWith("/u/"))
+            {
+                return userInput.Replace("/u/", "/user/");
+            }
+
+            if (userInput.StartsWith("r/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/") && !userInput.StartsWith("/r/"))
+                return "/r" + userInput;
+            else
+                return "/r/" + userInput;
+        }
+
+
         public static async Task DoActiveLockScreen(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, INotificationService notificationService, bool supressInit)
         {
             try
@@ -68,7 +91,8 @@ namespace BaconographyWP8.Common
                 loadingActiveLockScreen = true;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 
-                var loginCookie = (await userService.GetUser()).LoginCookie;
+                var user = await userService.GetUser();
+                var loginCookie = user.LoginCookie;
 
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
@@ -100,7 +124,7 @@ namespace BaconographyWP8.Common
 
                 using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, live_reddit = settingsService.LiveTileReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);

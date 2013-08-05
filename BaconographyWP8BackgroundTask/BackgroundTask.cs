@@ -101,7 +101,7 @@ namespace BaconographyWP8
                         var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
                         var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
                         linkReddit = (JSON.GetValue(decodedJson, "link_reddit") as string) ?? "/";
-                        linkReddit = (JSON.GetValue(decodedJson, "live_reddit") as string) ?? "/";
+                        liveReddit = (JSON.GetValue(decodedJson, "live_reddit") as string) ?? "/";
                         var lockScreenImages = JSON.GetValue(decodedJson, "lock_images") as List<object>;
                         tileImages = JSON.GetValue(decodedJson, "tile_images") as List<object>;
 

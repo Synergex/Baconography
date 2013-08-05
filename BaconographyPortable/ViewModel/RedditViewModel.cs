@@ -46,7 +46,19 @@ namespace BaconographyPortable.ViewModel
 
         //doesnt need to fire events since its just holding data for the view
         public object TopVisibleLink { get; set; }
-        public bool IsTemporary { get; set; }
+        private bool _isTemporary = false;
+        public bool IsTemporary
+        {
+            get
+            {
+                return _isTemporary;
+            }
+            set
+            {
+                _isTemporary = value;
+                RaisePropertyChanged("IsTemporary");
+            }
+        }
 		public void DetachSubredditMessage()
 		{
 			MessengerInstance.Unregister<SelectSubredditMessage>(this);

@@ -32,7 +32,6 @@ namespace BaconographyPortable.ViewModel
         ISettingsService _settingsService;
 		INotificationService _notificationService;
         bool _initialLoad = true;
-        WeakReference<Task> _subredditSavingTask;
 
 
 		public MainPageViewModel(IBaconProvider baconProvider)
@@ -66,8 +65,18 @@ namespace BaconographyPortable.ViewModel
 		}
 
         bool _currentlySavingSubreddits = false;
+        bool _suspendSaving = false;
         async void _subreddits_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if(_suspendSaving)
+                return;
+
+            int retryCount = 0;
+            while (_currentlySavingSubreddits && retryCount++ < 10)
+            {
+                await Task.Delay(100);
+            }
+
             if (_currentlySavingSubreddits)
                 return;
 
@@ -87,6 +96,7 @@ namespace BaconographyPortable.ViewModel
 		{
             if (PivotItems != null && Subreddits != null)
             {
+                _suspendSaving = true;
                 var redditVMs = PivotItems.Select(piv => piv is RedditViewModel ? piv as RedditViewModel : null).ToArray();
                 for (int i = Subreddits.Count - 1; i >= 0; i--)
                 {
@@ -102,6 +112,8 @@ namespace BaconographyPortable.ViewModel
                         }
                     }
                 }
+                _suspendSaving = false;
+                _subreddits_CollectionChanged(null, null);
             }
 		}
 
@@ -255,7 +267,7 @@ namespace BaconographyPortable.ViewModel
 
                 foreach (var sub in subreddits)
                 {
-                    if (sub.Data is Subreddit && ((Subreddit)sub.Data).Id != null)
+                    if (sub.Data is Subreddit && (((Subreddit)sub.Data).Id != null || ((Subreddit)sub.Data).Url.Contains("/m/")))
                     {
                         var message = new SelectSubredditMessage();
                         message.Subreddit = new TypedThing<Subreddit>(sub);
