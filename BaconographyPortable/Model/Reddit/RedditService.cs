@@ -216,7 +216,8 @@ namespace BaconographyPortable.Model.Reddit
                         var labeledMulti = new TypedThing<LabeledMulti>(JsonConvert.DeserializeObject<Thing>(comments));
                         var multiPath = labeledMulti.Data.Path;
 
-                        multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
+                        if(!string.IsNullOrWhiteSpace(currentUser.Username))
+                            multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
 
                         return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { DisplayName = labeledMulti.Data.Name, Title = labeledMulti.Data.Name, Url = multiPath, Headertitle = labeledMulti.Data.Name, Over18 = false } });
                     }
