@@ -61,11 +61,21 @@ namespace BaconographyWP8.Common
             if (userInput == "/")
                 return userInput;
 
-            var selfMulti = "/" + user.Username + "/m/";
-            if(userInput.Contains(selfMulti))
+            if (user != null && !string.IsNullOrWhiteSpace(user.Username))
             {
-                return "/me/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+                var selfMulti = "/" + user.Username + "/m/";
+                if (userInput.Contains(selfMulti))
+                {
+                    return "/me/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+                }
             }
+
+            if (userInput.StartsWith("me/m/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/m/"))
+                return "/me" + userInput;
+            else if (userInput.StartsWith("/me/m/"))
+                return userInput;
 
             if (userInput.StartsWith("/u/"))
             {
@@ -354,7 +364,7 @@ namespace BaconographyWP8.Common
             }
 
             List<string> results = new List<string>();
-            var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 100);
+            var imagesSubredditResult = await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.ImagesSubreddit, await userService.GetUser()), 100);
             var imagesLinks = new List<Thing>(imagesSubredditResult.Data.Children);
 
             imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
@@ -518,7 +528,7 @@ namespace BaconographyWP8.Common
         public static async Task<IEnumerable<string>> MakeTileImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
             List<string> results = new List<string>();
-            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LiveTileReddit, 100);
+            var linksSubredditResult = await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.LiveTileReddit, await userService.GetUser()), 100);
             var imagesLinks = new List<Thing>(linksSubredditResult.Data.Children);
 
             if (imagesLinks.Count > 0)
@@ -651,7 +661,7 @@ namespace BaconographyWP8.Common
             if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {
                 //call for posts from selected subreddit (defaults to front page)
-                var frontPageResult = new List<Thing>((await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10)).Data.Children);
+                var frontPageResult = new List<Thing>((await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.LockScreenReddit, user), 10)).Data.Children);
                 Shuffle(frontPageResult);
                 lockScreenMessages.AddRange(frontPageResult.Where(thing => thing.Data is Link).Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             }
