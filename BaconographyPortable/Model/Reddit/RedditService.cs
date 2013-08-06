@@ -280,7 +280,7 @@ namespace BaconographyPortable.Model.Reddit
             {
                 var links = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
 				var newListing = JsonConvert.DeserializeObject<Listing>(links);
-                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
@@ -322,7 +322,7 @@ namespace BaconographyPortable.Model.Reddit
                     Data = new ListingData { Children = JsonConvert.DeserializeObject<JsonThing>(result).Json.Data.Things }
                 };
 
-                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
@@ -507,7 +507,7 @@ namespace BaconographyPortable.Model.Reddit
                 var listing = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                 var newListing = JsonConvert.DeserializeObject<Listing>(listing);
 
-                return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
