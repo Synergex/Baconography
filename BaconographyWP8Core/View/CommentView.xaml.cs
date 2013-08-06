@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -24,11 +25,24 @@ namespace BaconographyWP8.View
             this.InitializeComponent();
         }
 
+        private bool IsParentButton(UIElement element)
+        {
+            if (element == null)
+                return false;
+            if (element is Button)
+                return true;
+
+            return IsParentButton(VisualTreeHelper.GetParent(element) as UIElement);
+        }
+
 		private void Comment_Hold(object sender, System.Windows.Input.GestureEventArgs e)
 		{
-			var commentVm = this.DataContext as CommentViewModel;
-			if (commentVm != null)
-				commentVm.ShowExtendedView.Execute(null);
+            if (!e.Handled && !IsParentButton(e.OriginalSource as FrameworkElement) )
+            {
+                var commentVm = this.DataContext as CommentViewModel;
+                if (commentVm != null)
+                    commentVm.ShowExtendedView.Execute(null);
+            }
 		}
     }
 }
