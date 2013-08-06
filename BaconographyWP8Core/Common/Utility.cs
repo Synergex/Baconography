@@ -55,6 +55,44 @@ namespace BaconographyWP8.Common
         }
 
         private static bool loadingActiveLockScreen = false;
+
+        private static string CleanRedditLink(string userInput, User user)
+        {
+            if (userInput == "/")
+                return userInput;
+
+            if (user != null && !string.IsNullOrWhiteSpace(user.Username))
+            {
+                var selfMulti = "/" + user.Username + "/m/";
+                if (userInput.Contains(selfMulti))
+                {
+                    return "/me/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+                }
+            }
+
+            if (userInput.StartsWith("me/m/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/m/"))
+                return "/me" + userInput;
+            else if (userInput.StartsWith("/me/m/"))
+                return userInput;
+
+            if (userInput.StartsWith("/u/"))
+            {
+                return userInput.Replace("/u/", "/user/");
+            }
+
+            if (userInput.StartsWith("r/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/") && !userInput.StartsWith("/r/"))
+                return "/r" + userInput;
+            else if (userInput.StartsWith("/r/"))
+                return userInput;
+            else
+                return "/r/" + userInput;
+        }
+
+
         public static async Task DoActiveLockScreen(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, INotificationService notificationService, bool supressInit)
         {
             try
@@ -68,7 +106,8 @@ namespace BaconographyWP8.Common
                 loadingActiveLockScreen = true;
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 
-                var loginCookie = (await userService.GetUser()).LoginCookie;
+                var user = await userService.GetUser();
+                var loginCookie = user.LoginCookie;
 
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
@@ -100,7 +139,7 @@ namespace BaconographyWP8.Common
 
                 using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = settingsService.LockScreenReddit, live_reddit = settingsService.LiveTileReddit, lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
@@ -199,10 +238,10 @@ namespace BaconographyWP8.Common
                     return;
                 }
 
-                if (periodicTask.LastExitReason != AgentExitReason.Completed)
-                {
-                    MessageBox.Show(periodicTask.LastExitReason.ToString());
-                }
+                //if (periodicTask.LastExitReason != AgentExitReason.Completed)
+                //{
+                    //MessageBox.Show(periodicTask.LastExitReason.ToString());
+                //}
 
                 RemoveAgent(periodicTaskName);
             }
@@ -325,7 +364,7 @@ namespace BaconographyWP8.Common
             }
 
             List<string> results = new List<string>();
-            var imagesSubredditResult = await redditService.GetPostsBySubreddit(settingsService.ImagesSubreddit, 100);
+            var imagesSubredditResult = await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.ImagesSubreddit, await userService.GetUser()), 100);
             var imagesLinks = new List<Thing>(imagesSubredditResult.Data.Children);
 
             imagesLinks.Select(thing => thing.Data is Link && imagesService.IsImage(((Link)thing.Data).Url)).ToList();
@@ -489,7 +528,7 @@ namespace BaconographyWP8.Common
         public static async Task<IEnumerable<string>> MakeTileImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
         {
             List<string> results = new List<string>();
-            var linksSubredditResult = await redditService.GetPostsBySubreddit(settingsService.LiveTileReddit, 100);
+            var linksSubredditResult = await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.LiveTileReddit, await userService.GetUser()), 100);
             var imagesLinks = new List<Thing>(linksSubredditResult.Data.Children);
 
             if (imagesLinks.Count > 0)
@@ -622,7 +661,7 @@ namespace BaconographyWP8.Common
             if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {
                 //call for posts from selected subreddit (defaults to front page)
-                var frontPageResult = new List<Thing>((await redditService.GetPostsBySubreddit(settingsService.LockScreenReddit, 10)).Data.Children);
+                var frontPageResult = new List<Thing>((await redditService.GetPostsBySubreddit(CleanRedditLink(settingsService.LockScreenReddit, user), 10)).Data.Children);
                 Shuffle(frontPageResult);
                 lockScreenMessages.AddRange(frontPageResult.Where(thing => thing.Data is Link).Take(settingsService.OverlayItemCount - lockScreenMessages.Count).Select(thing => new LockScreenMessage { DisplayText = ((Link)thing.Data).Title, Glyph = linkGlyphConverter != null ? (string)linkGlyphConverter.Convert(((Link)thing.Data), typeof(String), null, System.Globalization.CultureInfo.CurrentCulture) : "" }));
             }

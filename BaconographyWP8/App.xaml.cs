@@ -18,6 +18,8 @@ using BaconographyWP8.Messages;
 using BaconographyWP8.Common;
 using System.Linq;
 using BaconographyWP8Core.Common;
+using Windows.ApplicationModel.Store;
+using System.Threading.Tasks;
 
 namespace BaconographyWP8
 {
@@ -42,14 +44,17 @@ namespace BaconographyWP8
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 
-			// Bacon-specific initialization
-			InitializeBacon();
+            // Bacon-specific initialization, the static resources need this to exist but its not initialized yet
+            InitializeBacon();
 
             // Standard XAML initialization
             InitializeComponent();
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            // Bacon-specific initialization
+            InitializeBacon();
 
             // Language display initialization
             InitializeLanguage();
@@ -125,22 +130,32 @@ namespace BaconographyWP8
 			if (_baconProvider == null)
 			{
 				_baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
-
-				_baconProvider.Initialize(RootFrame);
-
 				ViewModelLocator.Initialize(_baconProvider);
 			}
-			else
+			else if(RootFrame != null)
 			{
-				_baconProvider.Initialize(RootFrame).ContinueWith(task =>
-                    {
-                        _baconProvider.GetService<ISmartOfflineService>().OffliningOpportunity += BaconProvider_OffliningOpportunity;
-                    });
+                _baconProvider.Initialize(RootFrame).ContinueWith(AfterInit);
 			}
             _oomService = _baconProvider.GetService<IOOMService>();
 		}
 
-        DateTime lastUpdatedLiveStuff = new DateTime();
+        private void AfterInit(Task task)
+        {
+            if (CurrentApp.LicenseInformation != null)
+            {
+                //there is only one product so lets make this simple
+                if (CurrentApp.LicenseInformation.ProductLicenses.ContainsKey("BaconographyWP8Upgrade"))
+                    _baconProvider.GetService<ISettingsService>().AllowAdvertising = false;
+                else
+                    _baconProvider.GetService<ISettingsService>().AllowAdvertising = true;
+            }
+            else
+            {
+                _baconProvider.GetService<ISettingsService>().AllowAdvertising = true;
+            }
+            _baconProvider.GetService<ISmartOfflineService>().OffliningOpportunity += BaconProvider_OffliningOpportunity;
+            
+        }
 
         async void BaconProvider_OffliningOpportunity(OffliningOpportunityPriority arg1, NetworkConnectivityStatus arg2, System.Threading.CancellationToken arg3)
         {
@@ -148,7 +163,7 @@ namespace BaconographyWP8
             {
                 var settingsService = _baconProvider.GetService<ISettingsService>();
                 if (((DateTime.Now - settingsService.LastUpdatedImages).TotalHours > 4) &&
-                    Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsNetworkAvailable && 
+                    Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsNetworkAvailable &&
                     (Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication || ShellTile.ActiveTiles.FirstOrDefault() != null))
                 {
                     await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
@@ -171,8 +186,6 @@ namespace BaconographyWP8
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
             LowMemoryHelper.BeginRecording();
-			InitializeBacon();
-            
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,

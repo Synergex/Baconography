@@ -10,8 +10,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400"
-    x:Name="controlRoot">
+    d:DesignWidth="400">
 
     <UserControl.Resources>
         <DataTemplate x:Key="Type:CommentViewModel">
@@ -34,7 +33,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Grid.Column="0" Background="{Binding Path=Depth, Converter={StaticResource depthColorConverter}}" />
-        <StackPanel Hold="Comment_Hold" Margin="0,0,0,15" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
+        <StackPanel Tap="Comment_Hold" Margin="0,0,0,15" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}">
             <Button BorderThickness="0" Margin="-5,-10,0,0" Padding="0" HorizontalAlignment="Left"
                     Command="{Binding MinimizeCommand}" CommandParameter="{Binding}" HorizontalContentAlignment="Left">
                 <Button.Content>

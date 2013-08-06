@@ -216,7 +216,7 @@ namespace BaconographyWP8
 				return;
 
 			Messenger.Default.Send<CloseSubredditMessage>(new CloseSubredditMessage { Heading = trvm.Heading });
-			Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = trvm.SelectedSubreddit });
+			Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = trvm.SelectedSubreddit, AddOnly = false });
 		}
 
 		private void MenuSettings_Click(object sender, EventArgs e)

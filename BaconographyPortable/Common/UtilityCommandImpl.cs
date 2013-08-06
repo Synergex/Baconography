@@ -98,20 +98,8 @@ namespace BaconographyPortable.Common
 
             if (_commentRegex.IsMatch(str))
             {
-                var lastSlash = str.LastIndexOf('/');
-                var commentRoot = str.Remove(lastSlash);
-                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
-                await baconProvider.GetService<IOfflineService>().StoreHistory(commentRoot);
-                if (targetLinkThing != null)
-                {
-                    var typedLinkThing = new TypedThing<Link>(targetLinkThing);
-                    typedLinkThing.Data.Permalink = str;
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
-                }
-                else
-                {
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-                }
+                var typedLinkThing = new TypedThing<Link>(new Thing { Kind = "t3", Data = new Link { Permalink = str } });
+                navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
             }
             else if (_commentsPageRegex.IsMatch(str))
             {
