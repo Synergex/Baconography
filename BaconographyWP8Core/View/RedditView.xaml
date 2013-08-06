@@ -18,7 +18,7 @@
             <local:LinkView/>
         </DataTemplate>
         <DataTemplate x:Key="Type:AdvertisementViewModel">
-            <local:AdvertisementView Margin="-24,0,-24,0"/>
+            <local:AdvertisementView Visibility="{Binding ShowAds, Converter={StaticResource booleanVisibilityConverter}}" Margin="-24,0,-24,0"/>
         </DataTemplate>
         <!-- Comment out the AdvertisementView to disable advertising -->
         

@@ -245,7 +245,7 @@ namespace BaconographyWP8.PlatformServices
                 if (!string.IsNullOrWhiteSpace(allowAdvertising))
                     AllowAdvertising = bool.Parse(allowAdvertising);
                 else
-                    AllowAdvertising = false;
+                    AllowAdvertising = true;
 
                 var lastUpdatedImages = await offlineService.GetSetting("LastUpdatedImages");
                 if (!string.IsNullOrWhiteSpace(lastUpdatedImages))
