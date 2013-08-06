@@ -41,6 +41,7 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
+            MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
             IsTemporary = false;
         }
 
@@ -69,6 +70,11 @@ namespace BaconographyPortable.ViewModel
 			OnSubredditChanged(message);
 		}
 
+        private async void OnSettingsChanged(SettingsChangedMessage message)
+        {
+            RaisePropertyChanged("ShowAds");
+        }
+
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
             if (message.UserTriggered && Url == "/")
@@ -88,10 +94,10 @@ namespace BaconographyPortable.ViewModel
 
 		private async void OnSubredditRefreshed(RefreshSubredditMessage message)
 		{
-			if (this.SelectedSubreddit == message.Subreddit)
-			{
-				RefreshLinks();
-			}
+            if (this.SelectedSubreddit == message.Subreddit)
+            {
+                RefreshLinks();
+            }
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
@@ -164,6 +170,15 @@ namespace BaconographyPortable.ViewModel
         public void RefreshLinks()
         {
             Links.Refresh();
+        }
+
+        // If a user disables ads, terminate their visibility
+        public bool ShowAds
+        {
+            get
+            {
+                return _settingsService.AllowAdvertising;
+            }
         }
 
         LinkViewModelCollection _links;
