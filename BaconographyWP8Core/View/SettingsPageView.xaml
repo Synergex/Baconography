@@ -148,7 +148,7 @@
                                 Baconography
                             </TextBlock>
                             <TextBlock FontSize="24" x:Name="version"
-                                       Text="v1.1" Margin="8,0,0,0"/>
+                                       Text="v1.2" Margin="8,0,0,0"/>
                         </StackPanel>
                         <Border Height="8" />
                         <TextBlock Margin="10,0,0,0" FontSize="22"
