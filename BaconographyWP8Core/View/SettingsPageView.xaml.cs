@@ -197,7 +197,7 @@ namespace BaconographyWP8.View
         {
             try
             {
-                ListingInformation products = await CurrentApp.LoadListingInformationAsync();
+                ListingInformation products = await CurrentApp.LoadListingInformationByProductIdsAsync(new[] { "BaconographyWP8Upgrade" });
 
                 // get specific in-app product by ID
                 ProductListing productListing = null;
@@ -209,6 +209,9 @@ namespace BaconographyWP8.View
 
                 // start product purchase
                 await CurrentApp.RequestProductPurchaseAsync(productListing.ProductId, false);
+                var enabledAds = !(CurrentApp.LicenseInformation != null && CurrentApp.LicenseInformation.ProductLicenses.ContainsKey("BaconographyWP8Upgrade"));
+                ((Button)sender).IsEnabled = enabledAds;
+                ServiceLocator.Current.GetInstance<ISettingsService>().AllowAdvertising = enabledAds;
             }
             catch (Exception)
             {

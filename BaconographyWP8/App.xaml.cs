@@ -44,14 +44,17 @@ namespace BaconographyWP8
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 
-			// Bacon-specific initialization
-			InitializeBacon();
+            // Bacon-specific initialization, the static resources need this to exist but its not initialized yet
+            InitializeBacon();
 
             // Standard XAML initialization
             InitializeComponent();
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            // Bacon-specific initialization
+            InitializeBacon();
 
             // Language display initialization
             InitializeLanguage();
@@ -127,14 +130,11 @@ namespace BaconographyWP8
 			if (_baconProvider == null)
 			{
 				_baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
-
-                _baconProvider.Initialize(RootFrame).ContinueWith(AfterInit); ;
-
 				ViewModelLocator.Initialize(_baconProvider);
 			}
-			else
+			else if(RootFrame != null)
 			{
-				_baconProvider.Initialize(RootFrame).ContinueWith(AfterInit);
+                _baconProvider.Initialize(RootFrame).ContinueWith(AfterInit);
 			}
             _oomService = _baconProvider.GetService<IOOMService>();
 		}
@@ -186,8 +186,6 @@ namespace BaconographyWP8
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
             LowMemoryHelper.BeginRecording();
-			InitializeBacon();
-            
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,
