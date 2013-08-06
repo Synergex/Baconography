@@ -238,10 +238,10 @@ namespace BaconographyWP8.Common
                     return;
                 }
 
-                if (periodicTask.LastExitReason != AgentExitReason.Completed)
-                {
-                    MessageBox.Show(periodicTask.LastExitReason.ToString());
-                }
+                //if (periodicTask.LastExitReason != AgentExitReason.Completed)
+                //{
+                    //MessageBox.Show(periodicTask.LastExitReason.ToString());
+                //}
 
                 RemoveAgent(periodicTaskName);
             }

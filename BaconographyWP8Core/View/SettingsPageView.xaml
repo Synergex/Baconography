@@ -49,8 +49,8 @@
                     <ScrollViewer>
                         <StackPanel Margin="12,0,12,0">
                             <TextBlock FontWeight="SemiBold" Text="CONTENT"/>
-                            <CheckBox Margin="12,0,0,0" Content="Enable advertising (beta)"
-                                IsChecked="{Binding AllowAdvertising, Mode=TwoWay}" />
+                            <Button Margin="12,0,0,0" Content="Upgrade to Ad-Free"
+                                IsEnabled="{Binding AllowAdvertising}" Click="Button_Click"/>
                             <CheckBox Margin="12,0,0,0" Content="Allow NSFW (over 18) content"
                                 IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
 

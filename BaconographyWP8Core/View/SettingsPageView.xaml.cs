@@ -20,6 +20,7 @@ using System.IO;
 using System.Windows.Media;
 using BaconographyWP8BackgroundControls.View;
 using System.Text;
+using Windows.ApplicationModel.Store;
 
 namespace BaconographyWP8.View
 {
@@ -190,6 +191,30 @@ namespace BaconographyWP8.View
                 + "\r\n\r\n" +
                 "Overnight offline cache is an extension of the predictive cache. When your device is plugged in and connected to Wi-Fi, we can safely download more data at a faster rate. If you enable this option, we will run a background process during optimal conditions to download more reddit goodness."
                 );
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ListingInformation products = await CurrentApp.LoadListingInformationAsync();
+
+                // get specific in-app product by ID
+                ProductListing productListing = null;
+                if (!products.ProductListings.TryGetValue("BaconographyWP8Upgrade", out productListing))
+                {
+                    MessageBox.Show("Could not find product information");
+                    return;
+                }
+
+                // start product purchase
+                await CurrentApp.RequestProductPurchaseAsync(productListing.ProductId, false);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Could not complete in app purchase");
+            }
+ 
         }
 	}
 }
