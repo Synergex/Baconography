@@ -65,7 +65,7 @@ namespace BaconographyWP8.PlatformServices
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            var request = HttpWebRequest.CreateHttp(uri);
             request.Method = "POST";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
             request.ContentType = contentType;

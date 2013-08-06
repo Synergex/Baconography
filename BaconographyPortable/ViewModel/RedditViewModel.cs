@@ -189,6 +189,8 @@ namespace BaconographyPortable.ViewModel
                 subredditId = _selectedSubreddit.Data.Name;
             }
 
+
+
             return new LinkViewModelCollection(_baconProvider, subreddit, subredditId);
         }
 

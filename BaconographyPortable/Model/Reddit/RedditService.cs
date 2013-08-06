@@ -195,12 +195,21 @@ namespace BaconographyPortable.Model.Reddit
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.CreateErrorNotification(ex);
-                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+                    //_notificationService.CreateErrorNotification(ex);
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
                 }
             }
             else
             {
+                var currentUser = await _userService.GetUser();
+                if (name.StartsWith("/"))
+                    name = name.TrimStart('/');
+
+                if (name.StartsWith("me/"))
+                {
+                   name = name.Replace("me/", "user/" + currentUser.Username + "/");
+                }
+
                 targetUri = string.Format("http://www.reddit.com/api/multi/{0}.json", name);
                 try
                 {
@@ -212,7 +221,7 @@ namespace BaconographyPortable.Model.Reddit
                     }
                     else
                     {
-                        var currentUser = await _userService.GetUser();
+                        
                         var labeledMulti = new TypedThing<LabeledMulti>(JsonConvert.DeserializeObject<Thing>(comments));
                         var multiPath = labeledMulti.Data.Path;
 
@@ -224,8 +233,8 @@ namespace BaconographyPortable.Model.Reddit
                 }
                 catch (Exception ex)
                 {
-                    _notificationService.CreateErrorNotification(ex);
-                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
+                    //_notificationService.CreateErrorNotification(ex);
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
                 }
             }
 
