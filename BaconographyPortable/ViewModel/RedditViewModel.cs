@@ -72,8 +72,7 @@ namespace BaconographyPortable.ViewModel
 
         private async void OnSettingsChanged(SettingsChangedMessage message)
         {
-            if (!message.InitialLoad)
-                await _baconProvider.GetService<ISettingsService>().Persist();
+            RaisePropertyChanged("ShowAds");
         }
 
         private void OnUserLoggedIn(UserLoggedInMessage message)
@@ -95,7 +94,10 @@ namespace BaconographyPortable.ViewModel
 
 		private async void OnSubredditRefreshed(RefreshSubredditMessage message)
 		{
-            RaisePropertyChanged("ShowAds");
+            if (this.SelectedSubreddit == message.Subreddit)
+            {
+                RefreshLinks();
+            }
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
