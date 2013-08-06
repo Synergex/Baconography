@@ -16,8 +16,8 @@ namespace Baconography.PlatformServices.ImageAPI
     class Imgur
     {
         //Transliterated from Reddit Enhancement Suite https://github.com/honestbleeps/Reddit-Enhancement-Suite/blob/master/lib/reddit_enhancement_suite.user.js
-        private static Regex hashRe = new Regex(@"^https?:\/\/(?:[i.]|[edge.]|[www.])*imgur.com\/(?:r\/[\w]+\/)?([\w]{5,}(?:[&,][\w]{5,})?)(\.[\w]{3,4})?(?:#(\d*))?(?:\?(?:\d*))?$");
-        private static Regex albumHashRe = new Regex(@"^https?:\/\/(?:i\.)?imgur.com\/a\/([\w]+)(\..+)?(?:\/)?(?:#\d*)?$");
+        private static Regex hashRe = new Regex(@"^https?:\/\/(?:[i.]|[edge.]|[www.])*imgur.com\/(?:gallery\/)?(?:r\/[\w]+\/)?([\w]{5,}(?:[&,][\w]{5,})*)(\.[\w]{3,4})?(?:#(\d*))?(?:\?(?:\d*))?$");
+        private static Regex albumHashRe = new Regex(@"^https?:\/\/(?:i\.)?imgur.com\/a\/([\w]+)(\..+)?(?:\/)?(?:#\w*)?$");
         private static string apiPrefix = "http://api.imgur.com/2/";
 
         internal static bool IsAPI(Uri uri)
@@ -53,8 +53,15 @@ namespace Baconography.PlatformServices.ImageAPI
                 }
                 else
                 {
-                    //Imgur doesn't really care about the extension and the browsers don't seem to either.
-                    return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", groups[1].Value)) };
+                    if (uri.AbsolutePath.ToLower().StartsWith("/gallery"))
+                    {
+                        return await GetImagesFromUri(title, new Uri("http://imgur.com/a/" + groups[1].Value));
+                    }
+                    else
+                    {
+                        //Imgur doesn't really care about the extension and the browsers don't seem to either.
+                        return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", groups[1].Value)) };
+                    }
                 }
             }
             else if (albumGroups.Count > 2 && string.IsNullOrWhiteSpace(albumGroups[2].Value))
@@ -90,6 +97,10 @@ namespace Baconography.PlatformServices.ImageAPI
                         .Select(e => 
                             {
                                 var caption = (string)((JObject)e.GetValue("image")).GetValue("caption");
+
+                                if (!string.IsNullOrWhiteSpace(caption))
+                                    caption = caption.Replace("&#039;", "'").Replace("&#038;", "&").Replace("&#034;", "\"");
+
                                 return Tuple.Create(string.IsNullOrWhiteSpace(caption) ? albumTitle : caption, (string)((JObject)e.GetValue("links")).GetValue("original"));
                             });
                 }
