@@ -21,7 +21,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), UncachedLoad);
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), RealUncachedLoad);
         }
 
         private async Task<Listing> GetCachedListing()
@@ -30,10 +30,15 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             return new Listing { Data = new ListingData { Children = things != null ? new List<Thing>(things) : new List<Thing>() } };
         }
 
-        private async Task<Listing> UncachedLoad()
+        private Task<Listing> RealUncachedLoad()
+        {
+            return UncachedLoad(false);
+        }
+
+        private async Task<Listing> UncachedLoad(bool ignoreCache)
         {
             var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1));
-            if (things != null)
+            if (things != null && !ignoreCache)
             {
                 return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
             }
@@ -57,7 +62,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return UncachedLoad();
+            return UncachedLoad(true);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
