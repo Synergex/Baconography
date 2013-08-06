@@ -163,6 +163,24 @@
                                 </StackPanel>
                             </DataTemplate>
                         </common:FixedLongListSelector.ListHeaderTemplate>
+                        <common:FixedLongListSelector.ListFooterTemplate>
+                            <DataTemplate>
+                                <Grid HorizontalAlignment="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="48" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Column="0" Grid.Row="0"
+                                        FontFamily="Segoe UI Symbol" FontSize="18"
+                                        Width="45" Height="45"
+                                        Content="&#xE149;" Style="{StaticResource RoundButtonStyle}"
+                                        Tap="RefreshSubscribedButton_Tap"
+                                            />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,4,0,0" Text="refresh" FontSize="16" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListFooterTemplate>
                     </common:FixedLongListSelector>
                 </Grid>
             </phone:PivotItem>

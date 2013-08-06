@@ -202,6 +202,15 @@ namespace BaconographyWP8.View
 				Messenger.Default.Send<RefreshSubredditMessage>(new RefreshSubredditMessage { Subreddit = subreddit });
 		}
 
+        private void RefreshSubscribedButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var viewModel = DataContext as MainPageViewModel;
+            if (viewModel != null)
+            {
+                viewModel.SubscribedSubreddits.Refresh();
+            }
+        }
+
 		private void SwitchToNew()
 		{
 			pivot.SelectedIndex = 2;
