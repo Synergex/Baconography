@@ -18,9 +18,10 @@
             <local:LinkView/>
         </DataTemplate>
         <DataTemplate x:Key="Type:AdvertisementViewModel">
-            <!-- Comment out the AdvertisementView to disable advertising -->
             <local:AdvertisementView Margin="-24,0,-24,0"/>
         </DataTemplate>
+        <!-- Comment out the AdvertisementView to disable advertising -->
+        
     </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0">
         <common:FixedLongListSelector Name="linksView"

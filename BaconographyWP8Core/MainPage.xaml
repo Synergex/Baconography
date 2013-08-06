@@ -74,6 +74,8 @@
 
         <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
+        <!--<local:AdvertisementView VerticalAlignment="Bottom" />--> <!--Visibility="{Binding ShowAds, Converter={StaticResource booleanVisibilityConverter}}" />-->
+
         <!--ContentPanel - place additional content here-->
 
         <!--Uncomment to see an alignment grid to help ensure your controls are

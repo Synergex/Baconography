@@ -18,8 +18,7 @@ namespace BaconographyWP8.PlatformServices
     {
         public BaconProvider(IEnumerable<Tuple<Type, Object>> initialServices)
         {
-            WebRequest.RegisterPrefix("http://", SharpGIS.WebRequestCreator.GZip);
-            WebRequest.RegisterPrefix("https://", SharpGIS.WebRequestCreator.GZip);
+            WebRequest.RegisterPrefix("http://www.reddit.com", SharpGIS.WebRequestCreator.GZip);
 
             var suspensionService = new SuspensionService();
             var redditService = new RedditService();
