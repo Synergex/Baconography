@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
 using GalaSoft.MvvmLight;
@@ -89,7 +90,10 @@ namespace BaconographyPortable.ViewModel
             // Stop the timer so it doesn't fire again unless rescheduled
             RevokeQueryTimer();
             if (Subreddits != null)
-                Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
+            {
+                if(!(_text != null && _text.Contains("/")))
+                    Subreddits.UpdateRealItems(new SearchResultsViewModelCollection(_baconProvider, _text, true));
+            }
         }
 
         public AboutSubredditViewModel SelectedSubreddit
@@ -114,14 +118,50 @@ namespace BaconographyPortable.ViewModel
 			vm.DoGoSubreddit(true);
 		}
 
+        private static string CleanRedditLink(string userInput, User user)
+        {
+            if (string.IsNullOrWhiteSpace(userInput))
+                return "/";
+
+            if (userInput == "/")
+                return userInput;
+
+            if (user != null && !string.IsNullOrWhiteSpace(user.Username))
+            {
+                var selfMulti = "/" + user.Username + "/m/";
+                if (userInput.Contains(selfMulti))
+                {
+                    return "/me/m/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+                }
+            }
+
+            if (userInput.StartsWith("me/m/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/m/"))
+                return "/me" + userInput;
+            else if (userInput.StartsWith("/me/m/"))
+                return userInput;
+
+            if (userInput.StartsWith("/u/"))
+            {
+                return userInput.Replace("/u/", "/user/");
+            }
+
+            if (userInput.StartsWith("r/"))
+                return "/" + userInput;
+            else if (userInput.StartsWith("/") && !userInput.StartsWith("/r/"))
+                return "/r" + userInput;
+            else if (userInput.StartsWith("/r/"))
+                return userInput;
+            else
+                return "/r/" + userInput;
+        }
+
 		public async void DoGoSubreddit(bool pin)
 		{
-			var subredditName = Text;
+            var subredditName = CleanRedditLink(Text, await _userService.GetUser()).Replace("/r/", "");
 			if (String.IsNullOrEmpty(subredditName))
 				return;
-
-			if (subredditName.Contains('/') && subredditName != "/")
-				subredditName = subredditName.Substring(subredditName.LastIndexOf('/') + 1);
 
 			var _redditService = ServiceLocator.Current.GetInstance<IRedditService>();
 			if (_redditService == null)

@@ -66,7 +66,7 @@ namespace BaconographyWP8.Common
                 var selfMulti = "/" + user.Username + "/m/";
                 if (userInput.Contains(selfMulti))
                 {
-                    return "/me/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
+                    return "/me/m/" + userInput.Substring(userInput.IndexOf(selfMulti) + selfMulti.Length);
                 }
             }
 

@@ -13,6 +13,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         IOfflineService _offlineService;
         string _subreddit;
         string _subredditId;
+        string _permaLink;
 
         public SubredditLinks(IBaconProvider baconProvider, string subreddit, string subredditId = null)
         {
