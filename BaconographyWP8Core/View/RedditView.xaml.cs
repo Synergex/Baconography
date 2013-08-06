@@ -16,6 +16,8 @@ using System.Windows.Controls.Primitives;
 using BaconographyPortable.Services;
 using Microsoft.Practices.ServiceLocation;
 using GalaSoft.MvvmLight;
+using BaconographyPortable.Messages;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace BaconographyWP8.View
 {
@@ -152,6 +154,17 @@ namespace BaconographyWP8.View
                 if (result != null) return result;
             }
             return null;
+        }
+
+        private void RefreshButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var viewModel = DataContext as RedditViewModel;
+            if (viewModel != null)
+            {
+                var message = new RefreshSubredditMessage();
+                message.Subreddit = viewModel.SelectedSubreddit;
+                Messenger.Default.Send<RefreshSubredditMessage>(message);
+            }
         }
 
 	}
