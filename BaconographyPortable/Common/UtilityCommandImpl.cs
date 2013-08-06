@@ -71,19 +71,19 @@ namespace BaconographyPortable.Common
         }
 
         //Subreddit:
-		private static Regex _subredditRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/?$");
+		public static Regex SubredditRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/?$");
 
         //Comments page:
-		private static Regex _commentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?$");
+        public static Regex CommentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
         //Comment:
-		private static Regex _commentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?$");
+        public static Regex CommentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
 
         //User Multireddit:
-        private static Regex _userMultiredditRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_/-]+/m/[a-zA-Z0-9_]+/?$");
+        public static Regex UserMultiredditRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_/-]+/m/[a-zA-Z0-9_]+/?$");
 
 		//User:
-        private static Regex _userRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_/-]+/?$");
+        public static Regex UserRegex = new Regex("(?:^|\\s|reddit.com)/u(?:ser)*/[a-zA-Z0-9_/-]+/?$");
 
         public static void GotoLinkImpl(string str)
         {
@@ -96,12 +96,12 @@ namespace BaconographyPortable.Common
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             var navigationService = baconProvider.GetService<INavigationService>();
 
-            if (_commentRegex.IsMatch(str))
+            if (CommentRegex.IsMatch(str))
             {
                 var typedLinkThing = new TypedThing<Link>(new Thing { Kind = "t3", Data = new Link { Permalink = str } });
                 navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
             }
-            else if (_commentsPageRegex.IsMatch(str))
+            else if (CommentsPageRegex.IsMatch(str))
             {
                 var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
                 if (targetLinkThing != null)
@@ -115,7 +115,7 @@ namespace BaconographyPortable.Common
                     navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
                 }
             }
-            else if (_subredditRegex.IsMatch(str))
+            else if (SubredditRegex.IsMatch(str))
             {
                 var nameIndex = str.LastIndexOf("/r/");
                 var subredditName = str.Substring(nameIndex + 3);
@@ -140,7 +140,7 @@ namespace BaconographyPortable.Common
                 else
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
             }
-            else if (_userMultiredditRegex.IsMatch(str))
+            else if (UserMultiredditRegex.IsMatch(str))
             {
                 var nameIndex = str.LastIndexOf("/u/");
                 string subredditName = "";
@@ -176,7 +176,7 @@ namespace BaconographyPortable.Common
                 else
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
             }
-			else if (_userRegex.IsMatch(str))
+			else if (UserRegex.IsMatch(str))
 			{
 				var nameIndex = str.LastIndexOf("/u/");
 				string userName = "";
