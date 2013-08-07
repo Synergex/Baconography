@@ -458,6 +458,27 @@ namespace BaconographyWP8
             //}
         }
 
+        private void pivot_DoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            if (!(e.OriginalSource is TextBlock))
+                return;
+
+            if (pivot.SelectedItem is PivotItem)
+            {
+                var pivotItem = pivot.SelectedItem as PivotItem;
+                if (pivotItem.Content is RedditView)
+                {
+                    var view = pivotItem.Content as RedditView;
+                    var context = view.DataContext as RedditViewModel;
+                    var source = e.OriginalSource as TextBlock;
+                    if (source.Text != context.Heading)
+                        return;
+
+                    view.linksView.ScrollTo(context.Links.First());
+                }
+            }
+        }
+
         // Sample code for building a localized ApplicationBar
         //private void BuildLocalizedApplicationBar()
         //{
