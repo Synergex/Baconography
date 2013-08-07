@@ -268,7 +268,13 @@
                             <TextBox Margin="0,2,0,0" Style="{StaticResource MessageTextBox}"
                              BorderThickness="1" BorderBrush="{StaticResource PhoneSubtleBrush}" Padding="0" FontSize="22" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
                              KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                             Text="{Binding Path=Text, Mode=TwoWay}" TextWrapping="Wrap"/>
+                             Text="{Binding Path=Text, Mode=TwoWay}" TextWrapping="Wrap">
+                                <TextBox.InputScope>
+                                    <InputScope>
+                                        <InputScopeName NameValue="Text" />
+                                    </InputScope>
+                                </TextBox.InputScope>
+                            </TextBox>
                         </Grid>
                     </Grid>
                 </phone:PivotItem>
