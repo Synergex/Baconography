@@ -74,6 +74,13 @@ namespace BaconographyWP8.PlatformServices
 					{
 						Subreddit = temp.Subreddit
 					};
+
+                //if we're already on the main page there is no reason to push context
+                if (_frame != null && _frame.Content != null && source.IsAssignableFrom(_frame.Content.GetType()))
+                {
+                    Messenger.Default.Send<SelectTemporaryRedditMessage>(parameter as SelectTemporaryRedditMessage);
+                    return true;
+                }
 			}
 
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
