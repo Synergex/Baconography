@@ -438,24 +438,24 @@ namespace BaconographyWP8
         int appBarState = 0;
         private void appBar_StateChanged(object sender, ApplicationBarStateChangedEventArgs e)
         {
-            switch (appBarState++)
-            {
-                case 0:
-                    ApplicationBar.IsMenuEnabled = false;
-                    ApplicationBar.Mode = ApplicationBarMode.Default;
-                    ApplicationBar.IsMenuEnabled = true;
-                    break;
-                case 2:
-                    ApplicationBar.Mode = ApplicationBarMode.Minimized;
-                    break;
-                case 4:
-                    ApplicationBar.IsMenuEnabled = false;
-                    ApplicationBar.Mode = ApplicationBarMode.Default;
-                    ApplicationBar.Mode = ApplicationBarMode.Minimized;
-                    ApplicationBar.IsMenuEnabled = true;
-                    appBarState = 0;
-                    break;
-            }
+            //switch (appBarState++)
+            //{
+            //    case 0:
+            //        ApplicationBar.IsMenuEnabled = false;
+            //        ApplicationBar.Mode = ApplicationBarMode.Default;
+            //        ApplicationBar.IsMenuEnabled = true;
+            //        break;
+            //    case 2:
+            //        ApplicationBar.Mode = ApplicationBarMode.Minimized;
+            //        break;
+            //    case 4:
+            //        ApplicationBar.IsMenuEnabled = false;
+            //        ApplicationBar.Mode = ApplicationBarMode.Default;
+            //        ApplicationBar.Mode = ApplicationBarMode.Minimized;
+            //        ApplicationBar.IsMenuEnabled = true;
+            //        appBarState = 0;
+            //        break;
+            //}
         }
 
         // Sample code for building a localized ApplicationBar
