@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Windows.Storage;
@@ -83,9 +82,12 @@ namespace BaconographyWP8.PlatformServices
             if (!(filename.EndsWith(".jpg") || filename.EndsWith(".png") || filename.EndsWith(".jpeg") || filename.EndsWith(".gif")))
                 return null;
 
-            HttpClient c = new HttpClient();
-            var pic_response = await c.GetAsync(url, HttpCompletionOption.ResponseContentRead);
-            return await pic_response.Content.ReadAsStreamAsync();
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+            request.AllowReadStreamBuffering = true;
+            using (WebResponse response = await SimpleHttpService.GetResponseAsync(request))
+            {
+               return response.GetResponseStream();
+            }
         }
 
         public async Task<byte[]> ImageBytesFromUrl(string url, bool isRetry)
