@@ -189,6 +189,7 @@
     <Content Include="Assets\Icons\send.png" />
     <Content Include="Assets\Icons\settings.png" />
     <Content Include="Assets\Icons\sort.png" />
+    <Content Include="Assets\multireddit.png" />
     <Content Include="Assets\reddit.png" />
     <Content Include="Assets\Icons\cancel.png" />
   </ItemGroup>

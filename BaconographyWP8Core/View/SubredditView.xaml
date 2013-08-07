@@ -36,7 +36,12 @@
         <!--<TextBlock Grid.Column="2" Grid.Row="1" FontSize="15" Text="{Binding PublicDescription}"
                    TextWrapping="Wrap" LineHeight="20"/>-->
 
-        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal">
+        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" Visibility="{Binding IsMultiReddit, Converter={StaticResource booleanVisibilityConverter}}">
+            <TextBlock FontSize="14" Foreground="Gray" Text="by"/>
+            <TextBlock FontSize="14" Foreground="Goldenrod" Text="{Binding MultiRedditUser}" Margin="5,0,0,0" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" Visibility="{Binding IsMultiReddit, Converter={StaticResource invertBooleanVisibilityConverter}}">
             <TextBlock FontSize="14" Foreground="Goldenrod" Text="{Binding Subscribers}" />
             <TextBlock FontSize="13" Foreground="Gray" Text="subscribers" Margin="5,1,0,0"/>
         </StackPanel>
