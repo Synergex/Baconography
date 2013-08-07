@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,5 +48,14 @@ namespace BaconographyPortable.Model.Reddit
     {
         [JsonProperty("things")]
         public List<Thing> Things { get; set; }
+    }
+
+    [DataContract]
+    public class CaptchaJsonData : IThingData
+    {
+        [JsonProperty("captcha")]
+        public string Captcha { get; set; }
+        [JsonProperty("errors")]
+        public string[] Errors { get; set; }
     }
 }

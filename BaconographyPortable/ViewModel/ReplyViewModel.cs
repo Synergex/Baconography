@@ -255,9 +255,9 @@ namespace BaconographyPortable.ViewModel
             SelectionLength = surroundedTextTpl.Item2 - surroundedTextTpl.Item1;
         }
 
-        private void SubmitImpl()
+        private async void SubmitImpl()
         {
-            _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
+            await _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
             var theComment = new Thing
             {
                 Kind = "t2",

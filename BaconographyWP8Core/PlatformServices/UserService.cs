@@ -14,7 +14,7 @@ using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class UserService : IUserService, BaconProvider.IBaconService
+    public class UserService : IUserService, BaconProvider.IBaconService
     {
         IRedditService _redditService;
         User _currentUser;
@@ -251,7 +251,7 @@ namespace BaconographyWP8.PlatformServices
             var originalCookie = credential.LoginCookie;
             if (!string.IsNullOrWhiteSpace(credential.LoginCookie))
             {
-                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
+                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie, NeedsCaptcha = false };
                 if (userInitiated)
                 {
                     loggedInUser.Me = await _redditService.GetMe(loggedInUser);
@@ -342,6 +342,12 @@ namespace BaconographyWP8.PlatformServices
                     new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) });
             }
             return _userInfoDb;
+        }
+
+        public void CloseDB()
+        {
+            _userInfoDb.Dispose();
+            _userInfoDb = null;
         }
 
 		private class PasswordData

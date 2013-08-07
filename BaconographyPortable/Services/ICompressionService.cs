@@ -10,5 +10,6 @@ namespace BaconographyPortable.Services
     {
         byte[] Compress(byte[] bytes);
         byte[] Decompress(byte[] bytes);
+        byte[] Decompress(byte[] bytes, int startIndex);
     }
 }

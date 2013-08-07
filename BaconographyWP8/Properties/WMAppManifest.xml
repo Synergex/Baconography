@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{0fe36153-24f5-429e-a5a3-b95da0367cab}" Title="Baconography" RuntimeType="Silverlight" Version="1.1.0.0" Genre="apps.normal" Author="Jeff Greene &amp; Marty Lewis" Description="Browse Reddit in a format designed for your phone." Publisher="Synergex International Corporation" PublisherID="{d217a270-9e09-4cfb-ace4-97ff87457170}">
+  <App xmlns="" ProductID="{0fe36153-24f5-429e-a5a3-b95da0367cab}" Title="Baconography" RuntimeType="Silverlight" Version="1.2.0.0" Genre="apps.normal" Author="Jeff Greene &amp; Marty Lewis" Description="Browse Reddit in a format designed for your phone." Publisher="Synergex International Corporation" PublisherID="{d217a270-9e09-4cfb-ace4-97ff87457170}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIconSmall.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
@@ -14,27 +14,38 @@
       <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
     </Capabilities>
     <Tasks>
-      <DefaultTask Name="_default" NavigationPage="/MainPage.xaml" ActivationPolicy="Resume" />
+      <DefaultTask Name="_default" NavigationPage="BaconographyWP8Core;component/MainPage.xaml" ActivationPolicy="Resume" />
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="BaconographyWP8Token" TaskName="_default">
-        <TemplateFlip>
-          <SmallImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</SmallImageURI>
-          <Count>0</Count>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</BackgroundImageURI>
+        <TemplateCycle>
+          <SmallImageURI IsRelative="true" IsResource="false">Assets\ApplicationIconSmall.png</SmallImageURI>
           <Title>Baconography</Title>
-          <BackContent>
-          </BackContent>
-          <BackBackgroundImageURI>
-          </BackBackgroundImageURI>
-          <BackTitle>
-          </BackTitle>
-          <DeviceLockImageURI>
-          </DeviceLockImageURI>
-          <HasLarge>False</HasLarge>
-        </TemplateFlip>
+          <Photo01ImageURI IsRelative="true" IsResource="false">Assets\BaconographyPhoneIconWide.png</Photo01ImageURI>
+          <Photo02ImageURI IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</Photo02ImageURI>
+          <Photo03ImageURI IsRelative="true" IsResource="false">
+          </Photo03ImageURI>
+          <Photo04ImageURI IsRelative="true" IsResource="false">
+          </Photo04ImageURI>
+          <Photo05ImageURI IsRelative="true" IsResource="false">
+          </Photo05ImageURI>
+          <Photo06ImageURI IsRelative="true" IsResource="false">
+          </Photo06ImageURI>
+          <Photo07ImageURI IsRelative="true" IsResource="false">
+          </Photo07ImageURI>
+          <Photo08ImageURI IsRelative="true" IsResource="false">
+          </Photo08ImageURI>
+          <Photo09ImageURI IsRelative="true" IsResource="false">
+          </Photo09ImageURI>
+          <Count>0</Count>
+          <HasLarge>True</HasLarge>
+          <DeviceLockImageURI IsRelative="true" IsResource="false">Assets\DefaultLockScreen.png</DeviceLockImageURI>
+        </TemplateCycle>
       </PrimaryToken>
     </Tokens>
+    <Extensions>
+      <Extension ExtensionName="LockScreen_Background" ConsumerID="{111DFF24-AA15-4A96-8006-2BFF8122084F}" TaskID="_default" />
+    </Extensions>
     <ScreenResolutions>
       <ScreenResolution Name="ID_RESOLUTION_WVGA" />
       <ScreenResolution Name="ID_RESOLUTION_WXGA" />

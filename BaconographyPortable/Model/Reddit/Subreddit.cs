@@ -16,7 +16,7 @@ namespace BaconographyPortable.Model.Reddit
         public string Description { get; set; }
         [JsonProperty("display_name")]
         public string DisplayName { get; set; }
-        [JsonProperty("over_18")]
+        [JsonProperty("over18")]
         public bool Over18 { get; set; }
         [JsonProperty("subscribers")]
         public long Subscribers { get; set; }
@@ -38,5 +38,14 @@ namespace BaconographyPortable.Model.Reddit
         public string PublicDescription { get; set; }
         [JsonProperty("header_title")]
         public string Headertitle { get; set; }
+    }
+
+    [DataContract]
+    public class LabeledMulti : ThingData
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("path")]
+        public string Path { get; set; }
     }
 }

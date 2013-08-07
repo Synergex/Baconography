@@ -57,5 +57,21 @@ namespace BaconographyW8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+
+        public void StartThreadPoolTimer(Func<object, Task> action, TimeSpan timer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsOnMeteredConnection
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool IsNearingDataLimit
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

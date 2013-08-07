@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="BaconographyWP8.View.RedditView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:res="clr-namespace:BaconographyWP8.Resources"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="800" d:DesignWidth="480">
+    <UserControl.Resources>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <local:LinkView/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:AdvertisementViewModel">
+            <local:AdvertisementView Visibility="{Binding ShowAds, Converter={StaticResource booleanVisibilityConverter}}" Margin="-24,0,-24,0"/>
+        </DataTemplate>
+        <!-- Comment out the AdvertisementView to disable advertising -->
+        
+    </UserControl.Resources>
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0">
+        <common:FixedLongListSelector Name="linksView"
+                Margin="0"
+                Padding="0"
+                DataContext="{Binding}"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                HorizontalContentAlignment="Stretch"
+                ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
+                ItemRealized="linksView_ItemRealized" ItemUnrealized="linksView_ItemUnrealized">
+            
+            <common:FixedLongListSelector.ListHeaderTemplate>
+                <DataTemplate>
+                    <!-- Visibility="{Binding ElementName=linksView, Path=PulledDown, Converter={StaticResource booleanVisibilityConverter}}" -->
+                    <Grid>
+                        <local:PullToRefreshView IsPulled="{Binding ElementName=linksView, Path=PulledDown, Mode=TwoWay}" />
+                    </Grid>
+                </DataTemplate>
+            </common:FixedLongListSelector.ListHeaderTemplate>
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+            <common:FixedLongListSelector.ListFooterTemplate>
+                <DataTemplate>
+                    <!-- Visibility="{Binding ElementName=linksView, Path=PulledDown, Converter={StaticResource booleanVisibilityConverter}}" -->
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="48" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        
+                        <Button Grid.Column="0" Grid.Row="0"
+                            FontFamily="Segoe UI Symbol" FontSize="18"
+                            Width="45" Height="45"
+                            Content="&#xE149;" Style="{StaticResource RoundButtonStyle}"
+                            Tap="RefreshButton_Tap"
+                                />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,4,0,0" Text="refresh" FontSize="16" HorizontalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </common:FixedLongListSelector.ListFooterTemplate>
+        </common:FixedLongListSelector>
+    </Grid>
+</UserControl>

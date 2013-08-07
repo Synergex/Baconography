@@ -60,7 +60,7 @@ namespace BaconographyPortable.ViewModel
             get
             {
                 if (_votable == null)
-                    _votable = new VotableViewModel(new TypedThing<IVotable>(_comment), _baconProvider);
+                    _votable = new VotableViewModel(new TypedThing<IVotable>(_comment), _baconProvider, () => RaisePropertyChanged("Votable"));
                 return _votable;
             }
         }

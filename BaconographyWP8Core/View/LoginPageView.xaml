@@ -1,0 +1,170 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="BaconographyWP8.View.LoginPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    DataContext="{Binding Login, Source={StaticResource Locator}}">
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+    
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <!--Pivot Control-->
+        <phone:Pivot Title="BACONOGRAPHY > LOGIN"
+                     x:Name="pivot">
+            <!--Pivot item one-->
+            <phone:PivotItem Header="new">
+                <Grid>
+                    <ScrollViewer>
+                        <StackPanel>
+                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="USERNAME"/>
+                            <TextBox Margin="0,0,0,0"
+                                Text="{Binding Mode=TwoWay, Path=Username}"
+                                KeyDown="Username_KeyDown"/>
+                            <TextBlock Margin="12,0,0,0" FontWeight="SemiBold" Text="PASSWORD"/>
+                            <PasswordBox Margin="0,0,0,0"
+                                x:Name="passwordBox" Password="{Binding Mode=TwoWay, Path=Password}"
+                                KeyDown="Password_KeyDown"/>
+                            <CheckBox Margin="0,0,0,0" Content="save this login"
+                                IsChecked="{Binding IsRememberLogin, Mode=TwoWay}" />
+                            <CheckBox Margin="0,0,0,0" Content="login automatically"
+                                IsChecked="{Binding IsDefaultLogin, Mode=TwoWay}" />
+
+                            <ProgressBar IsIndeterminate="{Binding Working}"
+                                         Visibility="{Binding Working, Converter={StaticResource booleanVisibilityConverter}}"/>
+                            <Border Margin="0,20,0,10" Visibility="{Binding HasErrors, Mode=TwoWay, Converter={StaticResource booleanVisibilityConverter}}">
+                                <TextBlock Foreground="Red" HorizontalAlignment="Center" Text="Login Failed: incorrect username or password"/>
+                            </Border>
+                            <Button Content="login"
+                                Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                                Command="{Binding DoLogin}"/>
+                            <common:ContextDataButton VerticalAlignment="Bottom"
+                                         ContextData="http://www.reddit.com/register"
+                                         Padding="10"
+                                         Click="HyperlinkButton_Click">
+                                Need an account? Click here to register
+                            </common:ContextDataButton>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </phone:PivotItem>
+
+            <!--Pivot item two-->
+            <phone:PivotItem Header="saved">
+                <Grid>
+                    <common:FixedLongListSelector
+                        Margin="12,10,12,0"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                        ItemsSource="{Binding Path=Credentials, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <common:FixedLongListSelector.ListHeaderTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition MaxHeight="50" />
+                                        <RowDefinition MaxHeight="50" />
+                                        <RowDefinition MaxHeight="50" />
+                                    </Grid.RowDefinitions>
+                                    <Border BorderThickness="0" Padding="0" Margin="0" Grid.Row="0"
+                                            Visibility="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}, Converter={StaticResource booleanVisibilityConverter}}">
+                                        <TextBlock Margin="0,0,0,0" FontWeight="SemiBold"
+                                            Text="CURRENT USER" />
+                                    </Border>
+                                    <Border BorderThickness="0" Padding="0" Margin="0" Grid.Row="1"
+                                            Visibility="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}, Converter={StaticResource booleanVisibilityConverter}}">
+                                        <TextBlock Margin="12,7,0,7" FontSize="22" Text="{Binding Path=Login.CurrentUserName, Source={StaticResource Locator}}"
+                                            HorizontalAlignment="Left"/>
+                                    </Border>
+                                    <TextBlock Grid.Row="2" Margin="0,0,0,0" FontWeight="SemiBold" Text="SAVED USERNAMES" />
+                                </Grid>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListHeaderTemplate>
+                        <common:FixedLongListSelector.ListFooterTemplate>
+                            <DataTemplate>
+                                <Button Margin="0,12,0,0"
+                                    Content="logout"
+                                    VerticalAlignment="Bottom"
+                                    Visibility="{Binding Working, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                                    Command="{Binding Path=Login.DoLogout, Source={StaticResource Locator}}"
+                                    IsEnabled="{Binding Path=Login.IsLoggedIn, Source={StaticResource Locator}}"/>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ListFooterTemplate>
+                        <common:FixedLongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Height="50" Margin="12,10,12,0">
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="22"
+                                        Padding="2" BorderThickness="0"
+                                        Width="50" Height="50"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE13D;"
+                                        Margin="0,0,0,0"
+                                        DataContext="{Binding Login, Source={StaticResource Locator}}"
+                                        Command="{Binding SelectCredential}"
+                                        CommandParameter="{Binding ElementName=name, Path=Text}"/>
+                                    <Button Style="{StaticResource RoundButtonStyle}"
+                                        FontFamily="Segoe UI Symbol" FontSize="16"
+                                        Padding="2" BorderThickness="0"
+                                        Width="50" Height="50"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="&#xE1E0;"
+                                        Margin="10,0,0,0"
+                                        DataContext="{Binding Login, Source={StaticResource Locator}}"
+                                        Command="{Binding RemoveCredential}"
+                                        CommandParameter="{Binding ElementName=name, Path=Text}"/>
+                                    <Button BorderThickness="0" HorizontalContentAlignment="Left" VerticalContentAlignment="Top"
+                                            Padding="0,0,0,0" Margin="10,0,0,0" FontWeight="Normal" FontFamily="Segoe UI"
+                                            Height="60" Command="{Binding Path=Login.SelectCredential, Source={StaticResource Locator}}"
+                                            CommandParameter="{Binding ElementName=name, Path=Text}">
+                                        <Button.Content>
+                                            <Grid Margin="0,-5,0,0">
+                                                <TextBlock x:Name="name" FontSize="22" Text="{Binding}"/>
+                                            </Grid>
+                                        </Button.Content>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </common:FixedLongListSelector.ItemTemplate>
+                    </common:FixedLongListSelector>
+                </Grid>
+            </phone:PivotItem>
+        </phone:Pivot>
+    </Grid>
+    
+</phone:PhoneApplicationPage>

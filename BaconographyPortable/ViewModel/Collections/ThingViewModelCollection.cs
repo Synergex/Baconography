@@ -37,7 +37,7 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             return MapListing(await GetInitialListing(state), state);
         }
-
+        bool _hasLoadedAdditional = false;
         protected override async Task<IEnumerable<ViewModelBase>> LoadAdditional(Dictionary<object, object> state)
         {
             if (state.ContainsKey("After"))
@@ -162,12 +162,17 @@ namespace BaconographyPortable.ViewModel.Collections
                             if (targetListing != null)
                             {
                                 var mappedListing = MapListing(targetListing, state).ToArray();
-								if (mappedListing.Length < this.Count)
-									this.Clear();
                                 for (int i = 0; i < mappedListing.Length; i++)
                                 {
                                     if (this.Count > i)
+                                    {
+                                        if (this[i] is IMergableThing)
+                                        {
+                                            if (((IMergableThing)this[i]).MaybeMerge(mappedListing[i]))
+                                                continue;
+                                        }
                                         this[i] = mappedListing[i];
+                                    }
                                     else
                                         Add(mappedListing[i]);
                                 }

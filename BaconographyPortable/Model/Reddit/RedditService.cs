@@ -1,6 +1,9 @@
 ﻿using BaconographyPortable.Properties;
 using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,21 +15,21 @@ namespace BaconographyPortable.Model.Reddit
     public class RedditService : IRedditService
     {
         protected ISettingsService _settingsService;
-        protected IOfflineService _offlineService;
         protected ISimpleHttpService _simpleHttpService;
         protected IUserService _userService;
         protected INotificationService _notificationService;
+        protected IBaconProvider _baconProvider;
 
         Dictionary<string, string> _linkToOpMap = new Dictionary<string, string>();
         Dictionary<string, HashSet<string>> _subredditToModMap = new Dictionary<string, HashSet<string>>();
 
-        public virtual void Initialize(ISettingsService settingsService, IOfflineService offlineService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService)
+        public virtual void Initialize(ISettingsService settingsService, ISimpleHttpService simpleHttpService, IUserService userService, INotificationService notificationService, IBaconProvider baconProvider)
         {
             _settingsService = settingsService;
-            _offlineService = offlineService;
             _simpleHttpService = simpleHttpService;
             _userService = userService;
             _notificationService = notificationService;
+            _baconProvider = baconProvider;
         }
 
         public async Task<Account> GetMe()
@@ -79,7 +82,7 @@ namespace BaconographyPortable.Model.Reddit
             else
             {
                 var loginCookie = loginResult.Item2["reddit_session"];
-                var user = new User { Authenticated = true, LoginCookie = loginCookie, Username = username };
+                var user = new User { Authenticated = true, LoginCookie = loginCookie, Username = username, NeedsCaptcha = false };
 
                 user.Me = await GetMe(user);
                 return user;
@@ -173,26 +176,69 @@ namespace BaconographyPortable.Model.Reddit
             else if (name == "all")
                 return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = "all", Url = "/r/all", Name = "all", DisplayName="all", Title="all", Id="t5_fakeid" } });
 
-            var targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
-
-            try
+            string targetUri;
+            if (!name.Contains("/m/"))
             {
-                var comments = await _simpleHttpService.UnAuthedGet(targetUri);
-                //error page
-                if (comments.ToLower().StartsWith("<!doctype html>"))
+                targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
+                try
                 {
+                    var comments = await _simpleHttpService.UnAuthedGet(targetUri);
+                    //error page
+                    if (comments.ToLower().StartsWith("<!doctype html>"))
+                    {
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
+                    }
+                    else
+                    {
+                        return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //_notificationService.CreateErrorNotification(ex);
                     return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
                 }
-                else
+            }
+            else
+            {
+                var currentUser = await _userService.GetUser();
+                if (name.StartsWith("/"))
+                    name = name.TrimStart('/');
+
+                if (name.StartsWith("me/"))
                 {
-                    return new TypedThing<Subreddit>(JsonConvert.DeserializeObject<Thing>(comments));
+                   name = name.Replace("me/", "user/" + currentUser.Username + "/");
+                }
+
+                targetUri = string.Format("http://www.reddit.com/api/multi/{0}.json", name);
+                try
+                {
+                    var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                    //error page
+                    if (comments.ToLower().StartsWith("<!doctype html>"))
+                    {
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
+                    }
+                    else
+                    {
+                        
+                        var labeledMulti = new TypedThing<LabeledMulti>(JsonConvert.DeserializeObject<Thing>(comments));
+                        var multiPath = labeledMulti.Data.Path;
+
+                        if(!string.IsNullOrWhiteSpace(currentUser.Username))
+                            multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
+
+                        return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { DisplayName = labeledMulti.Data.Name, Title = labeledMulti.Data.Name, Url = multiPath, Headertitle = labeledMulti.Data.Name, Over18 = false } });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //_notificationService.CreateErrorNotification(ex);
+                    return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name, Title = name, Url = string.Format("r/{0}", name), Created = DateTime.Now, CreatedUTC = DateTime.UtcNow, DisplayName = name, Description = "there doesnt seem to be anything here", Name = name, Over18 = false, PublicDescription = "there doesnt seem to be anything here", Subscribers = 0 } });
                 }
             }
-            catch (Exception ex)
-            {
-                _notificationService.CreateErrorNotification(ex);
-                return new TypedThing<Subreddit>(new Thing { Kind = "t5", Data = new Subreddit { Headertitle = name } });
-            }
+
+            
         }
 
         public async Task<Listing> GetPostsByUser(string username, int? limit)
@@ -218,7 +264,7 @@ namespace BaconographyPortable.Model.Reddit
 
         public async Task<Listing> GetPostsBySubreddit(string subreddit, int? limit)
         {
-            var maxLimit = (await UserIsGold()) ? 1500 : 25;
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
             if (subreddit == null)
@@ -234,7 +280,7 @@ namespace BaconographyPortable.Model.Reddit
             {
                 var links = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
 				var newListing = JsonConvert.DeserializeObject<Listing>(links);
-				return MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing));
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
@@ -246,6 +292,13 @@ namespace BaconographyPortable.Model.Reddit
         public async Task<Listing> GetMoreOnListing(IEnumerable<string> childrenIds, string contentId, string subreddit)
         {
             var targetUri = "http://www.reddit.com/api/morechildren.json";
+
+            if (childrenIds.Count() == 0)
+                return new Listing
+                {
+                    Kind = "Listing",
+                    Data = new ListingData()
+                };
 
             var arguments = new Dictionary<string, string>
             {
@@ -269,7 +322,7 @@ namespace BaconographyPortable.Model.Reddit
                     Data = new ListingData { Children = JsonConvert.DeserializeObject<JsonThing>(result).Json.Data.Things }
                 };
 
-                return (MaybeFilterForNSFW(MaybeInjectAdvertisements(newListing)));
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
@@ -342,9 +395,28 @@ namespace BaconographyPortable.Model.Reddit
                 var maxLimit = (await UserIsGold()) ? 1500 : 500;
                 var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-                var targetUri = limit == -1 ?
-                            string.Format("http://www.reddit.com{0}.json", permalink) :
-                            string.Format("http://www.reddit.com{0}.json?limit={1}", permalink, limit);
+                string targetUri = null;
+
+                if (permalink.Contains("reddit.com"))
+                {
+                    permalink = permalink.Substring(permalink.IndexOf("reddit.com") + "reddit.com".Length);
+                }
+
+                if (permalink.Contains(".json?"))
+                {
+                    targetUri = "http://www.reddit.com" + permalink;
+                }
+                else if (permalink.Contains("?"))
+                {
+                    var queryPos = permalink.IndexOf("?");
+                    targetUri = string.Format("http://www.reddit.com{0}.json{1}", permalink.Remove(queryPos), permalink.Substring(queryPos));
+                }
+                else
+                {
+                    targetUri = limit == -1 ?
+                                string.Format("http://www.reddit.com{0}.json?depth=5", permalink) :
+                                string.Format("http://www.reddit.com{0}.json?limit={1}&depth=5", permalink, limit);
+                }
 
                 Listing listing = null;
                 var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
@@ -385,6 +457,31 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        public async Task<Listing> GetMessages(int? limit)
+        {
+            var maxLimit = (await UserIsGold()) ? 1500 : 100;
+            var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
+
+            var targetUri = string.Format("http://www.reddit.com/message/inbox/.json?limit={0}", guardedLimit);
+
+            try
+            {
+                var messages = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                if (messages == "\"{}\"")
+                {
+                    return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+                }
+                // Hacky hack mcHackerson
+                messages = messages.Replace("\"kind\": \"t1\"", "\"kind\": \"t4.5\"");
+                return JsonConvert.DeserializeObject<Listing>(messages);
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateErrorNotification(ex);
+                return new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } };
+            }
+        }
+
         public void AddFlairInfo(string linkId, string opName)
         {
             if (!_linkToOpMap.ContainsKey(linkId))
@@ -410,7 +507,7 @@ namespace BaconographyPortable.Model.Reddit
                 var listing = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                 var newListing = JsonConvert.DeserializeObject<Listing>(listing);
 
-                return MaybeFilterForNSFW(newListing);
+                return MaybeInjectAdvertisements(MaybeFilterForNSFW(newListing));
             }
             catch (Exception ex)
             {
@@ -493,21 +590,103 @@ namespace BaconographyPortable.Model.Reddit
             await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
         }
 
-        public virtual async Task AddPost(string kind, string url, string subreddit, string title)
+        public virtual async Task AddPost(string kind, string url, string text, string subreddit, string title)
         {
             var modhash = await GetCurrentModhash();
 
             var arguments = new Dictionary<string, string>
             {
+                {"api_type", "json"},
                 {"kind", kind},
                 {"url", url},
+                {"text", text},
                 {"title", title},
-                {"r", subreddit},
+                {"sr", subreddit},
                 {"renderstyle", "html" },
                 {"uh", modhash}
             };
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
+            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
+        }
+
+        public async Task SubmitCaptcha(string captcha)
+        {
+            Captcha = captcha;
+            List<PostData> data = PostQueue.ToList<PostData>();
+            PostQueue.Clear();
+            foreach (var post in data)
+            {
+                await this.SendPost(post.Cookie, post.UrlEncodedData, post.Uri, true);
+            }
+        }
+
+        private class PostData
+        {
+            public string Cookie { get; set; }
+            public Dictionary<string, string> UrlEncodedData { get; set; }
+            public string Uri { get; set; }
+        }
+        private List<PostData> PostQueue = new List<PostData>();
+
+        private string CaptchaIden { get; set; }
+        private string Captcha { get; set; }
+        private async Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri, bool queuedMessage = false)
+        {
+            if (!urlEncodedData.ContainsKey("api_type"))
+                urlEncodedData.Add("api_type", "json");
+
+            if (!String.IsNullOrEmpty(CaptchaIden))
+            {
+                if (urlEncodedData.ContainsKey("iden"))
+                    urlEncodedData["iden"] = CaptchaIden;
+                else
+                    urlEncodedData.Add("iden", CaptchaIden);
+            }
+
+            if (!String.IsNullOrEmpty(Captcha))
+            {
+                if (urlEncodedData.ContainsKey("captcha"))
+                    urlEncodedData["captcha"] = Captcha;
+                else
+                    urlEncodedData.Add("captcha", Captcha);
+            }
+
+            string response = null;
+
+            response = await _simpleHttpService.SendPost(cookie, urlEncodedData, uri);
+
+            var jsonObject = JsonConvert.DeserializeObject(response) as JObject;
+            JToken captcha = null;
+            JToken errors = null;
+            JObject first = null;
+
+            if (jsonObject.First != null)
+                first = (jsonObject.First as JProperty).Value as JObject;
+
+            if (first != null)
+            {
+                first.TryGetValue("captcha", out captcha);
+                first.TryGetValue("errors", out errors);
+                if (captcha != null)
+                    CaptchaIden = captcha.Value<string>();
+
+                if (captcha != null && errors != null)
+                {
+                    var user = await _userService.GetUser();
+                    user.NeedsCaptcha = true;
+
+                    // If a user has told us to bug off this session, do as they say
+                    if (!_settingsService.PromptForCaptcha)
+                        return response;
+
+                    PostQueue.Add(new PostData { Cookie = cookie, Uri = uri, UrlEncodedData = urlEncodedData });
+
+                    CaptchaViewModel captchaVM = CaptchaViewModel.GetInstance(_baconProvider);
+                    captchaVM.ShowCaptcha(CaptchaIden);
+                }
+            }
+
+            return response;
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)
@@ -525,8 +704,25 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+        }
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+        public virtual async Task AddReply(string recipient, string subject, string message, string thing_id)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"id", "#compose-message"},
+                {"to", recipient},
+                {"text", message},
+                {"subject", subject},
+                {"thing-id", ""},
+                {"renderstyle", "html"},
+                {"uh", modhash}
+            };
+
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
         }
 
         public virtual async Task AddComment(string parentId, string content)
@@ -540,7 +736,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
+            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
         }
 
         public virtual async Task EditComment(string thingId, string text)
@@ -554,7 +750,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
         }
 
         private async Task<bool> UserIsGold()
@@ -602,7 +798,8 @@ namespace BaconographyPortable.Model.Reddit
 
 		private Listing MaybeInjectAdvertisements(Listing source)
 		{
-			return source;
+            if (!_settingsService.AllowAdvertising)
+                return source;
 
 			int count = source.Data.Children.Count;
 			for (int i = 9; i < count; i += 10)
@@ -658,6 +855,34 @@ namespace BaconographyPortable.Model.Reddit
             return AuthorFlairKind.None;
         }
 
+        private async Task<Listing> GetUserMultis(Listing listing)
+        {
+            var targetUri = string.Format("http://www.reddit.com/api/multi/mine.json");
+
+            try
+            {
+                var subreddits = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
+                if (subreddits == "[]")
+                    return listing;
+                else
+                {
+                    var currentUser = await _userService.GetUser();
+                    var userMultis = JsonConvert.DeserializeObject<Thing[]>(subreddits);
+                    foreach (var thing in userMultis)
+                    {
+                        var labeledMulti = new TypedThing<LabeledMulti>(thing);
+                        var multiPath = labeledMulti.Data.Path;
+
+                        multiPath = multiPath.Replace("/user/" + currentUser.Username, "/me");
+
+                        listing.Data.Children.Insert(0, (new Thing { Kind = "t5", Data = new Subreddit { DisplayName = labeledMulti.Data.Name, HeaderImage = "/Assets/multireddit.png", Title = labeledMulti.Data.Name, Url = multiPath, Headertitle = labeledMulti.Data.Name, Over18 = false } }));
+                    }
+                }
+            }
+                //this api is most likely still in flux just silently fail if they break us down the line
+            catch {}
+            return listing;
+        }
 
         public async Task<Listing> GetSubscribedSubredditListing()
         {
@@ -672,7 +897,7 @@ namespace BaconographyPortable.Model.Reddit
                 if (subreddits == "\"{}\"")
                     return await GetDefaultSubreddits();
                 else
-                    return JsonConvert.DeserializeObject<Listing>(subreddits);
+                    return await GetUserMultis(JsonConvert.DeserializeObject<Listing>(subreddits));
 
             }
             catch (Exception ex)

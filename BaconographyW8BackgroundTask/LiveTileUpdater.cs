@@ -18,7 +18,7 @@ namespace BaconographyW8BackgroundTask
         {
             _deferral = taskInstance.GetDeferral();
 
-            var baconProvider = new BaconProvider();
+            var baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DummyViewLocator()) });
             await baconProvider.Initialize(null);
 
             await RunBodyImpl(baconProvider);

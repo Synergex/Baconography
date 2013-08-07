@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BaconographyPortable.Model.Reddit.Converters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,20 @@ namespace BaconographyPortable.Model.Reddit
         public string BodyHtml { get; set; }
         [JsonProperty("context")]
         public string Context { get; set; }
+        [JsonConverter(typeof(UnixTimeConverter))]
+        [JsonProperty("created")]
+        public DateTime Created { get; set; }
+        [JsonConverter(typeof(UnixUTCTimeConverter))]
+        [JsonProperty("created_utc")]
+        public DateTime CreatedUTC { get; set; }
+        [JsonProperty("dest")]
+        public string Destination { get; set; }
         [JsonProperty("first_message")]
         public object FirstMessage { get; set; }
+        [JsonProperty("first_message_name")]
+        public string FirstMessageName { get; set; }
+        [JsonProperty("id")]
+        public string Id { get; set; }
         [JsonProperty("name")]
         public string Name { get; set; }
         [JsonProperty("new")]

@@ -36,7 +36,11 @@ namespace BaconographyW8.PlatformServices
         public bool ApplyReadabliltyToLinks {get; set;}
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
-
+        public bool PromptForCaptcha { get; set; }
+        public bool EnableOvernightUpdates { get; set; }
+        public bool UpdateOverlayOnlyOnWifi { get; set; }
+        public bool UpdateImagesOnlyOnWifi { get; set; }
+        public bool TapForComments { get; set; }
         public void ShowSettings()
         {
             
@@ -98,6 +102,14 @@ namespace BaconographyW8.PlatformServices
                     DefaultOfflineLinkCount = int.Parse(defaultOfflineLinkCount);
                 else
                     DefaultOfflineLinkCount = 25;
+
+                var tapForComments = await offlineService.GetSetting("TapForComments");
+                if (!string.IsNullOrWhiteSpace(tapForComments))
+                    TapForComments = bool.Parse(tapForComments);
+                else
+                    TapForComments = true;
+
+                PromptForCaptcha = true;
             }
             catch
             {
@@ -125,6 +137,7 @@ namespace BaconographyW8.PlatformServices
             await offlineService.StoreSetting("ApplyReadabliltyToLinks", ApplyReadabliltyToLinks.ToString());
             await offlineService.StoreSetting("PreferImageLinksForTiles", PreferImageLinksForTiles.ToString());
             await offlineService.StoreSetting("DefaultOfflineLinkCount", DefaultOfflineLinkCount.ToString());
+            await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
         }
 
 
@@ -153,6 +166,224 @@ namespace BaconographyW8.PlatformServices
         {
             get;
             set;
+        }
+
+        public bool AllowPredictiveOfflining { get; set; }
+        public bool AllowOver18Items { get; set; }
+        public bool AllowPredictiveOffliningOnMeteredConnection { get; set; }
+
+
+        public bool HighresLockScreenOnly
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool EnableUpdates
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool UpdateImagesOnlyWifi
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool UpdateOverlayOnlyWifi
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string ImageUpdateFrequency
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string OverlayUpdateFrequency
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool MessagesInLockScreenOverlay
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string ImagesSubreddit
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int OverlayOpacity
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string LockScreenReddit
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public bool PostsInLockScreenOverlay
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int ScreenWidth { get; set; }
+        public int ScreenHeight { get; set; }
+        public bool AllowAdvertising { get; set; }
+
+
+        public int OverlayItemCount
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int OfflineCacheDays
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public string LiveTileReddit
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public DateTime LastUpdatedImages
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public DateTime LastCleanedCache
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public bool UseImagePickerForLockScreen
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

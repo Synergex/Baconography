@@ -13,6 +13,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         IOfflineService _offlineService;
         string _subreddit;
         string _subredditId;
+        string _permaLink;
 
         public SubredditLinks(IBaconProvider baconProvider, string subreddit, string subredditId = null)
         {
@@ -40,8 +41,11 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         private async Task<Listing> GetCachedListing()
         {
-            var things = await _offlineService.RetrieveOrderedThings("links:" + _subreddit);
-            return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
+            var things = await _offlineService.RetrieveOrderedThings("links:" + _subreddit, TimeSpan.FromDays(14));
+            if(things != null)
+                return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
+            else
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

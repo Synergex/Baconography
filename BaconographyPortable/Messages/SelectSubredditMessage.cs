@@ -10,7 +10,12 @@ namespace BaconographyPortable.Messages
 {
     public class SelectSubredditMessage : MessageBase
     {
+        public SelectSubredditMessage()
+        {
+            DontRefresh = false;
+        }
         public TypedThing<Subreddit> Subreddit { get; set; }
+        public bool DontRefresh { get; set; }
 		public bool AddOnly { get; set; }
     }
 }

@@ -1,0 +1,77 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="BaconographyWP8.View.CaptchaPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    DataContext="{Binding Captcha, Source={StaticResource Locator}}"
+    x:Name="controlRoot"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}">
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="150" />
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="12,20,12,12">
+            <TextBlock FontWeight="SemiBold" Text="BACONOGRAPHY > CAPTCHA"/>
+            <TextBlock Margin="0,12,0,12" Text="Before we can send your message, Reddit wants to verify that you are a real person. Fill the letters below into the provided textbox."
+                       TextWrapping="Wrap" />
+        </StackPanel>
+
+        <local:ScalingPictureView
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            Margin="12,0,12,0"
+            ImageSource="{Binding ImageSource, Mode=TwoWay}"
+            MinWidth="200"/>
+
+        <Grid Grid.Row="2" VerticalAlignment="Bottom">
+            <TextBox Text="{Binding CaptchaResponse, Mode=TwoWay}"
+                     KeyUp="TextBox_KeyUp"/>
+        </Grid>
+    </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar x:Name="appBar" Mode="Default" IsVisible="True"
+                              IsMenuEnabled="True">
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+</phone:PhoneApplicationPage>

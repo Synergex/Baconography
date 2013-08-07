@@ -19,5 +19,8 @@ namespace BaconographyPortable.Services
         Type AboutUserView { get; }
         Type LinkedVideoView { get; }
 		Type MainView { get; }
+        Type MessagesView { get; }
+        Type ComposeView { get; }
+        Type CaptchaView { get; }
     }
 }

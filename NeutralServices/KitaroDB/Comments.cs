@@ -6,12 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BaconographyPortable.Model.Reddit;
+using System.Diagnostics;
+#if WINDOWS_PHONE
+using System.Security.Cryptography;
+#else
+using Windows.Security.Cryptography.Core;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
+
+using System.Threading;
 
 namespace Baconography.NeutralServices.KitaroDB
 {
     class Comments
     {
+		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v3.ism";
+
         private static Task<Comments> _instanceTask;
+        CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static async Task<Comments> GetInstanceImpl()
         {
             return new Comments(await GetDBInstance());
@@ -19,12 +31,10 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private static async Task<DB> GetDBInstance()
         {
-            var dbLocation = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v2.ism";
-            var db = await DB.CreateAsync(dbLocation, DBCreateFlags.None, ushort.MaxValue - 100, new DBKey[]
+			var db = await DB.CreateAsync(commentsDatabase, DBCreateFlags.None, 0, new DBKey[]
             {
-                new DBKey(32, 0, DBKeyFlags.Alpha, "main", true, false, false, 0),
-                new DBKey(20, 0, DBKeyFlags.Alpha, "direct", false, false, false, 1, new DBKeySegment[] { new DBKeySegment(12, 32, DBKeyFlags.Alpha, false) }), 
-                new DBKey(8, 44, DBKeyFlags.AutoTime, "creation_timestamp", true, false, false, 2)
+                new DBKey(20, 0, DBKeyFlags.Alpha, "permalinkhash", false, false, false, 0),
+                new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
             });
             return db;
         }
@@ -41,222 +51,140 @@ namespace Baconography.NeutralServices.KitaroDB
             return _instanceTask;
         }
 
+        
+
         private Comments(DB db)
         {
             _commentsDB = db;
         }
 
-        DB _commentsDB;
-        private static int CommentKeySpaceSize = 52;
-        private static int PrimaryKeySpaceSize = 44;
-        private static int MainKeySpaceSize = 32;
-        private static int DirectKeySpaceSize = 32;
-
-        private byte[] GenerateMainKeyspace(string subredditId, string linkId, string parentId)
-        {
-            var keyspace = new byte[MainKeySpaceSize];
-
-            //these ids are stored in base 36 so we will never see unicode chars
-            for (int i = 0; i < 8 && i < subredditId.Length; i++)
-                keyspace[i] = (byte)subredditId[i];
-
-            for (int i = 0; i < 12 && i < linkId.Length; i++)
-                keyspace[i + 8] = (byte)linkId[i];
-
-            for (int i = 0; i < 12 && i < parentId.Length; i++)
-                keyspace[i + 20] = (byte)parentId[i];
-
-            return keyspace;
-        }
-
-        private byte[] GenerateCombinedKeyspace(string subredditId, string linkId, string parentId, string name, byte[] value)
-        {
-            var keyspace = new byte[CommentKeySpaceSize + value.Length];
-
-            //these ids are stored in base 36 so we will never see unicode chars
-            for (int i = 0; i < 8 && i < subredditId.Length; i++)
-                keyspace[i] = (byte)subredditId[i];
-
-            for (int i = 0; i < 12 && i < linkId.Length; i++)
-                keyspace[i + 8] = (byte)linkId[i];
-
-            for (int i = 0; i < 12 && i < parentId.Length; i++)
-                keyspace[i + 20] = (byte)parentId[i];
-
-            for (int i = 0; i < 12 && i < name.Length; i++)
-                keyspace[i + 32] = (byte)name[i];
-
-            value.CopyTo(keyspace, CommentKeySpaceSize);
-
-            return keyspace;
-        }
-
-        private byte[] GenerateDirectKeyspace(string subredditId, string linkId, string name)
-        {
-            var keyspace = new byte[DirectKeySpaceSize];
-
-            //these ids are stored in base 36 so we will never see unicode chars
-            for (int i = 0; i < 8 && i < subredditId.Length; i++)
-                keyspace[i] = (byte)subredditId[i];
-
-            for (int i = 0; i < 12 && i < linkId.Length; i++)
-                keyspace[i + 8] = (byte)linkId[i];
-
-            for (int i = 0; i < 12 && i < name.Length; i++)
-                keyspace[i + 20] = (byte)name[i];
-
-            return keyspace;
-        }
-
-        public async Task StoreComment(Thing thing, string subredditId, string linkId, string parentId, string name)
-        {
-            ((Comment)thing.Data).BodyHtml = ""; //we dont need this and on large comments this causes problems for the max record size
-
-            var replies = ((Comment)thing.Data).Replies;
-            ((Comment)thing.Data).Replies = null;
-
-            var value = JsonConvert.SerializeObject(thing);
-            var encodedValue = Encoding.UTF8.GetBytes(value);
-
-            var keyspace = GenerateDirectKeyspace(subredditId, linkId, name);
-            var combinedSpace = GenerateCombinedKeyspace(subredditId, linkId, parentId, name, encodedValue);
-
-            if (combinedSpace.Length > 65435)
-                return; //failure until we get the record size bumped up next version
-
-            var commentsCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.AutoLock);
-            if (commentsCursor != null)
-            {
-                using (commentsCursor)
-                {
-                    await commentsCursor.UpdateAsync(combinedSpace);
-                }
-            }
-            else
-            {
-                try
-                {
-                    await _commentsDB.InsertAsync(combinedSpace);
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-            if(replies != null)
-                await StoreComments(replies);
-        }
+        internal DB _commentsDB;
 
         public async Task Clear()
         {
             _commentsDB.Dispose();
             _commentsDB = null;
-            await DB.PurgeAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "//comments-rev1.ism");
+			await DB.PurgeAsync(commentsDatabase);
             _commentsDB = await GetDBInstance();
+        }
+
+#if WINDOWS_PHONE
+        SHA1 permalinkDigest = new SHA1Managed();
+#else
+        HashAlgorithmProvider permalinkDigest = HashAlgorithmProvider.OpenAlgorithm("SHA1");
+#endif
+
+        private void StripCommentData(List<Thing> things)
+        {
+            if (things == null)
+                return;
+
+            foreach (var thing in things)
+            {
+                if (thing.Data is Comment)
+                {
+                    ((Comment)thing.Data).BodyHtml = "";
+                    if(((Comment)thing.Data).Replies != null)
+                        StripCommentData(((Comment)thing.Data).Replies.Data.Children);
+                }
+            }
         }
 
         public async Task StoreComments(Listing listing)
         {
-            Comment mostRecentComment = null;
-            foreach (var comment in listing.Data.Children)
+            try
             {
-                if (comment.Data is Comment)
-                {
-                    mostRecentComment = ((Comment)comment.Data);
-                    await StoreComment(comment, mostRecentComment.SubredditId, mostRecentComment.LinkId, mostRecentComment.ParentId, mostRecentComment.Name);
-                }
-                //else if (comment.Data is More && mostRecentComment != null)
-                //{
-                //    await StoreComment(comment, mostRecentComment.SubredditId, mostRecentComment.LinkId, mostRecentComment.ParentId, "more");
-                //}
-            }
-        }
+                var linkThing = listing.Data.Children.First();
+                if (!(linkThing.Data is Link))
+                    return;
 
-        private async Task<Listing> DeserializeCursor(DBCursor cursor, int count, Listing existing = null)
-        {
-            var targetListing = existing ?? new Listing { Data = new ListingData { Children = new List<Thing>() } };
-            int i = 0;
-            if (cursor != null)
-            {
-                do
+                //we can cut down on IO by about 50% by stripping out the HTML bodies of comments since we dont have any need for them
+                StripCommentData(listing.Data.Children);
+
+                string key = ((Link)linkThing.Data).Name;
+                
+
+                var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(listing)));
+                var recordBytes = new byte[compressedBytes.Length + 28];
+#if WINDOWS_PHONE
+                var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink));
+#else
+                var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink).AsBuffer()).ToArray();
+#endif
+                Array.Copy(compressedBytes, 0, recordBytes, 28, compressedBytes.Length);
+                Array.Copy(keyBytes, 0, recordBytes, 0, keyBytes.Length);
+
+                if (_terminateSource.IsCancellationRequested)
+                    return;
+                using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
                 {
-                    var currentRecord = cursor.Get();
-                    var decodedListing = Encoding.UTF8.GetString(currentRecord, CommentKeySpaceSize, currentRecord.Length - CommentKeySpaceSize);
-                    var deserializedComment = JsonConvert.DeserializeObject<Thing>(decodedListing);
-                    targetListing.Data.Children.Add(deserializedComment);
-                    if (count == -1)
+                    if (_terminateSource.IsCancellationRequested)
+                        return;
+                    if (blobCursor != null)
                     {
-                        break;
+                        await blobCursor.UpdateAsync(recordBytes);
                     }
-                } while (await cursor.MoveNextAsync());
+                    else
+                    {
+                        await _commentsDB.InsertAsync(recordBytes);
+                    }
+                }
             }
-
-            return targetListing;
-        }
-
-        private async Task<Listing> GetChildren(string subredditId, string linkId, string parentId)
-        {
-            var keyspace = GenerateMainKeyspace(subredditId, linkId, parentId);
-
-            var linkCursor = await _commentsDB.SelectAsync(_commentsDB.GetKeys().First(), keyspace);
-            Listing children = null;
-            using(linkCursor)
+            catch (Exception ex)
             {
-                //big enough to get everything
-                children = await DeserializeCursor(linkCursor, 1000);
-            }
-            await FillInChildren(children);
-            return children;
-        }
-
-        private async Task FillInChildren(Listing target)
-        {
-            foreach (var child in target.Data.Children)
-            {
-                var typedChild = child.Data as Comment;
-                if(typedChild != null)
-                    typedChild.Replies = await GetChildren(typedChild.SubredditId, typedChild.LinkId, typedChild.Name);
+                var errorText = DBError.TranslateError((uint)ex.HResult);
+                //throw new Exception(errorText);
+                Debug.WriteLine(errorText);
+                Debug.WriteLine(ex.ToString());
             }
         }
 
-        public async Task<Listing> GetTopLevelComments(string subredditId, string linkId, int count)
+        public async Task<Listing> GetTopLevelComments(string permalink, int count)
         {
-            var keyspace = GenerateMainKeyspace(subredditId, linkId, linkId);
-
-            var commentCursor = await _commentsDB.SelectAsync(_commentsDB.GetKeys().First(), keyspace);
-            Listing topLevelChildren = null;
-            using (commentCursor)
+#if WINDOWS_PHONE
+            var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(permalink));
+#else
+            var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(permalink).AsBuffer()).ToArray();
+#endif
+            bool badElement = false;
+            try
             {
-                topLevelChildren = await DeserializeCursor(commentCursor, count);
+                using (var blobCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
+                {
+                    if (blobCursor != null)
+                    {
+                        var gottenBlob = blobCursor.Get();
+                        var compressor = new BaconographyPortable.Model.Compression.CompressionService();
+                        var decompressedBytes = compressor.Decompress(gottenBlob, 28);
+                        var result = JsonConvert.DeserializeObject<Listing>(Encoding.UTF8.GetString(decompressedBytes, 0, decompressedBytes.Length));
+                        return result;
+                    }
+                }
             }
-            await FillInChildren(topLevelChildren);
-            //we've got the order the wrong way this is a cheap fix for now
-            topLevelChildren.Data.Children.Reverse();
-            return topLevelChildren;
+            catch
+            {
+                badElement = true;
+            }
+
+            if (badElement)
+            {
+                try
+                {
+                    await _commentsDB.DeleteAsync(keyBytes);
+                }
+                catch
+                {
+                }
+            }
+            return null;
             
         }
 
-        public async Task<Listing> GetMoreComments(string subredditId, string linkId, IEnumerable<string> ids)
+
+        internal void Terminate()
         {
-            var targetListing = new Listing { Data = new ListingData { Children = new List<Thing>() } };
-            DBCursor moreCursor = null;
-            try
-            {
-                foreach (var id in ids)
-                {
-                    var keyspace = GenerateDirectKeyspace(subredditId, linkId, id);
-                    moreCursor = await _commentsDB.SeekAsync(_commentsDB.GetKeys()[1], keyspace, DBReadFlags.NoLock);
-
-                    await DeserializeCursor(moreCursor, -1, targetListing);
-
-                    await FillInChildren(targetListing);
-                }
-            }
-            finally
-            {
-                if (moreCursor != null)
-                    moreCursor.Dispose();
-            }
-            return targetListing;
+            _terminateSource.Cancel();
         }
     }
 }

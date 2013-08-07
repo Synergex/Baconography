@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="BaconographyWP8BackgroundControls.View.LockScreenOverlayItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="White"
+    d:DesignHeight="480" d:DesignWidth="480">
+
+    <Grid Margin="0,0,0,12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="glyph" Grid.Column="0" FontSize="16" Text="{Binding Glyph}"
+                                   FontFamily="Segoe UI Symbol" />
+        <TextBlock x:Name="displayText" Grid.Column="1" FontSize="16" Text="{Binding DisplayText}"
+                                   TextWrapping="Wrap" FontFamily="Segoe WP" FontStyle="Italic" />
+    </Grid>
+</UserControl>
