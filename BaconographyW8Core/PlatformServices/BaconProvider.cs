@@ -1,6 +1,7 @@
 ﻿using Baconography.NeutralServices;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using BaconographyPortable.Services.Impl;
 using GalaSoft.MvvmLight.Ioc;
 using System;
 using System.Collections.Generic;
@@ -15,20 +16,26 @@ namespace BaconographyW8.PlatformServices
 {
     public class BaconProvider : IBaconProvider
     {
-        public BaconProvider()
+        public BaconProvider(IEnumerable<Tuple<Type, Object>> initialServices)
         {
-            var redditService = new OfflineDelayableRedditService();
+            var suspensionService = new SuspensionService();
+            var redditService = new RedditService();
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
             var settingsService = new SettingsService();
-            var offlineService = new OfflineService(redditService, notificationService, settingsService);
+            var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
             var navigationService = new NavigationService();
             var webViewWrapper = new WebViewWrapper();
             var userService = new UserService();
             var videoService = new VideoService(simpleHttpService, notificationService, settingsService);
+            var oomService = new OOMService();
+            var smartOfflineService = new SmartOfflineService();
+            var smartRedditService = new SmartOfflineRedditService();
+            var viewModelContextService = new ViewModelContextService();
+            
 
             _services = new Dictionary<Type, object>
             {
@@ -43,12 +50,24 @@ namespace BaconographyW8.PlatformServices
                 {typeof(INavigationService), navigationService},
                 {typeof(IWebViewWrapper), webViewWrapper},
                 {typeof(IUserService), userService},
-                {typeof(IVideoService), videoService}
+                {typeof(IVideoService), videoService},
+                {typeof(IOOMService), oomService},
+                {typeof(ISmartOfflineService), smartOfflineService},
+                {typeof(ISuspensionService), suspensionService},
+                {typeof(IViewModelContextService), viewModelContextService}
             };
+
+            foreach (var initialService in initialServices)
+            {
+                _services.Add(initialService.Item1, initialService.Item2);
+            }
+
+            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService, notificationService, userService);
+            smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator, offlineService, imagesService, systemServices);
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);
             SimpleIoc.Default.Register<ILiveTileService>(() => liveTileService);
-            SimpleIoc.Default.Register<IRedditService>(() => redditService);
+            SimpleIoc.Default.Register<IRedditService>(() => smartRedditService);
             SimpleIoc.Default.Register<IOfflineService>(() => offlineService);
             SimpleIoc.Default.Register<ISimpleHttpService>(() => simpleHttpService);
             SimpleIoc.Default.Register<INotificationService>(() => notificationService);
@@ -59,11 +78,11 @@ namespace BaconographyW8.PlatformServices
             SimpleIoc.Default.Register<IUserService>(() => userService);
             SimpleIoc.Default.Register<IVideoService>(() => videoService);
 
-            redditService.Initialize(GetService<ISettingsService>(), 
-                GetService<IOfflineService>(), 
+            redditService.Initialize(GetService<ISettingsService>(),
                 GetService<ISimpleHttpService>(), 
                 GetService<IUserService>(), 
-                GetService<INotificationService>());
+                GetService<INotificationService>(),
+                this);
         }
 
         public async Task Initialize(Frame frame)
@@ -76,8 +95,8 @@ namespace BaconographyW8.PlatformServices
                     await ((IBaconService)tpl.Value).Initialize(this);
             }
 
-            var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
-            await redditService.RunQueue(null);
+            // var redditService = (GetService<IRedditService>()) as OfflineDelayableRedditService;
+            //await redditService.RunQueue(null);
             
         }
 

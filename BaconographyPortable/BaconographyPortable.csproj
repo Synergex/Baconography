@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
+    <Compile Include="Common\IMergableThing.cs" />
     <Compile Include="Common\UtilityCommandImpl.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
     <Compile Include="Messages\LongNavigationMessage.cs" />
@@ -61,6 +62,8 @@
     <Compile Include="Model\Compression\LZ4Codec.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe32.Dirty.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\PostMessages.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\UsageStatisticsAggregate.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SubredditInfo.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="Model\Reddit\Converters\ThingDataConverter.cs" />
     <Compile Include="Model\Reddit\Converters\UnixTimeConverter.cs" />
     <Compile Include="Model\Reddit\Advertisement.cs" />
+    <Compile Include="Model\Reddit\CommentMessage.cs" />
     <Compile Include="Model\Reddit\Flair.cs" />
     <Compile Include="Model\Reddit\ICreated.cs" />
     <Compile Include="Model\Reddit\IListingProvider.cs" />
@@ -79,6 +83,8 @@
     <Compile Include="Model\Reddit\Json.cs" />
     <Compile Include="Model\Reddit\Link.cs" />
     <Compile Include="Model\Reddit\Listing.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\PostMessages.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\MergedListingProvider.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />
@@ -102,20 +108,31 @@
     <Compile Include="Services\IDynamicViewLocator.cs" />
     <Compile Include="Services\IImagesService.cs" />
     <Compile Include="Services\ILiveTileService.cs" />
+    <Compile Include="Services\Impl\OOMService.cs" />
+    <Compile Include="Services\Impl\SmartOfflineImageService.cs" />
+    <Compile Include="Services\Impl\SmartOfflineRedditService.cs" />
+    <Compile Include="Services\Impl\SmartOfflineService.cs" />
+    <Compile Include="Services\Impl\SuspensionService.cs" />
+    <Compile Include="Services\Impl\ViewModelContextService.cs" />
     <Compile Include="Services\INavigationService.cs" />
     <Compile Include="Services\INotificationService.cs" />
     <Compile Include="Services\IOfflineService.cs" />
+    <Compile Include="Services\IOOMService.cs" />
     <Compile Include="Services\IRedditService.cs" />
     <Compile Include="Services\IBaconProvider.cs" />
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\ISimpleHttpService.cs" />
+    <Compile Include="Services\ISmartOfflineService.cs" />
+    <Compile Include="Services\ISuspensionService.cs" />
     <Compile Include="Services\ISystemServices.cs" />
     <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\IVideoService.cs" />
+    <Compile Include="Services\IViewModelContextService.cs" />
     <Compile Include="Services\IWebViewWrapper.cs" />
     <Compile Include="ViewModel\AboutUserViewModel.cs" />
     <Compile Include="ViewModel\AdvertisementViewModel.cs" />
     <Compile Include="ViewModel\Collections\CommentViewModelCollection.cs" />
+    <Compile Include="ViewModel\Collections\MessageViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ImageSearchViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\LinkViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\BindingShellViewModelCollection.cs" />
@@ -128,6 +145,11 @@
     <Compile Include="ViewModel\CommentsViewModel.cs" />
     <Compile Include="ViewModel\CommentViewModel.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />
+    <Compile Include="ViewModel\ComposeViewModel.cs" />
+    <Compile Include="ViewModel\CaptchaViewModel.cs" />
+    <Compile Include="ViewModel\ComposePostViewModel.cs" />
+    <Compile Include="ViewModel\MessageViewModel.cs" />
+    <Compile Include="ViewModel\MessagesViewModel.cs" />
     <Compile Include="ViewModel\FileOpenPickerViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\LinkedPictureViewModel.cs" />

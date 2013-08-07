@@ -15,6 +15,11 @@ using Microsoft.Phone.Info;
 using System.Windows.Media;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyWP8.Messages;
+using BaconographyWP8.Common;
+using System.Linq;
+using BaconographyWP8Core.Common;
+using Windows.ApplicationModel.Store;
+using System.Threading.Tasks;
 
 namespace BaconographyWP8
 {
@@ -28,23 +33,28 @@ namespace BaconographyWP8
 
 		private BaconProvider _baconProvider;
 		private NavigationServices navigator;
+        private IOOMService _oomService;
 
         /// <summary>
         /// Constructor for the Application object.
         /// </summary>
         public App()
         {
+            Styles.Resources = this.Resources;
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
 
-			// Bacon-specific initialization
-			InitializeBacon();
+            // Bacon-specific initialization, the static resources need this to exist but its not initialized yet
+            InitializeBacon();
 
             // Standard XAML initialization
             InitializeComponent();
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            // Bacon-specific initialization
+            InitializeBacon();
 
             // Language display initialization
             InitializeLanguage();
@@ -86,32 +96,32 @@ namespace BaconographyWP8
                 // e.g. Get a logging file from IsoStore and upload to the server 
 
                 // start a timer to report memory conditions every 2 seconds
-                timer = new Timer(state =>
-                {
-                    // every 2 seconds do something 
-                    string report =
-                        DateTime.Now.ToLongTimeString() + " memory conditions: " +
-                        Environment.NewLine +
-                        "\tApplicationCurrentMemoryUsage: " +
-                            DeviceStatus.ApplicationCurrentMemoryUsage +
-                            Environment.NewLine +
-                        "\tApplicationPeakMemoryUsage: " +
-                            DeviceStatus.ApplicationPeakMemoryUsage +
-                            Environment.NewLine +
-                        "\tApplicationMemoryUsageLimit: " +
-                            DeviceStatus.ApplicationMemoryUsageLimit +
-                            Environment.NewLine +
-                        "\tDeviceTotalMemory: " + DeviceStatus.DeviceTotalMemory + Environment.NewLine +
-                        "\tApplicationWorkingSetLimit: " +
-                            DeviceExtendedProperties.GetValue("ApplicationWorkingSetLimit") +
-                            Environment.NewLine;
+                //timer = new Timer(state =>
+                //{
+                //    // every 2 seconds do something 
+                //    string report =
+                //        DateTime.Now.ToLongTimeString() + " memory conditions: " +
+                //        Environment.NewLine +
+                //        "\tApplicationCurrentMemoryUsage: " +
+                //            DeviceStatus.ApplicationCurrentMemoryUsage +
+                //            Environment.NewLine +
+                //        "\tApplicationPeakMemoryUsage: " +
+                //            DeviceStatus.ApplicationPeakMemoryUsage +
+                //            Environment.NewLine +
+                //        "\tApplicationMemoryUsageLimit: " +
+                //            DeviceStatus.ApplicationMemoryUsageLimit +
+                //            Environment.NewLine +
+                //        "\tDeviceTotalMemory: " + DeviceStatus.DeviceTotalMemory + Environment.NewLine +
+                //        "\tApplicationWorkingSetLimit: " +
+                //            DeviceExtendedProperties.GetValue("ApplicationWorkingSetLimit") +
+                //            Environment.NewLine;
 
-                    // write to IsoStore or debug conolse
-                    Debug.WriteLine(report);
-                },
-                    null,
-                    TimeSpan.FromSeconds(2),
-                    TimeSpan.FromSeconds(2));
+                //    // write to IsoStore or debug conolse
+                //    Debug.WriteLine(report);
+                //},
+                //    null,
+                //    TimeSpan.FromSeconds(2),
+                //    TimeSpan.FromSeconds(2));
             }
         }
 
@@ -119,26 +129,63 @@ namespace BaconographyWP8
 		{
 			if (_baconProvider == null)
 			{
-				_baconProvider = new BaconProvider();
-				_baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
-
-				_baconProvider.Initialize(RootFrame);
-
+				_baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
 				ViewModelLocator.Initialize(_baconProvider);
 			}
-			else
+			else if(RootFrame != null)
 			{
-				_baconProvider.Initialize(RootFrame);
+                _baconProvider.Initialize(RootFrame).ContinueWith(AfterInit);
 			}
+            _oomService = _baconProvider.GetService<IOOMService>();
 		}
+
+        private void AfterInit(Task task)
+        {
+            if (CurrentApp.LicenseInformation != null)
+            {
+                //there is only one product so lets make this simple
+                if (CurrentApp.LicenseInformation.ProductLicenses.ContainsKey("BaconographyWP8Upgrade"))
+                    _baconProvider.GetService<ISettingsService>().AllowAdvertising = false;
+                else
+                    _baconProvider.GetService<ISettingsService>().AllowAdvertising = true;
+            }
+            else
+            {
+                _baconProvider.GetService<ISettingsService>().AllowAdvertising = true;
+            }
+            _baconProvider.GetService<ISmartOfflineService>().OffliningOpportunity += BaconProvider_OffliningOpportunity;
+            
+        }
+
+        async void BaconProvider_OffliningOpportunity(OffliningOpportunityPriority arg1, NetworkConnectivityStatus arg2, System.Threading.CancellationToken arg3)
+        {
+            try
+            {
+                var settingsService = _baconProvider.GetService<ISettingsService>();
+                if (((DateTime.Now - settingsService.LastUpdatedImages).TotalHours > 4) &&
+                    Microsoft.Phone.Net.NetworkInformation.DeviceNetworkInformation.IsNetworkAvailable &&
+                    (Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication || ShellTile.ActiveTiles.FirstOrDefault() != null))
+                {
+                    await Utility.DoActiveLockScreen(_baconProvider.GetService<ISettingsService>(), _baconProvider.GetService<IRedditService>(),
+                        _baconProvider.GetService<IUserService>(), _baconProvider.GetService<IImagesService>(), _baconProvider.GetService<INotificationService>(), true);
+
+                    settingsService.LastUpdatedImages = DateTime.Now;
+                }
+
+                if (!arg3.IsCancellationRequested && (DateTime.Now - settingsService.LastCleanedCache).TotalDays > settingsService.OfflineCacheDays)
+                {
+                    await _baconProvider.GetService<IOfflineService>().CleanupAll(new TimeSpan(settingsService.OfflineCacheDays, 0, 0), arg3);
+                    settingsService.LastCleanedCache = DateTime.Now;
+                }
+            }
+            catch { }
+        }
 
         // Code to execute when the application is launching (eg, from Start)
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
             LowMemoryHelper.BeginRecording();
-			InitializeBacon();
-            
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,
@@ -155,18 +202,21 @@ namespace BaconographyWP8
         // This code will not execute when the application is first launched
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
+            _baconProvider.GetService<ISuspensionService>().FireResuming();
         }
 
         // Code to execute when the application is deactivated (sent to background)
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
+            _baconProvider.GetService<ISuspensionService>().FireSuspending();
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            _baconProvider.GetService<ISuspensionService>().FireSuspending();
         }
 
         // Code to execute if a navigation fails
@@ -187,6 +237,12 @@ namespace BaconographyWP8
                 // An unhandled exception has occurred; break into the debugger
                 Debugger.Break();
             }
+
+            //ask things nicely to vacate as much memory as possible so we dont die
+            if (e.ExceptionObject is OutOfMemoryException && _oomService.TryToCleanup(true, true))
+            {
+                e.Handled = true;
+            }
         }
 
         #region Phone application initialization
@@ -195,8 +251,6 @@ namespace BaconographyWP8
         private bool phoneApplicationInitialized = false;
 
 
-        private object _backgroundColorResource;
-        private object _accentColorResource;
         // Do not add any additional code to this method
         private void InitializePhoneApplication()
         {

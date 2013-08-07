@@ -240,7 +240,7 @@ namespace BaconographyW8.PlatformServices
         {
             if (await _redditService.CheckLogin(credential.LoginCookie))
             {
-                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie };
+                var loggedInUser = new User { Username = credential.Username, LoginCookie = credential.LoginCookie, NeedsCaptcha = false };
                 loggedInUser.Me = await _redditService.GetMe(loggedInUser);
                 return loggedInUser;
             }

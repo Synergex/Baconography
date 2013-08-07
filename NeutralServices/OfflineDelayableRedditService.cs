@@ -17,6 +17,9 @@ namespace Baconography.NeutralServices
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(parentId) || content == null)
+                    return;
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddComment(parentId, content);
                 else
@@ -39,6 +42,8 @@ namespace Baconography.NeutralServices
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(thingId) || text == null)
+                    return;
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.EditComment(thingId, text);
                 else
@@ -61,6 +66,9 @@ namespace Baconography.NeutralServices
         {
             try
             {
+                if (recipient == null || subject == null || message == null)
+                    return;
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddMessage(recipient, subject, message);
                 else
@@ -81,6 +89,9 @@ namespace Baconography.NeutralServices
         {
             try
             {
+                if (kind == null || url == null || subreddit == null || title == null)
+                    return;
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await base.AddPost(kind, url, subreddit, title);
                 else

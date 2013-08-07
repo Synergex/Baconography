@@ -155,12 +155,19 @@ namespace ImageTools.IO.Gif
 							case CommentLabel:
 								ReadComments();
 								break;
-							case ApplicationExtensionLabel:
-								Skip(12);
-								break;
-							case PlainTextLabel:
-								Skip(13);
-								break;
+                            default:
+                                //need to read block length for unknown extension
+                                int extensionBlockLength = 0;
+                                do
+                                {
+                                    extensionBlockLength = stream.ReadByte();
+                                    for (int i = 0; i < extensionBlockLength; i++)
+                                    {
+                                        stream.ReadByte();
+                                    }
+                                } while (extensionBlockLength != 0 && extensionBlockLength != -1);
+                                extensionBlockLength = -1;
+                                break;
 						}
 					}
 					else if (nextFlag == EndIntroducer)
@@ -265,6 +272,20 @@ namespace ImageTools.IO.Gif
         private void ReadFrame()
         {
             GifImageDescriptor imageDescriptor = ReadImageDescriptor();
+
+            if (imageDescriptor.Left > _logicalScreenDescriptor.Width || imageDescriptor.Left < 0 ||
+                imageDescriptor.Top > _logicalScreenDescriptor.Height || imageDescriptor.Top < 0 ||
+                imageDescriptor.Width > _logicalScreenDescriptor.Width || imageDescriptor.Width < 0 ||
+                imageDescriptor.Height > _logicalScreenDescriptor.Height || imageDescriptor.Height < 0)
+            {
+                var badByte = _stream.ReadByte();
+                while (badByte != -1 && badByte != GifDecoder.ImageLabel)
+                {
+                    badByte = _stream.ReadByte();
+                }
+                _stream.Seek(-1, SeekOrigin.Current);
+                return;
+            }
 
             byte[] localColorTable = ReadFrameLocalColorTable(imageDescriptor);
 

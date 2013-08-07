@@ -27,7 +27,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _offlineService.GetTopLevelComments(_subreddit, _targetName, _settingsService.MaxTopLevelOfflineComments));
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _offlineService.GetTopLevelComments(_permaLink, _settingsService.MaxTopLevelOfflineComments));
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

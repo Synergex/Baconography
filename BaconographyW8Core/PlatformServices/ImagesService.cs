@@ -241,5 +241,21 @@ namespace BaconographyW8.PlatformServices
             }
             return false;
         }
+
+
+        public bool IsImage(string url)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsImageAPI(string url)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<byte[]> ImageBytesFromUrl(string url)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

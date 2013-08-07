@@ -21,35 +21,48 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), UncachedLoad);
+            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), RealUncachedLoad);
         }
 
         private async Task<Listing> GetCachedListing()
         {
-            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username);
-            return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
+            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1024));
+            return new Listing { Data = new ListingData { Children = things != null ? new List<Thing>(things) : new List<Thing>() } };
         }
 
-        private async Task<Listing> UncachedLoad()
+        private Task<Listing> RealUncachedLoad()
         {
-            Listing resultListing = null;
-            var user = await _userService.GetUser();
-            if (user != null && user.Me != null)
+            return UncachedLoad(false);
+        }
+
+        private async Task<Listing> UncachedLoad(bool ignoreCache)
+        {
+            var things = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1));
+            if (things != null && !ignoreCache)
             {
-                resultListing = await _redditService.GetSubscribedSubredditListing();
+                return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
             }
             else
             {
-                resultListing = await _redditService.GetDefaultSubreddits();
-            }
+                Listing resultListing = null;
+                var user = await _userService.GetUser();
+                if (user != null && user.Me != null)
+                {
+                    resultListing = await _redditService.GetSubscribedSubredditListing();
+                }
+                else
+                {
+                    resultListing = await _redditService.GetDefaultSubreddits();
+                }
 
-            await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
-            return resultListing;
+                await _offlineService.StoreOrderedThings("sublist:" + (await _userService.GetUser()).Username, resultListing.Data.Children);
+                return resultListing;
+            }
         }
 
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return UncachedLoad();
+            return UncachedLoad(true);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

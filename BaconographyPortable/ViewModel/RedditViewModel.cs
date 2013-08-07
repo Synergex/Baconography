@@ -8,6 +8,7 @@ using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,8 +41,25 @@ namespace BaconographyPortable.ViewModel
             MessengerInstance.Register<ConnectionStatusMessage>(this, OnConnectionStatusChanged);
             MessengerInstance.Register<SelectSubredditMessage>(this, OnSubredditChanged);
 			MessengerInstance.Register<RefreshSubredditMessage>(this, OnSubredditRefreshed);
+            MessengerInstance.Register<SettingsChangedMessage>(this, OnSettingsChanged);
+            IsTemporary = false;
         }
 
+        //doesnt need to fire events since its just holding data for the view
+        public object TopVisibleLink { get; set; }
+        private bool _isTemporary = false;
+        public bool IsTemporary
+        {
+            get
+            {
+                return _isTemporary;
+            }
+            set
+            {
+                _isTemporary = value;
+                RaisePropertyChanged("IsTemporary");
+            }
+        }
 		public void DetachSubredditMessage()
 		{
 			MessengerInstance.Unregister<SelectSubredditMessage>(this);
@@ -51,6 +69,11 @@ namespace BaconographyPortable.ViewModel
 		{
 			OnSubredditChanged(message);
 		}
+
+        private async void OnSettingsChanged(SettingsChangedMessage message)
+        {
+            RaisePropertyChanged("ShowAds");
+        }
 
         private void OnUserLoggedIn(UserLoggedInMessage message)
         {
@@ -71,10 +94,10 @@ namespace BaconographyPortable.ViewModel
 
 		private async void OnSubredditRefreshed(RefreshSubredditMessage message)
 		{
-			if (this.SelectedSubreddit == message.Subreddit)
-			{
-				RefreshLinks();
-			}
+            if (this.SelectedSubreddit == message.Subreddit)
+            {
+                RefreshLinks();
+            }
 		}
 
         private async void OnSubredditChanged(SelectSubredditMessage message)
@@ -90,7 +113,8 @@ namespace BaconographyPortable.ViewModel
 
                 _selectedSubreddit = message.Subreddit;
                 SelectedLink = null;
-                RefreshLinks();
+                if(!message.DontRefresh)
+                    RefreshLinks();
 
 				Heading = _selectedSubreddit.Data.DisplayName;
 
@@ -148,6 +172,15 @@ namespace BaconographyPortable.ViewModel
             Links.Refresh();
         }
 
+        // If a user disables ads, terminate their visibility
+        public bool ShowAds
+        {
+            get
+            {
+                return _settingsService.AllowAdvertising;
+            }
+        }
+
         LinkViewModelCollection _links;
 
         public LinkViewModelCollection Links
@@ -167,9 +200,11 @@ namespace BaconographyPortable.ViewModel
             string subreddit = "/", subredditId = null;
             if(_selectedSubreddit != null)
             {
-				subreddit = _selectedSubreddit.Data.Url + _sortOrder;
+                subreddit = (_selectedSubreddit.Data.Url + _sortOrder).Replace("//", "/");
                 subredditId = _selectedSubreddit.Data.Name;
             }
+
+
 
             return new LinkViewModelCollection(_baconProvider, subreddit, subredditId);
         }

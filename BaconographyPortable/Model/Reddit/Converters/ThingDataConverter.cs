@@ -49,12 +49,18 @@ namespace BaconographyPortable.Model.Reddit.Converters
                                 case "t5":
                                     targetThing.Data = new Subreddit();
                                     break;
+                                case "t4.5":
+                                    targetThing.Data = new CommentMessage();
+                                    break;
                                 case "more":
                                     targetThing.Data = new More();
                                     break;
 								case "ad":
 									targetThing.Data = new Advertisement();
 									break;
+                                case "LabeledMulti":
+                                    targetThing.Data = new LabeledMulti();
+                                    break;
 								case null:
 									targetThing.Kind = "t5";
 									targetThing.Data = new Subreddit();
@@ -134,6 +140,10 @@ namespace BaconographyPortable.Model.Reddit.Converters
 									targetThing.Data = new Message();
 									dataType = typeof(Message);
 									break;
+                                case "t4.5":
+                                    targetThing.Data = new CommentMessage();
+                                    dataType = typeof(CommentMessage);
+                                    break;
 								case "t5":
 									targetThing.Data = new Subreddit();
 									dataType = typeof(Subreddit);

@@ -17,6 +17,7 @@ namespace BaconographyPortable.ViewModel.Collections
         IListingProvider _listingProvider;
         Dictionary<object, object> _state;
         ISystemServices _systemServices;
+        ISettingsService _settingsService;
         IBaconProvider _baconProvider;
         List<WeakReference> _timerHandles;
         string _permaLink;
@@ -31,12 +32,14 @@ namespace BaconographyPortable.ViewModel.Collections
             _subreddit = subreddit;
             _targetName = targetName;
             _baconProvider = baconProvider;
-            var settingsService = baconProvider.GetService<ISettingsService>();
-            if (settingsService.IsOnline())
+            _settingsService = baconProvider.GetService<ISettingsService>();
+            if (_settingsService.IsOnline())
+            {
+                // TODO: Inject link object from Kitaro if it exists
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
+            }
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
-
 
             //dont add to the observable collection all at once, make the view models on the background thread then start a ui timer to add them 10 at a time
             //to the actual observable collection leaving a bit of time in between so we dont block anything
@@ -50,6 +53,7 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetInitialListing(_state).Item2();
+            // TODO: Inject Link item from offline as necessary
             var remainingVMs = await MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
@@ -154,6 +158,7 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
+
             var remainingVMs = await MapListing(initialListing, parent);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 

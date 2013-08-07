@@ -5,6 +5,7 @@ using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
 {
-    public class LinkViewModel : ViewModelBase
+    public class LinkViewModel : ViewModelBase, IMergableThing
     {
         TypedThing<Link> _linkThing;
         IRedditService _redditService;
@@ -22,6 +23,7 @@ namespace BaconographyPortable.ViewModel
         IImagesService _imagesService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        ISettingsService _settingsService;
         bool _isPreviewShown;
 		bool _isExtendedOptionsShown;
         bool _loading;
@@ -35,6 +37,7 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _imagesService = _baconProvider.GetService<IImagesService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
+            _settingsService = _baconProvider.GetService<ISettingsService>();
             _isPreviewShown = false;
 			_isExtendedOptionsShown = false;
             _loading = false;
@@ -49,6 +52,8 @@ namespace BaconographyPortable.ViewModel
                 _registeredLongNav = true;
             }
         }
+
+        public TypedThing<Link> LinkThing { get { return _linkThing; } }
 
         private void OnLongNav(LongNavigationMessage msg)
         {
@@ -84,7 +89,7 @@ namespace BaconographyPortable.ViewModel
             get
             {
                 if (_votable == null)
-                    _votable = new VotableViewModel(_linkThing, _baconProvider);
+                    _votable = new VotableViewModel(_linkThing, _baconProvider, () => RaisePropertyChanged("Votable"));
                 return _votable;
             }
         }
@@ -225,8 +230,17 @@ namespace BaconographyPortable.ViewModel
 			{
 				_isExtendedOptionsShown = value;
 				RaisePropertyChanged("IsExtendedOptionsShown");
+                RaisePropertyChanged("ExtendedData");
 			}
 		}
+
+        public Tuple<bool, LinkViewModel> ExtendedData
+        {
+            get
+            {
+                return Tuple.Create(IsExtendedOptionsShown, this);
+            }
+        }
 
         public bool FromMultiReddit { get; set; }
 
@@ -273,7 +287,14 @@ namespace BaconographyPortable.ViewModel
 
 		public void GotoComments()
 		{
-			NavigateToCommentsImpl(this);
+            if (_settingsService.TapForComments)
+            {
+			    NavigateToCommentsImpl(this);
+            }
+            else
+            {
+                IsExtendedOptionsShown = !IsExtendedOptionsShown;
+            }
 		}
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
@@ -282,12 +303,39 @@ namespace BaconographyPortable.ViewModel
                 vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
             else
                 vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
+            UpdateUsageStatistics(vm, false);
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
+        {            
+            UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
+            vm.RaisePropertyChanged("Url");
+            UpdateUsageStatistics(vm, true);   
+        }
+
+        private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)
         {
-            UtilityCommandImpl.GotoLinkImpl(vm.Url);
-			vm.RaisePropertyChanged("Url");
+            if (vm._linkThing != null)
+            {
+                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+
+                await offlineService.IncrementDomainStatistic(vm._linkThing.Data.Domain, isLink);
+                await offlineService.IncrementSubredditStatistic(vm._linkThing.Data.SubredditId, isLink);
+            }
+        }
+
+        public bool MaybeMerge(ViewModelBase thing)
+        {
+            if (thing is LinkViewModel && ((LinkViewModel)thing).Id == Id)
+            {
+                _linkThing = ((LinkViewModel)thing).LinkThing;
+                Votable.MergeVotable(_linkThing);
+                RaisePropertyChanged("CommentCount");
+                RaisePropertyChanged("CreatedUTC");
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

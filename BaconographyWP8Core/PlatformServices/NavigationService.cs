@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
+using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -73,12 +74,19 @@ namespace BaconographyWP8.PlatformServices
 					{
 						Subreddit = temp.Subreddit
 					};
+
+                //if we're already on the main page there is no reason to push context
+                if (_frame != null && _frame.Content != null && source.IsAssignableFrom(_frame.Content.GetType()))
+                {
+                    Messenger.Default.Send<SelectTemporaryRedditMessage>(parameter as SelectTemporaryRedditMessage);
+                    return true;
+                }
 			}
 
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
-				var data = JsonConvert.SerializeObject(parameter);
+                var data = parameter != null ? JsonConvert.SerializeObject(parameter) : "";
 				var uri = uriAttribute._targetUri + "?data=" + HttpUtility.UrlEncode(data);
 
 				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
@@ -100,19 +108,11 @@ namespace BaconographyWP8.PlatformServices
         public void NavigateToSecondary(Type source, object parameter)
         {
             Navigate(source, parameter);
-            //var flyout = new SettingsFlyout();
-            //flyout.Content = Activator.CreateInstance(source);
-            //flyout.HeaderText = parameter as string;
-            //flyout.IsOpen = true;
-            //flyout.Closed += (e, sender) => Messenger.Default.Unregister<CloseSettingsMessage>(this);
-            //Messenger.Default.Register<CloseSettingsMessage>(this, (message) =>
-            //{
-            //    flyout.IsOpen = false;
-            //});
         }
 
         public async void NavigateToExternalUri(Uri uri)
         {
+            ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
             await Launcher.LaunchUriAsync(uri);
         }
     }

@@ -65,7 +65,7 @@ namespace BaconographyWP8.PlatformServices
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            var request = HttpWebRequest.CreateHttp(uri);
             request.Method = "POST";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
             request.ContentType = contentType;
@@ -80,21 +80,14 @@ namespace BaconographyWP8.PlatformServices
 
             if (postResult.StatusCode == HttpStatusCode.OK)
             {
-                return await Task<string>.Run(() =>
-                {
-                    using (var sr = new StreamReader(postResult.GetResponseStream()))
-                    {
-                        return sr.ReadToEnd();
-                    }
-                });
+                return await (new StreamReader(postResult.GetResponseStream()).ReadToEndAsync());    
             }
             else
                 throw new Exception(postResult.StatusCode.ToString());
         }
 
-        public async Task<string> SendGet(string cookie, string uri)
+        private async Task<string> SendGet(string cookie, string uri, bool hasRetried)
         {
-            
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
@@ -110,19 +103,29 @@ namespace BaconographyWP8.PlatformServices
 
             var getResult = await GetResponseAsync(request);
 
-            if (getResult.StatusCode == HttpStatusCode.OK)
+            if (getResult != null && getResult.StatusCode == HttpStatusCode.OK)
             {
-                return await Task<string>.Run(() =>
+                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());   
+            }
+            else if (!hasRetried)
+            {
+                int networkDownRetries = 0;
+                while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
                 {
-                    using (var sr = new StreamReader(getResult.GetResponseStream()))
-                    {
-                        var result = sr.ReadToEnd();
-                        return result;
-                    }
-                });
+                    networkDownRetries++;
+                    await Task.Delay(1000);
+                }
+                   
+                return await SendGet(cookie, uri, true);
             }
             else
+            {
                 throw new Exception(getResult.StatusCode.ToString());
+            }
+        }
+        public Task<string> SendGet(string cookie, string uri)
+        {
+            return SendGet(cookie, uri, false); 
         }
 
         public async Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri)
@@ -149,31 +152,26 @@ namespace BaconographyWP8.PlatformServices
 
 			if (postResult.StatusCode == HttpStatusCode.OK)
 			{
-				return await Task<Tuple<string, Dictionary<string, string>>>.Run(() =>
-				{
-					using (var sr = new StreamReader(postResult.GetResponseStream()))
-					{
-						container.GetCookies(new Uri("http://www.reddit.com", UriKind.Absolute));
-						string loginCookie = "";
-						var jsonResult = sr.ReadToEnd();
-						var loginResultThing = JsonConvert.DeserializeObject<LoginJsonThing>(jsonResult);
-						if (loginResultThing != null && loginResultThing.Json != null &&
-							(loginResultThing.Json.Errors == null || loginResultThing.Json.Errors.Length == 0))
-						{
-							loginCookie = HttpUtility.UrlEncode(loginResultThing.Json.Data.Cookie);
-						}
-						if (!String.IsNullOrEmpty(loginCookie))
-							return Tuple.Create(jsonResult, new Dictionary<string, string> { { "reddit_session", loginCookie } });
-						else
-							return Tuple.Create<string, Dictionary<string, string>>(jsonResult, null);
-					}
-				});
+                var jsonResult = await (new StreamReader(postResult.GetResponseStream()).ReadToEndAsync());
+
+                container.GetCookies(new Uri("http://www.reddit.com", UriKind.Absolute));
+                string loginCookie = "";
+                var loginResultThing = JsonConvert.DeserializeObject<LoginJsonThing>(jsonResult);
+                if (loginResultThing != null && loginResultThing.Json != null &&
+                    (loginResultThing.Json.Errors == null || loginResultThing.Json.Errors.Length == 0))
+                {
+                    loginCookie = HttpUtility.UrlEncode(loginResultThing.Json.Data.Cookie);
+                }
+                if (!String.IsNullOrEmpty(loginCookie))
+                    return Tuple.Create(jsonResult, new Dictionary<string, string> { { "reddit_session", loginCookie } });
+                else
+                    return Tuple.Create<string, Dictionary<string, string>>(jsonResult, null);
 			}
 			else
 				throw new Exception(postResult.StatusCode.ToString());
         }
 
-        public async Task<string> UnAuthedGet(string uri)
+        private async Task<string> UnAuthedGet(string uri, bool hasRetried)
         {
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
@@ -186,16 +184,25 @@ namespace BaconographyWP8.PlatformServices
 
             if (getResult.StatusCode == HttpStatusCode.OK)
             {
-                return await Task<string>.Run(() =>
+                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());  
+            }
+            else if (!hasRetried)
+            {
+                int networkDownRetries = 0;
+                while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
                 {
-                    using (var sr = new StreamReader(getResult.GetResponseStream()))
-                    {
-                        return sr.ReadToEnd();
-                    }
-                });
+                    networkDownRetries++;
+                    await Task.Delay(1000);
+                }
+
+                return await UnAuthedGet(uri, true);
             }
             else
                 throw new Exception(getResult.StatusCode.ToString());
+        }
+        public Task<string> UnAuthedGet(string uri)
+        {
+            return UnAuthedGet(uri, false);
         }
 
         static DateTime _priorRequestSet = new DateTime();

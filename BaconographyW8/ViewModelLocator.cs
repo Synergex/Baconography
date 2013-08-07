@@ -61,9 +61,8 @@ namespace BaconographyW8
             if (DesignMode.DesignModeEnabled)
             {
                 var dynamicViewLocator = new DynamicViewLocator();
-                var baconProvider = new BaconProvider();
+                var baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
                 baconProvider.Initialize(null).Wait();
-                baconProvider.AddService(typeof(IDynamicViewLocator), dynamicViewLocator);
                 Initialize(baconProvider);
             }
         }

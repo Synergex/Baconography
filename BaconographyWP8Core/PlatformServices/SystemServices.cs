@@ -6,12 +6,31 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Windows.Networking.Connectivity;
 using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
     class SystemServices : ISystemServices
     {
+        public SystemServices()
+        {
+            NetworkInformation.NetworkStatusChanged += networkStatusChanged;
+            networkStatusChanged(null);
+        }
+
+        private void networkStatusChanged(object sender)
+        {
+            var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+            var connectionCostType = connectionProfile.GetConnectionCost().NetworkCostType;
+            if (connectionCostType == NetworkCostType.Unknown || connectionCostType == NetworkCostType.Unrestricted)
+                IsOnMeteredConnection = false;
+            else
+                IsOnMeteredConnection = true;
+
+            IsNearingDataLimit = connectionProfile.GetConnectionCost().ApproachingDataLimit || connectionProfile.GetConnectionCost().OverDataLimit || connectionProfile.GetConnectionCost().Roaming;
+        }
+
         public void StopTimer(object tickHandle)
         {
             if (tickHandle is DispatcherTimer)
@@ -57,5 +76,14 @@ namespace BaconographyWP8.PlatformServices
                 throw new NotImplementedException();
             }
         }
+
+
+        public void StartThreadPoolTimer(Func<object, Task> action, TimeSpan timer)
+        {
+            ThreadPoolTimer.CreateTimer(async (obj) => await action(obj), timer);
+        }
+
+        public bool IsOnMeteredConnection { get; set; }
+        public bool IsNearingDataLimit { get; set; }
     }
 }

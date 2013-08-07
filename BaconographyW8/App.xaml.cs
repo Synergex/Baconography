@@ -109,8 +109,7 @@ namespace BaconographyW8
 
             if (_baconProvider == null)
             {
-                _baconProvider = new BaconProvider();
-                _baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
+                _baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
 
                 await _baconProvider.Initialize(rootFrame);
 
@@ -329,8 +328,7 @@ namespace BaconographyW8
 
             if (_baconProvider == null)
             {
-                _baconProvider = new BaconProvider();
-                _baconProvider.AddService(typeof(IDynamicViewLocator), new DynamicViewLocator());
+                _baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
 
                 await _baconProvider.Initialize(null);
 
