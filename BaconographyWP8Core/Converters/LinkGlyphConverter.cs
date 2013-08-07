@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -26,6 +28,9 @@ namespace BaconographyWP8.Converters
 		const string VideoGlyph =		"\uE116";
 		const string WebGlyph =			"\uE128";
 		const string DetailsGlyph =		"\uE14C";
+        const string MultiredditGlyph = "\uE17D";
+        const string UserGlyph =        "\uE136";
+        const string CommentGlyph =     "\uE14C";
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
@@ -93,6 +98,14 @@ namespace BaconographyWP8.Converters
                     filename.EndsWith(".png") ||
                     filename.EndsWith(".jpeg"))
                     return PhotoGlyph;
+
+                if (UtilityCommandImpl.UserMultiredditRegex.IsMatch(uri.AbsoluteUri) || UtilityCommandImpl.SubredditRegex.IsMatch(uri.AbsoluteUri))
+                    return MultiredditGlyph;
+                else if (UtilityCommandImpl.UserRegex.IsMatch(uri.AbsoluteUri))
+                    return UserGlyph;
+                else if (UtilityCommandImpl.CommentRegex.IsMatch(uri.AbsoluteUri) || UtilityCommandImpl.CommentsPageRegex.IsMatch(uri.AbsoluteUri))
+                    return CommentGlyph;
+
             }
             catch { }
 			return WebGlyph;

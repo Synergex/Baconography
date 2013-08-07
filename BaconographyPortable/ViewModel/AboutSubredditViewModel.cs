@@ -15,6 +15,7 @@ namespace BaconographyPortable.ViewModel
         
         IRedditService _redditService;
         IBaconProvider _baconProvider;
+        IUserService _userService;
         bool _subscribed;
 		bool _pinned;
 
@@ -23,7 +24,35 @@ namespace BaconographyPortable.ViewModel
             _baconProvider = baconProvider;
             Thing = new TypedThing<Subreddit>(thing);
             _redditService = _baconProvider.GetService<IRedditService>();
+            _userService = _baconProvider.GetService<IUserService>();
             _subscribed = subscribed;
+        }
+
+        public bool IsMultiReddit
+        {
+            get
+            {
+                return Thing.Data.Url.Contains("/m/");
+            }
+        }
+
+        public string MultiRedditUser
+        {
+            get
+            {
+                if (IsMultiReddit)
+                {
+                    if (Thing.Data.Url.Contains("/me/"))
+                    {
+                        return _userService.GetUser().Result.Username;
+                    }
+                    int endOfSlashU = Thing.Data.Url.IndexOf("/", 2);
+                    int startOfSlashM = Thing.Data.Url.IndexOf("/m/", endOfSlashU);
+                    return Thing.Data.Url.Substring(endOfSlashU + 1, startOfSlashM - endOfSlashU - 1);
+                }
+                else
+                    return "";
+            }
         }
 
         public bool Over18
