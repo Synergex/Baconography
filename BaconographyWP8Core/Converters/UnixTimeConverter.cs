@@ -16,7 +16,11 @@ namespace BaconographyWP8.Converters
 
             if (dateTime.Day == currentTime.Day)
             {
-                return dateTime.TimeOfDay.ToString();
+                var hour = dateTime.TimeOfDay.Hours;
+                var ampm = hour > 12 ? "pm" : "am";
+                hour = hour > 12 ? hour - 12 : hour;
+                string minute = dateTime.TimeOfDay.Minutes < 10 ? ("0" + dateTime.TimeOfDay.Minutes) : dateTime.TimeOfDay.Minutes.ToString();
+                return hour + ":" + minute + " " + ampm;
             }
             else
             {
