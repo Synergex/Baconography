@@ -60,6 +60,20 @@ namespace BaconographyPortable.ViewModel
             }
             set
             {
+                // If the user deselects a "new" item
+                if (_selectedItem != null && _selectedItem.IsNew)
+                {
+                    var fredItem = _selectedItem;
+                    // Mark the item as read
+                    fredItem.IsNew = false;
+                    _redditService.ReadMessage(fredItem.Name);
+
+                    // Reinsert the item into the collection (to cause unread to update)
+                    int index = Messages.IndexOf(fredItem);
+                    Messages.RemoveAt(index);
+                    Messages.Insert(index, fredItem);
+                }
+
                 _selectedItem = value;
                 RaisePropertyChanged("SelectedItem");
             }

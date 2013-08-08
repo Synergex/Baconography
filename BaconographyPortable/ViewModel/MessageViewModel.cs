@@ -47,6 +47,8 @@ namespace BaconographyPortable.ViewModel
                     _message.Data.Subject = commentMessage.Data.LinkTitle;
                 }
             }
+
+            _isNew = _message.Data.New;
         }
 
         bool isPostReply = false;
@@ -81,7 +83,20 @@ namespace BaconographyPortable.ViewModel
                 return _preview;
             }
         }
-        public bool IsNew { get { return _message.Data.New; } }
+
+        bool _isNew;
+        public bool IsNew
+        {
+            get
+            {
+                return _isNew;
+            }
+            set
+            {
+                _isNew = value;
+                RaisePropertyChanged("IsNew");
+            }
+        }
         public bool IsCommentReply
         {
             get

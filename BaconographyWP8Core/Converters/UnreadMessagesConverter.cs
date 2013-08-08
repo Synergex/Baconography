@@ -22,7 +22,7 @@ namespace BaconographyWP8.Converters
         {
             if (value is MessageViewModelCollection)
             {
-                var collection = (value as MessageViewModelCollection).Where(p => (p as MessageViewModel).IsNew);
+                var collection = (value as MessageViewModelCollection).Where(p => p != null && (p as MessageViewModel).IsNew);
                 var result = new ObservableCollection<ViewModelBase>(collection);
                 (value as MessageViewModelCollection).CollectionChanged += (sender, args) => BridgeChange(result, args);
                 return result;
@@ -36,7 +36,7 @@ namespace BaconographyWP8.Converters
             switch (args.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    if((args.NewItems[0] as MessageViewModel).IsNew)
+                    if (args.NewItems[0] != null && (args.NewItems[0] as MessageViewModel).IsNew)
                         target.Add(args.NewItems[0] as ViewModelBase);
                     break;
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Move:

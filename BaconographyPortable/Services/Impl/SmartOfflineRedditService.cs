@@ -691,7 +691,7 @@ namespace BaconographyPortable.Services.Impl
                     return _currentlyStoringMessages[user.Username];
             }
 
-            if (user.Me != null && user.Me.HasMail)
+            if (user.Me != null)
                 return await _redditService.GetMessages(limit);
 
             var messages = await _offlineService.GetMessages(user);
@@ -704,6 +704,11 @@ namespace BaconographyPortable.Services.Impl
         public Task SubmitCaptcha(string captcha)
         {
             return _redditService.SubmitCaptcha(captcha);
+        }
+
+        public Task ReadMessage(string id)
+        {
+            return _redditService.ReadMessage(id);
         }
     }
 }

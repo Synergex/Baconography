@@ -33,6 +33,8 @@ namespace BaconographyWP8.View
             var vm = this.DataContext as MessagesViewModel;
             if (vm != null)
             {
+                vm.RefreshMessages.Execute(vm);
+
                 if (vm.HasMail)
                     pivot.SelectedIndex = 1;
             }

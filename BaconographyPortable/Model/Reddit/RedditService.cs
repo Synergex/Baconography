@@ -689,6 +689,24 @@ namespace BaconographyPortable.Model.Reddit
             return response;
         }
 
+        public virtual async Task ReadMessage(string id)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"id", id},
+                {"uh", modhash}
+            };
+
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message");
+
+            if (temp != null)
+            {
+
+            }
+        }
+
         public virtual async Task AddMessage(string recipient, string subject, string message)
         {
             var modhash = await GetCurrentModhash();
