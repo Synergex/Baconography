@@ -170,7 +170,7 @@ namespace BaconographyWP8.View
         {
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
-            if (e.Error == null)
+            if (e.Error == null && e.ChosenPhoto != null)
             {
                 using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
                 {
