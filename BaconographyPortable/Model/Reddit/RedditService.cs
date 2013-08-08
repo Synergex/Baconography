@@ -700,11 +700,6 @@ namespace BaconographyPortable.Model.Reddit
             };
 
             var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message");
-
-            if (temp != null)
-            {
-
-            }
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)
