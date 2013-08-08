@@ -73,6 +73,7 @@ namespace BaconographyPortable.Services.Impl
         }
 
         int _navId = 0;
+        DateTime lastOppertunity = DateTime.Now;
         public async void NavigatedToView(Type viewType, bool forward)
         {
             _navId++;
@@ -95,6 +96,11 @@ namespace BaconographyPortable.Services.Impl
             {
                 NavigatedToOfflineableThing(((CommentsViewModel)currentContext).Link.LinkThing, true);
             }
+
+            if ((DateTime.Now - lastOppertunity).TotalMinutes < 1)
+                return;
+            else
+                lastOppertunity = DateTime.Now;
 
             //determine if this is a good time to be caching things
             //and what should be our highest priority to be cached

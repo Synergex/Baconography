@@ -37,6 +37,7 @@ namespace BaconographyWP8
         IViewModelContextService _viewModelContextService;
         ISmartOfflineService _smartOfflineService;
         INavigationService _navigationService;
+        IUserService _userService;
         public MainPage()
         {
             InitializeComponent();
@@ -49,6 +50,8 @@ namespace BaconographyWP8
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
             _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _userService = ServiceLocator.Current.GetInstance<IUserService>();
+            MaybeUserIsLoggedIn();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
@@ -164,6 +167,18 @@ namespace BaconographyWP8
 		}
 
 		private string loginItemText = "login";
+
+        private async void MaybeUserIsLoggedIn()
+        {
+            try
+            {
+                var currentUser = await _userService.GetUser();
+                if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.LoginCookie))
+                    OnUserLoggedIn(new UserLoggedInMessage { CurrentUser = currentUser, UserTriggered = false });
+            }
+            catch {}
+        }
+
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{
             if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
