@@ -57,12 +57,13 @@ namespace BaconographyWP8.View
 				_pictureData = this.State["PictureViewModelData"] as string;
 				if (_pictureData != null)
 				{
-                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(_pictureData);
+                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>, string>>(_pictureData);
                     if (deserializedObject != null)
                     {
                         _pictureViewModel = new LinkedPictureViewModel 
                         { 
-                            LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                            LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(),
+                            LinkId = deserializedObject.Item3,
                             Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
                             { 
                                 Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
@@ -75,12 +76,13 @@ namespace BaconographyWP8.View
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
 				var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
-                var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(unescapedData);
+                var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>, string>>(unescapedData);
 				if (deserializedObject != null)
 				{
                     _pictureViewModel = new LinkedPictureViewModel 
                     { 
                         LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                        LinkId = deserializedObject.Item3,
                         Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
                         { 
                             Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
