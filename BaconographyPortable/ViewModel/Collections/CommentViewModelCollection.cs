@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
@@ -23,6 +24,7 @@ namespace BaconographyPortable.ViewModel.Collections
         string _permaLink;
         string _subreddit;
         string _targetName;
+        CancellationTokenSource _cancellationTokenSource;
 
         public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
         {
@@ -44,18 +46,24 @@ namespace BaconographyPortable.ViewModel.Collections
             //to the actual observable collection leaving a bit of time in between so we dont block anything
 
             _systemServices = baconProvider.GetService<ISystemServices>();
-            _systemServices.RunAsync(RunInitialLoad);
-            
+            _cancellationTokenSource = new CancellationTokenSource();
+            RunInitialLoad();
         }
 
-        async Task RunInitialLoad(object c)
+        async Task RunInitialLoad()
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetInitialListing(_state);
-            var remainingVMs = await MapListing(initialListing, null);
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, -1, obj);
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(200), true)));
+            try
+            {
+                var initialListing = await _listingProvider.GetInitialListing(_state);
+                var remainingVMs = await MapListing(initialListing, null);
+                RunUILoad(remainingVMs, -1);
+            }
+            finally
+            {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+            
         }
 
         async Task<IEnumerable<ViewModelBase>> MapListing(Listing listing, ViewModelBase parent)
@@ -127,7 +135,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 return 1;
         }
 
-        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, int insertionIndex, object timerHandle)
+        void RunBackgroundLoad(ref IEnumerable<ViewModelBase> remainingVMs, int insertionIndex, object timerHandle)
         {
             _systemServices.StopTimer(timerHandle);
 
@@ -144,16 +152,34 @@ namespace BaconographyPortable.ViewModel.Collections
             if (vmCount >= 15)
             {
                 remainingVMs = remainingVMs.Skip(topLevelVMCount);
-                _systemServices.RunAsync(async (obj) =>
-                    {
-                        _systemServices.RestartTimer(timerHandle);
-                    });
+                _systemServices.RestartTimer(timerHandle);
             }
         }
 
+        void RunUILoad(IEnumerable<ViewModelBase> remainingVMs, int insertionIndex)
+        {
+            int vmCount = 0;
+            int topLevelVMCount = 0;
+            foreach (var vm in remainingVMs)
+            {
+                topLevelVMCount++;
+                vmCount += VisitAddChildren(vm, insertionIndex);
+                if (vmCount > 15)
+                    break;
+            }
+
+            if (vmCount >= 15)
+            {
+                remainingVMs = remainingVMs.Skip(topLevelVMCount);
+                EventHandler<object> tickHandler = (obj, obj2) => RunBackgroundLoad(ref remainingVMs, -1, obj);
+                _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(500), true)));
+            }
+        }
+
+
         private int VisitAddChildren(ViewModelBase vm, int index = -1)
         {
-            int count = 0;
+            int count = 1;
             if (index < 0)
                 this.Add(vm);
             else
@@ -181,15 +207,13 @@ namespace BaconographyPortable.ViewModel.Collections
             var remainingVMs = await MapListing(initialListing, parent);
             var insertionIndex = IndexOf(removeMe);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
-                {
-                    RunUILoad(ref remainingVMs, insertionIndex, obj);
-                    (targetCollection ?? this).Remove(removeMe);
-                }, new TimeSpan(200), true)));
+            RunUILoad(remainingVMs, insertionIndex);
+            (targetCollection ?? this).Remove(removeMe);
         }
 
         public void Dispose()
         {
+            _cancellationTokenSource.Cancel();
             foreach (var timer in _timerHandles)
             {
                 if (timer.IsAlive)
