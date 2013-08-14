@@ -18,6 +18,7 @@
             <Canvas x:Name="canvas">
                 <Image
                     Source="{Binding ImageSource}"
+                    ImageFailed="image_ImageFailed"
                     RenderTransformOrigin="0,0"
                     MaxWidth="2048" ImageOpened="OnImageOpened"
                     x:Name="image">
