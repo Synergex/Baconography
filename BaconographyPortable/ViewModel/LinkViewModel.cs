@@ -290,6 +290,8 @@ namespace BaconographyPortable.ViewModel
             if (_settingsService.TapForComments)
             {
 			    NavigateToCommentsImpl(this);
+                if (IsExtendedOptionsShown)
+                    IsExtendedOptionsShown = false;
             }
             else
             {
