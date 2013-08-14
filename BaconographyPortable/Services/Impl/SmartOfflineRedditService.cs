@@ -352,18 +352,22 @@ namespace BaconographyPortable.Services.Impl
                 if (_currentlyStoringComments.ContainsKey(permalink))
                     return _currentlyStoringComments[permalink];
             }
-            var cachedLink = await _offlineService.RetrieveLinkByUrl(permalink, TimeSpan.FromDays(1));
-            Thing linkThing = null;
+
+            var cachedPermalink = permalink;
+            if (permalink.EndsWith(".json?sort=hot"))
+                cachedPermalink = permalink.Replace(".json?sort=hot", "");
+
+            var cachedLink = await _offlineService.RetrieveLinkByUrl(cachedPermalink, TimeSpan.FromDays(1));
+            var commentMetadata = await _offlineService.GetCommentMetadata(cachedPermalink);
             //make sure there are some comments otherwise its more expensive to make two calls then just the one
-            if (cachedLink != null && cachedLink.TypedData.CommentCount > 15 && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
+            if (cachedLink != null && commentMetadata.Item1 != 0)
             {
                 //compare to see if there was any significant change
-                var typedLink = new TypedThing<Link>(linkThing);
-                var percentChange = Math.Abs((typedLink.TypedData.CommentCount - cachedLink.TypedData.CommentCount) / ((typedLink.TypedData.CommentCount + cachedLink.TypedData.CommentCount) / 2));
+                var percentChange = Math.Abs((commentMetadata.Item1 - cachedLink.TypedData.CommentCount) / ((commentMetadata.Item1 + cachedLink.TypedData.CommentCount) / 2));
                 if (percentChange > 5)
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
-                var comments = await _offlineService.GetTopLevelComments(permalink, limit ?? 500);
+                var comments = await _offlineService.GetTopLevelComments(cachedPermalink, limit ?? 500);
                 if (comments != null && comments.Data.Children.Count > 0)
                     return comments;
                 else

@@ -12,37 +12,42 @@ namespace BaconographyWP8Core.PlatformServices
     {
         public MarkdownData Process(string markdown)
         {
-            var processedMarkdownBlocks = new List<Tuple<bool, string, string>>();
-            if (markdown.Length > 2048)
+            lock (this)
             {
-                foreach (var part in SplitText(markdown))
+                var processedMarkdownBlocks = new List<Tuple<bool, string, string>>();
+                if (markdown.Length > 2048)
+                {
+                    foreach (var part in SplitText(markdown))
+                    {
+                        try
+                        {
+                            bool makeItPlain;
+                            var processedMarkdown = MakeMarkdown(part, out makeItPlain);
+                            processedMarkdownBlocks.Add(Tuple.Create(makeItPlain, processedMarkdown, part));
+                        }
+                        catch
+                        {
+                            processedMarkdownBlocks.Add(Tuple.Create(true, part, part));
+                        }
+                    }
+                }
+                else
                 {
                     try
                     {
                         bool makeItPlain;
-                        var processedMarkdown = MakeMarkdown(part, out makeItPlain);
-                        processedMarkdownBlocks.Add(Tuple.Create(makeItPlain, processedMarkdown, part));
+                        var processedMarkdown = MakeMarkdown(markdown, out makeItPlain);
+                        processedMarkdownBlocks.Add(Tuple.Create(makeItPlain, processedMarkdown, markdown));
                     }
                     catch
                     {
-                        processedMarkdownBlocks.Add(Tuple.Create(true, part, part));
+                        processedMarkdownBlocks.Add(Tuple.Create(true, markdown, markdown));
                     }
                 }
+
+                return new MarkdownData { ProcessedMarkdownBlock = processedMarkdownBlocks };
             }
-            else
-            {
-                try
-                {
-                    bool makeItPlain;
-                    var processedMarkdown = MakeMarkdown(markdown, out makeItPlain);
-                    processedMarkdownBlocks.Add(Tuple.Create(makeItPlain, processedMarkdown, markdown));
-                }
-                catch
-                {
-                    processedMarkdownBlocks.Add(Tuple.Create(true, markdown, markdown));
-                }
-            }
-            return new MarkdownData { ProcessedMarkdownBlock = processedMarkdownBlocks };
+
         }
 
         private unsafe string MakeMarkdown(string value, out bool makeItPlain)

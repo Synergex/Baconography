@@ -304,6 +304,7 @@ namespace Baconography.NeutralServices
         {
             await Initialize();
             await Cleanup(_comments._commentsDB, 20, olderThan, token);
+            await Cleanup(_comments._metaDB, 20, olderThan, token);
             await Cleanup(_links._linksDB, 20, olderThan, token);
         }
 
@@ -844,6 +845,17 @@ namespace Baconography.NeutralServices
             if (_terminateSource.IsCancellationRequested)
                 return;
             await _subreddits.StoreSubreddit(subreddit);
+        }
+
+
+        public async Task<Tuple<int, int>> GetCommentMetadata(string permalink)
+        {
+            await Initialize();
+            if (_terminateSource.IsCancellationRequested)
+                return Tuple.Create(0, 0);
+
+            return await _comments.GetCommentMetadata(permalink);
+
         }
     }
 

@@ -16,6 +16,8 @@ namespace BaconographyWP8.Common
         protected override void OnContentChanged(object oldContent, object newContent)
         {
             base.OnContentChanged(oldContent, newContent);
+            if (newContent == null)
+                ContentTemplate = null;
 
 			ContentTemplate = SelectTemplate(newContent, this);
         }

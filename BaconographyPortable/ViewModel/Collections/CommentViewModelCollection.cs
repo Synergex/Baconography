@@ -57,7 +57,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 using (_baconProvider.GetService<ISuspendableWorkQueue>().HighValueOperationToken)
                 {
                     var initialListing = await _listingProvider.GetInitialListing(_state);
-                    var remainingVMs = await MapListing(initialListing, null);
+                    var remainingVMs = await Task.Run(() => MapListing(initialListing, null));
                     RunUILoad(remainingVMs, -1);
                 }
             }
@@ -68,22 +68,20 @@ namespace BaconographyPortable.ViewModel.Collections
             
         }
 
-        async Task<IEnumerable<ViewModelBase>> MapListing(Listing listing, ViewModelBase parent)
+        IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
         {
             if (listing == null)
                 return Enumerable.Empty<ViewModelBase>();
             else
             {
-                var tasks = listing.Data.Children
-                    .Select((thing) => Task.Run(() => MapThing(thing, parent)))
+                return listing.Data.Children
+                    .Select((thing) => MapThing(thing, parent))
                     .ToArray();
-
-                return (await Task.WhenAll(tasks)).Where(vm => vm != null);
             }
                 
         }
 
-        async Task<ViewModelBase> MapThing(Thing thing, ViewModelBase parent)
+        ViewModelBase MapThing(Thing thing, ViewModelBase parent)
         {
             if (thing.Data is More)
             {
@@ -113,7 +111,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 }
 
                 var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
-                commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Comment)thing.Data).Replies, commentViewModel));
+                commentViewModel.Replies = new ObservableCollection<ViewModelBase>(MapListing(((Comment)thing.Data).Replies, commentViewModel));
                 commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
@@ -206,11 +204,12 @@ namespace BaconographyPortable.ViewModel.Collections
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
 
-            var remainingVMs = await MapListing(initialListing, parent);
+            var remainingVMs = MapListing(initialListing, parent);
             var insertionIndex = IndexOf(removeMe);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            Remove(removeMe);
             RunUILoad(remainingVMs, insertionIndex);
-            (targetCollection ?? this).Remove(removeMe);
+            
         }
 
         public void Dispose()
