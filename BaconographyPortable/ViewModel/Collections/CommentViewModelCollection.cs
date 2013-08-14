@@ -36,9 +36,8 @@ namespace BaconographyPortable.ViewModel.Collections
             _baconProvider = baconProvider;
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
-            {
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
-            }
+            
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
 
@@ -50,14 +49,17 @@ namespace BaconographyPortable.ViewModel.Collections
             RunInitialLoad();
         }
 
-        async Task RunInitialLoad()
+        async void RunInitialLoad()
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             try
             {
-                var initialListing = await _listingProvider.GetInitialListing(_state);
-                var remainingVMs = await MapListing(initialListing, null);
-                RunUILoad(remainingVMs, -1);
+                using (_baconProvider.GetService<ISuspendableWorkQueue>().HighValueOperationToken)
+                {
+                    var initialListing = await _listingProvider.GetInitialListing(_state);
+                    var remainingVMs = await MapListing(initialListing, null);
+                    RunUILoad(remainingVMs, -1);
+                }
             }
             finally
             {

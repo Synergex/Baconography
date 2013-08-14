@@ -54,6 +54,17 @@ namespace BaconographyPortable.Services.Impl
         DateTime _nextOffliningTime = DateTime.MinValue;
 
         const int TopSubsetMaximum = 10;
+
+        void OfflineComments(string subredditId, string permalink)
+        {
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) =>
+            {
+                //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
+                //and it will get stored if we havent or if its too far out of date
+                await GetCommentsOnPost(subredditId, permalink, null);
+            });
+        }
+
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, CancellationToken token)
         {
             if (!_settingsService.AllowPredictiveOfflining || (DateTime.Now - _nextOffliningTime).TotalMinutes < 10)
@@ -89,10 +100,8 @@ namespace BaconographyPortable.Services.Impl
                         var linkThingToOffline = _linkThingsAwaitingOfflining.Pop();
                         if (_recentlyLoadedComments.Contains(linkThingToOffline.Permalink))
                         {
-                            //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
-                            //and it will get stored if we havent or if its too far out of date
-                            await GetCommentsOnPost(linkThingToOffline.SubredditId, linkThingToOffline.Permalink, null);
                             _recentlyLoadedComments.Add(linkThingToOffline.Permalink);
+                            OfflineComments(linkThingToOffline.SubredditId, linkThingToOffline.Permalink);
                         }
                     }
                 }
@@ -284,10 +293,11 @@ namespace BaconographyPortable.Services.Impl
         List<Task> activeMaybeTasks = new List<Task>();
         private Listing MaybeStorePostsBySubreddit(Listing listing)
         {
-            var maybeTask = _offlineService.StoreLinks(listing);
-            activeMaybeTasks.Add(maybeTask);
-            maybeTask.ContinueWith(task =>
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
+                    var maybeTask = _offlineService.StoreLinks(listing);
+                    activeMaybeTasks.Add(maybeTask);
+                    await maybeTask;
                     lock (activeMaybeTasks)
                     {
                         activeMaybeTasks.Remove(maybeTask);
@@ -316,17 +326,18 @@ namespace BaconographyPortable.Services.Impl
             {
                 _linkToOpMap.Add(((Link)requestedLinkInfo.Data).Name, ((Link)requestedLinkInfo.Data).Author);
             }
-            lock (_currentlyStoringComments)
-            {
-                if (_currentlyStoringComments.ContainsKey(permalink))
-                    return listing;
-
-                _currentlyStoringComments.Add(permalink, listing);
-            }
-
-            _offlineService.StoreComments(listing).ContinueWith(task =>
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
-                    lock(_currentlyStoringComments)
+                    lock (_currentlyStoringComments)
+                    {
+                        if (_currentlyStoringComments.ContainsKey(permalink))
+                            return;
+
+                        _currentlyStoringComments.Add(permalink, listing);
+                    }
+
+                    await _offlineService.StoreComments(listing);
+                    lock (_currentlyStoringComments)
                     {
                         _currentlyStoringComments.Remove(permalink);
                     }
