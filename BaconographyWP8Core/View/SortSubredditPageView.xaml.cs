@@ -98,7 +98,7 @@ namespace BaconographyWP8.View
 				}
 			}
 
-			var subredditVM = newListLastItem as AboutSubredditViewModel;
+            var subredditVM = subbedListLastItem as AboutSubredditViewModel;
 			if (subredditVM != null)
 			{
 				var mainPageVM = this.DataContext as MainPageViewModel;
