@@ -67,7 +67,7 @@ namespace BaconographyPortable.ViewModel
                     case "":
                     case "hot":
                     default:
-                        _sortOrder = "";
+                        _sortOrder = "hot";
                         break;
                 }
 
@@ -108,7 +108,10 @@ namespace BaconographyPortable.ViewModel
         private void LoadLink(TypedThing<Link> link, TypedThing<Comment> rootComment)
         {
             _linkThing = link;
-            Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+            if(_linkThing.Data.IsSelf)
+                SelfText = _baconProvider.GetService<IMarkdownProcessor>().Process(_linkThing.Data.Selftext);
+            SortOrder = "hot"; //load the hot comments
+            //Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
         }
 
         public CommentViewModelCollection Comments { get; private set; }
@@ -165,13 +168,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public string SelfText
-        {
-            get
-            {
-                return _linkThing.Data.Selftext;
-            }
-        }
+        public object SelfText { get; set; }
 
 		public bool IsSelfPost
 		{
