@@ -20,6 +20,7 @@ namespace BaconographyPortable.Services.Impl
         IOfflineService _offlineService;
         IImagesService _imagesService;
         ISystemServices _systemServices;
+        ISuspendableWorkQueue _suspendableWorkQueue;
         RedditViewModel _firstRedditViewModel;
         CommentsViewModel _firstCommentsViewModel;
         CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
@@ -52,6 +53,11 @@ namespace BaconographyPortable.Services.Impl
 
         public async void NavigatedToOfflineableThing(Model.Reddit.Thing targetThing, bool link)
         {
+            await NavigatedToOfflineableThingImpl(targetThing, link);
+        }
+
+        private async Task NavigatedToOfflineableThingImpl(Model.Reddit.Thing targetThing, bool link)
+        {
             //if we've offlined this thing, we need to pat ourselves on the back
             //because we got it right
 
@@ -81,7 +87,14 @@ namespace BaconographyPortable.Services.Impl
 
             _cancelationTokenSource.Cancel();
 
-            await Task.Delay(2000);
+            var currentContext = _viewModelContextService.Context;
+            if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
+            {
+                await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
+                    {
+                        await NavigatedToOfflineableThingImpl(((CommentsViewModel)currentContext).Link.LinkThing, true);
+                    });
+            }
 
             if (myNavID != _navId)
             {
@@ -91,13 +104,8 @@ namespace BaconographyPortable.Services.Impl
             else
                 _cancelationTokenSource = new CancellationTokenSource();
 
-            var currentContext = _viewModelContextService.Context;
-            if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
-            {
-                NavigatedToOfflineableThing(((CommentsViewModel)currentContext).Link.LinkThing, true);
-            }
 
-            if ((DateTime.Now - lastOppertunity).TotalMinutes < 1)
+            if ((DateTime.Now - lastOppertunity).TotalSeconds < 10)
                 return;
             else
                 lastOppertunity = DateTime.Now;

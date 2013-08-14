@@ -23,7 +23,7 @@ namespace BaconographyW8.PlatformServices
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
-            var settingsService = new SettingsService();
+            var settingsService = new SettingsServiceImpl();
             var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
@@ -109,11 +109,6 @@ namespace BaconographyW8.PlatformServices
         public void AddService(Type interfaceType, object instance)
         {
             _services.Add(interfaceType, instance);
-        }
-
-        internal interface IBaconService
-        {
-            Task Initialize(IBaconProvider baconProvider);
         }
     }
 

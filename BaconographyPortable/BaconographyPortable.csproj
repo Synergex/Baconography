@@ -62,7 +62,7 @@
     <Compile Include="Model\Compression\LZ4Codec.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe.cs" />
     <Compile Include="Model\Compression\LZ4Codec.Unsafe32.Dirty.cs" />
-    <Compile Include="Model\KitaroDB\ListingHelpers\PostMessages.cs" />
+    <Compile Include="Model\KitaroDB\ListingHelpers\UserMessages.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\UsageStatisticsAggregate.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\KitaroDB\ListingHelpers\SearchResults.cs" />
@@ -83,8 +83,7 @@
     <Compile Include="Model\Reddit\Json.cs" />
     <Compile Include="Model\Reddit\Link.cs" />
     <Compile Include="Model\Reddit\Listing.cs" />
-    <Compile Include="Model\Reddit\ListingHelpers\PostMessages.cs" />
-    <Compile Include="Model\Reddit\ListingHelpers\MergedListingProvider.cs" />
+    <Compile Include="Model\Reddit\ListingHelpers\UserMessages.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\PostComments.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SearchResults.cs" />
     <Compile Include="Model\Reddit\ListingHelpers\SubredditInfo.cs" />
@@ -96,6 +95,7 @@
     <Compile Include="Model\Reddit\RedditService.cs" />
     <Compile Include="Model\Reddit\Subreddit.cs" />
     <Compile Include="Model\Reddit\Thing.cs" />
+    <Compile Include="Model\Reddit\ThingUtility.cs" />
     <Compile Include="Model\Reddit\User.cs" />
     <Compile Include="Model\Reddit\UserCredential.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -108,10 +108,13 @@
     <Compile Include="Services\IDynamicViewLocator.cs" />
     <Compile Include="Services\IImagesService.cs" />
     <Compile Include="Services\ILiveTileService.cs" />
+    <Compile Include="Services\IMarkdownProcessor.cs" />
     <Compile Include="Services\Impl\OOMService.cs" />
+    <Compile Include="Services\Impl\SettingsServiceImpl.cs" />
     <Compile Include="Services\Impl\SmartOfflineImageService.cs" />
     <Compile Include="Services\Impl\SmartOfflineRedditService.cs" />
     <Compile Include="Services\Impl\SmartOfflineService.cs" />
+    <Compile Include="Services\Impl\SuspendableWorkQueueImpl.cs" />
     <Compile Include="Services\Impl\SuspensionService.cs" />
     <Compile Include="Services\Impl\ViewModelContextService.cs" />
     <Compile Include="Services\INavigationService.cs" />
@@ -123,6 +126,7 @@
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\ISimpleHttpService.cs" />
     <Compile Include="Services\ISmartOfflineService.cs" />
+    <Compile Include="Services\ISuspendableWorkQueue.cs" />
     <Compile Include="Services\ISuspensionService.cs" />
     <Compile Include="Services\ISystemServices.cs" />
     <Compile Include="Services\IUserService.cs" />

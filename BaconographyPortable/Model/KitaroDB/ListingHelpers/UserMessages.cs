@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 {
-    class PostMessages : IListingProvider
+    class UserMessages : IListingProvider
     {
         IOfflineService _offlineService;
         ISettingsService _settingsService;
         IUserService _userService;
 
-        public PostMessages(IBaconProvider baconProvider)
+        public UserMessages(IBaconProvider baconProvider)
         {
             _offlineService = baconProvider.GetService<IOfflineService>();
             _settingsService = baconProvider.GetService<ISettingsService>();
             _userService = baconProvider.GetService<IUserService>();
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _offlineService.GetMessages(_userService.GetUser().Result));
+            return await _offlineService.GetMessages(await _userService.GetUser());
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -37,7 +37,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         }
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return GetInitialListing(state).Item2();
+            return GetInitialListing(state);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace BaconographyPortable.ViewModel
         IUserService _userService;
         IDynamicViewLocator _dynamicViewLocator;
         IBaconProvider _baconProvider;
+        IMarkdownProcessor _markdownProcessor;
         ReplyViewModel _replyData;
         ObservableCollection<ViewModelBase> _replies;
         private bool _isMinimized;
@@ -38,6 +39,7 @@ namespace BaconographyPortable.ViewModel
             _navigationService = _baconProvider.GetService<INavigationService>();
             _userService = _baconProvider.GetService<IUserService>();
             _dynamicViewLocator = _baconProvider.GetService<IDynamicViewLocator>();
+            _markdownProcessor = _baconProvider.GetService<IMarkdownProcessor>();
             _linkId = linkId;
             OddNesting = oddNesting;
 			Depth = depth;
@@ -50,6 +52,7 @@ namespace BaconographyPortable.ViewModel
             _gotoContext = new RelayCommand(GotoContextImpl);
             _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
             _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
+            Body = _markdownProcessor.Process(_comment.Data.Body);
         }
 
         public bool OddNesting { get; private set; }
@@ -90,13 +93,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public string Body
-        {
-            get
-            {
-                return _comment.Data.Body;
-            }
-        }
+        public object Body { get; set; }
 
         public string PosterName
         {

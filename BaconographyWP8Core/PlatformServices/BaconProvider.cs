@@ -2,6 +2,7 @@
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyPortable.Services.Impl;
+using BaconographyWP8Core.PlatformServices;
 using GalaSoft.MvvmLight.Ioc;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace BaconographyWP8.PlatformServices
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
-            var settingsService = new SettingsService();
+            var settingsService = new SettingsServiceImpl();
             var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
@@ -38,6 +39,8 @@ namespace BaconographyWP8.PlatformServices
             var oomService = new OOMService();
             var smartOfflineService = new SmartOfflineService();
             var viewModelContextService = new ViewModelContextService();
+            var suspendableWorkQueueImpl = new SuspendableWorkQueueImpl(systemServices);
+            var markdownProcessor = new MarkdownProcessor();
             
 
 
@@ -58,17 +61,18 @@ namespace BaconographyWP8.PlatformServices
                 {typeof(IOOMService), oomService},
                 {typeof(ISmartOfflineService), smartOfflineService},
                 {typeof(ISuspensionService), suspensionService},
-                {typeof(IViewModelContextService), viewModelContextService}
+                {typeof(IViewModelContextService), viewModelContextService},
+                {typeof(ISuspendableWorkQueue), suspendableWorkQueueImpl },
+                {typeof(IMarkdownProcessor), markdownProcessor }
             };
 
             foreach (var initialService in initialServices)
             {
                 _services.Add(initialService.Item1, initialService.Item2);
             }
-
-
+            
             smartImageService.Initialize(imagesService, offlineService, oomService, settingsService, suspensionService, smartOfflineService, simpleHttpService);
-            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService,notificationService, userService);
+            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService, notificationService, userService, suspendableWorkQueueImpl);
             smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services.ContainsKey(typeof(IDynamicViewLocator)) ? _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator : null, offlineService, imagesService, systemServices);
 
 
@@ -88,6 +92,8 @@ namespace BaconographyWP8.PlatformServices
             SimpleIoc.Default.Register<ISmartOfflineService>(() => smartOfflineService);
             SimpleIoc.Default.Register<ISuspensionService>(() => suspensionService);
             SimpleIoc.Default.Register<IViewModelContextService>(() => viewModelContextService);
+            SimpleIoc.Default.Register<IMarkdownProcessor>(() => markdownProcessor);
+            SimpleIoc.Default.Register<ISuspendableWorkQueue>(() => suspendableWorkQueueImpl);
 
             redditService.Initialize(GetService<ISettingsService>(),  
                 GetService<ISimpleHttpService>(), 
@@ -121,11 +127,6 @@ namespace BaconographyWP8.PlatformServices
         public void AddService(Type interfaceType, object instance)
         {
             _services.Add(interfaceType, instance);
-        }
-
-        internal interface IBaconService
-        {
-            Task Initialize(IBaconProvider baconProvider);
         }
     }
 

@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit.ListingHelpers
 {
-    class PostMessages : IListingProvider
+    class UserMessages : IListingProvider
     {
         IRedditService _redditService;
 
-        public PostMessages(IBaconProvider baconProvider)
+        public UserMessages(IBaconProvider baconProvider)
         {
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _redditService.GetMessages(100));
+            return _redditService.GetMessages(100);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

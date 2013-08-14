@@ -1,6 +1,8 @@
 ﻿
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8Core;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +21,10 @@ namespace BaconographyWP8.View
     {
         public LinkView()
         {
-			this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
         }
 
 		private void TitleButton_Hold(object sender, System.Windows.Input.GestureEventArgs e)

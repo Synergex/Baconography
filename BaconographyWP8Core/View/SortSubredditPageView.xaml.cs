@@ -120,7 +120,7 @@ namespace BaconographyWP8.View
 			{
 				if (pinnedSubredditList.Items.Count == 0)
 				{
-					var frontPage = new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing());
+					var frontPage = new TypedThing<Subreddit>(ThingUtility.GetFrontPageThing());
 					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = frontPage });
 				}
 				else

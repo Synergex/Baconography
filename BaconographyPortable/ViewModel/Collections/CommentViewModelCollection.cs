@@ -35,7 +35,6 @@ namespace BaconographyPortable.ViewModel.Collections
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
             {
-                // TODO: Inject link object from Kitaro if it exists
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
             }
             else
@@ -52,11 +51,10 @@ namespace BaconographyPortable.ViewModel.Collections
         async Task RunInitialLoad(object c)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetInitialListing(_state).Item2();
-            // TODO: Inject Link item from offline as necessary
+            var initialListing = await _listingProvider.GetInitialListing(_state);
             var remainingVMs = await MapListing(initialListing, null);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
+            EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, -1, obj);
             _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(200), true)));
         }
 
@@ -129,17 +127,16 @@ namespace BaconographyPortable.ViewModel.Collections
                 return 1;
         }
 
-        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, ObservableCollection<ViewModelBase> targetCollection, object timerHandle)
+        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, int insertionIndex, object timerHandle)
         {
             _systemServices.StopTimer(timerHandle);
+
             int vmCount = 0;
             int topLevelVMCount = 0;
             foreach (var vm in remainingVMs)
             {
                 topLevelVMCount++;
-                vmCount += CountVMChildren(vm);
-                targetCollection.Add(vm);
-
+                vmCount += VisitAddChildren(vm, insertionIndex);
                 if (vmCount > 15)
                     break;
             }
@@ -154,16 +151,39 @@ namespace BaconographyPortable.ViewModel.Collections
             }
         }
 
+        private int VisitAddChildren(ViewModelBase vm, int index = -1)
+        {
+            int count = 0;
+            if (index < 0)
+                this.Add(vm);
+            else
+                this.Insert(index, vm);
+
+            if (vm is CommentViewModel)
+            {
+                var comment = vm as CommentViewModel;
+                if (comment.Replies != null)
+                {
+                    foreach (ViewModelBase child in comment.Replies)
+                    {
+                        count += VisitAddChildren(child, index < 0 ? -1 : index + 1);
+                    }
+                }
+            }
+            return count;
+        }
+
         async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
 
             var remainingVMs = await MapListing(initialListing, parent);
+            var insertionIndex = IndexOf(removeMe);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
                 {
-                    RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
+                    RunUILoad(ref remainingVMs, insertionIndex, obj);
                     (targetCollection ?? this).Remove(removeMe);
                 }, new TimeSpan(200), true)));
         }

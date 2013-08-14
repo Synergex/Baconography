@@ -34,7 +34,10 @@ namespace BaconographyPortable.ViewModel
 
         private void UserLoggedIn(UserLoggedInMessage obj)
         {
-            Messages = new MessageViewModelCollection(_baconProvider);
+            if (Messages == null)
+                Messages = new MessageViewModelCollection(_baconProvider);
+            else
+                Messages.Refresh();
         }
 
         ComposeViewModel _composeVM;
@@ -83,12 +86,7 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                var user = _userService.GetUser().Result;
-                if (user != null && user.Me != null)
-                {
-                    return user.Me.HasMail;
-                }
-                return false;
+                return Messages.Any(message => ((MessageViewModel)message).IsNew);
             }
         }
 
@@ -110,7 +108,7 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<MessagesViewModel> _refreshMessages = new RelayCommand<MessagesViewModel>(RefreshMessagesImpl);
         private static void RefreshMessagesImpl(MessagesViewModel vm)
         {
-            vm.Messages = new MessageViewModelCollection(vm._baconProvider);
+            vm.Messages.Refresh();
         }
 
         public RelayCommand<MessagesViewModel> NewMessage { get { return _newMessage; } }

@@ -303,14 +303,12 @@ namespace BaconographyPortable.ViewModel
                 vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
             else
                 vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
-            UpdateUsageStatistics(vm, false);
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
         {            
             UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
             vm.RaisePropertyChanged("Url");
-            UpdateUsageStatistics(vm, true);   
         }
 
         private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)

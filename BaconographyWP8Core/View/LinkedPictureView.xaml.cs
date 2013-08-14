@@ -38,7 +38,10 @@ namespace BaconographyWP8.View
         ISmartOfflineService _smartOfflineService;
         public LinkedPictureView()
         {
-            this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
 			_imageOrigins = new Dictionary<object, string>();
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();

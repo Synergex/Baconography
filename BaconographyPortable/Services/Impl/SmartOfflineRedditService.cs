@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +20,11 @@ namespace BaconographyPortable.Services.Impl
         IOfflineService _offlineService;
         INotificationService _notificationService;
         IUserService _userService;
+        ISuspendableWorkQueue _suspendableWorkQueue;
 
         public void Initialize(ISmartOfflineService smartOfflineService, ISuspensionService suspensionService, IRedditService redditService,
             ISettingsService settingsService, ISystemServices systemServices, IOfflineService offlineService, INotificationService notificationService,
-            IUserService userService)
+            IUserService userService, ISuspendableWorkQueue suspendableWorkQueue)
         {
             _smartOfflineService = smartOfflineService;
             _suspensionService = suspensionService;
@@ -31,8 +34,16 @@ namespace BaconographyPortable.Services.Impl
             _offlineService = offlineService;
             _notificationService = notificationService;
             _userService = userService;
+            _suspendableWorkQueue = suspendableWorkQueue;
 
             _smartOfflineService.OffliningOpportunity += _smartOfflineService_OffliningOpportunity;
+            Messenger.Default.Register<UserLoggedInMessage>(this, UserLoggedIn);
+        }
+
+        private void UserLoggedIn(UserLoggedInMessage obj)
+        {
+            _subscribedSubredditListing = null;
+            _subscribedSubreddits = null;
         }
 
         Stack<Link> _linkThingsAwaitingOfflining = new Stack<Link>();
@@ -40,18 +51,14 @@ namespace BaconographyPortable.Services.Impl
         bool _isOfflining = false;
 
         DateTime _lastMeCheck = DateTime.MinValue;
+        DateTime _nextOffliningTime = DateTime.MinValue;
 
         const int TopSubsetMaximum = 10;
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, CancellationToken token)
         {
-            if (!_settingsService.AllowPredictiveOfflining)
+            if (!_settingsService.AllowPredictiveOfflining || (DateTime.Now - _nextOffliningTime).TotalMinutes < 10)
                 return;
 
-            //dont want to do this more then one at a time
-            if (_isOfflining)
-                return;
-
-            _isOfflining = true;
             try
             {
                 //good chance to try and process our delayed actions
@@ -114,6 +121,12 @@ namespace BaconographyPortable.Services.Impl
                     {
                         filteredLinks = newLinks;
                     }
+
+                    if (filteredLinks.All(link => _recentlyLoadedComments.Contains(link.Permalink)))
+                    {
+                        _nextOffliningTime = DateTime.Now.AddMinutes(10);
+                    }
+
                     _linkThingsAwaitingOfflining = new Stack<Link>(filteredLinks);
                 }
             }
@@ -203,19 +216,49 @@ namespace BaconographyPortable.Services.Impl
         {
             if (user != null && user.Username != null && listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
             {
-                _offlineService.StoreOrderedThings("user-sub:" + user.Username, listing.Data.Children);
+                _offlineService.StoreOrderedThings("sublist:" + user.Username, listing.Data.Children);
             }
             return listing;
         }
 
-        public Task<HashSet<string>> GetSubscribedSubreddits()
+        Listing _subscribedSubredditListing;
+        HashSet<string> _subscribedSubreddits;
+        public async Task<HashSet<string>> GetSubscribedSubreddits()
         {
-            return _redditService.GetSubscribedSubreddits();
+            if (_subscribedSubreddits != null)
+                return _subscribedSubreddits;
+
+            var result = await GetSubscribedSubredditListing();
+            if (result != null && result.Data.Children.Count > 0)
+            {
+                _subscribedSubreddits = ThingUtility.HashifyListing(result.Data.Children);
+            }
+            else
+            {
+                _subscribedSubreddits = ThingUtility.HashifyListing((await GetDefaultSubreddits()).Data.Children);
+            }
+            return _subscribedSubreddits;
         }
 
-        public Task<Listing> GetSubscribedSubredditListing()
+        
+        public async Task<Listing> GetSubscribedSubredditListing()
         {
-            return _redditService.GetSubscribedSubredditListing();
+            if (_subscribedSubredditListing != null)
+                return _subscribedSubredditListing;
+            
+            var result = await _redditService.GetSubscribedSubredditListing();
+            if (result != null && result.Data.Children.Count > 0)
+            {
+                _subscribedSubredditListing = result;
+            }
+            else
+            {
+                _subscribedSubredditListing = await GetDefaultSubreddits();
+            }
+
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) => MaybeStoreSubscribedSubredditListing(result, await _userService.GetUser()));
+
+            return _subscribedSubredditListing;
         }
 
         public Task<Listing> GetDefaultSubreddits()
@@ -280,6 +323,7 @@ namespace BaconographyPortable.Services.Impl
 
                 _currentlyStoringComments.Add(permalink, listing);
             }
+
             _offlineService.StoreComments(listing).ContinueWith(task =>
                 {
                     lock(_currentlyStoringComments)
