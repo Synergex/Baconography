@@ -125,9 +125,9 @@
     <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
     <Compile Include="PlatformServices\ImagesService.cs" />
     <Compile Include="PlatformServices\LiveTileService.cs" />
+    <Compile Include="PlatformServices\MarkdownProcessor.cs" />
     <Compile Include="PlatformServices\NavigationService.cs" />
     <Compile Include="PlatformServices\NotificationService.cs" />
-    <Compile Include="PlatformServices\SettingsService.cs" />
     <Compile Include="PlatformServices\SimpleHttpService.cs" />
     <Compile Include="PlatformServices\SystemServices.cs" />
     <Compile Include="PlatformServices\UserService.cs" />
@@ -162,7 +162,6 @@
     <Compile Include="Converters\DomainConverter.cs" />
     <Compile Include="Converters\ExtendedCommentConverter.cs" />
     <Compile Include="Converters\ExtendedLinkConverter.cs" />
-    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />

@@ -14,7 +14,7 @@ using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    public class UserService : IUserService, BaconProvider.IBaconService
+    public class UserService : IUserService, IBaconService
     {
         IRedditService _redditService;
         User _currentUser;

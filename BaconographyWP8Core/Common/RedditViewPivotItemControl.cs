@@ -23,10 +23,12 @@ namespace BaconographyWP8.Common
     public class RedditViewPivotControl : Pivot
     {
         IViewModelContextService _viewModelContextService;
+        ISuspendableWorkQueue _suspendableWorkQueue;
         public RedditViewPivotControl()
         {
             ServiceLocator.Current.GetInstance<IOOMService>().OutOfMemory += RedditViewPivotControl_OutOfMemory;
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+            _suspendableWorkQueue = ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>();
         }
 
         void RedditViewPivotControl_OutOfMemory(OutOfMemoryEventArgs obj)
@@ -57,75 +59,82 @@ namespace BaconographyWP8.Common
 
             //this has the added side effect of making super rapid transitions of the pivot nearly free
             //since no one pivot will be the current one for more then a few hundred milliseconds
-            var loadIdAtStart = ++inflightLoadId;
-            inflightLoad = item;
-            base.OnLoadingPivotItem(item);
 
-            _viewModelContextService.PushViewModelContext(item.DataContext as ViewModelBase);
-
-            if (item.Content is RedditView)
+            using (_suspendableWorkQueue.HighValueOperationToken)
             {
-                return;
+                var loadIdAtStart = ++inflightLoadId;
+                inflightLoad = item;
+                base.OnLoadingPivotItem(item);
+
+                _viewModelContextService.PushViewModelContext(item.DataContext as ViewModelBase);
+
+                if (item.Content is RedditView)
+                {
+                    return;
+                }
+
+                var imageControl = item.Content as Image;
+
+                if (imageControl != null)
+                    await Task.Delay(400);
+
+                if (loadIdAtStart != inflightLoadId)
+                    return;
+
+                var madeControl = MapViewModel(item.DataContext as ViewModelBase);
+
+                if (imageControl != null)
+                    await Task.Yield();
+
+                if (loadIdAtStart != inflightLoadId)
+                    return;
+
+                madeControl.DataContext = item.DataContext as ViewModelBase;
+                if (imageControl != null)
+                    await Task.Yield();
+
+                if (loadIdAtStart != inflightLoadId)
+                    return;
+
+                if (imageControl != null)
+                    imageControl.Source = null;
+
+                item.Content = madeControl;
+                madeControl.LoadWithScroll();
             }
-
-            var imageControl = item.Content as Image;
-
-            if(imageControl != null)
-                await Task.Delay(400);
-
-            if (loadIdAtStart != inflightLoadId)
-                return;
-            
-            var madeControl = MapViewModel(item.DataContext as ViewModelBase);
-
-            if(imageControl != null)
-                await Task.Yield();
-
-            if (loadIdAtStart != inflightLoadId)
-                return;
-
-            madeControl.DataContext = item.DataContext as ViewModelBase;
-            if (imageControl != null)
-                await Task.Yield();
-
-            if (loadIdAtStart != inflightLoadId)
-                return;
-
-            if(imageControl != null)
-                imageControl.Source = null;
-
-            item.Content = madeControl;
-            madeControl.LoadWithScroll();
         }
 
         private async Task RealUnloadingItem(PivotItemEventArgs e)
         {
-            if (e.Item == null)
-                return;
-
-            if(e.Item.DataContext is ViewModelBase)
-                _viewModelContextService.PopViewModelContext(e.Item.DataContext as ViewModelBase);
-
-            //if we didnt finish loading we dont need to make a new writable bitmap
-            if (!(e.Item.Content is Image) && e.Item.Content is UIElement)
+            using (_suspendableWorkQueue.HighValueOperationToken)
             {
-                if (e.Item.Content is RedditView)
+                if (e.Item == null)
+                    return;
+
+                if (e.Item.DataContext is ViewModelBase)
+                    _viewModelContextService.PopViewModelContext(e.Item.DataContext as ViewModelBase);
+
+                //if we didnt finish loading we dont need to make a new writable bitmap
+                if (!(e.Item.Content is Image) && e.Item.Content is UIElement)
                 {
+                    if (e.Item.Content is RedditView)
+                    {
+                        await Task.Delay(500);
+                        if (inflightLoad == e.Item)
+                            return;
+                        ((RedditView)e.Item.Content).UnloadWithScroll();
+                    }
+
                     await Task.Delay(500);
                     if (inflightLoad == e.Item)
                         return;
-                    ((RedditView)e.Item.Content).UnloadWithScroll();
+
+                    WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
+                    await Task.Delay(250);
+                    if (inflightLoad == e.Item)
+                        return;
+                    e.Item.Content = new Image { Source = bitmap };
                 }
-
-                await Task.Delay(500);
-                if (inflightLoad == e.Item)
-                    return;
-
-                WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
-                await Task.Delay(250);
-                if (inflightLoad == e.Item)
-                    return;
-                e.Item.Content = new Image { Source = bitmap };
             }
         }
 

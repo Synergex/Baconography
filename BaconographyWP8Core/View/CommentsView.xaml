@@ -133,7 +133,7 @@
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}"
+                ItemsSource="{Binding Comments}"
                 x:Name="commentList">
 
             <ListBox.ItemTemplate>

@@ -263,7 +263,7 @@ namespace BaconographyPortable.ViewModel
                 //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
                 if (subreddits == null || subreddits.Count() == 0)
-                    subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
+                    subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(ThingUtility.GetFrontPageThing()) };
 
                 foreach (var sub in subreddits)
                 {

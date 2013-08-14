@@ -34,7 +34,10 @@ namespace BaconographyPortable.ViewModel
 
         private void UserLoggedIn(UserLoggedInMessage obj)
         {
-            Messages = new MessageViewModelCollection(_baconProvider);
+            if (Messages == null)
+                Messages = new MessageViewModelCollection(_baconProvider);
+            else
+                Messages.Refresh();
         }
 
         ComposeViewModel _composeVM;
@@ -66,12 +69,16 @@ namespace BaconographyPortable.ViewModel
                     var tempItem = _selectedItem;
                     // Mark the item as read
                     tempItem.IsNew = false;
-                    _redditService.ReadMessage(tempItem.Name);
 
                     // Reinsert the item into the collection (to cause unread to update)
                     int index = Messages.IndexOf(tempItem);
                     Messages.RemoveAt(index);
                     Messages.Insert(index, tempItem);
+                }
+
+                if (value != null && value.IsNew)
+                {
+                    _redditService.ReadMessage(value.Name);
                 }
 
                 _selectedItem = value;
@@ -83,12 +90,7 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                var user = _userService.GetUser().Result;
-                if (user != null && user.Me != null)
-                {
-                    return user.Me.HasMail;
-                }
-                return false;
+                return Messages.Any(message => ((MessageViewModel)message).IsNew);
             }
         }
 
@@ -110,7 +112,7 @@ namespace BaconographyPortable.ViewModel
         static RelayCommand<MessagesViewModel> _refreshMessages = new RelayCommand<MessagesViewModel>(RefreshMessagesImpl);
         private static void RefreshMessagesImpl(MessagesViewModel vm)
         {
-            vm.Messages = new MessageViewModelCollection(vm._baconProvider);
+            vm.Messages.Refresh();
         }
 
         public RelayCommand<MessagesViewModel> NewMessage { get { return _newMessage; } }

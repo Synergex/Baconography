@@ -36,7 +36,6 @@
     <converters:SubredditPinnedUnpinnedConverter x:Key="subredditPinnedUnpinnedConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
-    <converters:FlattenCommentsCollectionConverter x:Key="flattenCommentsCollectionConverter"/>
     <converters:ReifiedSubredditTemplateCollectionConverter x:Key="reifiedSubredditTemplateCollectionConverter"/>
     <converters:VoteIndicatorConverter x:Key="voteIndicatorConverter"/>
     <converters:LinkedPictureViewHeaderConverter x:Key="linkedPictureViewHeaderConverter"/>

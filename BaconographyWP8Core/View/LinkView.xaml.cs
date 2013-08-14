@@ -1,12 +1,15 @@
 ﻿
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8Core;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -19,21 +22,42 @@ namespace BaconographyWP8.View
     {
         public LinkView()
         {
-			this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
         }
 
 		private void TitleButton_Hold(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var vm = this.DataContext as LinkViewModel;
-			if (!InComments)
-				vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
+            if (!InComments)
+            {
+                vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
+                var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
+                if (parent != null && !vm.IsExtendedOptionsShown)
+                {
+                    this.InvalidateMeasure();
+                    parent.InvalidateArrange();
+                    parent.InvalidateMeasure();
+                }
+            }
 		}
 
 		private void TitleButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
 			var vm = this.DataContext as LinkViewModel;
-			if (!InComments)
-				vm.GotoComments();
+            if (!InComments)
+            {
+                vm.GotoComments();
+                var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
+                if (parent != null && !vm.IsExtendedOptionsShown)
+                {
+                    this.InvalidateMeasure();
+                    parent.InvalidateArrange();
+                    parent.InvalidateMeasure();
+                }
+            }
 		}
 
 		public static readonly DependencyProperty InCommentsProperty =

@@ -18,8 +18,8 @@ namespace BaconographyPortable.ViewModel
         string _targetName;
         string _subreddit;
         CommentViewModel _parent;
-        Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> _loadMore;
-        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, ObservableCollection<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent, int depth)
+        Action<IEnumerable<string>, List<ViewModelBase>, ViewModelBase, ViewModelBase> _loadMore;
+        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, List<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent, int depth)
         {
             _loadMore = loadMore;
             _parent = parent;

@@ -22,9 +22,9 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _targetName = targetName;
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _redditService.GetCommentsOnPost(_subreddit, _permaLink, -1));
+            return _redditService.GetCommentsOnPost(_subreddit, _permaLink, -1);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

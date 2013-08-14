@@ -16,6 +16,10 @@ using System.Threading.Tasks;
 using System.IO;
 using BaconographyPortable.ViewModel;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -66,6 +70,7 @@ namespace BaconographyWP8.View
 		public ScalingPictureView()
 		{
 			InitializeComponent();
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
 		}
 
 		private static void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -148,6 +153,7 @@ namespace BaconographyWP8.View
 		/// </summary>
 		void OnImageOpened(object sender, RoutedEventArgs e)
 		{
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
 			_bitmap = (BitmapImage)image.Source;
 
 			// Set scale to the minimum, and then save it.
@@ -157,6 +163,12 @@ namespace BaconographyWP8.View
 
 			ResizeImage(true);
 		}
+
+        private void image_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("image failed to load: " + e.ErrorException);
+        }
 
 		/// <summary>
 		/// Adjust the size of the image according to the coerced scale factor. Optionally

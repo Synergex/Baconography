@@ -8,9 +8,15 @@ namespace BaconographyPortable.Model.Reddit
 {
     public interface IListingProvider
     {
-        Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state);
+        Task<Listing> GetInitialListing(Dictionary<object, object> state);
         Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state);
         Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state);
         Task<Listing> Refresh(Dictionary<object, object> state);
+    }
+
+    public interface ICachedListingProvider
+    {
+        Task<Listing> GetCachedListing(Dictionary<object, object> state);
+        Task CacheIt(Listing listing);
     }
 }

@@ -11,7 +11,7 @@ using Windows.Storage;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class LiveTileService : ILiveTileService, BaconProvider.IBaconService
+    class LiveTileService : ILiveTileService, IBaconService
     {
 
         IImagesService _imagesService;

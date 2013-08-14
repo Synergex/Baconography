@@ -31,7 +31,10 @@ namespace BaconographyWP8.View
         ISmartOfflineService _smartOfflineService;
 		public RedditView()
 		{
-			this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
 

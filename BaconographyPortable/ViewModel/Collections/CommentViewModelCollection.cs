@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
@@ -23,6 +24,7 @@ namespace BaconographyPortable.ViewModel.Collections
         string _permaLink;
         string _subreddit;
         string _targetName;
+        CancellationTokenSource _cancellationTokenSource;
 
         public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
         {
@@ -34,10 +36,8 @@ namespace BaconographyPortable.ViewModel.Collections
             _baconProvider = baconProvider;
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
-            {
-                // TODO: Inject link object from Kitaro if it exists
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
-            }
+            
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
 
@@ -45,37 +45,43 @@ namespace BaconographyPortable.ViewModel.Collections
             //to the actual observable collection leaving a bit of time in between so we dont block anything
 
             _systemServices = baconProvider.GetService<ISystemServices>();
-            _systemServices.RunAsync(RunInitialLoad);
+            _cancellationTokenSource = new CancellationTokenSource();
+            RunInitialLoad();
+        }
+
+        async void RunInitialLoad()
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            try
+            {
+                using (_baconProvider.GetService<ISuspendableWorkQueue>().HighValueOperationToken)
+                {
+                    var initialListing = await _listingProvider.GetInitialListing(_state);
+                    var remainingVMs = await Task.Run(() => MapListing(initialListing, null));
+                    RunUILoad(remainingVMs, -1);
+                }
+            }
+            finally
+            {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
             
         }
 
-        async Task RunInitialLoad(object c)
-        {
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetInitialListing(_state).Item2();
-            // TODO: Inject Link item from offline as necessary
-            var remainingVMs = await MapListing(initialListing, null);
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            EventHandler<object> tickHandler = (obj, obj2) => RunUILoad(ref remainingVMs, this, obj);
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(200), true)));
-        }
-
-        async Task<IEnumerable<ViewModelBase>> MapListing(Listing listing, ViewModelBase parent)
+        IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
         {
             if (listing == null)
                 return Enumerable.Empty<ViewModelBase>();
             else
             {
-                var tasks = listing.Data.Children
-                    .Select((thing) => Task.Run(() => MapThing(thing, parent)))
+                return listing.Data.Children
+                    .Select((thing) => MapThing(thing, parent))
                     .ToArray();
-
-                return (await Task.WhenAll(tasks)).Where(vm => vm != null);
             }
                 
         }
 
-        async Task<ViewModelBase> MapThing(Thing thing, ViewModelBase parent)
+        ViewModelBase MapThing(Thing thing, ViewModelBase parent)
         {
             if (thing.Data is More)
             {
@@ -105,7 +111,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 }
 
                 var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
-                commentViewModel.Replies = new ObservableCollection<ViewModelBase>(await MapListing(((Comment)thing.Data).Replies, commentViewModel));
+                commentViewModel.Replies = new List<ViewModelBase>(MapListing(((Comment)thing.Data).Replies, commentViewModel));
                 commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
@@ -129,17 +135,16 @@ namespace BaconographyPortable.ViewModel.Collections
                 return 1;
         }
 
-        void RunUILoad(ref IEnumerable<ViewModelBase> remainingVMs, ObservableCollection<ViewModelBase> targetCollection, object timerHandle)
+        void RunBackgroundLoad(ref IEnumerable<ViewModelBase> remainingVMs, int insertionIndex, object timerHandle)
         {
             _systemServices.StopTimer(timerHandle);
+
             int vmCount = 0;
             int topLevelVMCount = 0;
             foreach (var vm in remainingVMs)
             {
                 topLevelVMCount++;
-                vmCount += CountVMChildren(vm);
-                targetCollection.Add(vm);
-
+                vmCount += VisitAddChildren(vm, insertionIndex);
                 if (vmCount > 15)
                     break;
             }
@@ -147,29 +152,71 @@ namespace BaconographyPortable.ViewModel.Collections
             if (vmCount >= 15)
             {
                 remainingVMs = remainingVMs.Skip(topLevelVMCount);
-                _systemServices.RunAsync(async (obj) =>
-                    {
-                        _systemServices.RestartTimer(timerHandle);
-                    });
+                _systemServices.RestartTimer(timerHandle);
             }
         }
 
-        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
+        void RunUILoad(IEnumerable<ViewModelBase> remainingVMs, int insertionIndex)
+        {
+            int vmCount = 0;
+            int topLevelVMCount = 0;
+            foreach (var vm in remainingVMs)
+            {
+                topLevelVMCount++;
+                vmCount += VisitAddChildren(vm, insertionIndex);
+                if (vmCount > 15)
+                    break;
+            }
+
+            if (vmCount >= 15)
+            {
+                remainingVMs = remainingVMs.Skip(topLevelVMCount);
+                EventHandler<object> tickHandler = (obj, obj2) => RunBackgroundLoad(ref remainingVMs, -1, obj);
+                _timerHandles.Add(new WeakReference(_systemServices.StartTimer(tickHandler, new TimeSpan(500), true)));
+            }
+        }
+
+
+        private int VisitAddChildren(ViewModelBase vm, int index = -1)
+        {
+            int count = 1;
+            if (index < 0)
+                this.Add(vm);
+            else
+                this.Insert(index, vm);
+
+            if (vm is CommentViewModel)
+            {
+                var comment = vm as CommentViewModel;
+                if (comment.Replies != null)
+                {
+                    foreach (ViewModelBase child in comment.Replies)
+                    {
+                        count += VisitAddChildren(child, index < 0 ? -1 : index + 1);
+                    }
+                }
+            }
+            return count;
+        }
+
+        async void RunLoadMore(IEnumerable<string> ids, List<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
 
-            var remainingVMs = await MapListing(initialListing, parent);
+            var remainingVMs = MapListing(initialListing, parent);
+            if (parent is CommentViewModel)
+                ((CommentViewModel)parent).Replies.AddRange(remainingVMs);
+            var insertionIndex = IndexOf(removeMe);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            _timerHandles.Add(new WeakReference(_systemServices.StartTimer((obj, obj2) => 
-                {
-                    RunUILoad(ref remainingVMs, targetCollection ?? this, obj);
-                    (targetCollection ?? this).Remove(removeMe);
-                }, new TimeSpan(200), true)));
+            Remove(removeMe);
+            RunUILoad(remainingVMs, insertionIndex);
+            
         }
 
         public void Dispose()
         {
+            _cancellationTokenSource.Cancel();
             foreach (var timer in _timerHandles)
             {
                 if (timer.IsAlive)

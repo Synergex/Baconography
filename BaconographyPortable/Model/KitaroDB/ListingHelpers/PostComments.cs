@@ -25,9 +25,9 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
             _targetName = targetName;
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => _offlineService.GetTopLevelComments(_permaLink, _settingsService.MaxTopLevelOfflineComments));
+            return _offlineService.GetTopLevelComments(_permaLink, 500);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -41,7 +41,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         }
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return GetInitialListing(state).Item2();
+            return GetInitialListing(state);
         }
     }
 }

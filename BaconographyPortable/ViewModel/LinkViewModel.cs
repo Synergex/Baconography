@@ -267,21 +267,30 @@ namespace BaconographyPortable.ViewModel
 
 		private static void GotoSubredditStatic(LinkViewModel vm)
 		{
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
 			vm.GotoSubredditImpl();
 		}
 
 		private static void GotoUserStatic(LinkViewModel vm)
 		{
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
 			vm.GotoUserImpl();
 		}
 
 		private async void GotoSubredditImpl()
         {
+            if (IsExtendedOptionsShown)
+                IsExtendedOptionsShown = false;
             Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
         }
 
 		private void GotoUserImpl()
         {
+            if (IsExtendedOptionsShown)
+                IsExtendedOptionsShown = false;
+
             UtilityCommandImpl.GotoUserDetails(_linkThing.Data.Author);
         }
 
@@ -290,6 +299,8 @@ namespace BaconographyPortable.ViewModel
             if (_settingsService.TapForComments)
             {
 			    NavigateToCommentsImpl(this);
+                if (IsExtendedOptionsShown)
+                    IsExtendedOptionsShown = false;
             }
             else
             {
@@ -299,18 +310,21 @@ namespace BaconographyPortable.ViewModel
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
+
             if (vm == null || vm._linkThing == null || vm._linkThing.Data == null || string.IsNullOrWhiteSpace(vm._linkThing.Data.Url))
                 vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
             else
                 vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
-            UpdateUsageStatistics(vm, false);
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
-        {            
+        {
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
             UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
             vm.RaisePropertyChanged("Url");
-            UpdateUsageStatistics(vm, true);   
         }
 
         private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)

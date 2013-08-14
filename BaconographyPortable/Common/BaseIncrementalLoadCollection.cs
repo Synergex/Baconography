@@ -92,9 +92,9 @@ namespace BaconographyPortable.Common
 
         public async void Refresh()
         {
-            await Refresh(_state);
+            Refresh(_state);
         }
 
-        protected abstract Task Refresh(Dictionary<object, object> state);
+        protected abstract void Refresh(Dictionary<object, object> state);
     }
 }

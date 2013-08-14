@@ -78,9 +78,9 @@ namespace BaconographyPortable.ViewModel.Collections
         private Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
-                return _onlineListingProvider.GetInitialListing(state).Item2();
+                return _onlineListingProvider.GetInitialListing(state);
             else
-                return _offlineListingProvider.GetInitialListing(state).Item2();
+                return _offlineListingProvider.GetInitialListing(state);
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -91,7 +91,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 return _offlineListingProvider.GetAdditionalListing(after, state);
         }
 
-        protected override async Task Refresh(Dictionary<object, object> state)
+        protected override void Refresh(Dictionary<object, object> state)
         {
             //TODO implement this
         }

@@ -167,7 +167,7 @@ namespace BaconographyWP8.Common
                 var firstVisibleItem = GetFirstVisibleItem();
                 if (firstVisibleItem != null && ItemsSource.Count > 0 && firstVisibleItem == ItemsSource[0])
 				{
-					if (total > pullDownOffset || (-total) > pullDownOffset)
+					if (Math.Abs(total) > pullDownOffset)
 						Compression(this, new CompressionEventArgs(CompressionType.Top));
 					else
 						Compression(this, new CompressionEventArgs(CompressionType.None));

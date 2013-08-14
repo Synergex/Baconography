@@ -23,7 +23,7 @@ namespace BaconographyW8.PlatformServices
             var imagesService = new ImagesService();
             var liveTileService = new LiveTileService();
             var notificationService = new NotificationService();
-            var settingsService = new SettingsService();
+            var settingsService = new SettingsServiceImpl();
             var offlineService = new OfflineService(redditService, notificationService, settingsService, suspensionService);
             var simpleHttpService = new SimpleHttpService();
             var systemServices = new SystemServices();
@@ -34,7 +34,9 @@ namespace BaconographyW8.PlatformServices
             var oomService = new OOMService();
             var smartOfflineService = new SmartOfflineService();
             var smartRedditService = new SmartOfflineRedditService();
-            var viewModelContextService = new ViewModelContextService();
+            var viewModelContextService = new ViewModelContextService();            
+            var suspendableWorkQueueImpl = new SuspendableWorkQueueImpl(systemServices);
+            //var markdownProcessor = new MarkdownProcessor();
             
 
             _services = new Dictionary<Type, object>
@@ -62,7 +64,7 @@ namespace BaconographyW8.PlatformServices
                 _services.Add(initialService.Item1, initialService.Item2);
             }
 
-            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService, notificationService, userService);
+            smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService, notificationService, userService, suspendableWorkQueueImpl);
             smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator, offlineService, imagesService, systemServices);
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);
@@ -109,11 +111,6 @@ namespace BaconographyW8.PlatformServices
         public void AddService(Type interfaceType, object instance)
         {
             _services.Add(interfaceType, instance);
-        }
-
-        internal interface IBaconService
-        {
-            Task Initialize(IBaconProvider baconProvider);
         }
     }
 

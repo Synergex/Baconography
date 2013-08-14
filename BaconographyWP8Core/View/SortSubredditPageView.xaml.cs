@@ -98,7 +98,7 @@ namespace BaconographyWP8.View
 				}
 			}
 
-			var subredditVM = newListLastItem as AboutSubredditViewModel;
+            var subredditVM = subbedListLastItem as AboutSubredditViewModel;
 			if (subredditVM != null)
 			{
 				var mainPageVM = this.DataContext as MainPageViewModel;
@@ -120,7 +120,7 @@ namespace BaconographyWP8.View
 			{
 				if (pinnedSubredditList.Items.Count == 0)
 				{
-					var frontPage = new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing());
+					var frontPage = new TypedThing<Subreddit>(ThingUtility.GetFrontPageThing());
 					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = frontPage });
 				}
 				else

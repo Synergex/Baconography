@@ -21,17 +21,28 @@ namespace Baconography.NeutralServices.KitaroDB
     class Comments
     {
 		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v3.ism";
+        private static string commentsMetaDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-meta-v1.ism";
 
         private static Task<Comments> _instanceTask;
         CancellationTokenSource _terminateSource = new CancellationTokenSource();
         private static async Task<Comments> GetInstanceImpl()
         {
-            return new Comments(await GetDBInstance());
+            return new Comments(await GetDBInstance(), await GetMetaDBInstance());
         }
 
         private static async Task<DB> GetDBInstance()
         {
 			var db = await DB.CreateAsync(commentsDatabase, DBCreateFlags.None, 0, new DBKey[]
+            {
+                new DBKey(20, 0, DBKeyFlags.Alpha, "permalinkhash", false, false, false, 0),
+                new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
+            });
+            return db;
+        }
+
+        private static async Task<DB> GetMetaDBInstance()
+        {
+            var db = await DB.CreateAsync(commentsMetaDatabase, DBCreateFlags.None, 28, new DBKey[]
             {
                 new DBKey(20, 0, DBKeyFlags.Alpha, "permalinkhash", false, false, false, 0),
                 new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
@@ -53,12 +64,14 @@ namespace Baconography.NeutralServices.KitaroDB
 
         
 
-        private Comments(DB db)
+        private Comments(DB db, DB metaDB)
         {
             _commentsDB = db;
+            _metaDB = metaDB;
         }
 
         internal DB _commentsDB;
+        internal DB _metaDB;
 
         public async Task Clear()
         {
@@ -66,6 +79,11 @@ namespace Baconography.NeutralServices.KitaroDB
             _commentsDB = null;
 			await DB.PurgeAsync(commentsDatabase);
             _commentsDB = await GetDBInstance();
+
+            _metaDB.Dispose();
+            _metaDB = null;
+            await DB.PurgeAsync(commentsMetaDatabase);
+            _metaDB = await GetMetaDBInstance();
         }
 
 #if WINDOWS_PHONE
@@ -98,6 +116,18 @@ namespace Baconography.NeutralServices.KitaroDB
                 if (!(linkThing.Data is Link))
                     return;
 
+
+                var permalink = ((Link)linkThing.Data).Permalink;
+                if (permalink.EndsWith(".json?sort=hot"))
+                    permalink = permalink.Replace(".json?sort=hot", "");
+#if WINDOWS_PHONE
+                var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(permalink));
+#else
+                var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(permalink).AsBuffer()).ToArray();
+#endif
+
+                await StoreCommentMetadata(keyBytes, ((Link)linkThing.Data).CommentCount, listing.Data.Children.Count);
+
                 //we can cut down on IO by about 50% by stripping out the HTML bodies of comments since we dont have any need for them
                 StripCommentData(listing.Data.Children);
 
@@ -107,11 +137,7 @@ namespace Baconography.NeutralServices.KitaroDB
                 var compressor = new BaconographyPortable.Model.Compression.CompressionService();
                 var compressedBytes = compressor.Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(listing)));
                 var recordBytes = new byte[compressedBytes.Length + 28];
-#if WINDOWS_PHONE
-                var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink));
-#else
-                var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(((Link)linkThing.Data).Permalink).AsBuffer()).ToArray();
-#endif
+
                 Array.Copy(compressedBytes, 0, recordBytes, 28, compressedBytes.Length);
                 Array.Copy(keyBytes, 0, recordBytes, 0, keyBytes.Length);
 
@@ -137,6 +163,53 @@ namespace Baconography.NeutralServices.KitaroDB
                 //throw new Exception(errorText);
                 Debug.WriteLine(errorText);
                 Debug.WriteLine(ex.ToString());
+            }
+        }
+
+        public async Task<Tuple<int, int>> GetCommentMetadata(string permalink)
+        {
+            if (permalink.EndsWith(".json?sort=hot"))
+                permalink = permalink.Replace(".json?sort=hot", "");
+#if WINDOWS_PHONE
+            var keyBytes = permalinkDigest.ComputeHash(Encoding.UTF8.GetBytes(permalink));
+#else
+            var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(permalink).AsBuffer()).ToArray();
+#endif
+
+            using (var blobCursor = await _metaDB.SeekAsync(_metaDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
+            {
+                if (blobCursor != null)
+                {
+                    var bytes = blobCursor.Get();
+                    return Tuple.Create(BitConverter.ToInt32(bytes, 20), BitConverter.ToInt32(bytes, 24));
+                }
+                else
+                {
+                    return Tuple.Create(0, 0);
+                }
+            }
+        }
+
+        private async Task StoreCommentMetadata(byte[] keyBytes, int linkComments, int actualComments)
+        {
+            var recordBytes = new byte[28];
+            keyBytes.CopyTo(recordBytes, 0);
+            BitConverter.GetBytes(linkComments).CopyTo(recordBytes, 20);
+            BitConverter.GetBytes(actualComments).CopyTo(recordBytes, 24);
+            using (var blobCursor = await _metaDB.SeekAsync(_metaDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
+            {
+                if (blobCursor != null)
+                {
+                    await blobCursor.UpdateAsync(recordBytes);
+                }
+                else
+                {
+                    try
+                    {
+                        await _metaDB.InsertAsync(recordBytes);
+                    }
+                    catch { } //someone beat us to it, just move on
+                }
             }
         }
 
