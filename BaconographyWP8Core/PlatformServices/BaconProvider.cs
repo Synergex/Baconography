@@ -73,7 +73,7 @@ namespace BaconographyWP8.PlatformServices
             
             smartImageService.Initialize(imagesService, offlineService, oomService, settingsService, suspensionService, smartOfflineService, simpleHttpService);
             smartRedditService.Initialize(smartOfflineService, suspensionService, redditService, settingsService, systemServices, offlineService, notificationService, userService, suspendableWorkQueueImpl);
-            smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services.ContainsKey(typeof(IDynamicViewLocator)) ? _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator : null, offlineService, imagesService, systemServices);
+            smartOfflineService.Initialize(viewModelContextService, oomService, settingsService, suspensionService, _services.ContainsKey(typeof(IDynamicViewLocator)) ? _services[typeof(IDynamicViewLocator)] as IDynamicViewLocator : null, offlineService, imagesService, systemServices, suspendableWorkQueueImpl);
 
 
             SimpleIoc.Default.Register<IImagesService>(() => imagesService);

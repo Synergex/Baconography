@@ -27,7 +27,7 @@ namespace BaconographyPortable.Services.Impl
 
         public void Initialize(IViewModelContextService viewModelContextService, IOOMService oomService, ISettingsService settingsService, 
             ISuspensionService suspensionService, IDynamicViewLocator dynamicViewLocator, IOfflineService offlineService, IImagesService imagesService,
-            ISystemServices systemServices)
+            ISystemServices systemServices, ISuspendableWorkQueue suspendableWorkQueue)
         {
             _viewModelContextService = viewModelContextService;
             _oomService = oomService;
@@ -37,6 +37,7 @@ namespace BaconographyPortable.Services.Impl
             _offlineService = offlineService;
             _imagesService = imagesService;
             _systemServices = systemServices;
+            _suspendableWorkQueue = suspendableWorkQueue;
 
             _oomService.OutOfMemory += _oomService_OutOfMemory;
         }
