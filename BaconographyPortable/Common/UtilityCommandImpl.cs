@@ -220,7 +220,7 @@ namespace BaconographyPortable.Common
                 
 				if (imageResults != null && imageResults.Count() > 0 && !_longNavWatcher.GetTerminatedClearInFlight(str))
 				{
-                    var imageTuple = new Tuple<string, IEnumerable<Tuple<string, string>>>(sourceLink != null ? sourceLink.Data.Title : "", imageResults);
+                    var imageTuple = new Tuple<string, IEnumerable<Tuple<string, string>>, string>(sourceLink != null ? sourceLink.Data.Title : "", imageResults, sourceLink != null ? sourceLink.Data.Id : "");
                     Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
                     navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageTuple);
 				}
