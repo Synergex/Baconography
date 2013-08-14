@@ -35,7 +35,7 @@ namespace BaconographyWP8.View
             {
                 vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
                 var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
-                if (parent != null)
+                if (parent != null && !vm.IsExtendedOptionsShown)
                 {
                     this.InvalidateMeasure();
                     parent.InvalidateArrange();
@@ -51,7 +51,7 @@ namespace BaconographyWP8.View
             {
                 vm.GotoComments();
                 var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
-                if (parent != null)
+                if (parent != null && !vm.IsExtendedOptionsShown)
                 {
                     this.InvalidateMeasure();
                     parent.InvalidateArrange();
