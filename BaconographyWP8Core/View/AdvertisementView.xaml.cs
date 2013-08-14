@@ -24,8 +24,8 @@ namespace BaconographyWP8.View
 
         private void AdControl_ErrorOccurred(object sender, Microsoft.Advertising.AdErrorEventArgs e)
         {
-            advertisement.Height = 0;
-            advertisement.Visibility = System.Windows.Visibility.Collapsed;
+            //advertisement.Height = 0;
+            //advertisement.Visibility = System.Windows.Visibility.Collapsed;
         }
     }
 }
