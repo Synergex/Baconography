@@ -69,12 +69,16 @@ namespace BaconographyPortable.ViewModel
                     var tempItem = _selectedItem;
                     // Mark the item as read
                     tempItem.IsNew = false;
-                    _redditService.ReadMessage(tempItem.Name);
 
                     // Reinsert the item into the collection (to cause unread to update)
                     int index = Messages.IndexOf(tempItem);
                     Messages.RemoveAt(index);
                     Messages.Insert(index, tempItem);
+                }
+
+                if (value != null && value.IsNew)
+                {
+                    _redditService.ReadMessage(value.Name);
                 }
 
                 _selectedItem = value;
