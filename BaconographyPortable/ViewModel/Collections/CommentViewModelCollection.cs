@@ -111,7 +111,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 }
 
                 var commentViewModel = new CommentViewModel(_baconProvider, thing, ((Comment)thing.Data).LinkId, oddNesting, depth);
-                commentViewModel.Replies = new ObservableCollection<ViewModelBase>(MapListing(((Comment)thing.Data).Replies, commentViewModel));
+                commentViewModel.Replies = new List<ViewModelBase>(MapListing(((Comment)thing.Data).Replies, commentViewModel));
                 commentViewModel.Parent = parent as CommentViewModel;
                 return commentViewModel;
             }
@@ -199,12 +199,14 @@ namespace BaconographyPortable.ViewModel.Collections
             return count;
         }
 
-        async void RunLoadMore(IEnumerable<string> ids, ObservableCollection<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
+        async void RunLoadMore(IEnumerable<string> ids, List<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
             var initialListing = await _listingProvider.GetMore(ids, _state);
 
             var remainingVMs = MapListing(initialListing, parent);
+            if (parent is CommentViewModel)
+                ((CommentViewModel)parent).Replies.AddRange(remainingVMs);
             var insertionIndex = IndexOf(removeMe);
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             Remove(removeMe);

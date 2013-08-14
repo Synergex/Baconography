@@ -25,7 +25,7 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         IMarkdownProcessor _markdownProcessor;
         ReplyViewModel _replyData;
-        ObservableCollection<ViewModelBase> _replies;
+        List<ViewModelBase> _replies;
         private bool _isMinimized;
         private bool _isExtended;
         string _linkId;
@@ -72,7 +72,7 @@ namespace BaconographyPortable.ViewModel
 
         AuthorFlairKind AuthorFlair { get; set; }
 
-        public ObservableCollection<ViewModelBase> Replies
+        public List<ViewModelBase> Replies
         {
             get
             {
