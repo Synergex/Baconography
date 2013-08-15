@@ -12,6 +12,7 @@ namespace BaconographyPortable.Services
         void GoForward();
         bool Navigate<T>(object parameter);
         bool Navigate(Type source, object parameter);
+        void RemoveBackEntry();
 
         void NavigateToSecondary(Type source, object parameter);
         void NavigateToExternalUri(Uri uri);

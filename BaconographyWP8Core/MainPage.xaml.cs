@@ -79,6 +79,19 @@ namespace BaconographyWP8
             {
                 _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
             }
+            else if (e.NavigationMode == NavigationMode.New)
+            {
+                //Cleanup so we dont reposition to something old when we return
+                if (pivot != null && pivot.Items != null && pivot.Items.FirstOrDefault() != null)
+                {
+                    var pivotItem = pivot.Items.FirstOrDefault() as PivotItem;
+                    if (pivotItem != null && pivotItem.DataContext is RedditViewModel)
+                    {
+                        var redditViewModel = pivotItem.DataContext as RedditViewModel;
+                        redditViewModel.TopVisibleLink = null;
+                    }
+                }
+            }
             base.OnNavigatingFrom(e);
         }
 
@@ -88,6 +101,19 @@ namespace BaconographyWP8
 
 			if (e.NavigationMode == NavigationMode.Back)
 			{
+                if (pivot != null && pivot.Items != null &&  pivot.Items.FirstOrDefault() != null)
+                {
+                    var pivotItem = pivot.Items.FirstOrDefault() as PivotItem;
+                    if (pivotItem != null && pivotItem.DataContext is RedditViewModel)
+                    {
+                        var redditViewModel = pivotItem.DataContext as RedditViewModel;
+                        if (pivotItem.Content is RedditView)
+                        {
+                            var redditView = pivotItem.Content as RedditView;
+                            redditView.LoadWithScroll();
+                        }
+                    }
+                }
 			}
             else if (e.NavigationMode == NavigationMode.Refresh)
             {

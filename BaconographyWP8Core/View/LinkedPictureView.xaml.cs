@@ -109,7 +109,7 @@ namespace BaconographyWP8.View
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.New && e.IsCancelable)
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "/BaconographyWP8Core;component/MainPage.xaml" && e.IsCancelable)
             {
                 OnNavigatedTo(null);
                 e.Cancel = true;
@@ -121,6 +121,12 @@ namespace BaconographyWP8.View
 		{
             if(e.NavigationMode == NavigationMode.Back)
                 CleanupImageSource();
+
+            if (e.NavigationMode == NavigationMode.New)
+            {
+                CleanupImageSource();
+                ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();
+            }
 		}
 
         private void CleanupImageSource()
@@ -216,46 +222,41 @@ namespace BaconographyWP8.View
             }
         }
 
+        private Tuple<string, IEnumerable<Tuple<string, string>>, string> MakeSerializable(LinkedPictureViewModel vm)
+        {
+            return Tuple.Create(vm.LinkTitle, vm.Pictures.Select(linkedPicture => Tuple.Create(linkedPicture.Title, linkedPicture.Url)), vm.LinkId);
+        }
 
         private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
         {
             if (e.Direction == System.Windows.Controls.Orientation.Vertical)
             {
                 //Up
-                if (e.VerticalVelocity < -2000)
+                if (e.VerticalVelocity < -1500)
                 {
                     var next = await _pictureViewModel.Next();
                     if (next != null)
                     {
-                        CleanupImageSource();
-                        DataContext = _pictureViewModel = next;
-                        await Task.Yield();
-                        albumPivot.SelectedItem = albumPivot.Items.First();
-
-                        BindingExpression bindingExpression = ((FrameworkElement)caption).GetBindingExpression(TextBlock.TextProperty);
-                        if (bindingExpression != null)
-                        {
-                            bindingExpression.UpdateSource();
-                        }
+                        TransitionService.SetNavigationOutTransition(this,
+                            new NavigationOutTransition()
+                            {
+                                Forward = new SlideTransition()
+                                {
+                                    Mode = SlideTransitionMode.SlideUpFadeOut
+                                }
+                            }
+                        );
+                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
                     }
                    
                     
                 }
-                else if (e.VerticalVelocity > 2000) //Down
+                else if (e.VerticalVelocity > 1500) //Down
                 {
                     var previous = await _pictureViewModel.Previous();
                     if (previous != null)
                     {
-                        CleanupImageSource();
-                        DataContext = _pictureViewModel = previous;
-                        await Task.Yield();
-                        albumPivot.SelectedItem = albumPivot.Items.First();
-
-                        BindingExpression bindingExpression = ((FrameworkElement)caption).GetBindingExpression(TextBlock.TextProperty);
-                        if (bindingExpression != null)
-                        {
-                            bindingExpression.UpdateSource();
-                        }
+                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
                     }
                 }
             }
