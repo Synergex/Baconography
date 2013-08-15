@@ -24,6 +24,7 @@ namespace BaconographyWP8.Converters
             if (accentBrush != null && currentAccentBrush.Color == accentBrush.Color)
                 return;
 
+            depthBrushes.Clear();
             depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Colors.Transparent));
             for (double i = 0.2; i <= 2.0; i+= 0.2)
             {
