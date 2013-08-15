@@ -13,48 +13,52 @@ namespace BaconographyWP8.Converters
 {
     public class DepthColorConverter : IValueConverter
     {
-		static SolidColorBrush zero = new SolidColorBrush(System.Windows.Media.Colors.Gray);
-		static SolidColorBrush one = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 98, 170, 42));
-        static SolidColorBrush two = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 172, 43, 80));
-		static SolidColorBrush three = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 191, 84, 48));
-		static SolidColorBrush four = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 64, 147, 00));
-		static SolidColorBrush five = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 149, 00, 43));
-		static SolidColorBrush six = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 166, 42, 00));
-		static SolidColorBrush seven = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 115, 60));
-		static SolidColorBrush eight = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 33, 133, 85));
-		static SolidColorBrush nine = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 150, 64));
-		static SolidColorBrush ten = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 150, 64));
+		static SolidColorBrush transparent = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
+
+        static List<SolidColorBrush> depthBrushes = new List<SolidColorBrush>();
+        static SolidColorBrush accentBrush = null;
+
+        private void PopulateBrushes()
+        {
+            var currentAccentBrush = Application.Current.Resources["PhoneAccentBrush"] as SolidColorBrush;
+            if (accentBrush != null && currentAccentBrush.Color == accentBrush.Color)
+                return;
+
+            depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Colors.Transparent));
+            for (double i = 0.2; i <= 2.0; i+= 0.2)
+            {
+                int r = (int)(currentAccentBrush.Color.R * i);
+                r = r > 255 ? 255 : r;
+                int g = (int)(currentAccentBrush.Color.G * i);
+                g = g > 255 ? 255 : g;
+                int b = (int)(currentAccentBrush.Color.B * i);
+                b = b > 255 ? 255 : b;
+                depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Color.FromArgb((byte)255, (byte)r, (byte)g, (byte)b)));
+            }
+
+            accentBrush = currentAccentBrush;
+        }
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            PopulateBrushes();
+
 			int depth = (int)value;
 			switch (depth)
 			{
-				case 0:
-					return zero;
 				case 1:
-					return one;
-				case 2:
-					return two;
-				case 3:
-					return three;
-				case 4:
-					return four;
-				case 5:
-					return five;
-				case 6:
-					return six;
-				case 7:
-					return seven;
-				case 8:
-					return eight;
-				case 9:
-					return nine;
-				case 10:
-					return ten;
-
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                    return depthBrushes[depth];
 				default:
-					return zero;
+                    return depthBrushes[0];
 			}
         }
 
