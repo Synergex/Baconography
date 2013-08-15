@@ -1,6 +1,8 @@
 ﻿using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
+using BaconographyWP8.Common;
 using BaconographyWP8Core;
+using BaconographyWP8Core.Common;
 using GalaSoft.MvvmLight;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
@@ -10,8 +12,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -45,8 +50,9 @@ namespace BaconographyWP8.View
 			_imageOrigins = new Dictionary<object, string>();
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
-            //Typography.SetFraction(slashMe, System.Windows.FontFraction.Slashed);
+            
         }
+
 
 		private Dictionary<object, string> _imageOrigins;
 
@@ -209,6 +215,51 @@ namespace BaconographyWP8.View
                 caption.TextTrimming = System.Windows.TextTrimming.None;
             }
         }
-		
+
+
+        private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
+        {
+            if (e.Direction == System.Windows.Controls.Orientation.Vertical)
+            {
+                //Up
+                if (e.VerticalVelocity < -2000)
+                {
+                    var next = await _pictureViewModel.Next();
+                    if (next != null)
+                    {
+                        CleanupImageSource();
+                        DataContext = _pictureViewModel = next;
+                        await Task.Yield();
+                        albumPivot.SelectedItem = albumPivot.Items.First();
+
+                        BindingExpression bindingExpression = ((FrameworkElement)caption).GetBindingExpression(TextBlock.TextProperty);
+                        if (bindingExpression != null)
+                        {
+                            bindingExpression.UpdateSource();
+                        }
+                    }
+                   
+                    
+                }
+                else if (e.VerticalVelocity > 2000) //Down
+                {
+                    var previous = await _pictureViewModel.Previous();
+                    if (previous != null)
+                    {
+                        CleanupImageSource();
+                        DataContext = _pictureViewModel = previous;
+                        await Task.Yield();
+                        albumPivot.SelectedItem = albumPivot.Items.First();
+
+                        BindingExpression bindingExpression = ((FrameworkElement)caption).GetBindingExpression(TextBlock.TextProperty);
+                        if (bindingExpression != null)
+                        {
+                            bindingExpression.UpdateSource();
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

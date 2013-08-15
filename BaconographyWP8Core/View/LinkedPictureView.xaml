@@ -46,14 +46,16 @@
             </toolkit:NavigationOutTransition.Forward>
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
+    <toolkit:GestureService.GestureListener>
+        <toolkit:GestureListener x:Name="myGridGestureListener" Flick="myGridGestureListener_Flick" />
+    </toolkit:GestureService.GestureListener>
     <Grid>
-        <ScrollViewer>
         <phone:Pivot HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        Margin="0" Padding="0" x:Name="albumPivot"
-                        ItemsSource="{Binding Path=Pictures}"
-                        LoadingPivotItem="albumPivot_LoadingPivotItem"
-                        UnloadingPivotItem="albumPivot_UnloadingPivotItem"
-                        Grid.Row="1">
+                    Margin="0" Padding="0" x:Name="albumPivot"
+                    ItemsSource="{Binding Path=Pictures}"
+                    LoadingPivotItem="albumPivot_LoadingPivotItem"
+                    UnloadingPivotItem="albumPivot_UnloadingPivotItem"
+                    Grid.Row="1">
             <phone:Pivot.ItemTemplate>
                 <DataTemplate>
                     <common:ImageTypeSelector HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
@@ -65,7 +67,7 @@
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
-                          MinWidth="430">
+                            MinWidth="430" MinHeight="1">
                         <local:PivotCountIndicator Height="30"
                             ItemsCount="{Binding ElementName=albumPivot, Path=Items.Count}"
                             SelectedPivotIndex="{Binding ElementName=albumPivot, Path=SelectedIndex}"
@@ -78,16 +80,15 @@
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
         </phone:Pivot>
-        </ScrollViewer>
         
         <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66">
             <StackPanel>
                 <TextBlock Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"
-                           x:Name="caption" ManipulationStarted="Caption_ManipulationStarted"/>
+                            x:Name="caption" ManipulationStarted="Caption_ManipulationStarted"/>
             </StackPanel>
             
             
-        </Grid>
+    </Grid>
         
     </Grid>
 </phone:PhoneApplicationPage>

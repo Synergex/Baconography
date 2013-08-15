@@ -205,7 +205,7 @@ namespace BaconographyPortable.ViewModel
                 {
                     var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
                     var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
-                    var linksEnumerator = firstRedditViewModel.Links.Skip(currentLinkPos);
+                    var linksEnumerator = firstRedditViewModel.Links.Skip(currentLinkPos + 1);
                     return await MakeContextedImageTuple(imagesService, linksEnumerator);
                 }
             }

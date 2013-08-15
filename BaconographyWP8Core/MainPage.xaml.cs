@@ -75,7 +75,10 @@ namespace BaconographyWP8
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            _viewModelContextService.PopViewModelContext();
+            if (e.NavigationMode == NavigationMode.Back && DataContext is ViewModelBase)
+            {
+                _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
+            }
             base.OnNavigatingFrom(e);
         }
 
