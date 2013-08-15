@@ -28,13 +28,42 @@ namespace BaconographyWP8.Converters
             depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Colors.Transparent));
             for (double i = 0.2; i <= 2.0; i+= 0.2)
             {
-                int r = (int)(currentAccentBrush.Color.R * i);
-                r = r > 255 ? 255 : r;
-                int g = (int)(currentAccentBrush.Color.G * i);
-                g = g > 255 ? 255 : g;
-                int b = (int)(currentAccentBrush.Color.B * i);
-                b = b > 255 ? 255 : b;
-                depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Color.FromArgb((byte)255, (byte)r, (byte)g, (byte)b)));
+                if (i < 1)
+                {
+                    int r = currentAccentBrush.Color.R;
+                    r = (int)(r == 0 ? 10 * i : r * i);
+                    r = r > 255 ? 255 : r;
+                    int g = currentAccentBrush.Color.G;
+                    g = (int)(g == 0 ? 10 * i : g * i);
+                    g = g > 255 ? 255 : g;
+                    int b = currentAccentBrush.Color.B;
+                    b = (int)(b == 0 ? 10 * i : b * i);
+                    b = b > 255 ? 255 : b;
+                    depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Color.FromArgb((byte)255, (byte)r, (byte)g, (byte)b)));
+                }
+                else if (i == 1)
+                {
+                    depthBrushes.Add(currentAccentBrush);
+                }
+                else
+                {
+                    double r = (255 - currentAccentBrush.Color.R);
+                    r = r == 0 ? 10 : r;
+                    r *= (i - 1);
+                    r += currentAccentBrush.Color.R;
+                    r = r > 255 ? 255 : r;
+                    double g = (255 - currentAccentBrush.Color.G);
+                    g = g == 0 ? 10 : g;
+                    g *= (i - 1);
+                    g += currentAccentBrush.Color.G;
+                    g = g > 255 ? 255 : g;
+                    double b = (255 - currentAccentBrush.Color.B);
+                    b = b == 0 ? 10 : b;
+                    b *= (i - 1);
+                    b += currentAccentBrush.Color.B;
+                    b = b > 255 ? 255 : b;
+                    depthBrushes.Add(new SolidColorBrush(System.Windows.Media.Color.FromArgb((byte)255, (byte)r, (byte)g, (byte)b)));
+                }
             }
 
             accentBrush = currentAccentBrush;
