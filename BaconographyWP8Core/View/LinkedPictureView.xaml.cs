@@ -1,6 +1,7 @@
 ﻿using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Common;
+using BaconographyWP8.Converters;
 using BaconographyWP8Core;
 using BaconographyWP8Core.Common;
 using GalaSoft.MvvmLight;
@@ -9,9 +10,11 @@ using Microsoft.Practices.ServiceLocation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -38,7 +41,6 @@ namespace BaconographyWP8.View
         //cheating a little bit here but its for the best
 		string _pictureData;
 		LinkedPictureViewModel _pictureViewModel;
-		PivotItem _currentItem;
         IViewModelContextService _viewModelContextService;
         ISmartOfflineService _smartOfflineService;
         public LinkedPictureView()
@@ -47,14 +49,10 @@ namespace BaconographyWP8.View
             {
                 this.InitializeComponent();
             }
-			_imageOrigins = new Dictionary<object, string>();
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
             
         }
-
-
-		private Dictionary<object, string> _imageOrigins;
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
@@ -99,7 +97,9 @@ namespace BaconographyWP8.View
 				}
 			}
 			if (DataContext == null || e == null)
+            {
 				DataContext = _pictureViewModel;
+            }
 
             
             _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
@@ -129,70 +129,129 @@ namespace BaconographyWP8.View
             }
 		}
 
+        Task _cleanup;
         private void CleanupImageSource()
         {
             try
             {
-                this.State["PictureViewModelData"] = _pictureData;
-                //Content = null;
-                if (_currentItem != null)
+                ReifiedAlbumItemConverter.CancelSource.Cancel();
+                ReifiedAlbumItemConverter.CancelSource = new CancellationTokenSource();
+                this.State.Clear();
+                foreach (var item in albumPivot.Items)
                 {
-                    var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-                    if (context.ImageSource is string)
+                    if (item is PivotItem)
                     {
+
+                        var content = ((PivotItem)item).Content;
+                        if (content is ScalingGifView)
+                        {
+                            ((ScalingGifView)content).ImageSource = null;
+                        }
+                        else if (content is ScalingPictureView)
+                        {
+                            ((ScalingPictureView)content).ImageSource = null;
+                        }
+
+                        ((PivotItem)item).Content = null;
+
+                        var context = ((PivotItem)item).DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
                         context.ImageSource = null;
                     }
-                    context = null;
-                    _currentItem = null;
+                    else if (item is BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture)
+                    {
+                        ((BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture)item).ImageSource = null;
+                    }
                 }
                 ((LinkedPictureViewModel)DataContext).Cleanup();
+                if (albumPivot.ItemsSource is ObservableCollection<PivotItem>)
+                {
+                    ((ObservableCollection<PivotItem>)albumPivot.ItemsSource).Clear();
+                }
+                this.Content = null;
+                if (_gcCount <= 0)
+                    Task.Factory.StartNew(RunGC, TaskCreationOptions.LongRunning);
+                
             }
-            catch (Exception ex)
+            catch
             {
 
             }
         }
 
+        private static int _gcCount = 0;
+        private static void RunGC()
+        {
+            if (_gcCount >= 1)
+                return;
+
+            _gcCount++;
+            for(int i = 0; i < 3; i++)
+            {
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                GC.WaitForPendingFinalizers();
+            }
+            _gcCount--;
+        }
+
+        private PivotItem _priorItem;
+        private PivotItem _currentItem;
+        private PivotItem _nextItem;
+
+        private Tuple<PivotItem, PivotItem, PivotItem> GenerateItemTripplet(PivotItem newCurrent)
+        {
+            PivotItem prior = null, current = newCurrent, next = null;
+            var currentIndex = albumPivot.Items.IndexOf(newCurrent);
+            if (currentIndex > 0)
+                prior = albumPivot.Items[currentIndex - 1] as PivotItem;
+            if (currentIndex + 1 < albumPivot.Items.Count)
+                next = albumPivot.Items[currentIndex + 1] as PivotItem;
+
+            return Tuple.Create(prior, current, next);
+        }
+
 		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
 		{
-			if (e.Item != null)
-			{
-				e.Item.Visibility = System.Windows.Visibility.Visible;
+            if (e.Item != null)
+            {
+                var itemTpl = GenerateItemTripplet(e.Item);
+                if(itemTpl.Item2 != null && itemTpl.Item2.Content == null)
+                    itemTpl.Item2.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item2.DataContext as ViewModelBase);
+                if (itemTpl.Item3 != null && itemTpl.Item3.Content == null)
+                    itemTpl.Item3.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item3.DataContext as ViewModelBase);
 
-				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-				if (context != null && _imageOrigins.ContainsKey(e.Item))
-				{
-					context.ImageSource = _imageOrigins[e.Item];
-				}
-
-				_currentItem = e.Item;
-			}
+                lock (this)
+                {
+                    _priorItem = itemTpl.Item1;
+                    _currentItem = itemTpl.Item2;
+                    _nextItem = itemTpl.Item3;
+                }
+            }
+			
+            
 		}
 
 		private void albumPivot_UnloadingPivotItem(object sender, PivotItemEventArgs e)
 		{
-			if (e.Item != null)
+            if (e.Item != null)
 			{
-				e.Item.Visibility = System.Windows.Visibility.Collapsed;
-
-				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-				if (context != null)
-				{	
-					if (context.ImageSource is string)
-					{
-						if (!_imageOrigins.ContainsKey(e.Item))
-						{
-							_imageOrigins.Add(e.Item, context.ImageSource as String);
-						}
-
-						context.ImageSource = null;
-					}
-				}
+                ClearItem(e.Item);
+                if(_gcCount <= 0)
+                    Task.Factory.StartNew(RunGC, TaskCreationOptions.LongRunning);
 			}
 		}
+
+        private static void ClearItem(PivotItem item)
+        {
+            if (item.Content is ScalingGifView)
+            {
+                ((ScalingGifView)item.Content).ImageSource = null;
+            }
+            else if (item.Content is ScalingPictureView)
+            {
+                ((ScalingPictureView)item.Content).ImageSource = null;
+            }
+            item.Content = null;
+        }
 
         private void Caption_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
@@ -227,36 +286,63 @@ namespace BaconographyWP8.View
             return Tuple.Create(vm.LinkTitle, vm.Pictures.Select(linkedPicture => Tuple.Create(linkedPicture.Title, linkedPicture.Url)), vm.LinkId);
         }
 
+
+        bool _flicking;
         private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
         {
+            if (_flicking)
+                return;
+
             if (e.Direction == System.Windows.Controls.Orientation.Vertical)
             {
                 //Up
                 if (e.VerticalVelocity < -1500)
                 {
-                    var next = await _pictureViewModel.Next();
-                    if (next != null)
+                    _flicking = true;
+                    try
                     {
-                        TransitionService.SetNavigationOutTransition(this,
-                            new NavigationOutTransition()
+                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+                        {
+                            var next = await _pictureViewModel.Next();
+                            if (next != null)
                             {
-                                Forward = new SlideTransition()
-                                {
-                                    Mode = SlideTransitionMode.SlideUpFadeOut
-                                }
+                                TransitionService.SetNavigationOutTransition(this,
+                                    new NavigationOutTransition()
+                                    {
+                                        Forward = new SlideTransition()
+                                        {
+                                            Mode = SlideTransitionMode.SlideUpFadeOut
+                                        }
+                                    }
+                                );
+                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
                             }
-                        );
-                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
+                        }
+                    }
+                    finally
+                    {
+                        _flicking = false;
                     }
                    
                     
                 }
                 else if (e.VerticalVelocity > 1500) //Down
                 {
-                    var previous = await _pictureViewModel.Previous();
-                    if (previous != null)
+                    _flicking = true;
+                    try
                     {
-                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
+                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+                        {
+                            var previous = await _pictureViewModel.Previous();
+                            if (previous != null)
+                            {
+                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _flicking = false;
                     }
                 }
             }

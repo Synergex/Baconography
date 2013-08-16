@@ -17,10 +17,8 @@
                 ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
             <Canvas x:Name="canvas">
                 <Image
-                    Source="{Binding ImageSource}"
-                    ImageFailed="image_ImageFailed"
                     RenderTransformOrigin="0,0"
-                    MaxWidth="2048" ImageOpened="OnImageOpened"
+                    MaxWidth="2048"
                     x:Name="image">
                     <Image.RenderTransform>
                         <ScaleTransform x:Name="xform"/>

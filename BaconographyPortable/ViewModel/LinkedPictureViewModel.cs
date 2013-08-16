@@ -33,6 +33,7 @@ namespace BaconographyPortable.ViewModel
             public bool IsAlbum { get; set; }
             public int PositionInAlbum { get; set; }
             public int AlbumSize { get; set; }
+            public bool IsGif { get; set; }
         }
 
         public string LinkId { get; set; }
