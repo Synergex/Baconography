@@ -193,8 +193,7 @@
             </phone:Pivot.HeaderTemplate>
         </phone:Pivot>
         
-        <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66"
-              ManipulationStarted="Caption_ManipulationStarted">
+        <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
@@ -209,11 +208,15 @@
             
             <TextBlock Grid.Column="1" Grid.Row="0"
                     Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.DataContext.Title}" TextWrapping="Wrap"
-                    x:Name="caption"/>
-            <TextBlock Grid.Column="2" Grid.Row="0"
+                    x:Name="caption" ManipulationStarted="CaptionHitbox_ManipulationStarted" />
+            <Grid Grid.Column="2" Grid.Row="0"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  x:Name="CaptionHitbox" ManipulationStarted="CaptionHitbox_ManipulationStarted">
+                <TextBlock
                     Margin="0,-25,0,0"
                     FontSize="48" Foreground="White"
                     Text="..." VerticalAlignment="Top" />
+            </Grid>
             
             <Grid Grid.Row="2" Grid.ColumnSpan="3"
                   HorizontalAlignment="Center">

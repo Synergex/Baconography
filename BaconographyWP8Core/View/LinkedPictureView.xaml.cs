@@ -257,7 +257,7 @@ namespace BaconographyWP8.View
             item.Content = null;
         }
 
-        private void Caption_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        private void CaptionHitbox_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
         {
             if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
             {
