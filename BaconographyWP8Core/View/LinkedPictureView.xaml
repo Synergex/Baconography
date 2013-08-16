@@ -31,9 +31,9 @@
     </phone:PhoneApplicationPage.Resources>
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn"/>
-            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideUpFadeIn"/>
+            </toolkit:NavigationInTransition.Forward>
         </toolkit:NavigationInTransition>
     </toolkit:TransitionService.NavigationInTransition>
     <toolkit:TransitionService.NavigationOutTransition>
@@ -42,7 +42,7 @@
                 <toolkit:TurnstileTransition Mode="BackwardOut"/>
             </toolkit:NavigationOutTransition.Backward>
             <toolkit:NavigationOutTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+                <toolkit:SlideTransition Mode="SlideDownFadeOut"/>
             </toolkit:NavigationOutTransition.Forward>
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
@@ -52,18 +52,10 @@
     <Grid>
         <phone:Pivot HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Margin="0" Padding="0" x:Name="albumPivot"
-                    ItemsSource="{Binding Path=Pictures}"
+                    ItemsSource="{Binding Path=Pictures, Converter={StaticResource reifiedAlbumItemConverter}}"
                     LoadingPivotItem="albumPivot_LoadingPivotItem"
                     UnloadingPivotItem="albumPivot_UnloadingPivotItem"
                     Grid.Row="1">
-            <phone:Pivot.ItemTemplate>
-                <DataTemplate>
-                    <common:ImageTypeSelector HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-                                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                    Content="{Binding}"/>
-
-                </DataTemplate>
-            </phone:Pivot.ItemTemplate>
             <phone:Pivot.TitleTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -83,7 +75,7 @@
         
         <Grid x:Name="tray" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Black" Opacity="0.66">
             <StackPanel>
-                <TextBlock Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.Title}" TextWrapping="Wrap"
+                <TextBlock Margin="12,6,12,6" FontSize="22" Foreground="White" Text="{Binding ElementName=albumPivot, Path=SelectedItem.DataContext.Title}" TextWrapping="Wrap"
                             x:Name="caption" ManipulationStarted="Caption_ManipulationStarted"/>
             </StackPanel>
             

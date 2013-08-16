@@ -26,21 +26,8 @@ namespace BaconographyWP8.Common
         ISuspendableWorkQueue _suspendableWorkQueue;
         public RedditViewPivotControl()
         {
-            ServiceLocator.Current.GetInstance<IOOMService>().OutOfMemory += RedditViewPivotControl_OutOfMemory;
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _suspendableWorkQueue = ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>();
-        }
-
-        void RedditViewPivotControl_OutOfMemory(OutOfMemoryEventArgs obj)
-        {
-            //if we're out of memory scavange what is cached in the pivot
-            foreach (var item in this.Items)
-            {
-                if (item is PivotItem && ((PivotItem)item).Content is Image)
-                {
-                    ((PivotItem)item).Content = null;
-                }
-            }
         }
 
         RedditView MapViewModel(ViewModelBase viewModel)

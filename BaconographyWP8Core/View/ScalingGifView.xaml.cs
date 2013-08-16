@@ -30,10 +30,13 @@ namespace BaconographyWP8.View
 {
 	public partial class ScalingGifView : UserControl
 	{
+        static ScalingGifView()
+        {
+            Decoders.AddDecoder<GifDecoder>();
+        }
 		public ScalingGifView()
 		{
 			InitializeComponent();
-			Decoders.AddDecoder<GifDecoder>();
 		}
 
 		const double MaxScale = 10;
@@ -68,13 +71,11 @@ namespace BaconographyWP8.View
 				}
 				else if (image != null && image.Source == null)
 				{
-                    var converter = Styles.Resources["imageConverter"] as ImageConverter;
-					if (converter != null)
-					{
-                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-						image.Source = (ExtendedImage)converter.Convert(value, null, null, System.Globalization.CultureInfo.CurrentCulture);
-						image.Start();
-					}
+                    var converter = new ImageConverter();
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+					image.Source = (ExtendedImage)converter.Convert(value, null, null, System.Globalization.CultureInfo.CurrentCulture);
+					image.Start();
+					
 				}
 				SetValue(ImageSourceProperty, value);
 			}

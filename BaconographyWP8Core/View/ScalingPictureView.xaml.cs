@@ -44,7 +44,7 @@ namespace BaconographyWP8.View
 				"ImageSource",
 				typeof(object),
 				typeof(ScalingPictureView),
-				new PropertyMetadata(null, OnSourcePropertyChanged)
+				new PropertyMetadata(null)
 			);
 
 		public object ImageSource
@@ -52,17 +52,35 @@ namespace BaconographyWP8.View
 			get { return GetValue(ImageSourceProperty); }
 			set
 			{
-				if (value == null)
-				{
-					if (this._bitmap != null)
-					{
-						this._bitmap.UriSource = null;
-						this._bitmap = null;
-					}
-				}
+                if (value == null)
+                {
+                    if (_bitmap != null)
+                    {
+                        _bitmap.ImageOpened -= OnImageOpened;
+                        _bitmap.ImageFailed -= _bitmap_ImageFailed;
+                        _bitmap.UriSource = null;
+                    }
+                    _bitmap = null;
+                    image.Source = null;
+                }
+                else if(value is string)
+                {
+                    _bitmap = new BitmapImage();
+                    _bitmap.CreateOptions = BitmapCreateOptions.None;
+                    _bitmap.ImageOpened += OnImageOpened;
+                    _bitmap.ImageFailed += _bitmap_ImageFailed;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    _bitmap.UriSource = new Uri(value as string);
+                }
 				SetValue(ImageSourceProperty, value);
 			}
 		}
+
+        void _bitmap_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("image failed to load: " + e.ErrorException);
+        }
 
 		/// <summary>
 		/// This is a very simple page. We simply bind to the CurrentPicture property on the AlbumsViewModel
@@ -70,13 +88,6 @@ namespace BaconographyWP8.View
 		public ScalingPictureView()
 		{
 			InitializeComponent();
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-		}
-
-		private static void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var image = (ScalingPictureView)d;
-			image.ImageSource = e.NewValue;
 		}
 
 		/// <summary>
@@ -154,8 +165,7 @@ namespace BaconographyWP8.View
 		void OnImageOpened(object sender, RoutedEventArgs e)
 		{
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-			_bitmap = (BitmapImage)image.Source;
-
+            image.Source = _bitmap;
 			// Set scale to the minimum, and then save it.
 			_scale = 0;
 			CoerceScale(true);
@@ -163,12 +173,6 @@ namespace BaconographyWP8.View
 
 			ResizeImage(true);
 		}
-
-        private void image_ImageFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("image failed to load: " + e.ErrorException);
-        }
 
 		/// <summary>
 		/// Adjust the size of the image according to the coerced scale factor. Optionally
