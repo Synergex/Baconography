@@ -46,10 +46,13 @@ namespace BaconographyPortable.ViewModel
 			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
 
 
-            if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+            if (Url != null)
             {
-                MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
-                _registeredLongNav = true;
+                if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+                {
+                    MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
+                    _registeredLongNav = true;
+                }
             }
         }
 

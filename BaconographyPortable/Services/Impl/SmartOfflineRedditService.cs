@@ -293,6 +293,8 @@ namespace BaconographyPortable.Services.Impl
         List<Task> activeMaybeTasks = new List<Task>();
         private Listing MaybeStorePostsBySubreddit(Listing listing)
         {
+            if (listing == null)
+                return null;
             _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
                     var maybeTask = _offlineService.StoreLinks(listing);
@@ -321,6 +323,9 @@ namespace BaconographyPortable.Services.Impl
         Dictionary<string, Listing> _currentlyStoringComments = new Dictionary<string, Listing>();
         private Listing MaybeStoreCommentsOnPost(Listing listing, string permalink)
         {
+            if (listing == null)
+                return null;
+
             var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
             if (!_linkToOpMap.ContainsKey(((Link)requestedLinkInfo.Data).Name))
             {

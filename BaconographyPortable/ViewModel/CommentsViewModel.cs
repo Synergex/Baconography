@@ -73,7 +73,12 @@ namespace BaconographyPortable.ViewModel
 
                 if (_sortOrder != orig)
                 {
-                    Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : ""), _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+                    var permalink = _linkThing.Data.Permalink;
+                    if (!permalink.Contains("?"))
+                    {
+                        permalink = permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : "");
+                    }
+                    Comments = new CommentViewModelCollection(_baconProvider, permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
                     RaisePropertyChanged("Comments");
                     RaisePropertyChanged("SortOrder");
                 }
