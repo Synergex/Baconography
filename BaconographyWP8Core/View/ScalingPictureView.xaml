@@ -14,7 +14,8 @@
     <Grid x:Name="ContentPanel" Grid.Row="1" Margin="0,0,0,0">
         <ViewportControl x:Name="viewport" 
                 ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
-                ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged">
+                ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged"
+                DoubleTap="OnDoubleTap">
             <Canvas x:Name="canvas">
                 <Image
                     RenderTransformOrigin="0,0"
