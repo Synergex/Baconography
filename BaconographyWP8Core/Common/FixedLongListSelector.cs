@@ -129,11 +129,12 @@ namespace BaconographyWP8.Common
 			isMoving = true;
 		}
 
+        OrientationManager _orientationManager;
 		void listbox_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
 		{
 			var pos = e.GetPosition(null);
 
-			var orientationManager = Styles.Resources["orientationManager"] as OrientationManager;
+            var orientationManager = _orientationManager == null ? (_orientationManager = Styles.Resources["orientationManager"] as OrientationManager) : _orientationManager;
 			var val = pos.Y;
 			if (orientationManager != null
 				&& (orientationManager.Orientation == PageOrientation.Landscape
@@ -167,10 +168,24 @@ namespace BaconographyWP8.Common
                 var firstVisibleItem = GetFirstVisibleItem();
                 if (firstVisibleItem != null && ItemsSource.Count > 0 && firstVisibleItem == ItemsSource[0])
 				{
-					if (Math.Abs(total) > pullDownOffset)
-						Compression(this, new CompressionEventArgs(CompressionType.Top));
-					else
-						Compression(this, new CompressionEventArgs(CompressionType.None));
+                    if (Math.Abs(total) > pullDownOffset)
+                    {
+                        var orientationManager = _orientationManager == null ? (_orientationManager = Styles.Resources["orientationManager"] as OrientationManager) : _orientationManager;
+                        var adjustedTotal = -total;
+                        if (orientationManager != null)
+                        {
+                            if(orientationManager.Orientation == PageOrientation.LandscapeLeft)
+                            {
+                                adjustedTotal = total;
+                            }
+                        }
+                        if(adjustedTotal > pullDownOffset)
+                            Compression(this, new CompressionEventArgs(CompressionType.Top));
+                        else
+                            Compression(this, new CompressionEventArgs(CompressionType.None));
+                    }
+                    else
+                        Compression(this, new CompressionEventArgs(CompressionType.None));
 				}
 				else
 				{

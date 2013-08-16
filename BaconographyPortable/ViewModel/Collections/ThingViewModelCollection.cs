@@ -68,22 +68,30 @@ namespace BaconographyPortable.ViewModel.Collections
                 throw new NotImplementedException();
         }
 
+        private HashSet<string> _ids = new HashSet<string>();
         protected virtual IEnumerable<ViewModelBase> MapListing(Listing listing, Dictionary<object, object> state)
         {
             if (listing.Data.After != null)
             {
                 state["After"] = listing.Data.After;
             }
-
-            return listing.Data.Children
-                .Select(thing => MapThing(thing, state))
-                .Where(vmb => vmb != null);
+            lock (_ids)
+            {
+                return listing.Data.Children
+                    .Select(thing => MapThing(thing, state))
+                    .Where(vmb => vmb != null);
+            }
         }
 
         protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
             if (thing.Data is Link)
             {
+                if (_ids.Contains(((Link)thing.Data).Id))
+                    return null;
+                else
+                    _ids.Add(((Link)thing.Data).Id);
+
                 var linkView = new LinkViewModel(thing, _baconProvider);
                 if (state.ContainsKey("MultiRedditSource"))
                     linkView.FromMultiReddit = true;
@@ -166,13 +174,27 @@ namespace BaconographyPortable.ViewModel.Collections
                 var targetListing = await _onlineListingProvider.GetInitialListing(state);
                 if (targetListing != null)
                 {
-                    var mappedListing = MapListing(targetListing, state).ToArray();
+                    ViewModelBase[] mappedListing;
+                    lock (_ids)
+                    {
+                        foreach (var vm in this)
+                        {
+                            var linkViewModel = vm as LinkViewModel;
+                            if (linkViewModel != null)
+                            {
+                                _ids.Remove(linkViewModel.Id);
+                            }
+                        }
+                        mappedListing = MapListing(targetListing, state).ToArray();
+                    }
 
                     //remove the ones we're not replacing, otherwise we end up with state results
                     if (Count > mappedListing.Length)
                     {
                         for (int i = Count - 1; i >= mappedListing.Length; i--)
+                        {
                             RemoveAt(i);
+                        }
                     }
 
                     for (int i = 0; i < mappedListing.Length; i++)

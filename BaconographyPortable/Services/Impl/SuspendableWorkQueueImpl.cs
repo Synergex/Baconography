@@ -122,7 +122,7 @@ namespace BaconographyPortable.Services.Impl
         object _cancelationTimer = null;
         public void RaiseImpendingSuspension()
         {
-            //start timer, give things 6 seconds of nothing new being created then set the cancelation token
+            //start timer, give things 2 seconds of nothing new being created then set the cancelation token
             lock (this)
             {
                 if (_cancelationTimer == null)
@@ -137,7 +137,7 @@ namespace BaconographyPortable.Services.Impl
                                 _uiCancelationTokenSource.Cancel();
                             }
 
-                        }, TimeSpan.FromSeconds(6), false);
+                        }, TimeSpan.FromSeconds(2), false);
                 }
             }
         }

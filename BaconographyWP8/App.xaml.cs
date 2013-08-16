@@ -185,7 +185,8 @@ namespace BaconographyWP8
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
-            LowMemoryHelper.BeginRecording();
+            Styles.Resources = this.Resources;
+            //LowMemoryHelper.BeginRecording();
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,
@@ -202,6 +203,7 @@ namespace BaconographyWP8
         // This code will not execute when the application is first launched
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
+            Styles.Resources = this.Resources;
             _baconProvider.GetService<ISuspensionService>().FireResuming();
         }
 

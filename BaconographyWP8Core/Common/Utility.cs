@@ -555,9 +555,13 @@ namespace BaconographyWP8.Common
 
                         url = imagesList.First().Item2;
 
-                        using (var stream = new MemoryStream(await imagesService.ImageBytesFromUrl(url)))
+                        var imageBytes = await imagesService.ImageBytesFromUrl(url);
+                        if (imageBytes != null)
                         {
-                            imageSource.SetSource(stream);
+                            using (var stream = new MemoryStream(imageBytes))
+                            {
+                                imageSource.SetSource(stream);
+                            }
                         }
                         if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
                             continue;

@@ -122,7 +122,7 @@ namespace BaconographyWP8.View
             if(e.NavigationMode == NavigationMode.Back)
                 CleanupImageSource();
 
-            if (e.NavigationMode == NavigationMode.New)
+            if (e.NavigationMode == NavigationMode.New && e.IsNavigationInitiator)
             {
                 CleanupImageSource();
                 ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();

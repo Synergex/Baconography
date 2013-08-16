@@ -35,7 +35,20 @@ namespace BaconographyWP8.Common
 			Messenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			Messenger.Default.Register<OrientationChangedMessage>(this, OnOrientationChanged);
             Messenger.Default.Register<LoadingMessage>(this, OnLoading);
+            _baconProvider.GetService<ISuspensionService>().Suspending += OrientationManager_Suspending;
 		}
+
+        void OrientationManager_Suspending()
+        {
+            try
+            {
+                ProgressActive.IsVisible = false;
+            }
+            catch (Exception)
+            {
+                _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => ProgressActive.IsVisible = false, TimeSpan.FromMilliseconds(0), true);
+            }
+        }
 
         private void OnLoading(LoadingMessage obj)
         {
