@@ -238,5 +238,23 @@ namespace BaconographyWP8.View
 			_coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));
 
 		}
+
+        private void OnDoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var point = e.GetPosition(image);
+            _relativeMidpoint = new Point(point.X / image.ActualWidth, point.Y / image.ActualHeight);
+
+            var xform = image.TransformToVisual(viewport);
+            _screenMidpoint = xform.Transform(point);
+
+            if (_coercedScale >= 2.5)
+                _coercedScale = 1;
+            else if (_coercedScale < 1)
+                _coercedScale = 1.75;
+            else
+                _coercedScale += 0.75;
+
+            ResizeImage(false);
+        }
 	}
 }

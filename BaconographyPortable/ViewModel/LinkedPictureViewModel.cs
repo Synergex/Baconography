@@ -1,6 +1,7 @@
 ﻿using BaconographyPortable.Messages;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
 using System;
@@ -142,6 +143,24 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public int CommentCount
+        {
+            get
+            {
+                if (HasContext)
+                    return ParentLink.LinkThing.Data.CommentCount;
+                return 0;
+            }
+        }
+
+        public VotableViewModel Votable
+        {
+            get
+            {
+                return ParentLink.Votable;
+            }
+        }
+
         public void RepositionContextScroll()
         {
             var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
@@ -258,6 +277,13 @@ namespace BaconographyPortable.ViewModel
                 }
             }
             return null;
+        }
+
+        public RelayCommand<LinkedPictureViewModel> NavigateToComments { get { return _navigateToComments; } }
+        static RelayCommand<LinkedPictureViewModel> _navigateToComments = new RelayCommand<LinkedPictureViewModel>(NavigateToCommentsImpl);
+        private static void NavigateToCommentsImpl(LinkedPictureViewModel vm)
+        {
+            vm.ParentLink.NavigateToComments.Execute(vm.ParentLink);
         }
         
     }
