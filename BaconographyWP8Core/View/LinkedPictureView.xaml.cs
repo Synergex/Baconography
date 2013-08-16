@@ -1,12 +1,16 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Common;
 using BaconographyWP8.Converters;
+using BaconographyWP8.PlatformServices;
 using BaconographyWP8Core;
 using BaconographyWP8Core.Common;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.Xna.Framework.Media;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -258,7 +262,7 @@ namespace BaconographyWP8.View
             item.Content = null;
         }
 
-        private void Caption_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        private void CaptionHitbox_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
         {
             if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
             {
@@ -336,6 +340,40 @@ namespace BaconographyWP8.View
                         _flicking = false;
                     }
                 }
+            }
+        }
+
+        private async void SaveImage_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var linkedPicture = _pictureViewModel.Pictures.ToList()[albumPivot.SelectedIndex];
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            if (linkedPicture != null)
+            {
+                MediaLibrary library = new MediaLibrary();
+                var libraryPicture = library.SavePicture(linkedPicture.Url.Substring(linkedPicture.Url.LastIndexOf('/') + 1), await ImagesService.ImageStreamFromUrl(linkedPicture.Url));
+                var notificationService = ServiceLocator.Current.GetInstance<INotificationService>();
+                if (libraryPicture != null)
+                    notificationService.CreateNotification("Picture saved.");
+                else
+                    notificationService.CreateNotification("Error downloading picture.");
+            }
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+        }
+
+        async void picker_Completed(object sender, Microsoft.Phone.Tasks.PhotoResult e)
+        {
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            if (e.Error == null && e.ChosenPhoto != null)
+            {
+                using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
+                {
+                    e.ChosenPhoto.CopyTo(lockscreenFile);
+                }
+                settingsService.UseImagePickerForLockScreen = true;
+
+                await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
+                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
             }
         }
 
