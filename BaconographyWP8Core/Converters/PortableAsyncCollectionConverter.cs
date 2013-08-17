@@ -36,11 +36,6 @@ namespace BaconographyWP8.Converters
                 //Task.Run(() => _collection.LoadMoreItemsAsync(30));
             }
 
-			public async Task Refresh()
-			{
-				await _collection.LoadMoreItemsAsync(30);
-			}
-
             public bool HasMoreItems
             {
                 get { return _collection.HasMoreItems; }
