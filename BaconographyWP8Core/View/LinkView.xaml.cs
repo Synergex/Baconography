@@ -34,13 +34,6 @@ namespace BaconographyWP8.View
             if (!InComments)
             {
                 vm.IsExtendedOptionsShown = !vm.IsExtendedOptionsShown;
-                var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
-                if (parent != null && !vm.IsExtendedOptionsShown)
-                {
-                    this.InvalidateMeasure();
-                    parent.InvalidateArrange();
-                    parent.InvalidateMeasure();
-                }
             }
 		}
 
@@ -50,13 +43,6 @@ namespace BaconographyWP8.View
             if (!InComments)
             {
                 vm.GotoComments();
-                var parent = VisualTreeHelper.GetParent(this) as FrameworkElement;
-                if (parent != null && !vm.IsExtendedOptionsShown)
-                {
-                    this.InvalidateMeasure();
-                    parent.InvalidateArrange();
-                    parent.InvalidateMeasure();
-                }
             }
 		}
 

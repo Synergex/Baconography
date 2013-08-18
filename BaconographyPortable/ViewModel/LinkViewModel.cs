@@ -222,7 +222,7 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("PreviewPack");
             }
         }
-
+        bool _hasBeenExtended = false;
 		public bool IsExtendedOptionsShown
 		{
 			get
@@ -233,7 +233,11 @@ namespace BaconographyPortable.ViewModel
 			{
 				_isExtendedOptionsShown = value;
 				RaisePropertyChanged("IsExtendedOptionsShown");
-                RaisePropertyChanged("ExtendedData");
+                if (_isExtendedOptionsShown && !_hasBeenExtended)
+                {
+                    _hasBeenExtended = true;
+                    RaisePropertyChanged("ExtendedData");
+                }
 			}
 		}
 
