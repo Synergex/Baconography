@@ -90,6 +90,8 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
+        private bool _initialLoad = true;
+
 		/// <summary>
 		/// Either the user has manipulated the image or the size of the viewport has changed. We only
 		/// care about the size.
@@ -100,8 +102,13 @@ namespace BaconographyWP8.View
 			if (newSize != _viewportSize)
 			{
 				_viewportSize = newSize;
-				CoerceScale(true);
-				ResizeImage(false);
+                if (!_initialLoad)
+                {
+                    CoerceScale(true);
+                    ResizeImage(false);
+                }
+                else
+                    _initialLoad = false;
 			}
 		}
 
@@ -165,13 +172,14 @@ namespace BaconographyWP8.View
 		void OnImageOpened(object sender, RoutedEventArgs e)
 		{
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            image.Source = _bitmap;
+            
 			// Set scale to the minimum, and then save it.
 			_scale = 0;
 			CoerceScale(true);
 			_scale = _coercedScale;
 
 			ResizeImage(true);
+            image.Source = _bitmap;
 		}
 
 		/// <summary>
@@ -224,13 +232,14 @@ namespace BaconographyWP8.View
 		{
 			if (recompute && viewport != null)
 			{
+                _scale = 0.0;
 				// Calculate the minimum scale to fit the viewport
 				if (_bitmap != null)
 				{
 					double minX = viewport.ActualWidth / _bitmap.PixelWidth;
 					double minY = viewport.ActualHeight / _bitmap.PixelHeight;
 					_minScale = Math.Min(minX, minY);
-					if (_minScale == 0.0)
+					if (_minScale <= 0.0)
 						_minScale = 1.0;
 				}		
 			}
@@ -247,12 +256,10 @@ namespace BaconographyWP8.View
             var xform = image.TransformToVisual(viewport);
             _screenMidpoint = xform.Transform(point);
 
-            if (_coercedScale >= 2.5)
-                _coercedScale = 1;
-            else if (_coercedScale < 1)
-                _coercedScale = 1.75;
+            if (_coercedScale >= (_minScale * 2.5) || _coercedScale < 0)
+                _coercedScale = _minScale;
             else
-                _coercedScale += 0.75;
+                _coercedScale *= 1.75;
 
             ResizeImage(false);
         }

@@ -218,15 +218,30 @@ namespace BaconographyWP8.View
             return Tuple.Create(prior, current, next);
         }
 
-		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
+		private async void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
 		{
             if (e.Item != null)
             {
                 var itemTpl = GenerateItemTripplet(e.Item);
-                if(itemTpl.Item2 != null && itemTpl.Item2.Content == null)
-                    itemTpl.Item2.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item2.DataContext as ViewModelBase);
-                if (itemTpl.Item3 != null && itemTpl.Item3.Content == null)
-                    itemTpl.Item3.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item3.DataContext as ViewModelBase);
+                if (itemTpl.Item2 != null && itemTpl.Item2.Content == null)
+                {
+                    lock (itemTpl.Item2)
+                    {
+                        if(itemTpl.Item2.Content == null)
+                            itemTpl.Item2.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item2.DataContext as ViewModelBase);
+                    }
+                }
+
+                await Task.Yield();
+
+                if (itemTpl.Item3 != null && itemTpl.Item3.Content == null && _priorItem != itemTpl.Item2)
+                {
+                    lock (itemTpl.Item3)
+                    {
+                        if (itemTpl.Item3.Content == null)
+                            itemTpl.Item3.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item3.DataContext as ViewModelBase);
+                    }
+                }
 
                 lock (this)
                 {
