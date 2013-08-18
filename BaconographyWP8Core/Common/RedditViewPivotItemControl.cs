@@ -7,10 +7,13 @@ using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -51,6 +54,7 @@ namespace BaconographyWP8.Common
             {
                 var loadIdAtStart = ++inflightLoadId;
                 inflightLoad = item;
+
                 base.OnLoadingPivotItem(item);
 
                 _viewModelContextService.PushViewModelContext(item.DataContext as ViewModelBase);
@@ -91,6 +95,8 @@ namespace BaconographyWP8.Common
             }
         }
 
+       
+
         private async Task RealUnloadingItem(PivotItemEventArgs e)
         {
             using (_suspendableWorkQueue.HighValueOperationToken)
@@ -117,6 +123,8 @@ namespace BaconographyWP8.Common
                         return;
 
                     WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
+                    bitmap.Invalidate();
+
                     await Task.Delay(250);
                     if (inflightLoad == e.Item)
                         return;
