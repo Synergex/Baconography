@@ -21,7 +21,7 @@ namespace Baconography.NeutralServices.KitaroDB
     class Comments
     {
 		private static string commentsDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-v3.ism";
-        private static string commentsMetaDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-meta-v1.ism";
+        private static string commentsMetaDatabase = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\comments-meta-v2.ism";
 
         private static Task<Comments> _instanceTask;
         CancellationTokenSource _terminateSource = new CancellationTokenSource();
@@ -42,7 +42,7 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private static async Task<DB> GetMetaDBInstance()
         {
-            var db = await DB.CreateAsync(commentsMetaDatabase, DBCreateFlags.None, 28, new DBKey[]
+            var db = await DB.CreateAsync(commentsMetaDatabase, DBCreateFlags.None, 36, new DBKey[]
             {
                 new DBKey(20, 0, DBKeyFlags.Alpha, "permalinkhash", false, false, false, 0),
                 new DBKey(8, 20, DBKeyFlags.AutoTime, "creation_timestamp", false, false, false, 1)
@@ -181,7 +181,7 @@ namespace Baconography.NeutralServices.KitaroDB
                 if (blobCursor != null)
                 {
                     var bytes = blobCursor.Get();
-                    return Tuple.Create(BitConverter.ToInt32(bytes, 20), BitConverter.ToInt32(bytes, 24));
+                    return Tuple.Create(BitConverter.ToInt32(bytes, 28), BitConverter.ToInt32(bytes, 32));
                 }
                 else
                 {
@@ -192,10 +192,10 @@ namespace Baconography.NeutralServices.KitaroDB
 
         private async Task StoreCommentMetadata(byte[] keyBytes, int linkComments, int actualComments)
         {
-            var recordBytes = new byte[28];
+            var recordBytes = new byte[36];
             keyBytes.CopyTo(recordBytes, 0);
-            BitConverter.GetBytes(linkComments).CopyTo(recordBytes, 20);
-            BitConverter.GetBytes(actualComments).CopyTo(recordBytes, 24);
+            BitConverter.GetBytes(linkComments).CopyTo(recordBytes, 28);
+            BitConverter.GetBytes(actualComments).CopyTo(recordBytes, 32);
             using (var blobCursor = await _metaDB.SeekAsync(_metaDB.GetKeys()[0], keyBytes, DBReadFlags.WaitOnLock))
             {
                 if (blobCursor != null)
