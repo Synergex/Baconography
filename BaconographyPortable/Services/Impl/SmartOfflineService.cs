@@ -91,10 +91,16 @@ namespace BaconographyPortable.Services.Impl
             var currentContext = _viewModelContextService.Context;
             if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
             {
-                await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
-                    {
-                        await NavigatedToOfflineableThingImpl(((CommentsViewModel)currentContext).Link.LinkThing, true);
-                    });
+                try
+                {
+                    await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
+                        {
+                            await NavigatedToOfflineableThingImpl(((CommentsViewModel)currentContext).Link.LinkThing, true);
+                        });
+                }
+                catch (TaskCanceledException)
+                {
+                }
             }
 
             if (myNavID != _navId)

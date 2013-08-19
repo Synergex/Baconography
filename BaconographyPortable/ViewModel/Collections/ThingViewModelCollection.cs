@@ -172,6 +172,10 @@ namespace BaconographyPortable.ViewModel.Collections
             {
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 var targetListing = await _onlineListingProvider.GetInitialListing(state);
+
+                if (token.IsCancellationRequested)
+                    return;
+
                 if (targetListing != null)
                 {
                     ViewModelBase[] mappedListing;
@@ -217,7 +221,13 @@ namespace BaconographyPortable.ViewModel.Collections
 
                     if (_onlineListingProvider is ICachedListingProvider)
                     {
-                        await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) => await ((ICachedListingProvider)_onlineListingProvider).CacheIt(targetListing));
+                        try
+                        {
+                            await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) => await ((ICachedListingProvider)_onlineListingProvider).CacheIt(targetListing));
+                        }
+                        catch (TaskCanceledException)
+                        {
+                        }
                     }
                 }
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });

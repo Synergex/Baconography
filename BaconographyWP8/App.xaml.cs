@@ -212,6 +212,7 @@ namespace BaconographyWP8
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
             _baconProvider.GetService<ISuspensionService>().FireSuspending();
+            Thread.Sleep(400);
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
@@ -219,6 +220,7 @@ namespace BaconographyWP8
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
             _baconProvider.GetService<ISuspensionService>().FireSuspending();
+            Thread.Sleep(400);
         }
 
         // Code to execute if a navigation fails
@@ -238,6 +240,12 @@ namespace BaconographyWP8
             {
                 // An unhandled exception has occurred; break into the debugger
                 Debugger.Break();
+            }
+
+            //this appears to be a bullshit error that pops up with no stack trace and trys to terminate the process
+            if ((uint)e.ExceptionObject.HResult == 0x80004005)
+            {
+                e.Handled = true;
             }
 
             //ask things nicely to vacate as much memory as possible so we dont die

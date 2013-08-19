@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,6 +42,7 @@ namespace BaconographyPortable.Model.Reddit
         //this one is seperated out so we can use it interally on initial user login
         public async Task<Account> GetMe(User user)
         {
+            bool needsRetry = false;
             try
             {
                 var meString = await _simpleHttpService.SendGet(user.LoginCookie, "http://www.reddit.com/api/me.json");
@@ -52,11 +54,28 @@ namespace BaconographyPortable.Model.Reddit
                 else
                     return null;
             }
+            catch (WebException webException)
+            {
+                if (webException.Status == WebExceptionStatus.RequestCanceled)
+                    needsRetry = true;
+                else
+                {
+                    _notificationService.CreateErrorNotification(webException);
+                    return null;
+                }
+            }
             catch (Exception ex)
             {
                 _notificationService.CreateErrorNotification(ex);
                 return null;
             }
+
+            if (needsRetry)
+            {
+                return await GetMe();
+            }
+            else
+                return null;
         }
 
         public async Task<User> Login(string username, string password)

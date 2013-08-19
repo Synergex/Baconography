@@ -3,6 +3,7 @@ using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,10 +25,15 @@ namespace BaconographyPortable.ViewModel.Collections
         string _permaLink;
         string _subreddit;
         string _targetName;
-        CancellationTokenSource _cancellationTokenSource;
+        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
         {
+            var suspensionService = baconProvider.GetService<ISuspensionService>();
+            suspensionService.Suspending += CommentViewModelCollection_Suspending;
+            suspensionService.Resuming += CommentViewModelCollection_Resuming;
+            
+
             _timerHandles = new List<WeakReference>();
             _state = new Dictionary<object, object>();
             _permaLink = permaLink;
@@ -37,7 +43,6 @@ namespace BaconographyPortable.ViewModel.Collections
             _settingsService = baconProvider.GetService<ISettingsService>();
             if (_settingsService.IsOnline())
                 _listingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.PostComments(baconProvider, subreddit, permaLink, targetName);
-            
             else
                 _listingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.PostComments(baconProvider, subredditId, permaLink, targetName);
 
@@ -45,8 +50,17 @@ namespace BaconographyPortable.ViewModel.Collections
             //to the actual observable collection leaving a bit of time in between so we dont block anything
 
             _systemServices = baconProvider.GetService<ISystemServices>();
-            _cancellationTokenSource = new CancellationTokenSource();
             RunInitialLoad();
+        }
+
+        void CommentViewModelCollection_Suspending()
+        {
+            Cancel();
+        }
+
+        void CommentViewModelCollection_Resuming()
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         async void RunInitialLoad()
@@ -143,12 +157,16 @@ namespace BaconographyPortable.ViewModel.Collections
             int topLevelVMCount = 0;
             foreach (var vm in remainingVMs)
             {
+                if (_cancellationTokenSource.IsCancellationRequested)
+                    return;
                 topLevelVMCount++;
                 vmCount += VisitAddChildren(vm, insertionIndex);
                 if (vmCount > 15)
                     break;
             }
 
+            if (_cancellationTokenSource.IsCancellationRequested)
+                return;
             if (vmCount >= 15)
             {
                 remainingVMs = remainingVMs.Skip(topLevelVMCount);
@@ -162,11 +180,17 @@ namespace BaconographyPortable.ViewModel.Collections
             int topLevelVMCount = 0;
             foreach (var vm in remainingVMs)
             {
+                if (_cancellationTokenSource.IsCancellationRequested)
+                    return;
+
                 topLevelVMCount++;
                 vmCount += VisitAddChildren(vm, insertionIndex);
                 if (vmCount > 15)
                     break;
             }
+
+            if (_cancellationTokenSource.IsCancellationRequested)
+                return;
 
             if (vmCount >= 15)
             {
@@ -202,19 +226,31 @@ namespace BaconographyPortable.ViewModel.Collections
         async void RunLoadMore(IEnumerable<string> ids, List<ViewModelBase> targetCollection, ViewModelBase parent, ViewModelBase removeMe)
         {
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-            var initialListing = await _listingProvider.GetMore(ids, _state);
+            IEnumerable<ViewModelBase> remainingVMs = null;
+            try
+            {
 
-            var remainingVMs = MapListing(initialListing, parent);
-            if (parent is CommentViewModel)
-                ((CommentViewModel)parent).Replies.AddRange(remainingVMs);
-            var insertionIndex = IndexOf(removeMe);
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            Remove(removeMe);
-            RunUILoad(remainingVMs, insertionIndex);
-            
+                var initialListing = await _listingProvider.GetMore(ids, _state);
+
+                remainingVMs = MapListing(initialListing, parent);
+                if (parent is CommentViewModel)
+                    ((CommentViewModel)parent).Replies.AddRange(remainingVMs);
+                
+            }
+            finally
+            {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+
+            if (remainingVMs != null)
+            {
+                var insertionIndex = IndexOf(removeMe);
+                Remove(removeMe);
+                RunUILoad(remainingVMs, insertionIndex);
+            }
         }
 
-        public void Dispose()
+        void Cancel()
         {
             _cancellationTokenSource.Cancel();
             foreach (var timer in _timerHandles)
@@ -224,6 +260,16 @@ namespace BaconographyPortable.ViewModel.Collections
                     _systemServices.StopTimer(timer.Target);
                 }
             }
+        }
+
+
+        public void Dispose()
+        {
+            Cancel();
+
+            var suspensionService = ServiceLocator.Current.GetInstance<ISuspensionService>();
+            suspensionService.Suspending -= CommentViewModelCollection_Suspending;
+            suspensionService.Resuming -= CommentViewModelCollection_Resuming;
         }
     }
 }

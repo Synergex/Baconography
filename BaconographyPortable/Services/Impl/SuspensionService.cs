@@ -16,23 +16,13 @@ namespace BaconographyPortable.Services.Impl
 
         public void FireSuspending()
         {
-            var cancelToken = _suspensionCancelToken.Token;
-            var systemServices = ServiceLocator.Current.GetInstance<ISystemServices>();
-            systemServices.StartTimer((obj, obj2) =>
-                {
-                    try
-                    {
-                        systemServices.StopTimer(obj);
-                        if (!cancelToken.IsCancellationRequested && Suspending != null)
-                            Suspending();
-
-                        var suspendableWorkQueue = ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>();
-                        suspendableWorkQueue.RaiseImpendingSuspension();
-                        
-                    }
-                    catch { }
-                }, TimeSpan.FromSeconds(6), false);
-            
+            try
+            {
+                Suspending();
+                var suspendableWorkQueue = ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>();
+                suspendableWorkQueue.RaiseImpendingSuspension();
+            }
+            catch { }
         }
 
         public void FireResuming()
@@ -41,8 +31,6 @@ namespace BaconographyPortable.Services.Impl
             {
                 var suspendableWorkQueue = ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>();
                 suspendableWorkQueue.CancelSuspension();
-                _suspensionCancelToken.Cancel();
-                _suspensionCancelToken = new CancellationTokenSource();
                 if (Resuming != null)
                     Resuming();
             }
