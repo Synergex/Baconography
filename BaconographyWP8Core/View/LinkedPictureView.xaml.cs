@@ -375,22 +375,5 @@ namespace BaconographyWP8.View
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
         }
 
-        async void picker_Completed(object sender, Microsoft.Phone.Tasks.PhotoResult e)
-        {
-            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-            var userService = ServiceLocator.Current.GetInstance<IUserService>();
-            if (e.Error == null && e.ChosenPhoto != null)
-            {
-                using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
-                {
-                    e.ChosenPhoto.CopyTo(lockscreenFile);
-                }
-                settingsService.UseImagePickerForLockScreen = true;
-
-                await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
-                    ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
-            }
-        }
-
     }
 }
