@@ -9,10 +9,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.ComponentModel;
 
-using ImageTools.IO;
-using ImageTools.IO.Gif;
-using ImageTools;
-using ImageTools.Controls;
 using System.Windows.Media;
 using BaconographyWP8.PlatformServices;
 using System.Threading.Tasks;
@@ -25,15 +21,13 @@ using BaconographyPortable.Services;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyPortable.Messages;
 using BaconographyWP8Core.Common;
+using DXGifRenderWP8;
+using System.Threading;
 
 namespace BaconographyWP8.View
 {
 	public partial class ScalingGifView : UserControl
 	{
-        static ScalingGifView()
-        {
-            Decoders.AddDecoder<GifDecoder>();
-        }
 		public ScalingGifView()
 		{
 			InitializeComponent();
@@ -50,13 +44,14 @@ namespace BaconographyWP8.View
 		bool _pinching;
 		Point _screenMidpoint;
 		Point _relativeMidpoint;
+        Direct3DInterop _interop;
 
 		public static readonly DependencyProperty ImageSourceProperty =
 			DependencyProperty.Register(
 				"ImageSource",
 				typeof(object),
 				typeof(ScalingGifView),
-				new PropertyMetadata(null, OnSourcePropertyChanged)
+				new PropertyMetadata(null)
 			);
 
 		public object ImageSource
@@ -66,20 +61,50 @@ namespace BaconographyWP8.View
 			{
 				if (value == null && image != null)
 				{
-					image.Stop();
-					image.Dispose();
+					image.SetContentProvider(null);
+                    _interop = null;
 				}
-				else if (image != null && image.Source == null)
+                else if (image != null && _interop == null && value is string)
 				{
-                    var converter = new ImageConverter();
-                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-					image.Source = (ExtendedImage)converter.Convert(value, null, null, System.Globalization.CultureInfo.CurrentCulture);
-					image.Start();
+                    SetContentProvider(value as string);
 					
 				}
 				SetValue(ImageSourceProperty, value);
 			}
 		}
+
+        private async void SetContentProvider(string sourceUrl)
+        {
+            Monitor.Enter(this);
+            try
+            {
+                if (_interop != null)
+                    return;
+
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                var asset = await SimpleHttpService.GetBytes(sourceUrl);
+                if (asset == null)
+                    return;
+
+                _interop = new Direct3DInterop(asset);
+
+                // Set native resolution in pixels
+                _interop.RenderResolution = _interop.NativeResolution = _interop.WindowBounds = new Windows.Foundation.Size(_interop.Width, _interop.Height);
+                image.Height = _interop.Height;
+                image.Width = _interop.Width;
+                // Hook-up native component to DrawingSurface
+                image.SetContentProvider(_interop.CreateContentProvider());
+                _scale = 0;
+                CoerceScale(true);
+                _scale = _coercedScale;
+                ResizeImage(true);
+            }
+            finally
+            {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                Monitor.Exit(this);
+            }
+        }
 
 		private static void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -92,28 +117,28 @@ namespace BaconographyWP8.View
 		/// Either the user has manipulated the image or the size of the viewport has changed. We only
 		/// care about the size.
 		/// </summary>
-		void viewport_ViewportChanged(object sender, System.Windows.Controls.Primitives.ViewportChangedEventArgs e)
-		{
+        //void viewport_ViewportChanged(object sender, System.Windows.Controls.Primitives.ViewportChangedEventArgs e)
+        //{
 			
 
-			Size newSize = new Size(viewport.Viewport.Width, viewport.Viewport.Height);
-			if (newSize != _viewportSize)
-			{
-				_viewportSize = newSize;
-				CoerceScale(true);
-				ResizeImage(false);
-			}
-		}
+        //    Size newSize = new Size(viewport.Viewport.Width, viewport.Viewport.Height);
+        //    if (newSize != _viewportSize)
+        //    {
+        //        _viewportSize = newSize;
+        //        CoerceScale(true);
+        //        ResizeImage(false);
+        //    }
+        //}
 
 		/// <summary>
 		/// Handler for the ManipulationStarted event. Set initial state in case
 		/// it becomes a pinch later.
 		/// </summary>
-		void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
-		{
-			_pinching = false;
-			_originalScale = _scale;
-		}
+        //void OnManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        //{
+        //    _pinching = false;
+        //    _originalScale = _scale;
+        //}
 
 		/// <summary>
 		/// Handler for the ManipulationDelta event. It may or may not be a pinch. If it is not a 
@@ -123,40 +148,34 @@ namespace BaconographyWP8.View
 		/// <param name="e"></param>
 		void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
 		{
-			if (e.PinchManipulation != null && image != null && image.Source != null)
-			{
-				e.Handled = true;
+            if (e.PinchManipulation != null)
+            {
+                var transform = (CompositeTransform)image.RenderTransform;
 
-				if (!_pinching)
-				{
-					_pinching = true;
-					Point center = e.PinchManipulation.Original.Center;
-					_relativeMidpoint = new Point(center.X / image.ActualWidth, center.Y / image.ActualHeight);
+                // Scale Manipulation
+                transform.ScaleX *= e.PinchManipulation.DeltaScale;
+                transform.ScaleY *= e.PinchManipulation.DeltaScale;
 
-					var xform = image.TransformToVisual(viewport);
-					_screenMidpoint = xform.Transform(center);
-				}
+                // Translate manipulation
+                var originalCenter = e.PinchManipulation.Original.Center;
+                var newCenter = e.PinchManipulation.Current.Center;
+                transform.TranslateX =+ newCenter.X - originalCenter.X;
+                transform.TranslateY =+ newCenter.Y - originalCenter.Y;
 
-				_scale = _originalScale * e.PinchManipulation.CumulativeScale;
 
-				CoerceScale(false);
-				ResizeImage(false);
-			}
-			else if (_pinching)
-			{
-				_pinching = false;
-				_originalScale = _scale = _coercedScale;
-			}
+                // end 
+                e.Handled = true;
+            }
 		}
 
 		/// <summary>
 		/// The manipulation has completed (no touch points anymore) so reset state.
 		/// </summary>
-		void OnManipulationCompleted(object sender, ManipulationCompletedEventArgs e)
-		{
-			_pinching = false;
-			_scale = _coercedScale;
-		}
+        //void OnManipulationCompleted(object sender, ManipulationCompletedEventArgs e)
+        //{
+        //    _pinching = false;
+        //    _scale = _coercedScale;
+        //}
 
 
 		/// <summary>
@@ -167,32 +186,28 @@ namespace BaconographyWP8.View
 		/// <param name="center"></param>
 		void ResizeImage(bool center)
 		{
-			if (_coercedScale != 0 && image != null && image.Source != null)
-			{
-				double newWidth;
-				double newHeight;
-				newWidth = canvas.Width = Math.Round(image.Source.PixelWidth * _coercedScale);
-				newHeight = canvas.Height = Math.Round(image.Source.PixelHeight * _coercedScale);
+            if (_coercedScale != 0 && image != null && _interop != null)
+            {
+                double newWidth;
+                double newHeight;
+                newWidth = Width = Math.Round(_interop.Width * _coercedScale);
+                newHeight = Height = Math.Round(_interop.Width * _coercedScale);
 
-				xform.ScaleX = xform.ScaleY = _coercedScale;
+                var transform = (CompositeTransform)image.RenderTransform;
+                transform.ScaleX = transform.ScaleY = _coercedScale;
 
-				viewport.Bounds = new Rect(0, 0, newWidth, newHeight);
-
-				if (center)
-				{
-					viewport.SetViewportOrigin(
-						new Point(
-							Math.Round((newWidth - viewport.ActualWidth) / 2),
-							Math.Round((newHeight - viewport.ActualHeight) / 2)
-							));
-				}
-				else
-				{
-					Point newImgMid = new Point(newWidth * _relativeMidpoint.X, newHeight * _relativeMidpoint.Y);
-					Point origin = new Point(newImgMid.X - _screenMidpoint.X, newImgMid.Y - _screenMidpoint.Y);
-					viewport.SetViewportOrigin(origin);
-				}
-			}
+                if (center)
+                {
+                    transform.CenterX = Math.Round((newWidth - ActualWidth) / 2);
+                    transform.CenterY = Math.Round((newHeight - ActualWidth) / 2);
+                }
+                else
+                {
+                    Point newImgMid = new Point(newWidth * _relativeMidpoint.X, newHeight * _relativeMidpoint.Y);
+                    transform.CenterX = newImgMid.X - _screenMidpoint.X;
+                    transform.CenterY = newImgMid.Y - _screenMidpoint.Y;
+                }
+            }
 		}
 
 		/// <summary>
@@ -203,17 +218,17 @@ namespace BaconographyWP8.View
 		/// <param name="recompute">Will recompute the min max scale if true.</param>
 		void CoerceScale(bool recompute)
 		{
-			if (recompute && viewport != null && image != null && image.Source != null)
-			{
-				// Calculate the minimum scale to fit the viewport
-				double minX = viewport.ActualWidth / image.Source.PixelWidth;
-				double minY = viewport.ActualHeight / image.Source.PixelHeight;
-				_minScale = Math.Min(minX, minY);
-				if (_minScale == 0.0)
-					_minScale = 1.0;
-			}
+            if (recompute && image != null && _interop != null)
+            {
+                // Calculate the minimum scale to fit the viewport
+                double minX = ActualWidth / _interop.Width;
+                double minY = ActualHeight / _interop.Height;
+                _minScale = Math.Min(minX, minY);
+                if (_minScale == 0.0)
+                    _minScale = 1.0;
+            }
 
-			_coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));
+            _coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));
 
 		}
 

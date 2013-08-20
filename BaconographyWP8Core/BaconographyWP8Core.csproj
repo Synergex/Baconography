@@ -429,6 +429,10 @@
       <Project>{4110A30E-1B48-45F6-AA6B-1ACDC817C286}</Project>
       <Name>BaconographyWP8BackgroundControls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DXGifRenderWP8\DXGifRenderWP8.vcxproj">
+      <Project>{B9A8ED65-C137-4751-AF3A-44D2D7DCA0F5}</Project>
+      <Name>DXGifRenderWP8</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj">
       <Project>{30BEDEDE-3224-49FA-9340-8A82447619CB}</Project>
       <Name>ImageTools.Controls.Phone</Name>

@@ -44,35 +44,45 @@ namespace BaconographyWP8.View
 				"ImageSource",
 				typeof(object),
 				typeof(ScalingPictureView),
-				new PropertyMetadata(null)
+				new PropertyMetadata(null, OnImageSourceChanged)
 			);
 
+        private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        object _imageSource;
 		public object ImageSource
 		{
 			get { return GetValue(ImageSourceProperty); }
 			set
 			{
-                if (value == null)
+                if (_imageSource != value)
                 {
-                    if (_bitmap != null)
+                    if (value == null)
                     {
-                        _bitmap.ImageOpened -= OnImageOpened;
-                        _bitmap.ImageFailed -= _bitmap_ImageFailed;
-                        _bitmap.UriSource = null;
+                        if (_bitmap != null)
+                        {
+                            _bitmap.ImageOpened -= OnImageOpened;
+                            _bitmap.ImageFailed -= _bitmap_ImageFailed;
+                            _bitmap.UriSource = null;
+                        }
+                        _bitmap = null;
+                        image.Source = null;
                     }
-                    _bitmap = null;
-                    image.Source = null;
+                    else if (value is string)
+                    {
+                        _bitmap = new BitmapImage();
+                        _bitmap.CreateOptions = BitmapCreateOptions.None;
+                        _bitmap.ImageOpened += OnImageOpened;
+                        _bitmap.ImageFailed += _bitmap_ImageFailed;
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                        _bitmap.UriSource = new Uri(value as string);
+                    }
+                    _imageSource = value;
+                    SetValue(ImageSourceProperty, value);
                 }
-                else if(value is string)
-                {
-                    _bitmap = new BitmapImage();
-                    _bitmap.CreateOptions = BitmapCreateOptions.None;
-                    _bitmap.ImageOpened += OnImageOpened;
-                    _bitmap.ImageFailed += _bitmap_ImageFailed;
-                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                    _bitmap.UriSource = new Uri(value as string);
-                }
-				SetValue(ImageSourceProperty, value);
 			}
 		}
 

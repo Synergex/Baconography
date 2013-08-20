@@ -198,7 +198,6 @@ GifRenderer::GifRenderer(CComPtr<IWICBitmapDecoder>& gifDecoder,
 						 _width(width), _height(height)
 {
 	reinterpret_cast<IUnknown*>(this)->QueryInterface(IID_PPV_ARGS(&_sisNative));
-	CreateDeviceResources();
 	_currentFrame = 0;
 	_timer = ref new Windows::UI::Xaml::DispatcherTimer();
 	_activeRenderers->Append(this);

@@ -14,11 +14,21 @@
     <ClCompile Include="gif_hash.cpp" />
     <ClCompile Include="gifalloc.cpp" />
     <ClCompile Include="quantize.cpp" />
+    <ClCompile Include="Direct3DBase.cpp" />
+    <ClCompile Include="Direct3DContentProvider.cpp" />
+    <ClCompile Include="Direct3DInterop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GifRenderer.h" />
     <ClInclude Include="gif_hash.h" />
     <ClInclude Include="gif_lib.h" />
     <ClInclude Include="gif_lib_private.h" />
+    <ClInclude Include="BasicTimer.h" />
+    <ClInclude Include="Direct3DBase.h" />
+    <ClInclude Include="Direct3DContentProvider.h" />
+    <ClInclude Include="Direct3DInterop.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
