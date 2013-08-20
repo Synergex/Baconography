@@ -336,6 +336,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool RoundedLockScreen
+        {
+            get
+            {
+                return _settingsService.RoundedLockScreen;
+            }
+            set
+            {
+                _settingsService.RoundedLockScreen = value;
+                RaisePropertyChanged("RoundedLockScreen");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get

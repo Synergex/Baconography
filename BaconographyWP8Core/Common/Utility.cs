@@ -45,6 +45,7 @@ namespace BaconographyWP8.Common
 
         struct TaskSettings
         {
+            public bool rounded;
             public string cookie;
             public string opacity;
             public string number_of_items;
@@ -139,7 +140,7 @@ namespace BaconographyWP8.Common
 
                 using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { rounded = settingsService.RoundedLockScreen, cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
@@ -678,6 +679,7 @@ namespace BaconographyWP8.Common
             vml.OverlayItems = lockScreenMessages;
             vml.OverlayOpacity = settingsService.OverlayOpacity;
             vml.NumberOfItems = settingsService.OverlayItemCount;
+            vml.RoundedCorners = settingsService.RoundedLockScreen;
             return vml;
         }
 

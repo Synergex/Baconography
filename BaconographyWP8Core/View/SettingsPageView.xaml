@@ -119,6 +119,7 @@
                             <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
                             
                             <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
+                            <CheckBox Margin="12,0,0,0" Content="Use rounded edges" IsChecked="{Binding RoundedLockScreen, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Show unread messages" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Show top posts" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
 

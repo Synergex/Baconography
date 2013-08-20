@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace BaconographyWP8.ViewModel
@@ -17,6 +18,37 @@ namespace BaconographyWP8.ViewModel
         public string ImageSource { get; set; }
         public List<LockScreenMessage> OverlayItems  { get; set; }
         public int NumberOfItems { get; set; }
+        public bool RoundedCorners { get; set; }
+
+        public CornerRadius CornerRadius
+        {
+            get
+            {
+                if (RoundedCorners)
+                    return new CornerRadius(5);
+                return new CornerRadius(0);
+            }
+        }
+
+        public Thickness Margin
+        {
+            get
+            {
+                if (RoundedCorners)
+                    return new Thickness(12, 40, 12, 12);
+                return new Thickness(-5, 40, -5, 0);
+            }
+        }
+
+        public Thickness InnerMargin
+        {
+            get
+            {
+                if (RoundedCorners)
+                    return new Thickness(0, 0, 0, 0);
+                return new Thickness(17, 0, 17, 0);
+            }
+        }
 
         float _overlayOpacity;
         public float OverlayOpacity

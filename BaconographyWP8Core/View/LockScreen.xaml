@@ -20,27 +20,29 @@
             <ImageBrush Stretch="UniformToFill" ImageSource="{Binding ImageSource}"/>
         </Grid.Background>
 
-        <Border CornerRadius="5" BorderThickness="1" Margin="12" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <Border CornerRadius="{Binding CornerRadius}" BorderThickness="1" Margin="{Binding Margin}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <Border.Background>
                 <SolidColorBrush Color="Black" Opacity="{Binding OverlayOpacity}" />
             </Border.Background>
-            <ListBox ItemsSource="{Binding OverlayItems}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="6" MaxHeight="300">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
+            <Border Margin="{Binding InnerMargin}" Padding="0" BorderThickness="0">
+                <ListBox ItemsSource="{Binding OverlayItems}" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="6" MaxHeight="300">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" FontSize="16" Text="{Binding Glyph}"
-                                   FontFamily="Segoe UI Symbol" />
-                            <TextBlock Grid.Column="1" FontSize="16" Text="{Binding DisplayText}"
-                                   TextWrapping="Wrap" FontFamily="Segoe WP" FontStyle="Italic" />
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                                <TextBlock Grid.Column="0" FontSize="16" Text="{Binding Glyph}"
+                                       FontFamily="Segoe UI Symbol" />
+                                <TextBlock Grid.Column="1" FontSize="16" Text="{Binding DisplayText}"
+                                       TextWrapping="Wrap" FontFamily="Segoe WP" FontStyle="Italic" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
         </Border>
 
     </Grid>
