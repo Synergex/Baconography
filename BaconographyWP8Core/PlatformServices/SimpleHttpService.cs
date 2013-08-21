@@ -305,6 +305,33 @@ namespace BaconographyWP8.PlatformServices
             _lastRequestMade = DateTime.Now;
         }
 
+        public static byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        public static async Task<byte[]> GetBytes(string url)
+        {
+            HttpWebRequest request = HttpWebRequest.CreateHttp(new Uri(url));
+            request.AllowReadStreamBuffering = true;
+            request.Method = "GET";
+            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+
+            var getResult = await GetResponseAsync(request);
+
+            if (getResult.StatusCode == HttpStatusCode.OK)
+            {
+                using (var response = getResult.GetResponseStream())
+                {
+                    return ReadFully(response);
+                }
+            }
+            return null;
+        }
         
     }
 }

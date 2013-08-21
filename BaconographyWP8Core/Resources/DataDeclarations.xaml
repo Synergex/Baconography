@@ -8,7 +8,6 @@
     xmlns:converters="clr-namespace:BaconographyWP8.Converters"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:main="clr-namespace:BaconographyWP8"
-    xmlns:imagetools="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
     mc:Ignorable="d">
 
     <main:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
@@ -44,7 +43,6 @@
     <converters:TotalPointsConverter x:Key="totalPointsConverter"/>
     <converters:CachedImageConverter x:Key="cachedImageConverter"/>
     <converters:UnreadMessagesConverter x:Key="unreadMessagesConverter"/>
-    <imagetools:ImageConverter x:Key="imageConverter"/>
     <common:LinkViewLayoutManager x:Key="linkViewLayoutManager" />
     <common:OrientationManager x:Key="orientationManager" />
     
