@@ -157,7 +157,9 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return ParentLink.Votable;
+                if (ParentLink != null)
+                    return ParentLink.Votable;
+                return null;
             }
         }
 
