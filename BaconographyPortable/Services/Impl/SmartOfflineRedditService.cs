@@ -297,12 +297,23 @@ namespace BaconographyPortable.Services.Impl
                 return null;
             _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
-                    var maybeTask = _offlineService.StoreLinks(listing);
-                    activeMaybeTasks.Add(maybeTask);
-                    await maybeTask;
-                    lock (activeMaybeTasks)
+                    Task maybeTask = null;
+                    try
                     {
-                        activeMaybeTasks.Remove(maybeTask);
+                        maybeTask = _offlineService.StoreLinks(listing);
+                        activeMaybeTasks.Add(maybeTask);
+                        await maybeTask;
+                    }
+                    catch { }
+                    finally
+                    {
+                        if (maybeTask != null)
+                        {
+                            lock (activeMaybeTasks)
+                            {
+                                activeMaybeTasks.Remove(maybeTask);
+                            }
+                        }
                     }
                 });
             
@@ -340,11 +351,17 @@ namespace BaconographyPortable.Services.Impl
 
                         _currentlyStoringComments.Add(permalink, listing);
                     }
-
-                    await _offlineService.StoreComments(listing);
-                    lock (_currentlyStoringComments)
+                    try
                     {
-                        _currentlyStoringComments.Remove(permalink);
+                        await _offlineService.StoreComments(listing);
+                    }
+                    catch { }
+                    finally
+                    {
+                        lock (_currentlyStoringComments)
+                        {
+                            _currentlyStoringComments.Remove(permalink);
+                        }
                     }
                 });
             return listing;

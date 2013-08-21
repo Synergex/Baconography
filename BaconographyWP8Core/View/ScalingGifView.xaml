@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:imagetools="clr-namespace:ImageTools.Controls;assembly=ImageTools.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     mc:Ignorable="d"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
@@ -11,21 +11,21 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480" x:Name="viewPanel">
 
+    <toolkit:GestureService.GestureListener>
+        <toolkit:GestureListener x:Name="myGridGestureListener" PinchStarted="myGridGestureListener_PinchStarted" 
+                                 PinchDelta="myGridGestureListener_PinchDelta" DoubleTap="myGridGestureListener_DoubleTap"
+                                 PinchCompleted="myGridGestureListener_PinchCompleted"/>
+    </toolkit:GestureService.GestureListener>
     <Grid x:Name="ContentPanel" Grid.Row="1" Margin="0,0,0,0">
         <ViewportControl x:Name="viewport"
-                 ViewportChanged="viewport_ViewportChanged"
-                DoubleTap="OnDoubleTap">
-            <Canvas x:Name="canvas" UseOptimizedManipulationRouting="False">
-                <DrawingSurface
-                    RenderTransformOrigin="0,0"
-                    x:Name="image"
-                    ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
-                ManipulationCompleted="OnManipulationCompleted" UseOptimizedManipulationRouting="False">
-                    <DrawingSurface.RenderTransform>
-                        <ScaleTransform x:Name="xform"/>
-                    </DrawingSurface.RenderTransform>
-                </DrawingSurface>
-            </Canvas>
+                 ViewportChanged="viewport_ViewportChanged">
+            <DrawingSurface
+                RenderTransformOrigin="0,0"
+                x:Name="image">
+                <DrawingSurface.RenderTransform>
+                    <ScaleTransform x:Name="xform"/>
+                </DrawingSurface.RenderTransform>
+            </DrawingSurface>
         </ViewportControl>
     </Grid>
 </UserControl>
