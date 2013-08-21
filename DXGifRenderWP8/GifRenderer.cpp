@@ -73,10 +73,6 @@ void loadTexture(ID3D11Device1* d3dDevice, ID3D11DeviceContext1* context, GifFra
 	data.SysMemSlicePitch = 0;
 	DXGifRenderWP8::ThrowIfFailed(d3dDevice->CreateTexture2D(&textureDesc, &data, &frame.preRendered));
 
-	/*D3D11_MAPPED_SUBRESOURCE mapped;
-	DXGifRenderWP8::ThrowIfFailed(context->Map(frame.preRendered.Get(), 0, D3D11_MAP_READ, 0, &mapped));
-	memcpy(mapped.pData, buffer.get(), 4 * frame.width * frame.height);
-	context->Unmap(frame.preRendered.Get(), 0);*/
 	D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
     memset( &SRVDesc, 0, sizeof( SRVDesc ) );
     SRVDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -266,9 +262,16 @@ void GifRenderer::Render()
 void GifRenderer::CreateDeviceResources()
 {
 	Direct3DBase::CreateDeviceResources();
-	if(_gifFile != nullptr)
+	try
 	{
-		loadGifFrames(_gifFile, _frames, m_d3dDevice.Get(), m_d3dContext.Get());
+		if(_gifFile != nullptr)
+		{
+			loadGifFrames(_gifFile, _frames, m_d3dDevice.Get(), m_d3dContext.Get());
+		}
+	}
+	catch(...)
+	{
+		throw ref new Platform::FailureException("error loading gif");
 	}
 }
 

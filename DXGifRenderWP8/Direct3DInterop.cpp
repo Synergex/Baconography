@@ -78,6 +78,10 @@ namespace DXGifRenderWP8
 	// Interface With Direct3DContentProvider
 	HRESULT Direct3DInterop::Connect(_In_ IDrawingSurfaceRuntimeHostNative* host)
 	{
+		if(m_renderer != nullptr)
+		{
+			delete m_renderer;
+		}
 		m_renderer = ref new GifRenderer(_gifFile);
 		m_renderer->Initialize();
 		m_renderer->UpdateForWindowSizeChange(WindowBounds.Width, WindowBounds.Height);
@@ -91,6 +95,10 @@ namespace DXGifRenderWP8
 
 	void Direct3DInterop::Disconnect()
 	{
+		if(m_renderer != nullptr)
+		{
+			delete m_renderer;
+		}
 		m_renderer = nullptr;
 	}
 
