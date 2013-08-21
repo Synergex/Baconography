@@ -86,6 +86,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>ole32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
+      <AdditionalDependencies>WindowsPhoneCore.lib;RuntimeObject.lib;PhoneAppModelHost.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
