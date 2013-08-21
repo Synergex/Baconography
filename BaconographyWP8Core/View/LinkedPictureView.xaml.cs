@@ -108,7 +108,7 @@ namespace BaconographyWP8.View
             
             _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
             _smartOfflineService.NavigatedToView(typeof(LinkedPictureView), e == null ? true : e.NavigationMode == NavigationMode.New);
-            
+            SetMenuState();
 		}
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -277,17 +277,47 @@ namespace BaconographyWP8.View
             item.Content = null;
         }
 
+        enum ImageContextMenuState
+        {
+            Extended,
+            Collapsed
+        }
+
+        private static ImageContextMenuState _contextMenuState = ImageContextMenuState.Extended;
+
         private void CaptionHitbox_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
         {
-            if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
+            switch (_contextMenuState)
             {
-                caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
-                caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+                case ImageContextMenuState.Extended:
+                    // Animate to Collapsed
+                    _contextMenuState = ImageContextMenuState.Collapsed;
+                    break;
+                case ImageContextMenuState.Collapsed:
+                    // Animate to Extended
+                    _contextMenuState = ImageContextMenuState.Extended;
+                    break;
             }
-            else
+
+            SetMenuState();
+        }
+
+        private void SetMenuState()
+        {
+            switch (_contextMenuState)
             {
-                caption.TextWrapping = System.Windows.TextWrapping.Wrap;
-                caption.TextTrimming = System.Windows.TextTrimming.None;
+                case ImageContextMenuState.Collapsed:
+                    // Animate to Collapsed
+                    caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
+                    caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+                    trayButtons.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case ImageContextMenuState.Extended:
+                    // Animate to Extended
+                    caption.TextWrapping = System.Windows.TextWrapping.Wrap;
+                    caption.TextTrimming = System.Windows.TextTrimming.None;
+                    trayButtons.Visibility = System.Windows.Visibility.Visible;
+                    break;
             }
         }
 
