@@ -16,7 +16,8 @@
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
     shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
-    DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
+    DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}"
+    x:Name="pageRoot">
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -110,8 +111,16 @@
                                       Checked="SetLockScreen"/>
 
                             <TextBlock FontWeight="SemiBold" Text="CONTENT PREFERENCES"/>
-                            <Button Margin="12,0,0,0" Content="Use custom image background" Click="PickLockScreen"/>
-                            <Button Margin="12,0,0,0" Content="Use subreddit for background" Click="SetLockScreen"/>
+                            <RadioButton x:Name="userImageRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay}"
+                                         Margin="12,0,0,0" Content="Use custom image for background"
+                                         Click="SelectLockScreenImage" />
+                            <Image HorizontalAlignment="Center" Height="90" Width="90" Source="{Binding ElementName=pageRoot, Path=ImagePreview}"
+                                         Visibility="{Binding UseImagePickerForLockScreen, Converter={StaticResource booleanVisibilityConverter}}"
+                                         Tap="SelectLockScreenImage" />
+                            <RadioButton x:Name="subredditRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay, Converter={StaticResource invertBooleanConverter}}"
+                                         Margin="12,0,0,0" Content="Use subreddit for background"
+                                         Click="SelectLockScreenSubreddit"/>
+
                             <Button Margin="12,0,0,0" Content="Customize overlay" Click="ShowLockScreenPreview"/>
                             
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
@@ -123,7 +132,7 @@
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyOnWifi, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update top posts only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
                             
                         </StackPanel>
                     </ScrollViewer>
