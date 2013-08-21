@@ -49,7 +49,8 @@ namespace BaconographyWP8.View
 
         private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            var image = (ScalingPictureView)d;
+            image.ImageSource = e.NewValue;
         }
 
         object _imageSource;

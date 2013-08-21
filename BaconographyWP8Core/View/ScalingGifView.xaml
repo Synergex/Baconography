@@ -12,13 +12,20 @@
     d:DesignHeight="480" d:DesignWidth="480" x:Name="viewPanel">
 
     <Grid x:Name="ContentPanel" Grid.Row="1" Margin="0,0,0,0">
-        <DrawingSurface
-            ManipulationDelta="OnManipulationDelta" 
-            RenderTransformOrigin="0,0"
-            x:Name="image">
-            <DrawingSurface.RenderTransform>
-                <CompositeTransform CenterX="100" CenterY="75" />
-            </DrawingSurface.RenderTransform>
-        </DrawingSurface>
+        <ViewportControl x:Name="viewport"
+                 ViewportChanged="viewport_ViewportChanged"
+                DoubleTap="OnDoubleTap">
+            <Canvas x:Name="canvas" UseOptimizedManipulationRouting="False">
+                <DrawingSurface
+                    RenderTransformOrigin="0,0"
+                    x:Name="image"
+                    ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
+                ManipulationCompleted="OnManipulationCompleted" UseOptimizedManipulationRouting="False">
+                    <DrawingSurface.RenderTransform>
+                        <ScaleTransform x:Name="xform"/>
+                    </DrawingSurface.RenderTransform>
+                </DrawingSurface>
+            </Canvas>
+        </ViewportControl>
     </Grid>
 </UserControl>
