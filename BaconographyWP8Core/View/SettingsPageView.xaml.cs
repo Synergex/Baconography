@@ -48,6 +48,24 @@ namespace BaconographyWP8.View
             {
                 pivot.SelectedIndex = 1;
             }
+
+            UpdateLockScreenStatus();
+        }
+
+        private void UpdateLockScreenStatus()
+        {
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+
+            if (isProvider)
+            {
+                lockStatus.IsChecked = true;
+                lockStatus.IsEnabled = false;
+            }
+            else
+            {
+                lockStatus.IsChecked = false;
+                lockStatus.IsEnabled = true;
+            }
         }
 
         protected void OpenHelp(string topic, string content)
@@ -118,6 +136,7 @@ namespace BaconographyWP8.View
 			}
 		}
 
+
         private async void ShowSystemLockScreenSettings(object sender, RoutedEventArgs e)
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-lock:"));
@@ -132,16 +151,29 @@ namespace BaconographyWP8.View
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
 
             var lockScreen = new ViewModelLocator().LockScreen;
-            lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            if (!settingsService.UseImagePickerForLockScreen)
+            {
+                lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            }
 
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
         }
 
-        
+        private async void SelectLockScreenSubreddit(object sender, RoutedEventArgs e)
+        {
+            SetLockScreen(sender, e);
+        }
 
         private async void SetLockScreen(object sender, RoutedEventArgs e)
         {
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+            if (sender is CheckBox && isProvider)
+                return;
+
+            isProvider = await Utility.RequestLockAccess();
+            UpdateLockScreenStatus();
+
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
@@ -153,11 +185,21 @@ namespace BaconographyWP8.View
 
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
-            
         }
 
-        private void PickLockScreen(object sender, RoutedEventArgs e)
+        public static readonly DependencyProperty ImagePreviewProperty =
+            DependencyProperty.Register(
+                "ImagePreview",
+                typeof(string),
+                typeof(SettingsPageView),
+                new PropertyMetadata(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg")
+            );
+
+        private async void SelectLockScreenImage(object sender, RoutedEventArgs e)
         {
+            var isProvider = await Utility.RequestLockAccess();
+            UpdateLockScreenStatus();
+
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
@@ -182,6 +224,8 @@ namespace BaconographyWP8.View
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
             }
         }
+
+
 
         private void HelpOfflineButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
@@ -219,5 +263,6 @@ namespace BaconographyWP8.View
             }
  
         }
+
 	}
 }

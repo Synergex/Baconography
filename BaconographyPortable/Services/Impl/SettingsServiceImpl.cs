@@ -57,6 +57,7 @@ namespace BaconographyPortable.Services.Impl
         public bool UpdateImagesOnlyOnWifi { get; set; }
         public bool TapForComments { get; set; }
         public bool UseImagePickerForLockScreen { get; set; }
+        public bool RoundedLockScreen { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -270,6 +271,12 @@ namespace BaconographyPortable.Services.Impl
                 else
                     UseImagePickerForLockScreen = false;
 
+                var roundedLockScreen = await offlineService.GetSetting("RoundedLockScreen");
+                if (!string.IsNullOrWhiteSpace(roundedLockScreen))
+                    RoundedLockScreen = bool.Parse(roundedLockScreen);
+                else
+                    RoundedLockScreen = false;
+
 
 
                 Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
@@ -315,6 +322,7 @@ namespace BaconographyPortable.Services.Impl
             await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
             await offlineService.StoreSetting("LastCleanedCache", LastCleanedCache.ToString());
             await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
+            await offlineService.StoreSetting("RoundedLockScreen", RoundedLockScreen.ToString());
             await offlineService.StoreSetting("UseImagePickerForLockScreen", UseImagePickerForLockScreen.ToString());
         }
 

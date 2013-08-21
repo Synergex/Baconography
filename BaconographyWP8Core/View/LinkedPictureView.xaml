@@ -203,7 +203,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition Height="2" />
-                <RowDefinition Height="78" />
+                <RowDefinition MaxHeight="78" />
             </Grid.RowDefinitions>
             
             <TextBlock Grid.Column="1" Grid.Row="0"
@@ -219,6 +219,7 @@
             </Grid>
             
             <Grid Grid.Row="2" Grid.ColumnSpan="3"
+                  x:Name="trayButtons"
                   HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80"/>

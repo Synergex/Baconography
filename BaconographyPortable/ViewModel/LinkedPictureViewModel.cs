@@ -35,6 +35,13 @@ namespace BaconographyPortable.ViewModel
             public int PositionInAlbum { get; set; }
             public int AlbumSize { get; set; }
             public bool IsGif { get; set; }
+            public bool HasExtendableTitle
+            {
+                get
+                {
+                    return Title.Length > 40 || Title.Contains("\r") || Title.Contains("\n");
+                }
+            }
         }
 
         public string LinkId { get; set; }
@@ -157,7 +164,9 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return ParentLink.Votable;
+                if (ParentLink != null)
+                    return ParentLink.Votable;
+                return null;
             }
         }
 

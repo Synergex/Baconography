@@ -84,6 +84,7 @@ namespace BaconographyWP8
             int numberOfItems = 6;
             TinyRedditService redditService = null;
             bool hasMail = false;
+            bool roundedCorners = false;
             int messageCount = 0;
             try
             {
@@ -97,6 +98,7 @@ namespace BaconographyWP8
                         var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
                         var decodedJson = JSON.JsonDecode(json);
 
+                        var rounded = JSON.GetValue(decodedJson, "rounded") as bool?;
                         var cookie = JSON.GetValue(decodedJson, "cookie") as string;
                         var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
                         var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
@@ -110,6 +112,7 @@ namespace BaconographyWP8
 
                         if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
                         if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
+                        if (rounded != null) roundedCorners = rounded.Value;
 
                         if (!string.IsNullOrWhiteSpace(cookie))
                         {
@@ -134,6 +137,7 @@ namespace BaconographyWP8
             lockScreenViewModel.ImageSource = lockScreenImage;
             lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
             lockScreenViewModel.NumberOfItems = numberOfItems;
+            lockScreenViewModel.RoundedCorners = roundedCorners;
 
             if (task.Name == periodicTaskName)
             {

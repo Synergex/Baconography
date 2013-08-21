@@ -40,11 +40,12 @@ namespace BaconographyWP8.Common
 			);
 		}
 
-        const string ReadMailGlyph = "\uE166";
-        const string UnreadMailGlyph = "\uE119";
+        public const string ReadMailGlyph = "\uE166";
+        public const string UnreadMailGlyph = "\uE119";
 
         struct TaskSettings
         {
+            public bool rounded;
             public string cookie;
             public string opacity;
             public string number_of_items;
@@ -139,7 +140,7 @@ namespace BaconographyWP8.Common
 
                 using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    TaskSettings settings = new TaskSettings { rounded = settingsService.RoundedLockScreen, cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
                     var settingsBlob = JsonConvert.SerializeObject(settings);
                     var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
                     taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
@@ -604,6 +605,31 @@ namespace BaconographyWP8.Common
             return results;
         }
 
+        public static async Task<bool> RequestLockAccess()
+        {
+            try
+            {
+                var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+                if (!isProvider)
+                {
+                    // If you're not the provider, this call will prompt the user for permission.
+                    // Calling RequestAccessAsync from a background agent is not allowed.
+                    var op = await Windows.Phone.System.UserProfile.LockScreenManager.RequestAccessAsync();
+
+                    // Only do further work if the access was granted.
+                    isProvider = op == Windows.Phone.System.UserProfile.LockScreenRequestResult.Granted;
+                }
+
+                return isProvider;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+
+            return false;
+        }
+
         public static async void LockHelper(string filePathOfTheImage, bool isAppResource, bool supressInit)
         {
             try
@@ -678,6 +704,7 @@ namespace BaconographyWP8.Common
             vml.OverlayItems = lockScreenMessages;
             vml.OverlayOpacity = settingsService.OverlayOpacity;
             vml.NumberOfItems = settingsService.OverlayItemCount;
+            vml.RoundedCorners = settingsService.RoundedLockScreen;
             return vml;
         }
 
