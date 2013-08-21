@@ -91,17 +91,28 @@
                 </Grid>
             </phone:PivotItem>
 
+            <phone:PivotItem Header="tile">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="LIVE TILE"/>
+                        <TextBlock Margin="24,0,0,0" Text="Subreddit for live tile posts:"/>
+                        <TextBox Margin="12,0,0,0" Text="{Binding LiveTileReddit, Mode=TwoWay}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </phone:PivotItem>
+            
             <phone:PivotItem Header="lock screen">
                 <Grid>
                     <ScrollViewer>
                         <StackPanel Margin="12,0,12,0">
-                            <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
-                            <Button Margin="12,0,0,0" Content="System lock screen settings" Click="ShowSystemLockScreenSettings"/>
-                            <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
-                            <Button Margin="12,0,0,0" Content="Set reddit lock screen" Click="SetLockScreen"/>
-                            <Button Margin="12,0,0,0" Content="Set image lock screen" Click="PickLockScreen"/>
-                            
-                            <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
+                            <Button Margin="12,0,0,0" Content="Change system settings" Click="ShowSystemLockScreenSettings"/>
+                            <CheckBox x:Name="lockStatus" Margin="12,0,0,0" Content="Baconography Lock Screens" 
+                                      Checked="SetLockScreen"/>
+
+                            <TextBlock FontWeight="SemiBold" Text="CONTENT PREFERENCES"/>
+                            <Button Margin="12,0,0,0" Content="Use custom image background" Click="PickLockScreen"/>
+                            <Button Margin="12,0,0,0" Content="Use subreddit for background" Click="SetLockScreen"/>
+                            <Button Margin="12,0,0,0" Content="Customize overlay" Click="ShowLockScreenPreview"/>
                             
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
                             <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
@@ -109,31 +120,10 @@
                             <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen posts:"/>
                             <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
 
-                            <TextBlock FontWeight="SemiBold" Text="LIVE TILE"/>
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for live tile posts:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LiveTileReddit, Mode=TwoWay}"/>
-
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyOnWifi, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
-                            
-                            <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
-                            <CheckBox Margin="12,0,0,0" Content="Use rounded edges" IsChecked="{Binding RoundedLockScreen, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Show unread messages" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Show top posts" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="24,0,0,0" Text="Number of Items"/>
-                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayItemCount}" />
-                            </StackPanel>
-                            <Slider Margin="12,0,0,0" Minimum="0" Maximum="6" Value="{Binding OverlayItemCount, Mode=TwoWay}"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="24,0,0,0" Text="Opacity"/>
-                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayOpacity}" />
-                            </StackPanel>
-                            <Slider Margin="12,0,0,0" Minimum="25" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
                             
                         </StackPanel>
                     </ScrollViewer>

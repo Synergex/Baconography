@@ -48,6 +48,19 @@ namespace BaconographyWP8.View
             {
                 pivot.SelectedIndex = 1;
             }
+
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+
+            if (isProvider)
+            {
+                lockStatus.IsChecked = true;
+                lockStatus.IsEnabled = false;
+            }
+            else
+            {
+                lockStatus.IsChecked = false;
+                lockStatus.IsEnabled = true;
+            }
         }
 
         protected void OpenHelp(string topic, string content)
@@ -132,7 +145,10 @@ namespace BaconographyWP8.View
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
 
             var lockScreen = new ViewModelLocator().LockScreen;
-            lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            if (!settingsService.UseImagePickerForLockScreen)
+            {
+                lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            }
 
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
@@ -142,6 +158,21 @@ namespace BaconographyWP8.View
 
         private async void SetLockScreen(object sender, RoutedEventArgs e)
         {
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+            if (sender is CheckBox && isProvider)
+                return;
+
+            isProvider = await Utility.RequestLockAccess();
+            if (isProvider)
+            {
+                lockStatus.IsChecked = true;
+                lockStatus.IsEnabled = false;
+            }
+            else
+            {
+                lockStatus.IsChecked = false;
+            }
+
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
@@ -153,7 +184,6 @@ namespace BaconographyWP8.View
 
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
-            
         }
 
         private void PickLockScreen(object sender, RoutedEventArgs e)
@@ -219,5 +249,6 @@ namespace BaconographyWP8.View
             }
  
         }
+
 	}
 }

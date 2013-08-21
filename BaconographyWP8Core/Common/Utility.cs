@@ -40,8 +40,8 @@ namespace BaconographyWP8.Common
 			);
 		}
 
-        const string ReadMailGlyph = "\uE166";
-        const string UnreadMailGlyph = "\uE119";
+        public const string ReadMailGlyph = "\uE166";
+        public const string UnreadMailGlyph = "\uE119";
 
         struct TaskSettings
         {
@@ -603,6 +603,31 @@ namespace BaconographyWP8.Common
                 }
             }
             return results;
+        }
+
+        public static async Task<bool> RequestLockAccess()
+        {
+            try
+            {
+                var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+                if (!isProvider)
+                {
+                    // If you're not the provider, this call will prompt the user for permission.
+                    // Calling RequestAccessAsync from a background agent is not allowed.
+                    var op = await Windows.Phone.System.UserProfile.LockScreenManager.RequestAccessAsync();
+
+                    // Only do further work if the access was granted.
+                    isProvider = op == Windows.Phone.System.UserProfile.LockScreenRequestResult.Granted;
+                }
+
+                return isProvider;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+
+            return false;
         }
 
         public static async void LockHelper(string filePathOfTheImage, bool isAppResource, bool supressInit)

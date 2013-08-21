@@ -3,6 +3,7 @@ using BaconographyPortable.ViewModel;
 using BaconographyWP8.Converters;
 using BaconographyWP8.PlatformServices;
 using BaconographyWP8.ViewModel;
+using BaconographyWP8Core.ViewModel;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 using System;
@@ -249,6 +250,14 @@ namespace BaconographyWP8
             get
             {
                 return ServiceLocator.Current.GetInstance<LockScreenViewModel>();
+            }
+        }
+
+        public PreviewLockScreenViewModel PreviewLockScreen
+        {
+            get
+            {
+                return new PreviewLockScreenViewModel();
             }
         }
 

@@ -23,14 +23,14 @@ namespace BaconographyWP8.Converters
 	 */
 	public class LinkGlyphConverter : IValueConverter
     {
-		const string NavRightGlyph =	"\uE0AD";
-		const string PhotoGlyph =		"\uE114";
-		const string VideoGlyph =		"\uE116";
-		const string WebGlyph =			"\uE128";
-		const string DetailsGlyph =		"\uE14C";
-        const string MultiredditGlyph = "\uE17D";
-        const string UserGlyph =        "\uE136";
-        const string CommentGlyph =     "\uE14C";
+		public const string NavRightGlyph =	"\uE0AD";
+        public const string PhotoGlyph = "\uE114";
+        public const string VideoGlyph = "\uE116";
+        public const string WebGlyph = "\uE128";
+        public const string DetailsGlyph = "\uE14C";
+        public const string MultiredditGlyph = "\uE17D";
+        public const string UserGlyph = "\uE136";
+        public const string CommentGlyph = "\uE14C";
 
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{

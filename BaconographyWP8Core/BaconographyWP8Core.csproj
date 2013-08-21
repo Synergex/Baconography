@@ -136,6 +136,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="ViewModel\PreviewLockScreenViewModel.cs" />
     <Compile Include="ViewUriAttribute.cs" />
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\OrientationManager.cs" />
