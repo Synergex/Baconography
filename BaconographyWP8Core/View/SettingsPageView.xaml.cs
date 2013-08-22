@@ -316,6 +316,10 @@ namespace BaconographyWP8.View
                 await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
             }
+            else
+            {
+                subredditRadioButton.IsChecked = true;
+            }
         }
 
 
