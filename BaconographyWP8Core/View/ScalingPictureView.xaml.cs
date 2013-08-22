@@ -81,6 +81,15 @@ namespace BaconographyWP8.View
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                         _bitmap.UriSource = new Uri(value as string);
                     }
+                    else if (value is byte[])
+                    {
+                        _bitmap = new BitmapImage();
+                        _bitmap.CreateOptions = BitmapCreateOptions.None;
+                        _bitmap.ImageOpened += OnImageOpened;
+                        _bitmap.ImageFailed += _bitmap_ImageFailed;
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                        _bitmap.SetSource(new MemoryStream(value as byte[]));
+                    }
                     _imageSource = value;
                     SetValue(ImageSourceProperty, value);
                 }

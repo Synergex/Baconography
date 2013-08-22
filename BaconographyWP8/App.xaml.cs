@@ -40,6 +40,7 @@ namespace BaconographyWP8
         /// </summary>
         public App()
         {
+            
             Styles.Resources = this.Resources;
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
@@ -52,6 +53,8 @@ namespace BaconographyWP8
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            SystemServices._uiDispatcher = RootFrame.Dispatcher;
 
             // Bacon-specific initialization
             InitializeBacon();

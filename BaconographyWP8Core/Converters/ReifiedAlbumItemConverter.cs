@@ -53,43 +53,43 @@ namespace BaconographyWP8.Converters
         async Task<PivotItem> MapViewModel(ViewModelBase viewModel)
         {
             var rvm = viewModel as LinkedPictureViewModel.LinkedPicture;
-
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            string domain = rvm.Url;
             try
             {
-                var request = HttpWebRequest.CreateHttp(rvm.Url);
-                byte[] result = null;
-                using (var response = (await SimpleHttpService.GetResponseAsync(request)))
-                {
-                    if (response != null)
+                var uri = new Uri(rvm.Url);
+                domain = uri.Host;
+            }
+            catch{}
+
+
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = 0, Message = "loading from " + domain });
+            try
+            {
+                var imageBytes = await SimpleHttpService.GetBytesWithProgress(rvm.Url, (progress) => 
                     {
-                        result = await Task<byte[]>.Run(() =>
-                        {
-                            byte[] buffer = new byte[11];
-                            var stream = response.GetResponseStream();
-                            if (stream == null)
-                                return null;
-                            stream.Read(buffer, 0, 11);
-                            return buffer;
-                        });
-                    }
-                }
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = progress, Message = "loading from " + domain });
+                    });
                 Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
 
-                GifDecoder decoder = new GifDecoder();
-                if (result != null && decoder.IsSupportedFileFormat(result))
+                bool isGif = false;
+                if (imageBytes != null && imageBytes.Length >= 6)
                 {
-                    rvm.IsGif = true;
-                }
-                else if (result != null)
-                {
-                    rvm.IsGif = false;
+                    isGif =
+                        imageBytes[0] == 0x47 && // G
+                        imageBytes[1] == 0x49 && // I
+                        imageBytes[2] == 0x46 && // F
+                        imageBytes[3] == 0x38 && // 8
+                       (imageBytes[4] == 0x39 || imageBytes[4] == 0x37) && // 9 or 7
+                        imageBytes[5] == 0x61;   // a
                 }
                 else
                 {
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("failed to load image: unknown");
                     return null;
                 }
+
+                rvm.ImageSource = imageBytes;
+                rvm.IsGif = isGif;
             }
             catch (Exception ex)
             {

@@ -35,31 +35,27 @@ namespace BaconographyWP8.Common
 			Messenger.Default.Register<SettingsChangedMessage>(this, OnSettingsChanged);
 			Messenger.Default.Register<OrientationChangedMessage>(this, OnOrientationChanged);
             Messenger.Default.Register<LoadingMessage>(this, OnLoading);
-            _baconProvider.GetService<ISuspensionService>().Suspending += OrientationManager_Suspending;
 		}
-
-        void OrientationManager_Suspending()
-        {
-            try
-            {
-                ProgressActive.IsVisible = false;
-            }
-            catch (Exception)
-            {
-                _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => ProgressActive.IsVisible = false, TimeSpan.FromMilliseconds(0), true);
-            }
-        }
 
         private void OnLoading(LoadingMessage obj)
         {
-            try
-            {
-                ProgressActive.IsVisible = obj.Loading;
-            }
-            catch (Exception)
-            {
-                _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => ProgressActive.IsVisible = obj.Loading, TimeSpan.FromMilliseconds(0), true);
-            }
+            _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => 
+                {
+                    ProgressActive.IsVisible = obj.Loading;
+                    if(!obj.Loading)
+                    {
+                        ProgressActive.IsIndeterminate = true;
+                        ProgressActive.IsVisible = false;
+                        ProgressActive.Text = "";
+                        ProgressActive.Value = 0;
+                    }
+                    else if (obj.Message != null && obj.Percentage != null)
+                    {
+                        ProgressActive.IsIndeterminate = false;
+                        ProgressActive.Text = obj.Message;
+                        ProgressActive.Value = ((double)obj.Percentage) / 100.0;
+                    }
+                }, TimeSpan.FromMilliseconds(0), true);
         }
 
 		private PageOrientation StringToOrientation(string orientation)

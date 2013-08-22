@@ -209,6 +209,11 @@ namespace BaconographyWP8
 
                 Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                        GC.WaitForPendingFinalizers();
+                    }
                     BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
                     //it appears to take a few runs to knock down the memory, probably a native reference counting issue
                     //thats why we also have to wait for pending finalizers
@@ -242,6 +247,11 @@ namespace BaconographyWP8
                     try
                     {
                         liveTileCounter = await BuildTileImage(redditService, liveTileCounter, liveTileLink);
+                        for (int i = 0; i < 2; i++)
+                        {
+                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                            GC.WaitForPendingFinalizers();
+                        }
                     }
                     catch { }
 
@@ -338,6 +348,11 @@ namespace BaconographyWP8
                                     try
                                     {
                                         liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
+                                        for (int i = 0; i < 2; i++)
+                                        {
+                                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                                            GC.WaitForPendingFinalizers();
+                                        }
                                     }
                                     catch 
                                     {
@@ -431,6 +446,7 @@ namespace BaconographyWP8
             WriteableBitmap bitmap = new WriteableBitmap(691, 336);
             bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
             bitmap.Invalidate();
+            imageSource.UriSource = null;
             lockScreenView.Source = null;
             using (var store = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -441,13 +457,6 @@ namespace BaconographyWP8
                     liveTileCounter++;
                 }
             }
-
-            for (int i = 0; i < 2; i++)
-            {
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-                GC.WaitForPendingFinalizers();
-            }
-
             return liveTileCounter;
         }
 

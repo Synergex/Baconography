@@ -332,6 +332,89 @@ namespace BaconographyWP8.PlatformServices
             }
             return null;
         }
+
+        public static Task<byte[]> GetBytesWithProgress(string url, Action<uint> progress)
+        {
+            TaskCompletionSource<byte[]> taskCompletion = new TaskCompletionSource<byte[]>();
+            WebClient client = new WebClient();
+            client.AllowReadStreamBuffering = true;
+            client.DownloadProgressChanged += (sender, args) =>
+            {
+                progress((uint)args.ProgressPercentage);
+            };
+
+            client.OpenReadCompleted += async (sender, args) =>
+            {
+                if (args.Cancelled)
+                    taskCompletion.SetCanceled();
+                else if (args.Error != null)
+                    taskCompletion.SetException(args.Error);
+                else
+                {
+                    var result = new byte[args.Result.Length];
+                    args.Result.Read(result, 0, (int)args.Result.Length);
+                    taskCompletion.SetResult(result);
+                    //using (MemoryStream ms = new MemoryStream())
+                    //{
+                    //    await CopyToStreamAsync(args.Result, ms, 4096, progress, null, null);
+                    //    taskCompletion.SetResult(ms.ToArray());
+                    //}
+                }
+            };
+            client.OpenReadAsync(new Uri(url));
+            return taskCompletion.Task;
+        }
+
+        public static Task<Stream> CopyToStreamAsync(Stream source, Stream destination, uint bufferSize, Action<uint> progress, uint? maximumDownloadSize, TimeSpan? timeout)
+        {
+            var taskComplete = new TaskCompletionSource<Stream>();
+            byte[] buffer = new byte[bufferSize];
+
+            int maxDownloadSize = maximumDownloadSize.HasValue
+                ? (int)maximumDownloadSize.Value
+                : int.MaxValue;
+            int bytesDownloaded = 0;
+            uint progressCount = 0;
+            IAsyncResult asyncResult = null;
+
+            Action<IAsyncResult, bool> endRead = null;
+            endRead = (innerAsyncResult, innerIsTimedOut) =>
+            {
+                try
+                {
+                    int bytesRead = source.EndRead(innerAsyncResult);
+                    if (innerIsTimedOut)
+                    {
+                        taskComplete.SetException(new TimeoutException());
+                    }
+
+                    int bytesToWrite = new[] { maxDownloadSize - bytesDownloaded, buffer.Length, bytesRead }.Min();
+                    destination.Write(buffer, 0, bytesToWrite);
+                    bytesDownloaded += bytesToWrite;
+
+                    if (progress != null && bytesToWrite > 0)
+                    {
+                        progress((++progressCount) / 1000);
+                    }
+
+                    if (bytesToWrite == bytesRead && bytesToWrite > 0)
+                    {
+                        asyncResult = source.BeginRead(buffer, 0, buffer.Length, (ia) => endRead(ia, false), null);
+                    }
+                    else
+                    {
+                        taskComplete.SetResult(null);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    taskComplete.SetException(exc);
+                }
+            };
+
+            asyncResult = source.BeginRead(buffer, 0, buffer.Length, (ia) => endRead(ia, false), null);
+            return taskComplete.Task;
+        }
         
     }
 }

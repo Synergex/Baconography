@@ -158,6 +158,21 @@ namespace BaconographyWP8.View
                     SetContentProvider(value as string);
 					
 				}
+                else if (image != null && _interop == null && value is byte[])
+                {
+                    _interop = new Direct3DInterop(value as byte[]);
+
+                    // Set native resolution in pixels
+                    _interop.RenderResolution = _interop.NativeResolution = _interop.WindowBounds = new Windows.Foundation.Size(_interop.Width, _interop.Height);
+                    image.Height = _interop.Height;
+                    image.Width = _interop.Width;
+                    // Hook-up native component to DrawingSurface
+                    image.SetContentProvider(_interop.CreateContentProvider());
+                    _scale = 0;
+                    CoerceScale(true);
+                    _scale = _coercedScale;
+                    ResizeImage(true);
+                }
 				SetValue(ImageSourceProperty, value);
 			}
 		}
