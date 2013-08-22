@@ -38,8 +38,19 @@ namespace Baconography.NeutralServices
         void _suspensionService_Resuming()
         {
             _terminateSource = new CancellationTokenSource();
-            _instanceTask = null;
             _hasQueuedActions = false;
+
+            if (_comments != null)
+                _comments.Resume();
+
+            if (_links != null)
+                _links.Resume();
+
+            if (_subreddits != null)
+                _subreddits.Resume();
+
+            if (_statistics != null)
+                _statistics.Resume();
         }
 
         CancellationTokenSource _terminateSource = new CancellationTokenSource();
@@ -47,7 +58,6 @@ namespace Baconography.NeutralServices
         void _suspensionService_Suspending()
         {
             _terminateSource.Cancel();
-            _instanceTask = null;
             _hasQueuedActions = false;
 
             if (_comments != null)
@@ -73,20 +83,10 @@ namespace Baconography.NeutralServices
         {
             try
             {
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _comments = await Comments.GetInstance();
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _links = await Links.GetInstance();
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _subreddits = await Subreddits.GetInstance();
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _statistics = await UsageStatistics.GetInstance();
-                if (_terminateSource.IsCancellationRequested)
-                    return;
 
                 //tell the key value pair infrastructure to allow duplicates
                 //we dont really have a key, all we actually wanted was an ordered queue
@@ -94,14 +94,8 @@ namespace Baconography.NeutralServices
                 _actionsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\actions_v2.ism", DBCreateFlags.None,
                     ushort.MaxValue - 100,
                     new DBKey[] { new DBKey(8, 0, DBKeyFlags.KeyValue, "default", true, false, false, 0) });
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _historyDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\history_v2.ism", DBCreateFlags.None);
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _settingsDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\settings_v2.ism", DBCreateFlags.None);
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _blobStoreDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\blobs_v3.ism", DBCreateFlags.None, 0,
                     new DBKey[] 
                     { 
@@ -109,19 +103,26 @@ namespace Baconography.NeutralServices
                         new DBKey(8, 4, DBKeyFlags.AutoTime, "timestamp", false, true, false, 1) 
                     });
 
-                if (_terminateSource.IsCancellationRequested)
-                    return;
-
                 _imageAPIDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_api_v1.ism", DBCreateFlags.None, 64000);
-                if (_terminateSource.IsCancellationRequested)
-                    return;
                 _imageDb = await DB.CreateAsync(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\image_v1.ism", DBCreateFlags.None, 0);
-                if (_terminateSource.IsCancellationRequested)
-                    return;
 
                 //get our initial action queue state
                 var actionCursor = await _actionsDb.SeekAsync(_actionsDb.GetKeys().First(), "action", DBReadFlags.AutoLock | DBReadFlags.WaitOnLock);
                 _hasQueuedActions = actionCursor != null;
+
+                _settingsCache = new Dictionary<string, string>();
+                //load all of the settings up front so we dont spend so much time going back and forth
+                var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
+                if (cursor != null)
+                {
+                    using (cursor)
+                    {
+                        do
+                        {
+                            _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
+                        } while (await cursor.MoveNextAsync());
+                    }
+                }
 
                 var historyCursor = await _historyDb.SeekAsync(DBReadFlags.NoLock);
                 if (historyCursor != null)
@@ -134,22 +135,6 @@ namespace Baconography.NeutralServices
                             if (_terminateSource.IsCancellationRequested)
                                 return;
                         } while (await historyCursor.MoveNextAsync());
-                    }
-                }
-
-                _settingsCache = new Dictionary<string, string>();
-                //load all of the settings up front so we dont spend so much time going back and forth
-                var cursor = await _settingsDb.SeekAsync(DBReadFlags.NoLock);
-                if (cursor != null)
-                {
-                    using (cursor)
-                    {
-                        do
-                        {
-                            _settingsCache.Add(cursor.GetKeyString(), cursor.GetString());
-                            if (_terminateSource.IsCancellationRequested)
-                                return;
-                        } while (await cursor.MoveNextAsync());
                     }
                 }
             }
