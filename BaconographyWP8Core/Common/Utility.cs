@@ -99,7 +99,12 @@ namespace BaconographyWP8.Common
             try
             {
                 if (loadingActiveLockScreen)
+                {
+                    while (loadingActiveLockScreen)
+                        await Task.Yield();
+
                     return;
+                }
 
                 var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
                 var connectionCostType = connectionProfile.GetConnectionCost().NetworkCostType;

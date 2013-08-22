@@ -130,8 +130,13 @@ namespace BaconographyWP8Core.ViewModel
             StringBuilder redditString = new StringBuilder("/r/");
             foreach (var item in _selectedSubreddits)
             {
-                redditString.Append(item.DisplayName);
+                if (item.DisplayName == "front page")
+                    redditString.Append("all");
+                else
+                    redditString.Append(item.DisplayName);
+
                 redditString.Append('+');
+                
             }
             return redditString.ToString().TrimEnd(new char[] { '+' });
         }

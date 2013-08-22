@@ -207,7 +207,7 @@ namespace BaconographyWP8.View
             }
         }
 
-        private async void SelectLockScreenSubreddit(object sender, RoutedEventArgs e)
+        private void SelectLockScreenSubreddit(object sender, RoutedEventArgs e)
         {
             var locator = new ViewModelLocator();
             var spvm = locator.SubredditPicker;
@@ -217,11 +217,20 @@ namespace BaconographyWP8.View
             cpvm.UseImagePickerForLockScreen = false;
             spvm.SetSubredditList(cpvm.ImagesSubreddit);
 
+            for (int i = 0; i < 10; i++)
+            {
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", i)))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", i));
+                }
+            }
+
+
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<SubredditPickerPageView>(null);
         }
 
-        private async void SelectTopPostSubreddit(object sender, RoutedEventArgs e)
+        private void SelectTopPostSubreddit(object sender, RoutedEventArgs e)
         {
             var locator = new ViewModelLocator();
             var spvm = locator.SubredditPicker;
@@ -234,7 +243,7 @@ namespace BaconographyWP8.View
             _navigationService.Navigate<SubredditPickerPageView>(null);
         }
 
-        private async void SelectLiveTileSubreddit(object sender, RoutedEventArgs e)
+        private void SelectLiveTileSubreddit(object sender, RoutedEventArgs e)
         {
             var locator = new ViewModelLocator();
             var spvm = locator.SubredditPicker;

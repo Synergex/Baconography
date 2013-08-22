@@ -156,7 +156,15 @@ namespace BaconographyPortable.ViewModel.Collections
                 }
                 else
                 {
-                    initialListing = await _offlineListingProvider.GetInitialListing(state);
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    try
+                    {
+                        initialListing = await _offlineListingProvider.GetInitialListing(state);
+                    }
+                    finally
+                    {
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    }
                 }
 
                 BackgroundUpdate(state);
