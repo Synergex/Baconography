@@ -30,7 +30,7 @@ namespace BaconographyWP8Core.View
                 e.Cancel = true;
             else
             {
-                if (DataContext is CombinedSearchViewModel)
+                if (e.NavigationMode == NavigationMode.Back && DataContext is CombinedSearchViewModel)
                 {
                     ((CombinedSearchViewModel)DataContext).Query = "";
                 }
