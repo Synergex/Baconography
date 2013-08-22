@@ -106,6 +106,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool IsFrontPage
+        {
+            get
+            {
+                var currentRedditVM = _viewModelContext.ContextStack.FirstOrDefault(vm => vm is RedditViewModel) as RedditViewModel;
+                if (currentRedditVM != null)
+                {
+                    return currentRedditVM.IsFrontPage;
+                }
+                return false;
+            }
+        }
+
         private bool _searchOnlySubreddit;
         public bool SearchOnlySubreddit
         {
