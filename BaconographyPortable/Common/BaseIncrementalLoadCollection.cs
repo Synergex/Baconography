@@ -76,10 +76,13 @@ namespace BaconographyPortable.Common
                 _loading = true;
                 if (_initialLoaded)
                 {
-                    foreach (var item in await LoadAdditional(_state))
+                    if (HasAdditional(_state))
                     {
-                        addCounter++;
-                        Add(item);
+                        foreach (var item in await LoadAdditional(_state))
+                        {
+                            addCounter++;
+                            Add(item);
+                        }
                     }
                 }
                 else
