@@ -17,6 +17,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         {
             _query = query;
             _reddits = reddits;
+            _restrictedToSubreddit = restrictedToSubreddit;
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
