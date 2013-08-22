@@ -93,9 +93,15 @@ namespace BaconographyPortable.ViewModel
                 var currentRedditVM = _viewModelContext.ContextStack.FirstOrDefault(vm => vm is RedditViewModel) as RedditViewModel;
                 if (currentRedditVM != null)
                 {
-                    _targetSubreddit = currentRedditVM.Heading;
-                    if (_targetSubreddit == "The front page of this device")
+
+                    if (currentRedditVM.IsFrontPage)
+                    {
                         _targetSubreddit = null;
+                    }
+                    else
+                    {
+                        _targetSubreddit = currentRedditVM.Heading;
+                    }
                 }
                 return _targetSubreddit; 
             }

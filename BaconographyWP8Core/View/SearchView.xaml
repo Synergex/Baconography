@@ -49,6 +49,9 @@
         <DataTemplate x:Key="Type:SubredditViewModel">
             <local:SubredditView />
         </DataTemplate>
+        <DataTemplate x:Key="Type:AdvertisementViewModel">
+            <local:AdvertisementView Margin="-24,0,-24,0"/>
+        </DataTemplate>
         <DataTemplate x:Key="typedTemplateSelector">
             <common:TypedTemplateSelector Content="{Binding}" />
         </DataTemplate>
