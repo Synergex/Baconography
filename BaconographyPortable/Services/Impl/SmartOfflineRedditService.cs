@@ -180,10 +180,10 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.Login(username, password);
         }
 
-        public Task<Listing> Search(string query, int? limit, bool reddits)
+        public Task<Listing> Search(string query, int? limit, bool reddits, string restrictedToSubreddit)
         {
             //TODO cache this for reddit searches since those wont be likely to change
-            return _redditService.Search(query, limit, reddits);
+            return _redditService.Search(query, limit, reddits, restrictedToSubreddit);
         }
 
         private Thing MaybeStoreThing(Thing thing)

@@ -146,6 +146,7 @@
     <Compile Include="ViewModel\Collections\SubscribedSubredditViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\ThingViewModelCollection.cs" />
     <Compile Include="ViewModel\Collections\UserActivityViewModelCollection.cs" />
+    <Compile Include="ViewModel\CombinedSearchViewModel.cs" />
     <Compile Include="ViewModel\CommentsViewModel.cs" />
     <Compile Include="ViewModel\CommentViewModel.cs" />
     <Compile Include="ViewModel\ContentPreferencesViewModel.cs" />

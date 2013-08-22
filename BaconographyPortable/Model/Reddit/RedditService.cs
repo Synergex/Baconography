@@ -109,17 +109,25 @@ namespace BaconographyPortable.Model.Reddit
 
         }
 
-        public async Task<Listing> Search(string query, int? limit, bool reddits)
+        public async Task<Listing> Search(string query, int? limit, bool reddits, string restrictedToSubreddit)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-            var targetUri = string.Format(
-                reddits ? 
-                    "http://www.reddit.com/subreddits/search.json?limit={0}&q={1}" : 
-                    "http://www.reddit.com/search.json?limit={0}&q={1}",
-                                           guardedLimit,
-                                           query);
+            string targetUri = null;
+
+            if (reddits)
+            {
+                targetUri = string.Format("http://www.reddit.com/subreddits/search.json?limit={0}&q={1}", guardedLimit, query);
+            }
+            else if (string.IsNullOrWhiteSpace(restrictedToSubreddit))
+            {
+                targetUri = string.Format("http://www.reddit.com/search.json?limit={0}&q={1}", guardedLimit, query);
+            }
+            else
+            {
+                targetUri = string.Format("http://www.reddit.com/r/{2}/search.json?limit={0}&q={1}", guardedLimit, query, restrictedToSubreddit);
+            }
 
             var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
             var newListing = JsonConvert.DeserializeObject<Listing>(comments);

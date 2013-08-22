@@ -25,6 +25,7 @@ using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight;
 using BaconographyWP8Core.Common;
 using BaconographyWP8.Converters;
+using BaconographyWP8Core.View;
 
 namespace BaconographyWP8
 {
@@ -340,6 +341,7 @@ namespace BaconographyWP8
 		enum MenuEnum
 		{
 			Login = 0,
+            Search,
             Submit,
 			Close,
 			Pin
@@ -404,6 +406,11 @@ namespace BaconographyWP8
 			appMenuItems[(int)MenuEnum.Login].Click += MenuLogin_Click;
 
             appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Search].Text = "search";
+            appMenuItems[(int)MenuEnum.Search].IsEnabled = true;
+            appMenuItems[(int)MenuEnum.Search].Click += MenuSearch_Click;
+
+            appMenuItems.Add(new ApplicationBarMenuItem());
             appMenuItems[(int)MenuEnum.Submit].Text = "new post";
             appMenuItems[(int)MenuEnum.Submit].IsEnabled = false;
             appMenuItems[(int)MenuEnum.Submit].Click += MenuSubmit_Click;
@@ -444,6 +451,7 @@ namespace BaconographyWP8
 
 			ApplicationBar.MenuItems.Clear();
             ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
+            ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Search]);
             ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Submit]);
             /*
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
@@ -451,6 +459,12 @@ namespace BaconographyWP8
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
             */
 		}
+
+        private void MenuSearch_Click(object sender, EventArgs e)
+        {
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate(typeof(SearchView), null);
+        }
 
 		private void UpdateMenuItems()
 		{
