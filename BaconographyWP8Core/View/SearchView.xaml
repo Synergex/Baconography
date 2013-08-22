@@ -56,47 +56,50 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="BACONOGRAPHY > SEARCH" Style="{StaticResource PhoneTextNormalStyle}"/>
+        <TextBlock Grid.Row="0" Margin="12,17,0,12"
+            Text="BACONOGRAPHY > SEARCH" Style="{StaticResource PhoneTextNormalStyle}"/>
+
+        <StackPanel Grid.Row="1" Margin="12,0,12,6"
+                    Orientation="Horizontal" Visibility="{Binding IsFrontPage, Converter={StaticResource invertBooleanVisibilityConverter}}">
+            <CheckBox IsChecked="{Binding SearchOnlySubreddit, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,0" Text="Only search within " />
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,0" Text="{Binding TargetSubreddit}"/>
+                </StackPanel>
+            </CheckBox>
         </StackPanel>
 
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox IsChecked="{Binding SearchOnlySubreddit, Mode=TwoWay}"/>
-                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,3">Search within </TextBlock>
-                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,3" Text="{Binding TargetSubreddit}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock TextWrapping="Wrap" FontSize="17" Margin="0,5,0,3"> Search: </TextBlock>
-                
-                    <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
-                                                Margin="-13,0,0,0"
-                                                x:Name="manualBox" Text="{Binding Query, Mode=TwoWay}"
-                                                    KeyUp="manualBox_KeyDown"
-                                                    LostFocus="manualBox_LostFocus"
-                                                    MouseLeave="manualBox_MouseLeave"/>
-                </StackPanel>
-                <common:FixedLongListSelector
-                        BorderThickness="0" VerticalAlignment="Stretch" 
-                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        HorizontalContentAlignment="Stretch"
-                        GotFocus="FixedLongListSelector_GotFocus"
-                        DataContext="{Binding}"
-                        ItemsSource="{Binding Path=SearchResults, Converter={StaticResource portableAsyncCollectionConverter}}"
-                        ItemRealized="newList_ItemRealized">
-                    <common:FixedLongListSelector.ItemTemplate>
-                        <DataTemplate>
-                            <common:TypedTemplateSelector HorizontalContentAlignment="Left" Content="{Binding}" />
-                        </DataTemplate>
-                    </common:FixedLongListSelector.ItemTemplate>
-                </common:FixedLongListSelector>
-            </StackPanel>
-        </Grid>
+        <StackPanel Grid.Row="2" Margin="12,0,12,6" Orientation="Horizontal">
+            <TextBlock FontSize="26" FontFamily="Segoe UI Symbol" Margin="12,14,3,0" Text="&#xE11A;" />
+            <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="380"
+                Margin="0,0,0,0"
+                x:Name="manualBox" Text="{Binding Query, Mode=TwoWay}"
+                KeyUp="manualBox_KeyDown"
+                LostFocus="manualBox_LostFocus"
+                MouseLeave="manualBox_MouseLeave"/>
+        </StackPanel>
+
+        <common:FixedLongListSelector
+            Grid.Row="3"
+            BorderThickness="0" VerticalAlignment="Stretch" 
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            HorizontalContentAlignment="Stretch"
+            GotFocus="FixedLongListSelector_GotFocus"
+            DataContext="{Binding}"
+            ItemsSource="{Binding Path=SearchResults, Converter={StaticResource portableAsyncCollectionConverter}}"
+            ItemRealized="newList_ItemRealized">
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+        </common:FixedLongListSelector>
     </Grid>
 
 </phone:PhoneApplicationPage>
