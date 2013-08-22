@@ -307,11 +307,14 @@ namespace BaconographyWP8.View
 
             if (e.Error == null && e.ChosenPhoto != null)
             {
-                using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
-                {
-                    e.ChosenPhoto.CopyTo(lockscreenFile);
-                }
+                BitmapImage image = new BitmapImage();
+                image.CreateOptions = BitmapCreateOptions.None;
+                image.SetSource(e.ChosenPhoto);
+                Utility.MakeSingleLockScreenFromImage(0, image);
                 cpvm.UseImagePickerForLockScreen = true;
+
+                ClearValue(ImagePreviewProperty);
+                SetValue(ImagePreviewProperty, Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
 
                 await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
