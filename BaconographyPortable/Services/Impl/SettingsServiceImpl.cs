@@ -58,6 +58,8 @@ namespace BaconographyPortable.Services.Impl
         public bool TapForComments { get; set; }
         public bool UseImagePickerForLockScreen { get; set; }
         public bool RoundedLockScreen { get; set; }
+        public bool MultiColorCommentMargins { get; set; }
+        public bool InvertSystemTheme { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -277,8 +279,18 @@ namespace BaconographyPortable.Services.Impl
                 else
                     RoundedLockScreen = false;
 
+                var multiColoredCommentMargins = await offlineService.GetSetting("MultiColorCommentMargins");
+                if (!string.IsNullOrWhiteSpace(multiColoredCommentMargins))
+                    MultiColorCommentMargins = bool.Parse(multiColoredCommentMargins);
+                else
+                    MultiColorCommentMargins = false;
 
-
+                var invertSystemTheme = await offlineService.GetSetting("InvertSystemTheme");
+                if (!string.IsNullOrWhiteSpace(invertSystemTheme))
+                    InvertSystemTheme = bool.Parse(invertSystemTheme);
+                else
+                    InvertSystemTheme = false;
+                
                 Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -324,6 +336,8 @@ namespace BaconographyPortable.Services.Impl
             await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
             await offlineService.StoreSetting("RoundedLockScreen", RoundedLockScreen.ToString());
             await offlineService.StoreSetting("UseImagePickerForLockScreen", UseImagePickerForLockScreen.ToString());
+            await offlineService.StoreSetting("MultiColorCommentMargins", MultiColorCommentMargins.ToString());
+            await offlineService.StoreSetting("InvertSystemTheme", InvertSystemTheme.ToString());
         }
 
 
