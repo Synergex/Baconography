@@ -122,6 +122,17 @@
                                     ValueChanged="OverlayOpacity_ValueChanged"/>
                             </StackPanel>
                         </phone:PivotItem>
+
+                        <phone:PivotItem>
+                            <StackPanel HorizontalAlignment="Center">
+                                <Button
+                                    FontFamily="Segoe UI Symbol" FontSize="22"
+                                    Width="50" Height="50"
+                                    Content="&#xE10B;" Style="{StaticResource HeavyRoundButtonStyle}"
+                                    Tap="Finished_Tap"/>
+                                <TextBlock Margin="0,4,0,0" Text="Finished" FontSize="14" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </phone:PivotItem>
                     </phone:Pivot.Items>
                     
                 </phone:Pivot>
