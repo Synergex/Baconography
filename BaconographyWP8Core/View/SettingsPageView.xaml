@@ -110,6 +110,8 @@
                             <RadioButton x:Name="subredditRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay, Converter={StaticResource invertBooleanConverter}}"
                                          Margin="12,0,0,0" Content="Use subreddit for background"
                                          Click="SelectLockScreenSubreddit"/>
+                            <Button Margin="12,0,0,0" Content="Pick subreddit for background" Click="SelectLockScreenSubreddit"
+                                    Visibility="{Binding UseImagePickerForLockScreen, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
                             <Button Margin="12,0,0,0" Content="Pick subreddit for overlay posts" Click="SelectTopPostSubreddit"/>
                             <Button Margin="12,0,0,0" Content="Customize overlay" Click="ShowLockScreenPreview"/>
 
