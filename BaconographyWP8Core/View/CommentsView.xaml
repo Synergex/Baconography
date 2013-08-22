@@ -94,7 +94,7 @@
                     <Button Grid.Row="1" Grid.Column="5"
                     FontFamily="Segoe UI Symbol" FontSize="16"
                     Width="40" Height="40"
-                    Content="&#xE12F;" Style="{StaticResource RoundButtonStyle}"
+                    Content="&#xE174;" Style="{StaticResource RoundButtonStyle}"
                     Click="MenuSort_Click"/>
                     <TextBlock Grid.Row="3" Grid.Column="5" Margin="0,4,0,0" Text="Sort" FontSize="14" HorizontalAlignment="Center" />
                 </Grid>
