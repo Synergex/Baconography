@@ -13,7 +13,7 @@ namespace BaconographyPortable.Services
         Task<Account> GetMe(User user);
         Task<bool> CheckLogin(string loginToken);
         Task<User> Login(string username, string password);
-        Task<Listing> Search(string query, int? limit, bool reddits);
+        Task<Listing> Search(string query, int? limit, bool reddits, string restrictedToSubreddit);
         Task<Thing> GetThingById(string id);
         Task<HashSet<string>> GetSubscribedSubreddits();
         Task<Listing> GetSubscribedSubredditListing();

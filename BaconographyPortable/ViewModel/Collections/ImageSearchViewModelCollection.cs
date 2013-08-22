@@ -28,7 +28,7 @@ namespace BaconographyPortable.ViewModel.Collections
             //we only want image results and this seems to be the best way to get that
             var searchQuery = query + " AND (site:'imgur' OR site:'flickr' OR site:'memecrunch' OR site:'quickmeme' OR site:qkme OR site:'min' OR site:'picsarus')";
 
-            _onlineListingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(_baconProvider, searchQuery, false);
+            _onlineListingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(_baconProvider, searchQuery, false, null);
             _offlineListingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(_baconProvider, searchQuery, false);
         }
 

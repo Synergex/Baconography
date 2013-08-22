@@ -73,6 +73,7 @@ namespace BaconographyWP8
                 SimpleIoc.Default.Register<LockScreenViewModel>();
                 SimpleIoc.Default.Register<ComposePostViewModel>();
                 SimpleIoc.Default.Register<SubredditPickerViewModel>();
+                SimpleIoc.Default.Register<CombinedSearchViewModel>();
 
 				if (DesignerProperties.IsInDesignTool)
 				{
@@ -204,6 +205,14 @@ namespace BaconographyWP8
             get
             {
                 return ServiceLocator.Current.GetInstance<SearchQueryViewModel>();
+            }
+        }
+
+        public CombinedSearchViewModel Search
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<CombinedSearchViewModel>();
             }
         }
 

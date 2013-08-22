@@ -26,7 +26,24 @@ namespace BaconographyWP8.View
             if (linkViewModel != null)
             {
                 linkViewModel.PropertyChanged += linkViewModel_PropertyChanged;
-                ExpandSB.Begin();
+                if (!linkViewModel.IsExtendedOptionsShown)
+                {
+                    Visibility = System.Windows.Visibility.Collapsed;
+                    Height = 1;
+                }
+                else
+                {
+                    ExpandSB.Begin();
+                }
+            }
+        }
+
+        public void DisconnectVM()
+        {
+            var linkViewModel = DataContext as LinkViewModel;
+            if (linkViewModel != null)
+            {
+                linkViewModel.PropertyChanged -= linkViewModel_PropertyChanged;
             }
         }
 
@@ -39,9 +56,12 @@ namespace BaconographyWP8.View
                 {
                     if (linkViewModel.IsExtendedOptionsShown)
                     {
-                        Visibility = System.Windows.Visibility.Visible;
-                        Height = 75;
-                        ExpandSB.Begin();
+                        if (Visibility != System.Windows.Visibility.Visible)
+                        {
+                            Visibility = System.Windows.Visibility.Visible;
+                            Height = 75;
+                            ExpandSB.Begin();
+                        }
                     }
                     else
                     {

@@ -231,6 +231,9 @@
     <Compile Include="View\ScalingGifView.xaml.cs">
       <DependentUpon>ScalingGifView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SearchView.xaml.cs">
+      <DependentUpon>SearchView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SelectSortTypeView.xaml.cs">
       <DependentUpon>SelectSortTypeView.xaml</DependentUpon>
     </Compile>
@@ -338,6 +341,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SearchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

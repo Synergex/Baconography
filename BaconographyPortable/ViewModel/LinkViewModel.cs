@@ -245,9 +245,11 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return Tuple.Create(IsExtendedOptionsShown, this);
+                return Tuple.Create(_hasBeenExtended, this);
             }
         }
+
+        public WeakReference ExtendedView { get; set; }
 
         public bool FromMultiReddit { get; set; }
 
