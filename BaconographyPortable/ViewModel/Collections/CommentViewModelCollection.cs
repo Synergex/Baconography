@@ -71,7 +71,18 @@ namespace BaconographyPortable.ViewModel.Collections
                 using (_baconProvider.GetService<ISuspendableWorkQueue>().HighValueOperationToken)
                 {
                     var initialListing = await _listingProvider.GetInitialListing(_state);
-                    var remainingVMs = await Task.Run(() => MapListing(initialListing, null));
+                    var remainingVMs = await Task.Run(() =>
+                    {
+                        try
+                        {
+                            return MapListing(initialListing, null);
+                        }
+                        catch 
+                        {
+                            return Enumerable.Empty<ViewModelBase>();
+                        }
+
+                    });
                     RunUILoad(remainingVMs, -1);
                 }
             }
