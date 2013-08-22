@@ -337,16 +337,23 @@ namespace BaconographyWP8.PlatformServices
         {
             TaskCompletionSource<byte[]> taskCompletion = new TaskCompletionSource<byte[]>();
             WebClient client = new WebClient();
+            int cancelCount = 0;
             client.AllowReadStreamBuffering = true;
             client.DownloadProgressChanged += (sender, args) =>
             {
                 progress((uint)args.ProgressPercentage);
             };
 
-            client.OpenReadCompleted += async (sender, args) =>
+            client.OpenReadCompleted += (sender, args) =>
             {
                 if (args.Cancelled)
-                    taskCompletion.SetCanceled();
+                {
+                    cancelCount++;
+                    if (cancelCount < 5)
+                        client.OpenReadAsync(new Uri(url));
+                    else
+                        taskCompletion.SetCanceled();
+                }
                 else if (args.Error != null)
                     taskCompletion.SetException(args.Error);
                 else
@@ -354,11 +361,6 @@ namespace BaconographyWP8.PlatformServices
                     var result = new byte[args.Result.Length];
                     args.Result.Read(result, 0, (int)args.Result.Length);
                     taskCompletion.SetResult(result);
-                    //using (MemoryStream ms = new MemoryStream())
-                    //{
-                    //    await CopyToStreamAsync(args.Result, ms, 4096, progress, null, null);
-                    //    taskCompletion.SetResult(ms.ToArray());
-                    //}
                 }
             };
             client.OpenReadAsync(new Uri(url));
