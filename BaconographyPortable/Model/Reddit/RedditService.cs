@@ -126,7 +126,7 @@ namespace BaconographyPortable.Model.Reddit
             }
             else
             {
-                targetUri = string.Format("http://www.reddit.com/r/{2}/search.json?limit={0}&q={1}", guardedLimit, query, restrictedToSubreddit);
+                targetUri = string.Format("http://www.reddit.com/r/{2}/search.json?limit={0}&q={1}&restrict_sr=on", guardedLimit, query, restrictedToSubreddit);
             }
 
             var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
