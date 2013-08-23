@@ -253,7 +253,8 @@
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center"
                                             Content="&#xE141;"
-                                            Command="{Binding PinSubreddit}" CommandParameter="{Binding}"/>
+                                            DataContext="{Binding}"
+                                            Tap="PinUnpinButton_Tap"/>
 
                                         <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="320"
                                              Margin="-13,0,0,0"
