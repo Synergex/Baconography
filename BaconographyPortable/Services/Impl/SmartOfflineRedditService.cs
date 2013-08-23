@@ -384,9 +384,7 @@ namespace BaconographyPortable.Services.Impl
             //make sure there are some comments otherwise its more expensive to make two calls then just the one
             if (cachedLink != null && commentMetadata.Item1 != 0)
             {
-                //compare to see if there was any significant change
-                var percentChange = Math.Abs((commentMetadata.Item1 - cachedLink.TypedData.CommentCount) / ((commentMetadata.Item1 + cachedLink.TypedData.CommentCount) / 2));
-                if (percentChange > 5 || _invalidatedIds.Contains(cachedLink.Data.Name))
+                if (commentMetadata.Item1 != cachedLink.TypedData.CommentCount || _invalidatedIds.Contains(cachedLink.Data.Name))
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
                 var comments = await _offlineService.GetTopLevelComments(cachedPermalink, limit ?? 500);
@@ -818,7 +816,7 @@ namespace BaconographyPortable.Services.Impl
             }
 
             if (user.Me != null)
-                return await _redditService.GetMessages(limit);
+                return MaybeStoreMessages(user, await _redditService.GetMessages(limit));
 
             var messages = await _offlineService.GetMessages(user);
             if (messages != null && messages.Data.Children.Count > 0)

@@ -126,8 +126,6 @@ namespace Baconography.NeutralServices.KitaroDB
                 var keyBytes = permalinkDigest.HashData(Encoding.UTF8.GetBytes(permalink).AsBuffer()).ToArray();
 #endif
 
-                await StoreCommentMetadata(keyBytes, ((Link)linkThing.Data).CommentCount, listing.Data.Children.Count);
-
                 //we can cut down on IO by about 50% by stripping out the HTML bodies of comments since we dont have any need for them
                 StripCommentData(listing.Data.Children);
 
@@ -156,6 +154,8 @@ namespace Baconography.NeutralServices.KitaroDB
                         await _commentsDB.InsertAsync(recordBytes);
                     }
                 }
+
+                await StoreCommentMetadata(keyBytes, ((Link)linkThing.Data).CommentCount, listing.Data.Children.Count);
             }
             catch (Exception ex)
             {
