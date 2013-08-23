@@ -37,7 +37,7 @@ struct bgraColor
 	uint8_t alpha;
 };
 
-void mapRasterBits(uint8_t* rasterBits, std::unique_ptr<uint32_t>& targetFrame, ColorMapObject * colorMap, int top, int left, int bottom, int right, int width, uint8_t transparencyColor)
+void mapRasterBits(uint8_t* rasterBits, std::unique_ptr<uint32_t>& targetFrame, ColorMapObject * colorMap, int top, int left, int bottom, int right, int width, int32_t transparencyColor)
 {
 	
 	int i = 0;
@@ -122,7 +122,7 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 	{
 		uint32_t delay ;
 		DISPOSAL_METHODS disposal;
-		int8_t transparentColor = -1;
+		int32_t transparentColor = -1;
 
 		auto extensionBlocks = gifFile->SavedImages[i].ExtensionBlocks;
 		for(int ext = 0; ext < gifFile->SavedImages[i].ExtensionBlockCount; ext++)
@@ -225,10 +225,10 @@ void GifRenderer::Render()
 	if(_spriteBatch == nullptr)
 		_spriteBatch = std::unique_ptr<SpriteBatch>(new DirectX::SpriteBatch(m_d3dContext.Get()));
 
-	const float midnightBlue[] = { 0.098f, 0.098f, 0.439f, 1.000f };
+	const float white[] = { 1.0f, 1.0f, 1.0f , 1.0f };
 	m_d3dContext->ClearRenderTargetView(
 		m_renderTargetView.Get(),
-		midnightBlue
+		white
 		);
 
 	m_d3dContext->ClearDepthStencilView(
