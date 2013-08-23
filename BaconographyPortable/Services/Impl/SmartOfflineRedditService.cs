@@ -386,7 +386,7 @@ namespace BaconographyPortable.Services.Impl
             {
                 //compare to see if there was any significant change
                 var percentChange = Math.Abs((commentMetadata.Item1 - cachedLink.TypedData.CommentCount) / ((commentMetadata.Item1 + cachedLink.TypedData.CommentCount) / 2));
-                if (percentChange > 5)
+                if (percentChange > 5 || _invalidatedIds.Contains(cachedLink.Data.Name))
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
                 var comments = await _offlineService.GetTopLevelComments(cachedPermalink, limit ?? 500);
@@ -481,12 +481,17 @@ namespace BaconographyPortable.Services.Impl
 
         }
 
+        public HashSet<string> _invalidatedIds = new HashSet<string>();
+
         public async Task EditComment(string thingId, string text)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(thingId) || text == null)
                     return;
+
+                _invalidatedIds.Add(thingId);
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await _redditService.EditComment(thingId, text);
                 else
@@ -577,6 +582,8 @@ namespace BaconographyPortable.Services.Impl
             {
                 if (text == null || name == null)
                     return;
+
+                _invalidatedIds.Add(name);
 
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await _redditService.EditPost(text, name);
