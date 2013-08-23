@@ -571,6 +571,39 @@ namespace BaconographyPortable.Services.Impl
             }
         }
 
+        public async Task EditPost(string text, string name)
+        {
+            try
+            {
+                if (text == null || name == null)
+                    return;
+
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                    await _redditService.EditPost(text, name);
+                else
+                    await _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
+                    });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                    _notificationService.CreateErrorNotification(ex);
+
+                _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
+                    }).Start();
+            }
+        }
+
         public async Task AddVote(string thingId, int direction)
         {
             try
@@ -690,6 +723,11 @@ namespace BaconographyPortable.Services.Impl
                             case "AddPost":
                                 {
                                     await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
+                                    break;
+                                }
+                            case "EditPost":
+                                {
+                                    await EditPost(actionTpl.Item2["text"], actionTpl.Item2["name"]);
                                     break;
                                 }
                             case "AddVote":

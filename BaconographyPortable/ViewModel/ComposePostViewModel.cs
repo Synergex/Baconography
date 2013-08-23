@@ -35,6 +35,32 @@ namespace BaconographyPortable.ViewModel
             RefreshUserImpl();
         }
 
+        public void SetEditorMode(TypedThing<Link> link)
+        {
+            Kind = link.Kind;
+            Subreddit = link.Data.Subreddit;
+            Title = link.Data.Title;
+            Text = link.Data.Selftext;
+            _name = link.Data.Name;
+            Editing = true;
+        }
+
+        private bool _editing = false;
+        public bool Editing
+        {
+            get
+            {
+                return _editing;
+            }
+            set
+            {
+                _editing = value;
+                RaisePropertyChanged("Editing");
+            }
+        }
+
+        private string _name;
+
         private string _kind;
         public string Kind
         {
@@ -155,7 +181,14 @@ namespace BaconographyPortable.ViewModel
                 Url = "";
             if (Text == null)
                 Text = "";
-            await _redditService.AddPost(Kind, Url, Text, Subreddit, Title);
+            if (!Editing)
+            {
+                await _redditService.AddPost(Kind, Url, Text, Subreddit, Title);
+            }
+            else
+            {
+                await _redditService.EditPost(Text, _name);
+            }
         }
 
         public RelayCommand RefreshUser { get { return _refreshUser; } }
