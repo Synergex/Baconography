@@ -12,6 +12,8 @@ using BaconographyWP8.ViewModel;
 using System.Windows.Data;
 using System.Windows.Media;
 using BaconographyWP8Core.ViewModel;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -30,68 +32,7 @@ namespace BaconographyWP8.View
             }
 
             this.UpdateLayout();
-
-            /*SetValue(ImageSourceProperty, _lsvm.ImageSource);
-            SetValue(OverlayItemsProperty, _lsvm.OverlayItems);
-            SetValue(OverlayOpacityProperty, _lsvm.OverlayOpacity);
-            SetValue(OverlayMarginProperty, _lsvm.Margin as Thickness?);
-            SetValue(OverlayInnerMarginProperty, _lsvm.InnerMargin as Thickness?);
-            SetValue(CornerRadiusProperty, _lsvm.CornerRadius as CornerRadius?);*/
         }
-
-/*
-        #region ImageSource
-        public static readonly DependencyProperty ImageSourceProperty =
-            DependencyProperty.Register(
-                "ImageSource",
-                typeof(string),
-                typeof(LockScreen),
-                new PropertyMetadata("")
-            );
-        #endregion
-
-        #region Corner Radius
-        public static readonly DependencyProperty CornerRadiusProperty =
-            DependencyProperty.Register(
-                "CornerRadius",
-                typeof(CornerRadius),
-                typeof(LockScreen),
-                new PropertyMetadata(new CornerRadius(0))
-            );
-        #endregion
-
-        public static readonly DependencyProperty OverlayMarginProperty =
-            DependencyProperty.Register(
-                "OverlayMargin",
-                typeof(Thickness),
-                typeof(LockScreen),
-                new PropertyMetadata(new Thickness(-5,40,-5,0))
-            );
-
-        public static readonly DependencyProperty OverlayInnerMarginProperty =
-            DependencyProperty.Register(
-                "OverlayInnerMargin",
-                typeof(Thickness),
-                typeof(LockScreen),
-                new PropertyMetadata(new Thickness(17, 0, 17, 0))
-            );
-
-        public static readonly DependencyProperty OverlayItemsProperty =
-            DependencyProperty.Register(
-                "OverlayItems",
-                typeof(List<LockScreenMessage>),
-                typeof(LockScreen),
-                new PropertyMetadata(new List<LockScreenMessage>())
-            );
-
-        public static readonly DependencyProperty OverlayOpacityProperty =
-            DependencyProperty.Register(
-                "OverlayOpacity",
-                typeof(float),
-                typeof(LockScreen),
-                new PropertyMetadata((float).4)
-            );
- */
 
         private void OverlayItemCount_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -130,6 +71,12 @@ namespace BaconographyWP8.View
             {
                 _plsvm.ShowTopPosts = (bool)((CheckBox)sender).IsChecked;
             }
+        }
+
+        private void Finished_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            navigationService.GoBack();
         }
     }
 }

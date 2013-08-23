@@ -99,7 +99,12 @@ namespace BaconographyWP8.Common
             try
             {
                 if (loadingActiveLockScreen)
+                {
+                    while (loadingActiveLockScreen)
+                        await Task.Yield();
+
                     return;
+                }
 
                 var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
                 var connectionCostType = connectionProfile.GetConnectionCost().NetworkCostType;
@@ -428,24 +433,7 @@ namespace BaconographyWP8.Common
                                 || imageSource.PixelWidth < 480))
                             continue;
 
-                        Image lockScreenView = new Image();
-                        lockScreenView.Width = 480;
-                        lockScreenView.Height = 800;
-                        lockScreenView.Source = imageSource;
-                        lockScreenView.Stretch = Stretch.UniformToFill;
-                        lockScreenView.UpdateLayout();
-                        lockScreenView.Measure(new Size(480, 800));
-                        lockScreenView.Arrange(new Rect(0, 0, 480, 800));
-                        WriteableBitmap bitmap = new WriteableBitmap(480, 800);
-                        bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
-                        bitmap.Invalidate();
-
-                        using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", results.Count.ToString())))
-                        {
-                            bitmap.SaveJpeg(theFile, 480, 800, 0, 100);
-                            theFile.Flush(true);
-                            theFile.Close();
-                        }
+                        MakeSingleLockScreenFromImage(results.Count, imageSource);
                         //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                         await Task.Yield();
                         results.Add(string.Format("lockScreenCache{0}.jpg", results.Count.ToString()));
@@ -465,6 +453,28 @@ namespace BaconographyWP8.Common
                 }
             }
             return results;
+        }
+
+        public static void MakeSingleLockScreenFromImage(int pos, BitmapImage imageSource)
+        {
+            Image lockScreenView = new Image();
+            lockScreenView.Width = 480;
+            lockScreenView.Height = 800;
+            lockScreenView.Source = imageSource;
+            lockScreenView.Stretch = Stretch.UniformToFill;
+            lockScreenView.UpdateLayout();
+            lockScreenView.Measure(new Size(480, 800));
+            lockScreenView.Arrange(new Rect(0, 0, 480, 800));
+            WriteableBitmap bitmap = new WriteableBitmap(480, 800);
+            bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
+            bitmap.Invalidate();
+
+            using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", pos.ToString())))
+            {
+                bitmap.SaveJpeg(theFile, 480, 800, 0, 100);
+                theFile.Flush(true);
+                theFile.Close();
+            }
         }
 
         public static Dimensions GetJpegDimensions(Stream fs)

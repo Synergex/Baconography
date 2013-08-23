@@ -12,24 +12,31 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         IRedditService _redditService;
         string _query;
         bool _reddits;
-        public SearchResults(IBaconProvider baconProvider, string query, bool reddits)
+        string _restrictedToSubreddit;
+        public SearchResults(IBaconProvider baconProvider, string query, bool reddits, string restrictedToSubreddit)
         {
             _query = query;
             _reddits = reddits;
+            _restrictedToSubreddit = restrictedToSubreddit;
             _redditService = baconProvider.GetService<IRedditService>();
         }
 
-        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
+        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return _redditService.Search(_query, 20, _reddits);
+            if (string.IsNullOrWhiteSpace(_query))
+                return new Listing { Data = new ListingData { Children = new List<Thing>() }, Kind = "Listing" };
+            else
+                return await _redditService.Search(_query, 20, _reddits, _restrictedToSubreddit);
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
         {
             if(_reddits)
                 return _redditService.GetAdditionalFromListing(string.Format("http://www.reddit.com/subreddits/search.json?q={0}", _query), after, null);
-            else
+            else if(string.IsNullOrWhiteSpace(_restrictedToSubreddit))
                 return _redditService.GetAdditionalFromListing(string.Format("http://www.reddit.com/search.json?q={0}", _query), after, null);
+            else
+                return _redditService.GetAdditionalFromListing(string.Format("http://www.reddit.com/r/{1}/search.json?q={0}", _query, _restrictedToSubreddit), after, null);
         }
 
         public Task<Listing> GetMore(IEnumerable<string> ids, Dictionary<object, object> state)
@@ -38,9 +45,12 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         }
 
 
-        public Task<Listing> Refresh(Dictionary<object, object> state)
+        public async Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return _redditService.Search(_query, 20, _reddits);
+            if (string.IsNullOrWhiteSpace(_query))
+                return new Listing { Data = new ListingData { Children = new List<Thing>() }, Kind = "Listing" };
+            else
+                return await _redditService.Search(_query, 20, _reddits, _restrictedToSubreddit);
         }
     }
 }

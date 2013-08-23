@@ -42,6 +42,8 @@ namespace BaconographyPortable.Services
         int OfflineCacheDays { get; set; }
         bool TapForComments { get; set; }
         bool RoundedLockScreen { get; set; }
+        bool MultiColorCommentMargins { get; set; }
+        bool InvertSystemTheme { get; set; }
        
         bool AllowAdvertising { get; set; }
 

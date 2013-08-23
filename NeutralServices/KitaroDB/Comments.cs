@@ -254,6 +254,10 @@ namespace Baconography.NeutralServices.KitaroDB
             
         }
 
+        internal void Resume()
+        {
+            _terminateSource = new CancellationTokenSource();
+        }
 
         internal void Terminate()
         {

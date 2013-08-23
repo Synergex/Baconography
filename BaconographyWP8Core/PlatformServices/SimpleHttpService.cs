@@ -348,8 +348,8 @@ namespace BaconographyWP8.PlatformServices
             {
                 if (args.Cancelled)
                 {
-                    cancelCount++;
-                    if (cancelCount < 5)
+
+                    if(cancelCount++ < 5)
                         client.OpenReadAsync(new Uri(url));
                     else
                         taskCompletion.SetCanceled();
@@ -366,57 +366,5 @@ namespace BaconographyWP8.PlatformServices
             client.OpenReadAsync(new Uri(url));
             return taskCompletion.Task;
         }
-
-        public static Task<Stream> CopyToStreamAsync(Stream source, Stream destination, uint bufferSize, Action<uint> progress, uint? maximumDownloadSize, TimeSpan? timeout)
-        {
-            var taskComplete = new TaskCompletionSource<Stream>();
-            byte[] buffer = new byte[bufferSize];
-
-            int maxDownloadSize = maximumDownloadSize.HasValue
-                ? (int)maximumDownloadSize.Value
-                : int.MaxValue;
-            int bytesDownloaded = 0;
-            uint progressCount = 0;
-            IAsyncResult asyncResult = null;
-
-            Action<IAsyncResult, bool> endRead = null;
-            endRead = (innerAsyncResult, innerIsTimedOut) =>
-            {
-                try
-                {
-                    int bytesRead = source.EndRead(innerAsyncResult);
-                    if (innerIsTimedOut)
-                    {
-                        taskComplete.SetException(new TimeoutException());
-                    }
-
-                    int bytesToWrite = new[] { maxDownloadSize - bytesDownloaded, buffer.Length, bytesRead }.Min();
-                    destination.Write(buffer, 0, bytesToWrite);
-                    bytesDownloaded += bytesToWrite;
-
-                    if (progress != null && bytesToWrite > 0)
-                    {
-                        progress((++progressCount) / 1000);
-                    }
-
-                    if (bytesToWrite == bytesRead && bytesToWrite > 0)
-                    {
-                        asyncResult = source.BeginRead(buffer, 0, buffer.Length, (ia) => endRead(ia, false), null);
-                    }
-                    else
-                    {
-                        taskComplete.SetResult(null);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    taskComplete.SetException(exc);
-                }
-            };
-
-            asyncResult = source.BeginRead(buffer, 0, buffer.Length, (ia) => endRead(ia, false), null);
-            return taskComplete.Task;
-        }
-        
     }
 }

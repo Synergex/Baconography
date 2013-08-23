@@ -29,16 +29,17 @@ int istreamReader(GifFileType * gft, GifByteType * buf, int length)
 	return length;
 }
 
-
-void mapRasterBits(uint8_t* rasterBits, std::unique_ptr<uint32_t>& targetFrame, ColorMapObject * colorMap, int top, int left, int bottom, int right, int width, uint8_t transparencyColor)
+struct bgraColor
 {
-	struct bgraColor
-	{
-		uint8_t blue;
-		uint8_t green;
-		uint8_t red;
-		uint8_t alpha;
-	};
+	uint8_t blue;
+	uint8_t green;
+	uint8_t red;
+	uint8_t alpha;
+};
+
+void mapRasterBits(uint8_t* rasterBits, std::unique_ptr<uint32_t>& targetFrame, ColorMapObject * colorMap, int top, int left, int bottom, int right, int width, int32_t transparencyColor)
+{
+	
 	int i = 0;
 	for (int y = top; y < bottom; y++)
     {
@@ -90,21 +91,20 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 	int loopCount = 0; 
 	bool hasLoop = true;
 
-	int bgRed = 0;
-	int bgGreen = 0;
-	int bgBlue = 0;
+	bgraColor bgColor;
 
 	if(gifFile->SColorMap != nullptr)
 	{
 		auto color = gifFile->SColorMap->Colors[gifFile->SBackGroundColor];
-		bgRed = color.Red;
-		bgGreen = color.Green;
-		bgBlue = color.Blue;
+		bgColor.red = color.Red;
+		bgColor.green = color.Green;
+		bgColor.blue = color.Blue;
+		bgColor.alpha = 255;
 	}
 
 
 	std::unique_ptr<uint32_t> buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
-	std::unique_ptr<uint32_t> lastFrame = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+	std::unique_ptr<uint32_t> lastFrame = nullptr;
 
 	uint8_t* bufPtr = (uint8_t*)buffer.get();
 	uint8_t* lastFramePtr = (uint8_t*)lastFrame.get();
@@ -114,12 +114,7 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 		for (int x = 0; x < width; x++)
 		{
 			int offset = y * width + x;
-			
-
-			lastFramePtr[offset * 4 + 0] = bufPtr[offset * 4 + 0] = bgBlue;
-			lastFramePtr[offset * 4 + 1] = bufPtr[offset * 4 + 1] = bgGreen;
-			lastFramePtr[offset * 4 + 2] = bufPtr[offset * 4 + 2] = bgRed;
-			lastFramePtr[offset * 4 + 3] = bufPtr[offset * 4 + 3] = 255;
+			buffer.get()[offset] = *(uint32_t*)&bgColor;
 		}
 	}
 
@@ -127,7 +122,7 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 	{
 		uint32_t delay ;
 		DISPOSAL_METHODS disposal;
-		int8_t transparentColor = -1;
+		int32_t transparentColor = -1;
 
 		auto extensionBlocks = gifFile->SavedImages[i].ExtensionBlocks;
 		for(int ext = 0; ext < gifFile->SavedImages[i].ExtensionBlockCount; ext++)
@@ -165,6 +160,9 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 
 		if(disposal == DISPOSAL_METHODS::DM_PREVIOUS)
 		{
+			if(lastFrame == nullptr)
+				lastFrame = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+
 			memcpy(lastFrame.get(), buffer.get(), width * height * sizeof(uint32_t));
 		}
 
@@ -175,16 +173,12 @@ void loadGifFrames(GifFileType* gifFile, std::vector<GifFrame>& frames, ID3D11De
 		switch(disposal)
 		{
 		case DISPOSAL_METHODS::DM_BACKGROUND:
-			for (int y = top; y < bottom; y++)
+			for (int y = 0; y < height; y++)
 			{
-				for (int x = left; x < right; x++)
+				for (int x = 0; x < width; x++)
 				{
 					int offset = y * width + x;
-
-					bufPtr[offset * 4 + 0] = bgBlue;
-					bufPtr[offset * 4 + 1] = bgGreen;
-					bufPtr[offset * 4 + 2] = bgRed;
-					bufPtr[offset * 4 + 3] = 255;
+					buffer.get()[offset] = *(uint32_t*)&bgColor;
 				}
 			}
 			break;
@@ -231,10 +225,10 @@ void GifRenderer::Render()
 	if(_spriteBatch == nullptr)
 		_spriteBatch = std::unique_ptr<SpriteBatch>(new DirectX::SpriteBatch(m_d3dContext.Get()));
 
-	const float midnightBlue[] = { 0.098f, 0.098f, 0.439f, 1.000f };
+	const float white[] = { 1.0f, 1.0f, 1.0f , 1.0f };
 	m_d3dContext->ClearRenderTargetView(
 		m_renderTargetView.Get(),
-		midnightBlue
+		white
 		);
 
 	m_d3dContext->ClearDepthStencilView(

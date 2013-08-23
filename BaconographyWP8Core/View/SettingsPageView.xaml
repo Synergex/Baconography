@@ -91,16 +91,6 @@
                     </ScrollViewer>
                 </Grid>
             </phone:PivotItem>
-
-            <phone:PivotItem Header="tile">
-                <ScrollViewer>
-                    <StackPanel>
-                        <TextBlock FontWeight="SemiBold" Text="LIVE TILE"/>
-                        <TextBlock Margin="24,0,0,0" Text="Subreddit for live tile posts:"/>
-                        <TextBox Margin="12,0,0,0" Text="{Binding LiveTileReddit, Mode=TwoWay}"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </phone:PivotItem>
             
             <phone:PivotItem Header="lock screen">
                 <Grid>
@@ -120,14 +110,10 @@
                             <RadioButton x:Name="subredditRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay, Converter={StaticResource invertBooleanConverter}}"
                                          Margin="12,0,0,0" Content="Use subreddit for background"
                                          Click="SelectLockScreenSubreddit"/>
-
+                            <Button Margin="12,0,0,0" Content="Pick subreddit for background" Click="SelectLockScreenSubreddit"
+                                    Visibility="{Binding UseImagePickerForLockScreen, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
+                            <Button Margin="12,0,0,0" Content="Pick subreddit for overlay posts" Click="SelectTopPostSubreddit"/>
                             <Button Margin="12,0,0,0" Content="Customize overlay" Click="ShowLockScreenPreview"/>
-                            
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
-
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen posts:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
 
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
@@ -137,6 +123,14 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
+            </phone:PivotItem>
+
+            <phone:PivotItem Header="tile">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Button Margin="12,0,0,0" Content="Pick subreddit for live tile" Click="SelectLiveTileSubreddit"/>
+                    </StackPanel>
+                </ScrollViewer>
             </phone:PivotItem>
 
             <phone:PivotItem Header="about">

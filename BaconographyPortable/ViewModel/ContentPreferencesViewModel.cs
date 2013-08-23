@@ -349,6 +349,32 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool MultiColorCommentMargins
+        {
+            get
+            {
+                return _settingsService.MultiColorCommentMargins;
+            }
+            set
+            {
+                _settingsService.MultiColorCommentMargins = value;
+                RaisePropertyChanged("MultiColorCommentMargins");
+            }
+        }
+
+        public bool InvertSystemTheme
+        {
+            get
+            {
+                return _settingsService.InvertSystemTheme;
+            }
+            set
+            {
+                _settingsService.InvertSystemTheme = value;
+                RaisePropertyChanged("InvertSystemTheme");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get

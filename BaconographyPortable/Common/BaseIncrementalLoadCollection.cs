@@ -46,7 +46,7 @@ namespace BaconographyPortable.Common
     public abstract class BaseIncrementalLoadCollection<T> : ObservableCollection<T>, PortableISupportIncrementalLoad
     {
         protected bool _initialLoaded;
-
+        private bool _loading;
         //this is to allow a very loose binding of state in the derived classes
         protected Dictionary<object, object> _state = new Dictionary<object,object>();
 
@@ -68,25 +68,39 @@ namespace BaconographyPortable.Common
 
             int addCounter = 0;
 
-            if (_initialLoaded)
+            try
             {
-                foreach (var item in await LoadAdditional(_state))
+                while (_loading)
+                    await Task.Yield();
+
+                _loading = true;
+                if (_initialLoaded)
                 {
-                    addCounter++;
-                    Add(item);
+                    if (HasAdditional(_state))
+                    {
+                        foreach (var item in await LoadAdditional(_state))
+                        {
+                            addCounter++;
+                            Add(item);
+                        }
+                    }
+                }
+                else
+                {
+                    _initialLoaded = true;
+                    foreach (var item in await InitialLoad(_state))
+                    {
+                        addCounter++;
+                        Add(item);
+                    }
                 }
             }
-            else
+            finally
             {
-                _initialLoaded = true;
-                foreach (var item in await InitialLoad(_state))
-                {
-                    addCounter++;
-                    Add(item);
-                }
+                _loading = false;
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             }
 
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             return addCounter;
         }
 
