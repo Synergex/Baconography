@@ -372,6 +372,18 @@ namespace BaconographyWP8
             appBarButtons[(int)ButtonEnum.Mail].IsEnabled = false;
             appBarButtons[(int)ButtonEnum.Mail].Click += MenuMail_Click;
 
+            ServiceLocator.Current.GetInstance<MessagesViewModel>().PropertyChanged += (sender, args) => 
+            {
+                if (args.PropertyName == "HasMail")
+                {
+                    if (ServiceLocator.Current.GetInstance<MessagesViewModel>().HasMail)
+                        appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\read.png", UriKind.Relative);
+                    else
+                        appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+                }
+            };
+
+
             appBarButtons.Add(new ApplicationBarIconButton());
             appBarButtons[(int)ButtonEnum.Settings].IconUri = new Uri("\\Assets\\Icons\\settings.png", UriKind.Relative);
             appBarButtons[(int)ButtonEnum.Settings].Text = "settings";
