@@ -272,11 +272,6 @@ namespace BaconographyWP8
 
         private void MenuMail_Click(object sender, EventArgs e)
         {
-            var locator = Styles.Resources["Locator"] as ViewModelLocator;
-            if (locator != null)
-            {
-                locator.Messages.RefreshMessages.Execute(locator.Messages);
-            }
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate(typeof(MessagingPageView), null);
         }

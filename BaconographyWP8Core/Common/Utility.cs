@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyWP8.Converters;
@@ -43,17 +44,7 @@ namespace BaconographyWP8.Common
         public const string ReadMailGlyph = "\uE166";
         public const string UnreadMailGlyph = "\uE119";
 
-        struct TaskSettings
-        {
-            public bool rounded;
-            public string cookie;
-            public string opacity;
-            public string number_of_items;
-            public string link_reddit;
-            public string live_reddit;
-            public string[] lock_images;
-            public string[] tile_images;
-        }
+        
 
         private static bool loadingActiveLockScreen = false;
 
@@ -114,7 +105,7 @@ namespace BaconographyWP8.Common
 
                 var user = await userService.GetUser();
                 var loginCookie = user.LoginCookie;
-
+                var liveTileService = ServiceLocator.Current.GetInstance<ILiveTileService>();
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
 
@@ -122,14 +113,14 @@ namespace BaconographyWP8.Common
                     (connectionCostType != NetworkCostType.Variable))
                 {
                     if(!settingsService.UseImagePickerForLockScreen)
-                        lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
+                        lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService, liveTileService);
                     tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
 
                 }
                 else if(File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
                     //find the images we used last time
-                    var taskSettings = LoadTaskSettings();
+                    var taskSettings = liveTileService.LoadTaskSettings();
                     if (taskSettings != null)
                     {
                         if (!settingsService.UseImagePickerForLockScreen)
@@ -143,13 +134,11 @@ namespace BaconographyWP8.Common
                     lockScreenImages = new string[] { Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg" };
                 }
 
-                using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    TaskSettings settings = new TaskSettings { rounded = settingsService.RoundedLockScreen, cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
-                    var settingsBlob = JsonConvert.SerializeObject(settings);
-                    var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
-                    taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
-                }
+                liveTileService.StoreTaskSettings((unused) =>
+                    {
+                        return new TaskSettings { rounded = settingsService.RoundedLockScreen, cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    }, false);
+                
 
                 //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                 await Task.Yield();
@@ -326,36 +315,14 @@ namespace BaconographyWP8.Common
             }
         }
 
-        static TaskSettings? LoadTaskSettings()
-        {
-            try
-            {
-                using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    byte[] taskCookieBytes = new byte[4096];
-                    var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
-                    var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
-                    var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
-                    return taskSettings;
-                }
-            }
-            catch
-            {
-                //bad file dont know how it got messed up but kill it
-                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
-                }
-                return null;
-            }
-        }
 
-        public static async Task<IEnumerable<string>> MakeLockScreenImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
+
+        public static async Task<IEnumerable<string>> MakeLockScreenImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, ILiveTileService liveTileService)
         {
             try
             {
                 //find the images we used last time
-                var lockScreenSettings = LoadTaskSettings();
+                var lockScreenSettings = liveTileService.LoadTaskSettings();
 
                 if (lockScreenSettings != null && lockScreenSettings.Value.lock_images != null && lockScreenSettings.Value.lock_images.Length > 0)
                 {
@@ -678,25 +645,20 @@ namespace BaconographyWP8.Common
         public static async Task<LockScreenViewModel> MakeLockScreenControl(ISettingsService settingsService, IRedditService redditService, IUserService userService, IEnumerable<string> lockScreenImages)
         {
             var user = (await userService.GetUser());
-            if (user.Me != null && (user.Me.HasMail || user.Me.HasModMail))
-            {
-                //toast the user that they have mail
-                //ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("you have new mail");
-            }
             
             LinkGlyphConverter linkGlyphConverter = new LinkGlyphConverter();
             List<LockScreenMessage> lockScreenMessages = new List<LockScreenMessage>();
 
-            //maybe call for messages from logged in user
-            if (user != null && user.LoginCookie != null && settingsService.MessagesInLockScreenOverlay)
-            {
-                var messages = await redditService.GetMessages(null);
-                lockScreenMessages.AddRange(messages.Data.Children.Where(thing => thing.Data is Message && ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
-                {
-                    DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
-                    Glyph = ((Message)thing.Data).New ? UnreadMailGlyph : ReadMailGlyph
-                }));
-            }
+            //dont call for messages here, its wastefull and we're going to toast them if there are an new messages anyway
+            //if (user != null && user.LoginCookie != null && settingsService.MessagesInLockScreenOverlay)
+            //{
+            //    var messages = await redditService.GetMessages(null);
+            //    lockScreenMessages.AddRange(messages.Data.Children.Where(thing => thing.Data is Message && ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
+            //    {
+            //        DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
+            //        Glyph = ((Message)thing.Data).New ? UnreadMailGlyph : ReadMailGlyph
+            //    }));
+            //}
 
             if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {

@@ -179,7 +179,6 @@
     <Compile Include="Converters\TimeRelationConverter.cs" />
     <Compile Include="Converters\TotalPointsConverter.cs" />
     <Compile Include="Converters\UnixTimeConverter.cs" />
-    <Compile Include="Converters\UnreadMessagesConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\VoteIndicatorConverter.cs" />

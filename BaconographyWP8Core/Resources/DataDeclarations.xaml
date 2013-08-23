@@ -42,7 +42,6 @@
     <converters:DomainConverter x:Key="domainConverter"/>
     <converters:TotalPointsConverter x:Key="totalPointsConverter"/>
     <converters:CachedImageConverter x:Key="cachedImageConverter"/>
-    <converters:UnreadMessagesConverter x:Key="unreadMessagesConverter"/>
     <common:LinkViewLayoutManager x:Key="linkViewLayoutManager" />
     <common:OrientationManager x:Key="orientationManager" />
     

@@ -140,10 +140,10 @@
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                          HorizontalContentAlignment="Stretch"
-                         ItemsSource="{Binding Path=Messages, Converter={StaticResource unreadMessagesConverter}}"
+                         ItemsSource="{Binding Path=UnreadMessages}"
                          SelectionMode="Single"
                          SelectionChanged="List_SelectionChanged"
-                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                         SelectedItem="{Binding SelectedUnreadItem, Mode=TwoWay}"
                          x:Name="newList"
                          ItemContainerStyle="{StaticResource MessageListBoxContainerStyle}">
                 </ListBox>
