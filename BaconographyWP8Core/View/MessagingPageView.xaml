@@ -14,8 +14,11 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     DataContext="{Binding Messages, Source={StaticResource Locator}}"
-    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
-    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}">
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  
+    Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}">
 
     <phone:PhoneApplicationPage.Resources>
         <Style x:Key="MessageListBoxContainerStyle" TargetType="ListBoxItem">
