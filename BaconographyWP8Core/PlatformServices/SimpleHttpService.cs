@@ -361,12 +361,28 @@ namespace BaconographyWP8.PlatformServices
                         taskCompletion.SetCanceled();
                 }
                 else if (args.Error != null)
-                    taskCompletion.SetException(args.Error);
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetException(args.Error);
+                    }
+                }
                 else
                 {
-                    var result = new byte[args.Result.Length];
-                    args.Result.Read(result, 0, (int)args.Result.Length);
-                    taskCompletion.SetResult(result);
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        var result = new byte[args.Result.Length];
+                        args.Result.Read(result, 0, (int)args.Result.Length);
+                        taskCompletion.SetResult(result);
+                    }
                 }
             };
             client.OpenReadAsync(new Uri(url));

@@ -94,8 +94,12 @@ namespace BaconographyWP8.Converters
             }
             catch (Exception ex)
             {
-                if(!(ex is TaskCanceledException))
+                if (!(ex is TaskCanceledException))
                     ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("failed to load image: " + ex.Message);
+                else
+                {
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                }
             }
 
             return new PivotItem { DataContext = viewModel };
