@@ -19,6 +19,8 @@ namespace BaconographyWP8.Converters
                 if (tpl.Item2.ExtendedView != null && tpl.Item2.ExtendedView.IsAlive)
                 {
                     var existingView = tpl.Item2.ExtendedView.Target as ExtendedLinkView;
+                    existingView.Height = 0;
+                    existingView.Visibility = System.Windows.Visibility.Collapsed;
                     existingView.DisconnectVM();
                 }
                 
