@@ -89,6 +89,7 @@ namespace BaconographyWP8.View
                         _bitmap.ImageFailed += _bitmap_ImageFailed;
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                         _bitmap.SetSource(new MemoryStream(value as byte[]));
+                        OnImageOpened(null, null);
                     }
                     _imageSource = value;
                     SetValue(ImageSourceProperty, value);
@@ -189,10 +190,10 @@ namespace BaconographyWP8.View
 		/// <summary>
 		/// When a new image is opened, set its initial scale.
 		/// </summary>
-		void OnImageOpened(object sender, RoutedEventArgs e)
+		async void OnImageOpened(object sender, RoutedEventArgs e)
 		{
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            
+            await Task.Yield();
 			// Set scale to the minimum, and then save it.
 			_scale = 0;
 			CoerceScale(true);

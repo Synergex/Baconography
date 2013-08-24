@@ -113,11 +113,11 @@ namespace BaconographyWP8.Converters
             {
                 if (linkedPicture.IsGif)
                 {
-                    return new ScalingGifView { DataContext = linkedPicture, ImageSource = linkedPicture.Url };
+                    return new ScalingGifView { DataContext = linkedPicture, ImageSource = linkedPicture.ImageSource };
                 }
                 else
                 {
-                    return new ScalingPictureView { DataContext = linkedPicture, ImageSource = linkedPicture.Url };
+                    return new ScalingPictureView { DataContext = linkedPicture, ImageSource = linkedPicture.ImageSource };
                 }
             }
             return null;
