@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit.ListingHelpers
 {
-    class SubredditLinks : IListingProvider
+    class SubredditLinks : IListingProvider, ICachedListingProvider
     {
         IRedditService _redditService;
         IOfflineService _offlineService;
@@ -23,23 +23,18 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
             _subredditId = subredditId;
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(GetCachedListing(), GetUncachedListing);
+            return _redditService.GetPostsBySubreddit(_subreddit, null);
         }
 
-        private async Task<Listing> GetUncachedListing()
+        public async Task CacheIt(Listing listing)
         {
-            var resultListing = await _redditService.GetPostsBySubreddit(_subreddit, null);
-            //doesnt need to be awaited let it run in the background
-            
-            if(resultListing != null && resultListing.Data.Children != null && resultListing.Data.Children.Count > 0)
-                await _offlineService.StoreOrderedThings("links:" + _subreddit, resultListing.Data.Children);
-            return resultListing;
-
+            if (listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
+                await _offlineService.StoreOrderedThings("links:" + _subreddit, listing.Data.Children);
         }
 
-        private async Task<Listing> GetCachedListing()
+        public async Task<Listing> GetCachedListing(Dictionary<object, object> state)
         {
             var things = await _offlineService.RetrieveOrderedThings("links:" + _subreddit, TimeSpan.FromDays(14));
             if(things != null)
@@ -67,7 +62,7 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
 
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return GetUncachedListing();
+            return GetInitialListing(state);
         }
     }
 }

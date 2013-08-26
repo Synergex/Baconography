@@ -107,6 +107,7 @@
     <Compile Include="..\NeutralServices\VideoService.cs">
       <Link>NeutralServices\VideoService.cs</Link>
     </Compile>
+    <Compile Include="Converters\ReifiedAlbumItemConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -125,9 +126,9 @@
     <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
     <Compile Include="PlatformServices\ImagesService.cs" />
     <Compile Include="PlatformServices\LiveTileService.cs" />
+    <Compile Include="PlatformServices\MarkdownProcessor.cs" />
     <Compile Include="PlatformServices\NavigationService.cs" />
     <Compile Include="PlatformServices\NotificationService.cs" />
-    <Compile Include="PlatformServices\SettingsService.cs" />
     <Compile Include="PlatformServices\SimpleHttpService.cs" />
     <Compile Include="PlatformServices\SystemServices.cs" />
     <Compile Include="PlatformServices\UserService.cs" />
@@ -135,6 +136,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StaticCommands.cs" />
     <Compile Include="ViewModelLocator.cs" />
+    <Compile Include="ViewModel\PreviewLockScreenViewModel.cs" />
+    <Compile Include="ViewModel\SubredditPickerViewModel.cs" />
     <Compile Include="ViewUriAttribute.cs" />
     <Compile Include="Common\ContextDataButton.cs" />
     <Compile Include="Common\OrientationManager.cs" />
@@ -162,7 +165,6 @@
     <Compile Include="Converters\DomainConverter.cs" />
     <Compile Include="Converters\ExtendedCommentConverter.cs" />
     <Compile Include="Converters\ExtendedLinkConverter.cs" />
-    <Compile Include="Converters\FlattenCommentsCollectionConverter.cs" />
     <Compile Include="Converters\ForegroundAuthorFlairKindConverter.cs" />
     <Compile Include="Converters\IntegerAdditonConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />
@@ -177,7 +179,6 @@
     <Compile Include="Converters\TimeRelationConverter.cs" />
     <Compile Include="Converters\TotalPointsConverter.cs" />
     <Compile Include="Converters\UnixTimeConverter.cs" />
-    <Compile Include="Converters\UnreadMessagesConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\VoteIndicatorConverter.cs" />
@@ -229,6 +230,9 @@
     <Compile Include="View\ScalingGifView.xaml.cs">
       <DependentUpon>ScalingGifView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SearchView.xaml.cs">
+      <DependentUpon>SearchView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SelectSortTypeView.xaml.cs">
       <DependentUpon>SelectSortTypeView.xaml</DependentUpon>
     </Compile>
@@ -273,6 +277,9 @@
     </Compile>
     <Compile Include="View\ScalingPictureView.xaml.cs">
       <DependentUpon>ScalingPictureView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubredditPickerPageView.xaml.cs">
+      <DependentUpon>SubredditPickerPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SubredditView.xaml.cs">
       <DependentUpon>SubredditView.xaml</DependentUpon>
@@ -333,6 +340,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ScalingGifView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SearchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -401,6 +412,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\SubredditPickerPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\SubredditView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -429,6 +444,10 @@
       <Project>{4110A30E-1B48-45F6-AA6B-1ACDC817C286}</Project>
       <Name>BaconographyWP8BackgroundControls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DXGifRenderWP8\DXGifRenderWP8.vcxproj">
+      <Project>{B9A8ED65-C137-4751-AF3A-44D2D7DCA0F5}</Project>
+      <Name>DXGifRenderWP8</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj">
       <Project>{30BEDEDE-3224-49FA-9340-8A82447619CB}</Project>
       <Name>ImageTools.Controls.Phone</Name>
@@ -451,6 +470,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="AdDuplex.WindowsPhone">
+      <HintPath>..\packages\AdDuplexWP8.2.8.0.3\lib\wp8\AdDuplex.WindowsPhone.dll</HintPath>
+    </Reference>
     <Reference Include="Coding4Fun.Toolkit.Controls">
       <HintPath>..\packages\Coding4Fun.Toolkit.Controls.2.0.7\lib\windowsphone8\Coding4Fun.Toolkit.Controls.dll</HintPath>
     </Reference>

@@ -19,9 +19,9 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
             _query = query;
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } }));
+            return Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } });
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -35,7 +35,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
         }
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return GetInitialListing(state).Item2();
+            return GetInitialListing(state);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +20,11 @@ namespace BaconographyPortable.Services.Impl
         IOfflineService _offlineService;
         INotificationService _notificationService;
         IUserService _userService;
+        ISuspendableWorkQueue _suspendableWorkQueue;
 
         public void Initialize(ISmartOfflineService smartOfflineService, ISuspensionService suspensionService, IRedditService redditService,
             ISettingsService settingsService, ISystemServices systemServices, IOfflineService offlineService, INotificationService notificationService,
-            IUserService userService)
+            IUserService userService, ISuspendableWorkQueue suspendableWorkQueue)
         {
             _smartOfflineService = smartOfflineService;
             _suspensionService = suspensionService;
@@ -31,8 +34,16 @@ namespace BaconographyPortable.Services.Impl
             _offlineService = offlineService;
             _notificationService = notificationService;
             _userService = userService;
+            _suspendableWorkQueue = suspendableWorkQueue;
 
             _smartOfflineService.OffliningOpportunity += _smartOfflineService_OffliningOpportunity;
+            Messenger.Default.Register<UserLoggedInMessage>(this, UserLoggedIn);
+        }
+
+        private void UserLoggedIn(UserLoggedInMessage obj)
+        {
+            _subscribedSubredditListing = null;
+            _subscribedSubreddits = null;
         }
 
         Stack<Link> _linkThingsAwaitingOfflining = new Stack<Link>();
@@ -40,18 +51,25 @@ namespace BaconographyPortable.Services.Impl
         bool _isOfflining = false;
 
         DateTime _lastMeCheck = DateTime.MinValue;
+        DateTime _nextOffliningTime = DateTime.MinValue;
 
         const int TopSubsetMaximum = 10;
+
+        void OfflineComments(string subredditId, string permalink)
+        {
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) =>
+            {
+                //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
+                //and it will get stored if we havent or if its too far out of date
+                await GetCommentsOnPost(subredditId, permalink, null);
+            });
+        }
+
         async void _smartOfflineService_OffliningOpportunity(OffliningOpportunityPriority priority, NetworkConnectivityStatus networkStatus, CancellationToken token)
         {
-            if (!_settingsService.AllowPredictiveOfflining)
+            if (!_settingsService.AllowPredictiveOfflining || (DateTime.Now - _nextOffliningTime).TotalMinutes < 10)
                 return;
 
-            //dont want to do this more then one at a time
-            if (_isOfflining)
-                return;
-
-            _isOfflining = true;
             try
             {
                 //good chance to try and process our delayed actions
@@ -82,10 +100,8 @@ namespace BaconographyPortable.Services.Impl
                         var linkThingToOffline = _linkThingsAwaitingOfflining.Pop();
                         if (_recentlyLoadedComments.Contains(linkThingToOffline.Permalink))
                         {
-                            //since it goes through the normal infrastructure it will get no-op'ed if we've already offlined it
-                            //and it will get stored if we havent or if its too far out of date
-                            await GetCommentsOnPost(linkThingToOffline.SubredditId, linkThingToOffline.Permalink, null);
                             _recentlyLoadedComments.Add(linkThingToOffline.Permalink);
+                            OfflineComments(linkThingToOffline.SubredditId, linkThingToOffline.Permalink);
                         }
                     }
                 }
@@ -114,6 +130,12 @@ namespace BaconographyPortable.Services.Impl
                     {
                         filteredLinks = newLinks;
                     }
+
+                    if (filteredLinks.All(link => _recentlyLoadedComments.Contains(link.Permalink)))
+                    {
+                        _nextOffliningTime = DateTime.Now.AddMinutes(10);
+                    }
+
                     _linkThingsAwaitingOfflining = new Stack<Link>(filteredLinks);
                 }
             }
@@ -158,10 +180,10 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.Login(username, password);
         }
 
-        public Task<Listing> Search(string query, int? limit, bool reddits)
+        public Task<Listing> Search(string query, int? limit, bool reddits, string restrictedToSubreddit)
         {
             //TODO cache this for reddit searches since those wont be likely to change
-            return _redditService.Search(query, limit, reddits);
+            return _redditService.Search(query, limit, reddits, restrictedToSubreddit);
         }
 
         private Thing MaybeStoreThing(Thing thing)
@@ -203,19 +225,49 @@ namespace BaconographyPortable.Services.Impl
         {
             if (user != null && user.Username != null && listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
             {
-                _offlineService.StoreOrderedThings("user-sub:" + user.Username, listing.Data.Children);
+                _offlineService.StoreOrderedThings("sublist:" + user.Username, listing.Data.Children);
             }
             return listing;
         }
 
-        public Task<HashSet<string>> GetSubscribedSubreddits()
+        Listing _subscribedSubredditListing;
+        HashSet<string> _subscribedSubreddits;
+        public async Task<HashSet<string>> GetSubscribedSubreddits()
         {
-            return _redditService.GetSubscribedSubreddits();
+            if (_subscribedSubreddits != null)
+                return _subscribedSubreddits;
+
+            var result = await GetSubscribedSubredditListing();
+            if (result != null && result.Data.Children.Count > 0)
+            {
+                _subscribedSubreddits = ThingUtility.HashifyListing(result.Data.Children);
+            }
+            else
+            {
+                _subscribedSubreddits = ThingUtility.HashifyListing((await GetDefaultSubreddits()).Data.Children);
+            }
+            return _subscribedSubreddits;
         }
 
-        public Task<Listing> GetSubscribedSubredditListing()
+        
+        public async Task<Listing> GetSubscribedSubredditListing()
         {
-            return _redditService.GetSubscribedSubredditListing();
+            if (_subscribedSubredditListing != null)
+                return _subscribedSubredditListing;
+            
+            var result = await _redditService.GetSubscribedSubredditListing();
+            if (result != null && result.Data.Children.Count > 0)
+            {
+                _subscribedSubredditListing = result;
+            }
+            else
+            {
+                _subscribedSubredditListing = await GetDefaultSubreddits();
+            }
+
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) => MaybeStoreSubscribedSubredditListing(result, await _userService.GetUser()));
+
+            return _subscribedSubredditListing;
         }
 
         public Task<Listing> GetDefaultSubreddits()
@@ -241,13 +293,27 @@ namespace BaconographyPortable.Services.Impl
         List<Task> activeMaybeTasks = new List<Task>();
         private Listing MaybeStorePostsBySubreddit(Listing listing)
         {
-            var maybeTask = _offlineService.StoreLinks(listing);
-            activeMaybeTasks.Add(maybeTask);
-            maybeTask.ContinueWith(task =>
+            if (listing == null)
+                return null;
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
-                    lock (activeMaybeTasks)
+                    Task maybeTask = null;
+                    try
                     {
-                        activeMaybeTasks.Remove(maybeTask);
+                        maybeTask = _offlineService.StoreLinks(listing);
+                        activeMaybeTasks.Add(maybeTask);
+                        await maybeTask;
+                    }
+                    catch { }
+                    finally
+                    {
+                        if (maybeTask != null)
+                        {
+                            lock (activeMaybeTasks)
+                            {
+                                activeMaybeTasks.Remove(maybeTask);
+                            }
+                        }
                     }
                 });
             
@@ -268,23 +334,34 @@ namespace BaconographyPortable.Services.Impl
         Dictionary<string, Listing> _currentlyStoringComments = new Dictionary<string, Listing>();
         private Listing MaybeStoreCommentsOnPost(Listing listing, string permalink)
         {
+            if (listing == null)
+                return null;
+
             var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
             if (!_linkToOpMap.ContainsKey(((Link)requestedLinkInfo.Data).Name))
             {
                 _linkToOpMap.Add(((Link)requestedLinkInfo.Data).Name, ((Link)requestedLinkInfo.Data).Author);
             }
-            lock (_currentlyStoringComments)
-            {
-                if (_currentlyStoringComments.ContainsKey(permalink))
-                    return listing;
-
-                _currentlyStoringComments.Add(permalink, listing);
-            }
-            _offlineService.StoreComments(listing).ContinueWith(task =>
+            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
                 {
-                    lock(_currentlyStoringComments)
+                    lock (_currentlyStoringComments)
                     {
-                        _currentlyStoringComments.Remove(permalink);
+                        if (_currentlyStoringComments.ContainsKey(permalink))
+                            return;
+
+                        _currentlyStoringComments.Add(permalink, listing);
+                    }
+                    try
+                    {
+                        await _offlineService.StoreComments(listing);
+                    }
+                    catch { }
+                    finally
+                    {
+                        lock (_currentlyStoringComments)
+                        {
+                            _currentlyStoringComments.Remove(permalink);
+                        }
                     }
                 });
             return listing;
@@ -297,18 +374,20 @@ namespace BaconographyPortable.Services.Impl
                 if (_currentlyStoringComments.ContainsKey(permalink))
                     return _currentlyStoringComments[permalink];
             }
-            var cachedLink = await _offlineService.RetrieveLinkByUrl(permalink, TimeSpan.FromDays(1));
-            Thing linkThing = null;
+
+            var cachedPermalink = permalink;
+            if (permalink.EndsWith(".json?sort=hot"))
+                cachedPermalink = permalink.Replace(".json?sort=hot", "");
+
+            var cachedLink = await _offlineService.RetrieveLinkByUrl(cachedPermalink, TimeSpan.FromDays(1));
+            var commentMetadata = await _offlineService.GetCommentMetadata(cachedPermalink);
             //make sure there are some comments otherwise its more expensive to make two calls then just the one
-            if (cachedLink != null && cachedLink.TypedData.CommentCount > 15 && (linkThing = await GetLinkByUrl("http://www.reddit.com" + permalink)) != null)
+            if (cachedLink != null && commentMetadata.Item1 != 0)
             {
-                //compare to see if there was any significant change
-                var typedLink = new TypedThing<Link>(linkThing);
-                var percentChange = Math.Abs((typedLink.TypedData.CommentCount - cachedLink.TypedData.CommentCount) / ((typedLink.TypedData.CommentCount + cachedLink.TypedData.CommentCount) / 2));
-                if (percentChange > 5)
+                if (commentMetadata.Item1 != cachedLink.TypedData.CommentCount || _invalidatedIds.Contains(cachedLink.Data.Name))
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
-                var comments = await _offlineService.GetTopLevelComments(permalink, limit ?? 500);
+                var comments = await _offlineService.GetTopLevelComments(cachedPermalink, limit ?? 500);
                 if (comments != null && comments.Data.Children.Count > 0)
                     return comments;
                 else
@@ -400,12 +479,17 @@ namespace BaconographyPortable.Services.Impl
 
         }
 
+        public HashSet<string> _invalidatedIds = new HashSet<string>();
+
         public async Task EditComment(string thingId, string text)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(thingId) || text == null)
                     return;
+
+                _invalidatedIds.Add(thingId);
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await _redditService.EditComment(thingId, text);
                 else
@@ -486,6 +570,41 @@ namespace BaconographyPortable.Services.Impl
                         { "text", text},
                         { "subreddit", subreddit }, 
                         { "title", title } 
+                    }).Start();
+            }
+        }
+
+        public async Task EditPost(string text, string name)
+        {
+            try
+            {
+                if (text == null || name == null)
+                    return;
+
+                _invalidatedIds.Add(name);
+
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                    await _redditService.EditPost(text, name);
+                else
+                    await _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
+                    });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                    _notificationService.CreateErrorNotification(ex);
+
+                _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
                     }).Start();
             }
         }
@@ -611,6 +730,11 @@ namespace BaconographyPortable.Services.Impl
                                     await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
                                     break;
                                 }
+                            case "EditPost":
+                                {
+                                    await EditPost(actionTpl.Item2["text"], actionTpl.Item2["name"]);
+                                    break;
+                                }
                             case "AddVote":
                                 {
                                     await AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
@@ -691,8 +815,8 @@ namespace BaconographyPortable.Services.Impl
                     return _currentlyStoringMessages[user.Username];
             }
 
-            if (user.Me != null && user.Me.HasMail)
-                return await _redditService.GetMessages(limit);
+            if (user.Me != null)
+                return MaybeStoreMessages(user, await _redditService.GetMessages(limit));
 
             var messages = await _offlineService.GetMessages(user);
             if (messages != null && messages.Data.Children.Count > 0)
@@ -704,6 +828,11 @@ namespace BaconographyPortable.Services.Impl
         public Task SubmitCaptcha(string captcha)
         {
             return _redditService.SubmitCaptcha(captcha);
+        }
+
+        public Task ReadMessage(string id)
+        {
+            return _redditService.ReadMessage(id);
         }
     }
 }

@@ -7,10 +7,18 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="480" d:DesignWidth="480">
+    d:DesignHeight="480" d:DesignWidth="480" Loaded="UserControl_Loaded" Height="75" x:Name="theControl">
+    <UserControl.Resources>
+        <Storyboard x:Name="ExpandSB">
+            <DoubleAnimation To="75" Duration="0:0:.15" Storyboard.TargetName="theGrid" Storyboard.TargetProperty="(FrameworkElement.MaxHeight)"/>
+        </Storyboard>
 
-    <Grid Margin="0,10,0,0" MinWidth="430" HorizontalAlignment="Stretch"
-                Visibility="{Binding IsExtendedOptionsShown, Converter={StaticResource booleanVisibilityConverter}}">
+        <Storyboard x:Name="CollapseSB">
+            <DoubleAnimation To="0" Duration="0:0:.15" Storyboard.TargetName="theGrid" Storyboard.TargetProperty="(FrameworkElement.MaxHeight)"/>
+        </Storyboard>
+    </UserControl.Resources>
+        <Grid Margin="0,10,0,0" MinWidth="430" HorizontalAlignment="Stretch" MaxHeight="0" x:Name="theGrid">
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />

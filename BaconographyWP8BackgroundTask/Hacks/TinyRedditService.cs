@@ -173,7 +173,7 @@ namespace BaconographyWP8BackgroundTask.Hacks
 
         public async Task<Tuple<IEnumerable<string>, int>> GetNewMessages(int? limit)
         {
-            var targetUri = "http://www.reddit.com/message/inbox/.json";
+            var targetUri = "http://www.reddit.com/message/unread/.json";
 
             try
             {
@@ -267,6 +267,9 @@ namespace BaconographyWP8BackgroundTask.Hacks
                     var isSelf = JSON.GetValue(data, "is_self") as Nullable<bool>;
                     var url = JSON.GetValue(data, "url") as string;
                     var title = JSON.GetValue(data, "title") as string;
+                    var nsfw = JSON.GetValue(data, "over_18") as Nullable<bool>;
+                    if (nsfw ?? false)
+                        continue;
                     result.Add(Tuple.Create(title, (isSelf ?? false) ? "" : url)); 
                 }
 

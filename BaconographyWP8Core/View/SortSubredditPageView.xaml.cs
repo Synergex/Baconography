@@ -98,7 +98,7 @@ namespace BaconographyWP8.View
 				}
 			}
 
-			var subredditVM = newListLastItem as AboutSubredditViewModel;
+            var subredditVM = subbedListLastItem as AboutSubredditViewModel;
 			if (subredditVM != null)
 			{
 				var mainPageVM = this.DataContext as MainPageViewModel;
@@ -120,7 +120,7 @@ namespace BaconographyWP8.View
 			{
 				if (pinnedSubredditList.Items.Count == 0)
 				{
-					var frontPage = new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing());
+					var frontPage = new TypedThing<Subreddit>(ThingUtility.GetFrontPageThing());
 					Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = frontPage });
 				}
 				else
@@ -152,7 +152,7 @@ namespace BaconographyWP8.View
             if (subreddit == null && button.DataContext is SubredditSelectorViewModel)
             {
                 var selector = button.DataContext as SubredditSelectorViewModel;
-                selector.DoGoSubreddit(pinnedSubredditList.Items.Contains(subreddit));
+                selector.DoGoSubreddit(false);
                 ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
             }
 			else if (subreddit != null)
@@ -174,7 +174,13 @@ namespace BaconographyWP8.View
 		{
 			var button = sender as Button;
 			var subredditVM = button.DataContext as AboutSubredditViewModel;
-			if (subredditVM != null)
+            if (subredditVM == null && button.DataContext is SubredditSelectorViewModel)
+            {
+                var selector = button.DataContext as SubredditSelectorViewModel;
+                selector.DoGoSubreddit(true);
+                ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+            }
+			else if (subredditVM != null)
 			{
 				var mpvm = this.DataContext as MainPageViewModel;
 				if (mpvm != null)
@@ -192,6 +198,7 @@ namespace BaconographyWP8.View
 					}
 				}
 			}
+
 		}
 
 		private void RefreshButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)

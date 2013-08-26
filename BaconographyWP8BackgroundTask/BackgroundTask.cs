@@ -84,6 +84,7 @@ namespace BaconographyWP8
             int numberOfItems = 6;
             TinyRedditService redditService = null;
             bool hasMail = false;
+            bool roundedCorners = false;
             int messageCount = 0;
             try
             {
@@ -97,6 +98,7 @@ namespace BaconographyWP8
                         var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
                         var decodedJson = JSON.JsonDecode(json);
 
+                        var rounded = JSON.GetValue(decodedJson, "rounded") as bool?;
                         var cookie = JSON.GetValue(decodedJson, "cookie") as string;
                         var opacityStr = JSON.GetValue(decodedJson, "opacity") as string;
                         var numOfItemsStr = JSON.GetValue(decodedJson, "number_of_items") as string;
@@ -110,11 +112,12 @@ namespace BaconographyWP8
 
                         if (!Int32.TryParse(opacityStr, out opacity)) opacity = 35;
                         if (!Int32.TryParse(numOfItemsStr, out numberOfItems)) numberOfItems = 6;
+                        if (rounded != null) roundedCorners = rounded.Value;
 
                         if (!string.IsNullOrWhiteSpace(cookie))
                         {
                             redditService = new TinyRedditService(null, null, cookie);
-                            hasMail = await redditService.HasMail();
+                            hasMail = true;// dont make two calls when we can just ask for unread messages once
                         }
                     }
                 }
@@ -134,6 +137,7 @@ namespace BaconographyWP8
             lockScreenViewModel.ImageSource = lockScreenImage;
             lockScreenViewModel.OverlayOpacity = opacity / 100.0f;
             lockScreenViewModel.NumberOfItems = numberOfItems;
+            lockScreenViewModel.RoundedCorners = roundedCorners;
 
             if (task.Name == periodicTaskName)
             {
@@ -155,7 +159,7 @@ namespace BaconographyWP8
                                 ShellToast toast = new ShellToast();
                                 toast.Title = "New message";
                                 toast.Content = message;
-                                toast.NavigationUri = new Uri("/View/MessagingPageView.xaml", UriKind.Relative);
+                                toast.NavigationUri = new Uri("/BaconographyWP8Core;component/View/MessagingPageView.xaml?refresh", UriKind.Relative);
                                 toast.Show();
                             }
                             lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });
@@ -205,6 +209,11 @@ namespace BaconographyWP8
 
                 Deployment.Current.Dispatcher.BeginInvoke(async () =>
                 {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                        GC.WaitForPendingFinalizers();
+                    }
                     BuildLockScreen(tileImages, messageCount, lockScreenViewModel);
                     //it appears to take a few runs to knock down the memory, probably a native reference counting issue
                     //thats why we also have to wait for pending finalizers
@@ -238,43 +247,17 @@ namespace BaconographyWP8
                     try
                     {
                         liveTileCounter = await BuildTileImage(redditService, liveTileCounter, liveTileLink);
+                        for (int i = 0; i < 2; i++)
+                        {
+                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                            GC.WaitForPendingFinalizers();
+                        }
                     }
                     catch { }
 
                     try
                     {
-                        var activeTiles = ShellTile.ActiveTiles;
-                        var activeTile = activeTiles.FirstOrDefault();
-                        if (activeTile != null)
-                        {
-                            var uris = new List<Uri>();
-
-                            Shuffle(tileImages);
-
-                            if (startTileCounter != liveTileCounter)
-                            {
-                                uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
-                            }
-
-                            foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
-                            {
-                                uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
-                            }
-
-                            if (uris.Count == 0)
-                            {
-                                uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
-                            }
-
-                            CycleTileData cycleTile = new CycleTileData()
-                            {
-                                Title = "Baconography",
-                                Count = messageCount,
-                                SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
-                                CycleImages = uris
-                            };
-                            activeTile.Update(cycleTile);
-                        }
+                        UpdateLiveTile(tileImages, messageCount, liveTileCounter, startTileCounter);
                     }
                     catch { }
 
@@ -334,6 +317,11 @@ namespace BaconographyWP8
                                     try
                                     {
                                         liveTileCounter = await BuildTileImage(redditService, liveTileCounter, link);
+                                        for (int i = 0; i < 2; i++)
+                                        {
+                                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                                            GC.WaitForPendingFinalizers();
+                                        }
                                     }
                                     catch 
                                     {
@@ -353,6 +341,42 @@ namespace BaconographyWP8
                 {
                     NotifyComplete();
                 }
+            }
+        }
+
+        public static void UpdateLiveTile(List<object> tileImages, int messageCount, int liveTileCounter, int startTileCounter)
+        {
+            var activeTiles = ShellTile.ActiveTiles;
+            var activeTile = activeTiles.FirstOrDefault();
+            if (activeTile != null)
+            {
+                var uris = new List<Uri>();
+
+                Shuffle(tileImages);
+
+                if (startTileCounter != liveTileCounter)
+                {
+                    uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
+                }
+
+                foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
+                {
+                    uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
+                }
+
+                if (uris.Count == 0)
+                {
+                    uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
+                }
+
+                CycleTileData cycleTile = new CycleTileData()
+                {
+                    Title = "Baconography",
+                    Count = messageCount,
+                    SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
+                    CycleImages = uris
+                };
+                activeTile.Update(cycleTile);
             }
         }
 
@@ -427,6 +451,7 @@ namespace BaconographyWP8
             WriteableBitmap bitmap = new WriteableBitmap(691, 336);
             bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
             bitmap.Invalidate();
+            imageSource.UriSource = null;
             lockScreenView.Source = null;
             using (var store = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -437,13 +462,6 @@ namespace BaconographyWP8
                     liveTileCounter++;
                 }
             }
-
-            for (int i = 0; i < 2; i++)
-            {
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
-                GC.WaitForPendingFinalizers();
-            }
-
             return liveTileCounter;
         }
 

@@ -16,7 +16,8 @@
     SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
     shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
     shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
-    DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}">
+    DataContext="{Binding ContentPreferences, Source={StaticResource Locator}}"
+    x:Name="pageRoot">
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
@@ -53,6 +54,8 @@
                                 IsEnabled="{Binding AllowAdvertising}" Click="Button_Click"/>
                             <CheckBox Margin="12,0,0,0" Content="Allow NSFW (over 18) content"
                                 IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
+                            <CheckBox Margin="12,0,0,0" Content="Only flipview unviewed images"
+                                IsChecked="{Binding OnlyFlipViewUnread, Mode=TwoWay}" />
 
                             <TextBlock FontWeight="SemiBold" Text="LAYOUT"/>
                             <CheckBox Margin="12,0,0,0" Content="Left-handed mode"
@@ -63,6 +66,9 @@
                                 Unchecked="OrientationLock_Unchecked"/>
                             <CheckBox Margin="12,0,0,0" Content="Tap title for comments"
                                 IsChecked="{Binding TapForComments, Mode=TwoWay}" />
+
+                            <CheckBox Margin="12,0,0,0" Content="Mutli-Color comment margins"
+                                IsChecked="{Binding MultiColorCommentMargins, Mode=TwoWay}" />
 
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock HorizontalAlignment="Left" FontWeight="SemiBold" Text="OFFLINE CONTENT"/>
@@ -90,53 +96,46 @@
                     </ScrollViewer>
                 </Grid>
             </phone:PivotItem>
-
+            
             <phone:PivotItem Header="lock screen">
                 <Grid>
                     <ScrollViewer>
                         <StackPanel Margin="12,0,12,0">
-                            <TextBlock FontWeight="SemiBold" Text="LOCK SCREEN"/>
-                            <Button Margin="12,0,0,0" Content="System lock screen settings" Click="ShowSystemLockScreenSettings"/>
-                            <Button Margin="12,0,0,0" Content="Preview lock screen" Click="ShowLockScreenPreview"/>
-                            <Button Margin="12,0,0,0" Content="Set reddit lock screen" Click="SetLockScreen"/>
-                            <Button Margin="12,0,0,0" Content="Set image lock screen" Click="PickLockScreen"/>
-                            
-                            <CheckBox Margin="12,0,0,0" Content="Highres images only" IsChecked="{Binding HighresLockScreenOnly, Mode=TwoWay}"/>
-                            
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen images:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding ImagesSubreddit, Mode=TwoWay}"/>
+                            <Button Margin="12,0,0,0" Content="Change system settings" Click="ShowSystemLockScreenSettings"/>
+                            <CheckBox x:Name="lockStatus" Margin="12,0,0,0" Content="Baconography Lock Screens" 
+                                      Checked="SetLockScreen"/>
 
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for lock screen posts:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LockScreenReddit, Mode=TwoWay}"/>
-
-                            <TextBlock FontWeight="SemiBold" Text="LIVE TILE"/>
-                            <TextBlock Margin="24,0,0,0" Text="Subreddit for live tile posts:"/>
-                            <TextBox Margin="12,0,0,0" Text="{Binding LiveTileReddit, Mode=TwoWay}"/>
+                            <TextBlock FontWeight="SemiBold" Text="CONTENT PREFERENCES"/>
+                            <RadioButton x:Name="userImageRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay}"
+                                         Margin="12,0,0,0" Content="Use custom image for background"
+                                         Click="SelectLockScreenImage" />
+                            <Image HorizontalAlignment="Center" Height="90" Width="90" Source="{Binding ElementName=pageRoot, Path=ImagePreview}"
+                                         Visibility="{Binding UseImagePickerForLockScreen, Converter={StaticResource booleanVisibilityConverter}}"
+                                         Tap="SelectLockScreenImage" />
+                            <RadioButton x:Name="subredditRadioButton" IsChecked="{Binding UseImagePickerForLockScreen, Mode=TwoWay, Converter={StaticResource invertBooleanConverter}}"
+                                         Margin="12,0,0,0" Content="Use subreddit for background"
+                                         Click="SelectLockScreenSubreddit"/>
+                            <Button Margin="12,0,0,0" Content="Pick subreddit for background" Click="SelectLockScreenSubreddit"
+                                    Visibility="{Binding UseImagePickerForLockScreen, Converter={StaticResource invertBooleanVisibilityConverter}}"/>
+                            <Button Margin="12,0,0,0" Content="Pick subreddit for overlay posts" Click="SelectTopPostSubreddit"/>
+                            <Button Margin="12,0,0,0" Content="Customize overlay" Click="ShowLockScreenPreview"/>
 
                             <TextBlock FontWeight="SemiBold" Text="UPDATES"/>
                             <CheckBox Margin="12,0,0,0" Content="Enable Updates" IsChecked="{Binding EnableUpdates, Mode=TwoWay}"/>
                             <CheckBox Margin="12,0,0,0" Content="Update image only on Wifi" IsChecked="{Binding UpdateImagesOnlyOnWifi, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Update overlay only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
-                            
-                            <TextBlock FontWeight="SemiBold" Text="OVERLAY"/>
-                            <CheckBox Margin="12,0,0,0" Content="Show unread messages" IsChecked="{Binding MessagesInLockScreenOverlay, Mode=TwoWay}"/>
-                            <CheckBox Margin="12,0,0,0" Content="Show top posts" IsChecked="{Binding PostsInLockScreenOverlay, Mode=TwoWay}"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="24,0,0,0" Text="Number of Items"/>
-                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayItemCount}" />
-                            </StackPanel>
-                            <Slider Margin="12,0,0,0" Minimum="0" Maximum="6" Value="{Binding OverlayItemCount, Mode=TwoWay}"/>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="24,0,0,0" Text="Opacity"/>
-                                <TextBlock Margin="12,0,0,0" Text="{Binding OverlayOpacity}" />
-                            </StackPanel>
-                            <Slider Margin="12,0,0,0" Minimum="25" Maximum="100" Value="{Binding OverlayOpacity, Mode=TwoWay}"/>
+                            <CheckBox Margin="12,0,0,0" Content="Update top posts only on Wifi" IsChecked="{Binding UpdateOverlayOnlyOnWifi, Mode=TwoWay}"/>
                             
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
+            </phone:PivotItem>
+
+            <phone:PivotItem Header="tile">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Button Margin="12,0,0,0" Content="Pick subreddit for live tile" Click="SelectLiveTileSubreddit"/>
+                    </StackPanel>
+                </ScrollViewer>
             </phone:PivotItem>
 
             <phone:PivotItem Header="about">

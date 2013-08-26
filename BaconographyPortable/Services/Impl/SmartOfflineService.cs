@@ -20,13 +20,14 @@ namespace BaconographyPortable.Services.Impl
         IOfflineService _offlineService;
         IImagesService _imagesService;
         ISystemServices _systemServices;
+        ISuspendableWorkQueue _suspendableWorkQueue;
         RedditViewModel _firstRedditViewModel;
         CommentsViewModel _firstCommentsViewModel;
         CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
 
         public void Initialize(IViewModelContextService viewModelContextService, IOOMService oomService, ISettingsService settingsService, 
             ISuspensionService suspensionService, IDynamicViewLocator dynamicViewLocator, IOfflineService offlineService, IImagesService imagesService,
-            ISystemServices systemServices)
+            ISystemServices systemServices, ISuspendableWorkQueue suspendableWorkQueue)
         {
             _viewModelContextService = viewModelContextService;
             _oomService = oomService;
@@ -36,6 +37,7 @@ namespace BaconographyPortable.Services.Impl
             _offlineService = offlineService;
             _imagesService = imagesService;
             _systemServices = systemServices;
+            _suspendableWorkQueue = suspendableWorkQueue;
 
             _oomService.OutOfMemory += _oomService_OutOfMemory;
         }
@@ -51,6 +53,11 @@ namespace BaconographyPortable.Services.Impl
         }
 
         public async void NavigatedToOfflineableThing(Model.Reddit.Thing targetThing, bool link)
+        {
+            await NavigatedToOfflineableThingImpl(targetThing, link);
+        }
+
+        private async Task NavigatedToOfflineableThingImpl(Model.Reddit.Thing targetThing, bool link)
         {
             //if we've offlined this thing, we need to pat ourselves on the back
             //because we got it right
@@ -73,6 +80,7 @@ namespace BaconographyPortable.Services.Impl
         }
 
         int _navId = 0;
+        DateTime lastOppertunity = DateTime.Now;
         public async void NavigatedToView(Type viewType, bool forward)
         {
             _navId++;
@@ -80,7 +88,20 @@ namespace BaconographyPortable.Services.Impl
 
             _cancelationTokenSource.Cancel();
 
-            await Task.Delay(2000);
+            var currentContext = _viewModelContextService.Context;
+            if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
+            {
+                try
+                {
+                    await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) =>
+                        {
+                            await NavigatedToOfflineableThingImpl(((CommentsViewModel)currentContext).Link.LinkThing, true);
+                        });
+                }
+                catch (TaskCanceledException)
+                {
+                }
+            }
 
             if (myNavID != _navId)
             {
@@ -90,11 +111,11 @@ namespace BaconographyPortable.Services.Impl
             else
                 _cancelationTokenSource = new CancellationTokenSource();
 
-            var currentContext = _viewModelContextService.Context;
-            if (currentContext is CommentsViewModel && ((CommentsViewModel)currentContext).Link != null)
-            {
-                NavigatedToOfflineableThing(((CommentsViewModel)currentContext).Link.LinkThing, true);
-            }
+
+            if ((DateTime.Now - lastOppertunity).TotalSeconds < 10)
+                return;
+            else
+                lastOppertunity = DateTime.Now;
 
             //determine if this is a good time to be caching things
             //and what should be our highest priority to be cached

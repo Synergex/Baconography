@@ -31,7 +31,10 @@ namespace BaconographyWP8.View
         ISmartOfflineService _smartOfflineService;
 		public RedditView()
 		{
-			this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
 
@@ -40,12 +43,6 @@ namespace BaconographyWP8.View
 
 		void linksView_ItemRealized(object sender, ItemRealizationEventArgs e)
 		{
-            if (e.ItemKind == LongListSelectorItemKind.Item)
-            {
-                object o = e.Container.DataContext;
-                items[o] = e.Container;
-            }
-
 			lastItem = e.Container.Content;
 			var linksView = sender as FixedLongListSelector;
 			if (linksView.ItemsSource != null && linksView.ItemsSource.Count >= _offsetKnob)
@@ -64,11 +61,6 @@ namespace BaconographyWP8.View
 
 		void linksView_ItemUnrealized(object sender, ItemRealizationEventArgs e)
 		{
-            if (e.ItemKind == LongListSelectorItemKind.Item)
-            {
-                object o = e.Container.DataContext;
-                items.Remove(o);
-            }
 		}
 
 		public void button_Click(object sender, RoutedEventArgs e)
@@ -95,9 +87,9 @@ namespace BaconographyWP8.View
             {
                 try
                 {
-                    ((RedditViewModel)DataContext).TopVisibleLink = GetFirstVisibleItem(this.linksView);
+                    ((RedditViewModel)DataContext).TopVisibleLink = linksView.GetFirstVisibleItem();
                     if (((RedditViewModel)DataContext).TopVisibleLink != null)
-                    {
+                    { 
                         linksView.ScrollTo(((RedditViewModel)DataContext).TopVisibleLink);
                         linksView.UpdateLayout();
                     }
@@ -117,7 +109,7 @@ namespace BaconographyWP8.View
                 if (DataContext is RedditViewModel && ((RedditViewModel)DataContext).TopVisibleLink != null)
                 {
                     linksView.UpdateLayout();
-                    if (FindViewport(linksView) != null)
+                    if (FixedLongListSelector.FindViewport(linksView) != null)
                         linksView.ScrollTo(((RedditViewModel)DataContext).TopVisibleLink);
 
                     _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
@@ -126,34 +118,6 @@ namespace BaconographyWP8.View
             catch
             {
             }
-        }
-
-        private Dictionary<object, ContentPresenter> items = new Dictionary<object, ContentPresenter>();
-
-        public object GetFirstVisibleItem(LongListSelector lls)
-        {
-            var viewPort = FindViewport(lls);
-            if (items.Count > 0 && viewPort != null)
-            {
-                var offset = viewPort.Viewport.Top;
-                return items.Where(x => Canvas.GetTop(x.Value) + x.Value.ActualHeight > offset)
-                    .OrderBy(x => Canvas.GetTop(x.Value)).First().Key;
-            }
-            else
-                return null;
-        }
-
-        private static ViewportControl FindViewport(DependencyObject parent)
-        {
-            var childCount = VisualTreeHelper.GetChildrenCount(parent);
-            for (var i = 0; i < childCount; i++)
-            {
-                var elt = VisualTreeHelper.GetChild(parent, i);
-                if (elt is ViewportControl) return (ViewportControl)elt;
-                var result = FindViewport(elt);
-                if (result != null) return result;
-            }
-            return null;
         }
 
         private void RefreshButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)

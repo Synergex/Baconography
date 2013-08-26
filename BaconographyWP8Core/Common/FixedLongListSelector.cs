@@ -22,15 +22,15 @@ namespace BaconographyWP8.Common
 		bool isMoving = false;
 		double manipulationStart = 0;
 		double manipulationEnd = 0;
-
+        private Dictionary<object, ContentPresenter> items = new Dictionary<object, ContentPresenter>();
 		public FixedLongListSelector()
 		{
 			SelectionChanged += FixedLongListSelector_SelectionChanged;
 			ManipulationStateChanged += listbox_ManipulationStateChanged;
 			MouseMove += listbox_MouseMove;
 			Tap += FixedLongListSelector_Tap;
-			ItemRealized += OnViewportChanged;
-			ItemUnrealized += OnViewportChanged;
+            ItemRealized += OnItemRealized;
+            ItemUnrealized += OnItemUnRealized;
 			Compression += FixedLongListSelector_Compression;
 		}
 
@@ -87,10 +87,27 @@ namespace BaconographyWP8.Common
 			set { SetValue(PulledDownProperty, value); }
 		}
 
-		void OnViewportChanged(object sender, Microsoft.Phone.Controls.ItemRealizationEventArgs e)
+		void OnItemRealized(object sender, Microsoft.Phone.Controls.ItemRealizationEventArgs e)
 		{
 			viewportChanged = true;
+
+            if (e.ItemKind == LongListSelectorItemKind.Item)
+            {
+                object o = e.Container.DataContext;
+                items[o] = e.Container;
+            }
 		}
+
+        void OnItemUnRealized(object sender, Microsoft.Phone.Controls.ItemRealizationEventArgs e)
+        {
+            viewportChanged = true;
+
+            if (e.ItemKind == LongListSelectorItemKind.Item)
+            {
+                object o = e.Container.DataContext;
+                items.Remove(o);
+            }
+        }
 
 		void FixedLongListSelector_Tap(object sender, System.Windows.Input.GestureEventArgs e)
 		{
@@ -112,11 +129,12 @@ namespace BaconographyWP8.Common
 			isMoving = true;
 		}
 
+        OrientationManager _orientationManager;
 		void listbox_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
 		{
 			var pos = e.GetPosition(null);
 
-			var orientationManager = Styles.Resources["orientationManager"] as OrientationManager;
+            var orientationManager = _orientationManager == null ? (_orientationManager = Styles.Resources["orientationManager"] as OrientationManager) : _orientationManager;
 			var val = pos.Y;
 			if (orientationManager != null
 				&& (orientationManager.Orientation == PageOrientation.Landscape
@@ -147,12 +165,27 @@ namespace BaconographyWP8.Common
 			var viewport = FindViewport(this);
 			if (viewport != null)
 			{
-				if (viewport.Viewport.Top < 10)
+                var firstVisibleItem = GetFirstVisibleItem();
+                if (firstVisibleItem != null && ItemsSource.Count > 0 && firstVisibleItem == ItemsSource[0])
 				{
-					if (total > pullDownOffset || (-total) > pullDownOffset)
-						Compression(this, new CompressionEventArgs(CompressionType.Top));
-					else
-						Compression(this, new CompressionEventArgs(CompressionType.None));
+                    if (Math.Abs(total) > pullDownOffset)
+                    {
+                        var orientationManager = _orientationManager == null ? (_orientationManager = Styles.Resources["orientationManager"] as OrientationManager) : _orientationManager;
+                        var adjustedTotal = -total;
+                        if (orientationManager != null)
+                        {
+                            if(orientationManager.Orientation == PageOrientation.LandscapeLeft)
+                            {
+                                adjustedTotal = total;
+                            }
+                        }
+                        if(adjustedTotal > pullDownOffset)
+                            Compression(this, new CompressionEventArgs(CompressionType.Top));
+                        else
+                            Compression(this, new CompressionEventArgs(CompressionType.None));
+                    }
+                    else
+                        Compression(this, new CompressionEventArgs(CompressionType.None));
 				}
 				else
 				{
@@ -195,7 +228,7 @@ namespace BaconographyWP8.Common
 
 		#region LLS Util
 
-		private static ViewportControl FindViewport(DependencyObject parent)
+		public static ViewportControl FindViewport(DependencyObject parent)
 		{
 			var childCount = VisualTreeHelper.GetChildrenCount(parent);
 			for (var i = 0; i < childCount; i++)
@@ -207,6 +240,19 @@ namespace BaconographyWP8.Common
 			}
 			return null;
 		}
+
+        public object GetFirstVisibleItem()
+        {
+            var viewPort = FindViewport(this);
+            if (items.Count > 0 && viewPort != null)
+            {
+                var offset = viewPort.Viewport.Top;
+                return items.Where(x => Canvas.GetTop(x.Value) + x.Value.ActualHeight > offset)
+                    .OrderBy(x => Canvas.GetTop(x.Value)).First().Key;
+            }
+            else
+                return null;
+        }
 		#endregion
 	}
 

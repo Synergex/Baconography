@@ -1,4 +1,9 @@
-﻿using GalaSoft.MvvmLight;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +34,17 @@ namespace BaconographyPortable.ViewModel
             public bool IsAlbum { get; set; }
             public int PositionInAlbum { get; set; }
             public int AlbumSize { get; set; }
+            public bool IsGif { get; set; }
+            public bool HasExtendableTitle
+            {
+                get
+                {
+                    return Title.Length > 40 || Title.Contains("\r") || Title.Contains("\n");
+                }
+            }
         }
+
+        public string LinkId { get; set; }
 
         public IEnumerable<LinkedPicture> _pictures;
         public IEnumerable<LinkedPicture> Pictures
@@ -93,6 +108,221 @@ namespace BaconographyPortable.ViewModel
                 return Pictures != null && Pictures.Count() > 1;
             }
         }
-        
+
+        LinkViewModel _parentLink;
+        private LinkViewModel ParentLink
+        {
+            get
+            {
+                if (_parentLink == null)
+                {
+                    if (string.IsNullOrWhiteSpace(LinkId))
+                        return null;
+
+                    var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+                    var firstRedditViewModel = viewModelContextService.ContextStack.FirstOrDefault(context => context is RedditViewModel) as RedditViewModel;
+                    if (firstRedditViewModel != null)
+                    {
+                        for (int i = 0; i < firstRedditViewModel.Links.Count; i++)
+                        {
+                            var linkViewModel = firstRedditViewModel.Links[i] as LinkViewModel;
+                            if (linkViewModel != null)
+                            {
+                                if (linkViewModel.LinkThing.Data.Id == LinkId)
+                                {
+                                    _parentLink = linkViewModel;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return _parentLink;
+            }
+        }
+
+        public bool HasContext
+        {
+            get
+            {
+                return ParentLink != null;
+            }
+        }
+
+        public int CommentCount
+        {
+            get
+            {
+                if (HasContext)
+                    return ParentLink.LinkThing.Data.CommentCount;
+                return 0;
+            }
+        }
+
+        public VotableViewModel Votable
+        {
+            get
+            {
+                if (ParentLink != null)
+                    return ParentLink.Votable;
+                return null;
+            }
+        }
+
+        public void RepositionContextScroll()
+        {
+            var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+            var firstRedditViewModel = viewModelContextService.ContextStack.FirstOrDefault(context => context is RedditViewModel) as RedditViewModel;
+            if (firstRedditViewModel != null)
+            {
+                firstRedditViewModel.TopVisibleLink = ParentLink;
+            }
+        }
+
+        public async Task<LinkedPictureViewModel> Previous()
+        {
+            var parentLink = ParentLink;
+            if (parentLink != null)
+            {
+                var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+                var firstRedditViewModel = viewModelContextService.ContextStack.FirstOrDefault(context => context is RedditViewModel) as RedditViewModel;
+                if (firstRedditViewModel != null)
+                {
+                    RepositionContextScroll();
+
+                    var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                    //need to go backwards in time, not paying attention to the unread rules
+                    LinkedPictureViewModel stackPrevious = null;
+                    var emptyForward = LinkedPictureHistory.EmptyForward;
+                    if (settingsService.OnlyFlipViewUnread && (stackPrevious = LinkedPictureHistory.Backward()) != null)
+                    {
+                        if(emptyForward)
+                            LinkedPictureHistory.Push(this);
+
+                        return stackPrevious;
+                    }
+                    else
+                    {
+                        var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
+                        var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, false);
+                        return await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
+                    }
+
+                }
+            }
+            return null;
+        }
+
+        private static async Task<LinkedPictureViewModel> MakeContextedImageTuple(IImagesService imagesService, IOfflineService offlineService, ISettingsService settingsService, NeverEndingRedditView linksEnumerator)
+        {
+            ViewModelBase vm;
+            while((vm = await linksEnumerator.Next()) != null)
+            {
+                if (vm is LinkViewModel && imagesService.MightHaveImagesFromUrl(((LinkViewModel)vm).Url) && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
+                {
+                    var targetViewModel = vm as LinkViewModel;
+                    var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
+                    smartOfflineService.NavigatedToOfflineableThing(targetViewModel.LinkThing, false);
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    await ServiceLocator.Current.GetInstance<IOfflineService>().StoreHistory(targetViewModel.Url);
+                    var imageResults = await ServiceLocator.Current.GetInstance<IImagesService>().GetImagesFromUrl(targetViewModel.LinkThing == null ? "" : targetViewModel.LinkThing.Data.Title, targetViewModel.Url);
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+
+                    if (imageResults != null && imageResults.Count() > 0)
+                    {
+                        var imageTuple = new Tuple<string, IEnumerable<Tuple<string, string>>, string>(targetViewModel.LinkThing != null ? targetViewModel.LinkThing.Data.Title : "", imageResults, targetViewModel.LinkThing != null ? targetViewModel.LinkThing.Data.Id : "");
+                        Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = targetViewModel.Url });
+                        return new LinkedPictureViewModel
+                        {
+                            LinkTitle = imageTuple.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(),
+                            LinkId = imageTuple.Item3,
+                            Pictures = imageTuple.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture
+                            {
+                                Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(),
+                                ImageSource = tpl.Item2,
+                                Url = tpl.Item2
+                            })
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        private class NeverEndingRedditView
+        {
+            RedditViewModel _context;
+            int _currentLinkPos;
+            bool _forward;
+            public NeverEndingRedditView(RedditViewModel context, int currentLinkPos, bool forward)
+            {
+                _context = context;
+                _currentLinkPos = currentLinkPos;
+                _forward = forward;
+            }
+            public async Task<ViewModelBase> Next()
+            {
+                if(_forward)
+                {
+                    _currentLinkPos++;
+                    if (_context.Links.Count <= _currentLinkPos)
+                    {
+                        await _context.Links.LoadMoreItemsAsync(100);
+                    }
+                }
+                else
+                    _currentLinkPos--;
+
+                if (_context.Links.Count > _currentLinkPos && _currentLinkPos > 0)
+                    return _context.Links[_currentLinkPos];
+                else
+                    return null;
+            }
+        }
+
+        public async Task<LinkedPictureViewModel> Next()
+        {
+            var parentLink = ParentLink;
+            if (parentLink != null)
+            {
+                var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+                var firstRedditViewModel = viewModelContextService.ContextStack.FirstOrDefault(context => context is RedditViewModel) as RedditViewModel;
+                if (firstRedditViewModel != null)
+                {
+                    RepositionContextScroll();
+
+                    var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                    LinkedPictureViewModel stackNext = null;
+                    if (settingsService.OnlyFlipViewUnread && (stackNext = LinkedPictureHistory.Forward()) != null)
+                    {
+                        return stackNext;
+                    }
+                    else
+                    {
+                        var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
+                        var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, true);
+                        var result = await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
+                        LinkedPictureHistory.Push(this);
+                        return result;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public RelayCommand<LinkedPictureViewModel> NavigateToComments { get { return _navigateToComments; } }
+        static RelayCommand<LinkedPictureViewModel> _navigateToComments = new RelayCommand<LinkedPictureViewModel>(NavigateToCommentsImpl);
+        private static void NavigateToCommentsImpl(LinkedPictureViewModel vm)
+        {
+            vm.ParentLink.NavigateToComments.Execute(vm.ParentLink);
+        }
+
+
+        public static EndlessStack<LinkedPictureViewModel> LinkedPictureHistory = new EndlessStack<LinkedPictureViewModel>(50);
     }
 }

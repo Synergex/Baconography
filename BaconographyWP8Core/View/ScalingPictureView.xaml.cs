@@ -16,6 +16,10 @@ using System.Threading.Tasks;
 using System.IO;
 using BaconographyPortable.ViewModel;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
 
 namespace BaconographyWP8.View
 {
@@ -40,25 +44,64 @@ namespace BaconographyWP8.View
 				"ImageSource",
 				typeof(object),
 				typeof(ScalingPictureView),
-				new PropertyMetadata(null, OnSourcePropertyChanged)
+				new PropertyMetadata(null, OnImageSourceChanged)
 			);
 
+        private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var image = (ScalingPictureView)d;
+            image.ImageSource = e.NewValue;
+        }
+
+        object _imageSource;
 		public object ImageSource
 		{
 			get { return GetValue(ImageSourceProperty); }
 			set
 			{
-				if (value == null)
-				{
-					if (this._bitmap != null)
-					{
-						this._bitmap.UriSource = null;
-						this._bitmap = null;
-					}
-				}
-				SetValue(ImageSourceProperty, value);
+                if (_imageSource != value)
+                {
+                    if (value == null)
+                    {
+                        if (_bitmap != null)
+                        {
+                            _bitmap.ImageOpened -= OnImageOpened;
+                            _bitmap.ImageFailed -= _bitmap_ImageFailed;
+                            _bitmap.UriSource = null;
+                        }
+                        _bitmap = null;
+                        image.Source = null;
+                    }
+                    else if (value is string)
+                    {
+                        _bitmap = new BitmapImage();
+                        _bitmap.CreateOptions = BitmapCreateOptions.None;
+                        _bitmap.ImageOpened += OnImageOpened;
+                        _bitmap.ImageFailed += _bitmap_ImageFailed;
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                        _bitmap.UriSource = new Uri(value as string);
+                    }
+                    else if (value is byte[])
+                    {
+                        _bitmap = new BitmapImage();
+                        _bitmap.CreateOptions = BitmapCreateOptions.None;
+                        _bitmap.ImageOpened += OnImageOpened;
+                        _bitmap.ImageFailed += _bitmap_ImageFailed;
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                        _bitmap.SetSource(new MemoryStream(value as byte[]));
+                        OnImageOpened(null, null);
+                    }
+                    _imageSource = value;
+                    SetValue(ImageSourceProperty, value);
+                }
 			}
 		}
+
+        void _bitmap_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("image failed to load: " + e.ErrorException);
+        }
 
 		/// <summary>
 		/// This is a very simple page. We simply bind to the CurrentPicture property on the AlbumsViewModel
@@ -68,11 +111,7 @@ namespace BaconographyWP8.View
 			InitializeComponent();
 		}
 
-		private static void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var image = (ScalingPictureView)d;
-			image.ImageSource = e.NewValue;
-		}
+        private bool _initialLoad = true;
 
 		/// <summary>
 		/// Either the user has manipulated the image or the size of the viewport has changed. We only
@@ -84,8 +123,13 @@ namespace BaconographyWP8.View
 			if (newSize != _viewportSize)
 			{
 				_viewportSize = newSize;
-				CoerceScale(true);
-				ResizeImage(false);
+                if (!_initialLoad)
+                {
+                    CoerceScale(true);
+                    ResizeImage(false);
+                }
+                else
+                    _initialLoad = false;
 			}
 		}
 
@@ -146,16 +190,17 @@ namespace BaconographyWP8.View
 		/// <summary>
 		/// When a new image is opened, set its initial scale.
 		/// </summary>
-		void OnImageOpened(object sender, RoutedEventArgs e)
+		async void OnImageOpened(object sender, RoutedEventArgs e)
 		{
-			_bitmap = (BitmapImage)image.Source;
-
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            await Task.Yield();
 			// Set scale to the minimum, and then save it.
 			_scale = 0;
 			CoerceScale(true);
 			_scale = _coercedScale;
 
 			ResizeImage(true);
+            image.Source = _bitmap;
 		}
 
 		/// <summary>
@@ -208,13 +253,14 @@ namespace BaconographyWP8.View
 		{
 			if (recompute && viewport != null)
 			{
+                _scale = 0.0;
 				// Calculate the minimum scale to fit the viewport
 				if (_bitmap != null)
 				{
 					double minX = viewport.ActualWidth / _bitmap.PixelWidth;
 					double minY = viewport.ActualHeight / _bitmap.PixelHeight;
 					_minScale = Math.Min(minX, minY);
-					if (_minScale == 0.0)
+					if (_minScale <= 0.0)
 						_minScale = 1.0;
 				}		
 			}
@@ -222,5 +268,21 @@ namespace BaconographyWP8.View
 			_coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));
 
 		}
+
+        private void OnDoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var point = e.GetPosition(image);
+            _relativeMidpoint = new Point(point.X / image.ActualWidth, point.Y / image.ActualHeight);
+
+            var xform = image.TransformToVisual(viewport);
+            _screenMidpoint = xform.Transform(point);
+
+            if (_coercedScale >= (_minScale * 2.5) || _coercedScale < 0)
+                _coercedScale = _minScale;
+            else
+                _coercedScale *= 1.75;
+
+            ResizeImage(false);
+        }
 	}
 }

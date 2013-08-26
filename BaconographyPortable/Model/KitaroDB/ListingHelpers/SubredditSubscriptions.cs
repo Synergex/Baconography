@@ -10,14 +10,18 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 {
     class SubredditSubscriptions : IListingProvider
     {
+        IOfflineService _offlineService;
+        IUserService _userService;
         public SubredditSubscriptions(IBaconProvider baconProvider)
         {
-
+            _offlineService = baconProvider.GetService<IOfflineService>();
+            _userService = baconProvider.GetService<IUserService>();
         }
 
-        public Tuple<Task<Listing>, Func<Task<Listing>>> GetInitialListing(Dictionary<object, object> state)
+        public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return Tuple.Create<Task<Listing>, Func<Task<Listing>>>(null, () => Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } }));
+            var orderedThings = await _offlineService.RetrieveOrderedThings("sublist:" + (await _userService.GetUser()).Username, TimeSpan.FromDays(1024));
+            return new Listing { Data = new ListingData { Children = orderedThings != null ? new List<Thing>(orderedThings) : new List<Thing>() } };
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -33,7 +37,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
-            return Task.FromResult(new Listing { Kind = "Listing", Data = new ListingData { Children = new List<Thing>() } });
+            return GetInitialListing(state);
         }
     }
 }

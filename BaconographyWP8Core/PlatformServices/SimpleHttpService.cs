@@ -7,13 +7,32 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    public class SimpleHttpService : ISimpleHttpService
+    public class SimpleHttpService : ISimpleHttpService, IBaconService
     {
+        static CancellationTokenSource _cancelationTokenSource = new CancellationTokenSource();
+        public async Task Initialize(IBaconProvider baconProvider)
+        {
+            var suspensionService = baconProvider.GetService<ISuspensionService>();
+            suspensionService.Suspending += SimpleHttpService_Suspending;
+            suspensionService.Resuming += SimpleHttpService_Resuming;
+        }
+
+        void SimpleHttpService_Suspending()
+        {
+            _cancelationTokenSource.Cancel();
+        }
+
+        void SimpleHttpService_Resuming()
+        {
+            _cancelationTokenSource = new CancellationTokenSource();
+        }
+
         public Task<string> SendPost(string cookie, Dictionary<string, string> urlEncodedData, string uri)
         {
             var stringData = string.Join("&", urlEncodedData.Select(kvp => string.Format("{0}={1}", kvp.Key, kvp.Value)));
@@ -32,10 +51,9 @@ namespace BaconographyWP8.PlatformServices
                     HttpWebResponse someResponse = (HttpWebResponse)responseRequest.EndGetResponse(asyncResponse);
                     taskComplete.TrySetResult(someResponse);
                 }
-                catch (WebException webExc)
+                catch (Exception ex)
                 {
-                    HttpWebResponse failedResponse = (HttpWebResponse)webExc.Response;
-                    taskComplete.TrySetResult(failedResponse);
+                    taskComplete.TrySetException(ex);
                 }
             }, request);
             return taskComplete.Task;
@@ -52,9 +70,9 @@ namespace BaconographyWP8.PlatformServices
                     Stream someResponse = (Stream)responseRequest.EndGetRequestStream(asyncResponse);
                     taskComplete.TrySetResult(someResponse);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    taskComplete.TrySetResult(null);
+                    taskComplete.TrySetException(ex);
                 }
             }, request);
             return taskComplete.Task;
@@ -66,6 +84,7 @@ namespace BaconographyWP8.PlatformServices
             await ThrottleRequests();
 
             var request = HttpWebRequest.CreateHttp(uri);
+            request.AllowReadStreamBuffering = true;
             request.Method = "POST";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
             request.ContentType = contentType;
@@ -90,28 +109,62 @@ namespace BaconographyWP8.PlatformServices
         {
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
+            HttpWebResponse getResult = null;
+            bool needsRetry = false;
+            try
+            {
+                HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+                request.AllowReadStreamBuffering = true;
+                request.Headers[HttpRequestHeader.IfModifiedSince] = DateTime.UtcNow.ToString();
+                request.Method = "GET";
+                request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+                var cookieContainer = new CookieContainer();
+                request.CookieContainer = cookieContainer;
 
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
-            request.Headers[HttpRequestHeader.IfModifiedSince] = DateTime.UtcNow.ToString();
-            request.Method = "GET";
-            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
-            var cookieContainer = new CookieContainer();
-            request.CookieContainer = cookieContainer;
+                if (!string.IsNullOrEmpty(cookie))
+                    request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
 
-            if (!string.IsNullOrEmpty(cookie))
-                request.CookieContainer.Add(new Uri("http://www.reddit.com", UriKind.Absolute), new Cookie("reddit_session", cookie));
+                getResult = await GetResponseAsync(request);
+            }
+            catch (WebException webException)
+            {
+                if (webException.Status == WebExceptionStatus.RequestCanceled)
+                {
+                    needsRetry = true;
+                }
+                else
+                    throw;
+            }
 
-            var getResult = await GetResponseAsync(request);
+            if (needsRetry)
+            {
+                return await SendGet(cookie, uri, true);
+            }
 
             if (getResult != null && getResult.StatusCode == HttpStatusCode.OK)
             {
-                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());   
+                try
+                {
+                    return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());
+                }
+                catch (Exception ex)
+                {
+                    if (!hasRetried)
+                        needsRetry = true;
+                    else
+                        throw ex;
+                }
+                if (needsRetry)
+                    return await SendGet(cookie, uri, true);
+                else
+                    return null;
             }
             else if (!hasRetried)
             {
                 int networkDownRetries = 0;
                 while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
                 {
+                    _cancelationTokenSource.Token.ThrowIfCancellationRequested();
                     networkDownRetries++;
                     await Task.Delay(1000);
                 }
@@ -138,6 +191,7 @@ namespace BaconographyWP8.PlatformServices
 			byte[] data = Encoding.UTF8.GetBytes(stringData);
 
 			HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            request.AllowReadStreamBuffering = true;
 			request.Method = "POST";
 			request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
 			request.ContentType = "application/x-www-form-urlencoded";
@@ -177,6 +231,7 @@ namespace BaconographyWP8.PlatformServices
             await ThrottleRequests();
 
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            request.AllowReadStreamBuffering = true;
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
 
@@ -191,6 +246,7 @@ namespace BaconographyWP8.PlatformServices
                 int networkDownRetries = 0;
                 while (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable() && networkDownRetries < 10)
                 {
+                    _cancelationTokenSource.Token.ThrowIfCancellationRequested();
                     networkDownRetries++;
                     await Task.Delay(1000);
                 }
@@ -216,6 +272,7 @@ namespace BaconographyWP8.PlatformServices
         //set for 15 requests in 30 seconds, so we can allow some burstiness but it must fit in the 15 requests/30 seconds rule
         public static async Task ThrottleRequests()
         {
+            _cancelationTokenSource.Token.ThrowIfCancellationRequested();
             var offset = DateTime.Now - _lastRequestMade;
             if (offset.TotalMilliseconds < 1000)
             {
@@ -228,7 +285,17 @@ namespace BaconographyWP8.PlatformServices
 
                 if (overallOffset.TotalSeconds < 30)
                 {
-                    await Task.Delay((30 - (int)overallOffset.TotalSeconds) * 1000);
+                    var delay = (30 - (int)overallOffset.TotalSeconds) * 1000;
+                    if (delay > 2)
+                    {
+                        for (int i = 0; i < delay; i++)
+                        {
+                            _cancelationTokenSource.Token.ThrowIfCancellationRequested();
+                            await Task.Delay(1000);
+                        }
+                    }
+                    else
+                        await Task.Delay(delay);
                 }
                 _requestSetCount = 0;
                 _priorRequestSet = DateTime.Now;
@@ -236,6 +303,90 @@ namespace BaconographyWP8.PlatformServices
             _requestSetCount++;
 
             _lastRequestMade = DateTime.Now;
+        }
+
+        public static byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        public static async Task<byte[]> GetBytes(string url)
+        {
+            HttpWebRequest request = HttpWebRequest.CreateHttp(new Uri(url));
+            request.AllowReadStreamBuffering = true;
+            request.Method = "GET";
+            request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
+
+            var getResult = await GetResponseAsync(request);
+
+            if (getResult.StatusCode == HttpStatusCode.OK)
+            {
+                using (var response = getResult.GetResponseStream())
+                {
+                    return ReadFully(response);
+                }
+            }
+            return null;
+        }
+
+        public static Task<byte[]> GetBytesWithProgress(CancellationToken cancelToken, string url, Action<uint> progress)
+        {
+            TaskCompletionSource<byte[]> taskCompletion = new TaskCompletionSource<byte[]>();
+            WebClient client = new WebClient();
+            int cancelCount = 0;
+            client.AllowReadStreamBuffering = true;
+            client.DownloadProgressChanged += (sender, args) =>
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    client.CancelAsync();
+                }
+                else
+                {
+                    progress((uint)args.ProgressPercentage);
+                }
+            };
+
+            client.OpenReadCompleted += (sender, args) =>
+            {
+                if (args.Cancelled)
+                {
+                    if(cancelCount++ < 5 && !cancelToken.IsCancellationRequested)
+                        client.OpenReadAsync(new Uri(url));
+                    else
+                        taskCompletion.SetCanceled();
+                }
+                else if (args.Error != null)
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetException(args.Error);
+                    }
+                }
+                else
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        var result = new byte[args.Result.Length];
+                        args.Result.Read(result, 0, (int)args.Result.Length);
+                        taskCompletion.SetResult(result);
+                    }
+                }
+            };
+            client.OpenReadAsync(new Uri(url));
+            return taskCompletion.Task;
         }
     }
 }

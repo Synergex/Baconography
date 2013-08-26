@@ -58,7 +58,7 @@ namespace BaconographyPortable.ViewModel.Collections
             }
         }
 
-        public void UpdateRealItems(ThingViewModelCollection collection)
+        public async void UpdateRealItems(ThingViewModelCollection collection)
         {
             ActualCollection.CollectionChanged -= ActualCollection_CollectionChanged;
             ActualCollection = collection;
@@ -69,7 +69,7 @@ namespace BaconographyPortable.ViewModel.Collections
             {
                 Add(item);
             }
-            ActualCollection.Refresh();
+            await collection.LoadMoreItemsAsync(30);
         }
 
         public bool HasMoreItems

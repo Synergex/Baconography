@@ -1,5 +1,4 @@
 ﻿using BaconographyPortable.Messages;
-using BaconographyPortable.Services;
 using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
@@ -7,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BaconographyWP8.PlatformServices
+namespace BaconographyPortable.Services.Impl
 {
-    public class SettingsService : ISettingsService, BaconProvider.IBaconService
+    public class SettingsServiceImpl : ISettingsService, IBaconService
     {
         IBaconProvider _baconProvider;
         bool _isOnline = true;
@@ -33,12 +32,12 @@ namespace BaconographyWP8.PlatformServices
         public bool OfflineOnlyGetsFirstSet { get; set; }
         public bool OpenLinksInBrowser { get; set; }
         public bool HighlightAlreadyClickedLinks { get; set; }
-        public bool ApplyReadabliltyToLinks {get; set;}
+        public bool ApplyReadabliltyToLinks { get; set; }
         public bool PreferImageLinksForTiles { get; set; }
         public int DefaultOfflineLinkCount { get; set; }
-		public bool LeftHandedMode{ get; set; }
-		public bool OrientationLock { get; set; }
-		public string Orientation { get; set; }
+        public bool LeftHandedMode { get; set; }
+        public bool OrientationLock { get; set; }
+        public string Orientation { get; set; }
         public bool AllowPredictiveOfflining { get; set; }
         public bool PromptForCaptcha { get; set; }
         public bool AllowOver18Items { get; set; }
@@ -58,6 +57,10 @@ namespace BaconographyWP8.PlatformServices
         public bool UpdateImagesOnlyOnWifi { get; set; }
         public bool TapForComments { get; set; }
         public bool UseImagePickerForLockScreen { get; set; }
+        public bool RoundedLockScreen { get; set; }
+        public bool MultiColorCommentMargins { get; set; }
+        public bool OnlyFlipViewUnread { get; set; }
+        public bool InvertSystemTheme { get; set; }
 
         public bool AllowAdvertising { get; set; }
 
@@ -68,7 +71,7 @@ namespace BaconographyWP8.PlatformServices
 
         public void ShowSettings()
         {
-            
+
         }
 
         public async Task Initialize(IBaconProvider baconProvider)
@@ -126,23 +129,23 @@ namespace BaconographyWP8.PlatformServices
                 else
                     DefaultOfflineLinkCount = 25;
 
-				var leftHandedMode = await offlineService.GetSetting("LeftHandedMode");
-				if (!string.IsNullOrWhiteSpace(leftHandedMode))
-					LeftHandedMode = bool.Parse(leftHandedMode);
-				else
-					LeftHandedMode = false;
+                var leftHandedMode = await offlineService.GetSetting("LeftHandedMode");
+                if (!string.IsNullOrWhiteSpace(leftHandedMode))
+                    LeftHandedMode = bool.Parse(leftHandedMode);
+                else
+                    LeftHandedMode = false;
 
-				var orientationLock = await offlineService.GetSetting("OrientationLock");
-				if (!string.IsNullOrWhiteSpace(orientationLock))
-					OrientationLock = bool.Parse(orientationLock);
-				else
-					OrientationLock = false;
+                var orientationLock = await offlineService.GetSetting("OrientationLock");
+                if (!string.IsNullOrWhiteSpace(orientationLock))
+                    OrientationLock = bool.Parse(orientationLock);
+                else
+                    OrientationLock = false;
 
-				var orientation = await offlineService.GetSetting("Orientation");
-				if (!string.IsNullOrWhiteSpace(orientation))
-					Orientation = orientation;
-				else
-					Orientation = "";
+                var orientation = await offlineService.GetSetting("Orientation");
+                if (!string.IsNullOrWhiteSpace(orientation))
+                    Orientation = orientation;
+                else
+                    Orientation = "";
 
                 var predicitveOfflining = await offlineService.GetSetting("AllowPredictiveOfflining");
                 if (!string.IsNullOrWhiteSpace(predicitveOfflining))
@@ -194,16 +197,16 @@ namespace BaconographyWP8.PlatformServices
                     PostsInLockScreenOverlay = true;
 
                 var imagesSubreddit = await offlineService.GetSetting("ImagesSubreddit");
-				if (!string.IsNullOrWhiteSpace(imagesSubreddit))
-					ImagesSubreddit = imagesSubreddit;
-				else
+                if (!string.IsNullOrWhiteSpace(imagesSubreddit))
+                    ImagesSubreddit = imagesSubreddit;
+                else
                     ImagesSubreddit = "/r/earthporn+InfrastructurePorn+MachinePorn";
 
                 var lockScreenReddit = await offlineService.GetSetting("LockScreenReddit");
-				if (!string.IsNullOrWhiteSpace(lockScreenReddit))
-					LockScreenReddit = lockScreenReddit;
-				else
-					LockScreenReddit = "/";
+                if (!string.IsNullOrWhiteSpace(lockScreenReddit))
+                    LockScreenReddit = lockScreenReddit;
+                else
+                    LockScreenReddit = "/";
 
                 var liveTileReddit = await offlineService.GetSetting("LiveTileReddit");
                 if (!string.IsNullOrWhiteSpace(liveTileReddit))
@@ -271,9 +274,31 @@ namespace BaconographyWP8.PlatformServices
                 else
                     UseImagePickerForLockScreen = false;
 
-                
+                var roundedLockScreen = await offlineService.GetSetting("RoundedLockScreen");
+                if (!string.IsNullOrWhiteSpace(roundedLockScreen))
+                    RoundedLockScreen = bool.Parse(roundedLockScreen);
+                else
+                    RoundedLockScreen = false;
 
-				Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
+                var multiColoredCommentMargins = await offlineService.GetSetting("MultiColorCommentMargins");
+                if (!string.IsNullOrWhiteSpace(multiColoredCommentMargins))
+                    MultiColorCommentMargins = bool.Parse(multiColoredCommentMargins);
+                else
+                    MultiColorCommentMargins = false;
+
+                var invertSystemTheme = await offlineService.GetSetting("InvertSystemTheme");
+                if (!string.IsNullOrWhiteSpace(invertSystemTheme))
+                    InvertSystemTheme = bool.Parse(invertSystemTheme);
+                else
+                    InvertSystemTheme = false;
+                
+                var onlyFlipViewUnread = await offlineService.GetSetting("OnlyFlipViewUnread");
+                if (!string.IsNullOrWhiteSpace(onlyFlipViewUnread))
+                    OnlyFlipViewUnread = bool.Parse(onlyFlipViewUnread);
+                else
+                    OnlyFlipViewUnread = false;
+
+                Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
             {
@@ -293,9 +318,9 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("ApplyReadabliltyToLinks", ApplyReadabliltyToLinks.ToString());
             await offlineService.StoreSetting("PreferImageLinksForTiles", PreferImageLinksForTiles.ToString());
             await offlineService.StoreSetting("DefaultOfflineLinkCount", DefaultOfflineLinkCount.ToString());
-			await offlineService.StoreSetting("LeftHandedMode", LeftHandedMode.ToString());
-			await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
-			await offlineService.StoreSetting("Orientation", Orientation.ToString());
+            await offlineService.StoreSetting("LeftHandedMode", LeftHandedMode.ToString());
+            await offlineService.StoreSetting("OrientationLock", OrientationLock.ToString());
+            await offlineService.StoreSetting("Orientation", Orientation.ToString());
             await offlineService.StoreSetting("AllowPredictiveOfflining", AllowPredictiveOfflining.ToString());
             await offlineService.StoreSetting("AllowPredictiveOffliningOnMeteredConnection", AllowPredictiveOffliningOnMeteredConnection.ToString());
             await offlineService.StoreSetting("AllowOver18Items", AllowOver18Items.ToString());
@@ -316,7 +341,11 @@ namespace BaconographyWP8.PlatformServices
             await offlineService.StoreSetting("LastUpdatedImages", LastUpdatedImages.ToString());
             await offlineService.StoreSetting("LastCleanedCache", LastCleanedCache.ToString());
             await offlineService.StoreSetting("TapForComments", TapForComments.ToString());
+            await offlineService.StoreSetting("RoundedLockScreen", RoundedLockScreen.ToString());
             await offlineService.StoreSetting("UseImagePickerForLockScreen", UseImagePickerForLockScreen.ToString());
+            await offlineService.StoreSetting("MultiColorCommentMargins", MultiColorCommentMargins.ToString());
+            await offlineService.StoreSetting("InvertSystemTheme", InvertSystemTheme.ToString());
+            await offlineService.StoreSetting("OnlyFlipViewUnread", OnlyFlipViewUnread.ToString());
         }
 
 

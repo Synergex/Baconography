@@ -36,7 +36,16 @@ namespace BaconographyPortable.Model.Reddit.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return _epoch.AddSeconds((long)((double)reader.Value));
+            var nullableDouble = reader.Value as Nullable<double>;
+            if (nullableDouble != null)
+                return _epoch.AddSeconds((long)(nullableDouble ?? 0));
+            else
+            {
+                var nullableLong = reader.Value as Nullable<long>;
+                if (nullableLong != null)
+                    return _epoch.AddSeconds(nullableLong ?? 0);
+            }
+            return _epoch;
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

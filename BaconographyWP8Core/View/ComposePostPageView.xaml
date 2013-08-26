@@ -157,7 +157,67 @@
         <phone:Pivot Title="BACONOGRAPHY > SUBMIT POST" x:Name="pivot"
                      LoadedPivotItem="pivot_LoadedPivotItem">
             <phone:Pivot.Items>
-                <phone:PivotItem Header="link">
+                <phone:PivotItem Header="self">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="60" />
+                            <RowDefinition MaxHeight="60" />
+                            <RowDefinition MaxHeight="60" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Visibility="{Binding Editing, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                            <TextBlock Text="Posting As:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
+                            <TextBox Margin="105,0,0,0" Height="40" Style="{StaticResource MessageTextBox}"
+                             BorderThickness="0" Padding="0" IsReadOnly="True"
+                             Text="{Binding Path=PostingAs}"
+                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
+                             FontSize="22"/>
+                            <Button Margin="0,0,0,0"
+                                HorizontalAlignment="Right"
+                                FontFamily="Segoe UI Symbol" FontSize="16"
+                                Width="30" Height="30"
+                                Style="{StaticResource MessageButtonStyle}"
+                                Click="ChangeUser_Click"
+                                Content="&#xE14A;"/>
+                            <Border HorizontalAlignment="Stretch" Height="1"
+                                BorderBrush="{StaticResource PhoneForegroundBrush}" BorderThickness=".5"
+                                Margin="0,50,0,0"/>
+                        </Grid>
+                        <Grid Grid.Row="1" Visibility="{Binding Editing, Converter={StaticResource invertBooleanVisibilityConverter}}">
+                            <TextBlock Text="Subreddit:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
+                            <TextBox Margin="100,-1,0,0" Height="40" Style="{StaticResource MessageTextBox}"
+                                BorderThickness="0" Padding="0" FontSize="22"
+                                Text="{Binding Path=Subreddit, Mode=TwoWay}"
+                                KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"/>
+                            <Border HorizontalAlignment="Stretch" Height="1"
+                                BorderBrush="{StaticResource PhoneForegroundBrush}" BorderThickness=".5"
+                                Margin="0,50,0,0"/>
+                        </Grid>
+                        <Grid x:Name="TitleBox" Grid.Row="2">
+                            <TextBlock Text="Title:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
+                            <TextBox Margin="50,-2,0,0" Height="40" Style="{StaticResource MessageTextBox}"
+                                BorderThickness="0" Padding="0" FontSize="22" MaxLength="300"
+                                KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
+                                IsEnabled="{Binding Editing, Converter={StaticResource invertBooleanConverter}}"
+                                Text="{Binding Path=Title, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid x:Name="TextInput" Grid.Row="3">
+                            <TextBox Margin="0,2,0,0" Style="{StaticResource MessageTextBox}"
+                             BorderThickness="1" BorderBrush="{StaticResource PhoneSubtleBrush}" Padding="0" FontSize="22" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
+                             Text="{Binding Path=Text, Mode=TwoWay}" TextWrapping="Wrap">
+                                <TextBox.InputScope>
+                                    <InputScope>
+                                        <InputScopeName NameValue="Text" />
+                                    </InputScope>
+                                </TextBox.InputScope>
+                            </TextBox>
+                        </Grid>
+                    </Grid>
+                </phone:PivotItem>
+                
+                <phone:PivotItem Header="link" IsEnabled="{Binding Editing, Converter={StaticResource invertBooleanConverter}}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="60" />
@@ -210,68 +270,14 @@
                             <TextBox Margin="50,-2,0,0" Height="40" Style="{StaticResource MessageTextBox}"
                              BorderThickness="0" Padding="0" FontSize="22"
                              KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                             Text="{Binding Path=Url, Mode=TwoWay}" LostFocus="TextBox_LostFocus"/>
+                             Text="{Binding Path=Url, Mode=TwoWay}"/>
                             <Border HorizontalAlignment="Stretch" Height="1"
                         BorderBrush="{StaticResource PhoneForegroundBrush}" BorderThickness=".5"
                         Margin="0,50,0,0"/>
                         </Grid>
-                        <local:ScalingPictureView
-                            Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="preview" ImageSource="{Binding Url}"/>
                     </Grid>
                 </phone:PivotItem>
 
-                <phone:PivotItem Header="self">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="60" />
-                            <RowDefinition Height="60" />
-                            <RowDefinition Height="60" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0">
-                            <TextBlock Text="Posting As:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
-                            <TextBox Margin="105,0,0,0" Height="40" Style="{StaticResource MessageTextBox}"
-                             BorderThickness="0" Padding="0" IsReadOnly="True"
-                             Text="{Binding Path=PostingAs}"
-                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                             FontSize="22"/>
-                            <Button Margin="0,0,0,0"
-                        HorizontalAlignment="Right"
-                        FontFamily="Segoe UI Symbol" FontSize="16"
-                        Width="30" Height="30"
-                        Style="{StaticResource MessageButtonStyle}"
-                        Click="ChangeUser_Click"
-                        Content="&#xE14A;"/>
-                            <Border HorizontalAlignment="Stretch" Height="1"
-                        BorderBrush="{StaticResource PhoneForegroundBrush}" BorderThickness=".5"
-                        Margin="0,50,0,0"/>
-                        </Grid>
-                        <Grid Grid.Row="1">
-                            <TextBlock Text="Subreddit:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
-                            <TextBox Margin="100,-1,0,0" Height="40" Style="{StaticResource MessageTextBox}"
-                             BorderThickness="0" Padding="0" FontSize="22"
-                             Text="{Binding Path=Subreddit, Mode=TwoWay}"
-                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"/>
-                            <Border HorizontalAlignment="Stretch" Height="1"
-                        BorderBrush="{StaticResource PhoneForegroundBrush}" BorderThickness=".5"
-                        Margin="0,50,0,0"/>
-                        </Grid>
-                        <Grid Grid.Row="2">
-                            <TextBlock Text="Title:" Foreground="{StaticResource PhoneForegroundBrush}" Margin="0,12,0,0"/>
-                            <TextBox Margin="50,-2,0,0" Height="40" Style="{StaticResource MessageTextBox}"
-                             BorderThickness="0" Padding="0" FontSize="22" MaxLength="300"
-                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                             Text="{Binding Path=Title, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Grid.Row="3">
-                            <TextBox Margin="0,2,0,0" Style="{StaticResource MessageTextBox}"
-                             BorderThickness="1" BorderBrush="{StaticResource PhoneSubtleBrush}" Padding="0" FontSize="22" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
-                             KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                             Text="{Binding Path=Text, Mode=TwoWay}" TextWrapping="Wrap"/>
-                        </Grid>
-                    </Grid>
-                </phone:PivotItem>
             </phone:Pivot.Items>
         </phone:Pivot>
     </Grid>

@@ -70,7 +70,8 @@
         <common:RedditViewPivotControl x:Name="pivot"
                      ItemsSource="{Binding PivotItems, Converter={StaticResource reifiedSubredditTemplateCollectionConverter}}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Margin="0,-20,0,0" Padding="0" LoadedPivotItem="OnLoadedPivotItem"/>
+                     Margin="0,-20,0,0" Padding="0" LoadedPivotItem="OnLoadedPivotItem"
+                     DoubleTap="pivot_DoubleTap" />
 
         <Popup x:Name="sortPopup" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 

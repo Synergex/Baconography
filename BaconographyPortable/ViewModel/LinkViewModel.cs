@@ -46,10 +46,13 @@ namespace BaconographyPortable.ViewModel
 			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
 
 
-            if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+            if (Url != null)
             {
-                MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
-                _registeredLongNav = true;
+                if (_imagesService.MightHaveImagesFromUrl(Url) && !Url.EndsWith(".jpg") && !Url.EndsWith(".gif") && !Url.EndsWith(".png"))
+                {
+                    MessengerInstance.Register<LongNavigationMessage>(this, OnLongNav);
+                    _registeredLongNav = true;
+                }
             }
         }
 
@@ -219,7 +222,7 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("PreviewPack");
             }
         }
-
+        bool _hasBeenExtended = false;
 		public bool IsExtendedOptionsShown
 		{
 			get
@@ -230,7 +233,11 @@ namespace BaconographyPortable.ViewModel
 			{
 				_isExtendedOptionsShown = value;
 				RaisePropertyChanged("IsExtendedOptionsShown");
-                RaisePropertyChanged("ExtendedData");
+                if (_isExtendedOptionsShown && !_hasBeenExtended)
+                {
+                    _hasBeenExtended = true;
+                    RaisePropertyChanged("ExtendedData");
+                }
 			}
 		}
 
@@ -238,9 +245,11 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return Tuple.Create(IsExtendedOptionsShown, this);
+                return Tuple.Create(_hasBeenExtended, this);
             }
         }
+
+        public WeakReference ExtendedView { get; set; }
 
         public bool FromMultiReddit { get; set; }
 
@@ -267,21 +276,30 @@ namespace BaconographyPortable.ViewModel
 
 		private static void GotoSubredditStatic(LinkViewModel vm)
 		{
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
 			vm.GotoSubredditImpl();
 		}
 
 		private static void GotoUserStatic(LinkViewModel vm)
 		{
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
 			vm.GotoUserImpl();
 		}
 
 		private async void GotoSubredditImpl()
         {
+            if (IsExtendedOptionsShown)
+                IsExtendedOptionsShown = false;
             Messenger.Default.Send<SelectSubredditMessage>(new SelectSubredditMessage { Subreddit = await _redditService.GetSubreddit(_linkThing.Data.Subreddit) });
         }
 
 		private void GotoUserImpl()
         {
+            if (IsExtendedOptionsShown)
+                IsExtendedOptionsShown = false;
+
             UtilityCommandImpl.GotoUserDetails(_linkThing.Data.Author);
         }
 
@@ -290,6 +308,8 @@ namespace BaconographyPortable.ViewModel
             if (_settingsService.TapForComments)
             {
 			    NavigateToCommentsImpl(this);
+                if (IsExtendedOptionsShown)
+                    IsExtendedOptionsShown = false;
             }
             else
             {
@@ -299,18 +319,21 @@ namespace BaconographyPortable.ViewModel
 
         private static void NavigateToCommentsImpl(LinkViewModel vm)
         {
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
+
             if (vm == null || vm._linkThing == null || vm._linkThing.Data == null || string.IsNullOrWhiteSpace(vm._linkThing.Data.Url))
                 vm._baconProvider.GetService<INotificationService>().CreateNotification("Invalid link data, please PM /u/hippiehunter with details");
             else
                 vm._navigationService.Navigate(vm._dynamicViewLocator.CommentsView, new SelectCommentTreeMessage { LinkThing = vm._linkThing });
-            UpdateUsageStatistics(vm, false);
         }
 
         private static void GotoLinkImpl(LinkViewModel vm)
-        {            
+        {
+            if (vm.IsExtendedOptionsShown)
+                vm.IsExtendedOptionsShown = false;
             UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
             vm.RaisePropertyChanged("Url");
-            UpdateUsageStatistics(vm, true);   
         }
 
         private static async void UpdateUsageStatistics(LinkViewModel vm, bool isLink)

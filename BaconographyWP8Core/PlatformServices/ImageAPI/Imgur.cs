@@ -89,6 +89,12 @@ namespace Baconography.PlatformServices.ImageAPI
                 var result = JsonConvert.DeserializeObject(jsonResult) as JObject;
                 if (result != null && result.HasValues)
                 {
+                    JToken errorToken;
+                    if (result.TryGetValue("error", out errorToken))
+                    {
+                        return Enumerable.Empty<Tuple<string, string>>();
+                    }
+
                     var albumTitleElement = (string)((JObject)result.GetValue("album")).GetValue("title");
                     var albumTitle = string.IsNullOrWhiteSpace(albumTitleElement) ? title : albumTitleElement;
 

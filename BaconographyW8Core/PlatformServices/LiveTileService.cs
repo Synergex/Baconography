@@ -13,7 +13,7 @@ using Windows.UI.StartScreen;
 
 namespace BaconographyW8.PlatformServices
 {
-    class LiveTileService : ILiveTileService, BaconProvider.IBaconService
+    class LiveTileService : ILiveTileService, IBaconService
     {
 
         IImagesService _imagesService;

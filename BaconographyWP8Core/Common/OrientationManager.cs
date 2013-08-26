@@ -39,14 +39,23 @@ namespace BaconographyWP8.Common
 
         private void OnLoading(LoadingMessage obj)
         {
-            try
-            {
-                ProgressActive.IsVisible = obj.Loading;
-            }
-            catch (Exception)
-            {
-                _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => ProgressActive.IsVisible = obj.Loading, TimeSpan.FromMilliseconds(0), true);
-            }
+            _baconProvider.GetService<ISystemServices>().StartTimer((obj2, obj3) => 
+                {
+                    ProgressActive.IsVisible = obj.Loading;
+                    if(!obj.Loading)
+                    {
+                        ProgressActive.IsIndeterminate = true;
+                        ProgressActive.IsVisible = false;
+                        ProgressActive.Text = "";
+                        ProgressActive.Value = 0;
+                    }
+                    else if (obj.Message != null && obj.Percentage != null)
+                    {
+                        ProgressActive.IsIndeterminate = false;
+                        ProgressActive.Text = obj.Message;
+                        ProgressActive.Value = ((double)obj.Percentage) / 100.0;
+                    }
+                }, TimeSpan.FromMilliseconds(0), true);
         }
 
 		private PageOrientation StringToOrientation(string orientation)

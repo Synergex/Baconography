@@ -133,11 +133,9 @@ namespace BaconographyPortable.ViewModel
 				{
 					var subreddit = (match as RedditViewModel).SelectedSubreddit;
 					PivotItems.Remove(match);
-					RaisePropertyChanged("PivotItems");
                     if (!match.IsTemporary)
                     {
                         _subreddits.Remove(subreddit);
-                        RaisePropertyChanged("Subreddits");
                     }
 				}
 				
@@ -176,7 +174,6 @@ namespace BaconographyPortable.ViewModel
                     PivotItems.Add(newReddit);
 
 				indexToPosition = PivotItems.Count - 1;
-				RaisePropertyChanged("Subreddits");
             }
 
 			Messenger.Default.Send<SelectIndexMessage>(
@@ -232,8 +229,6 @@ namespace BaconographyPortable.ViewModel
 
             if (fireSubredditsChanged)
             {
-                RaisePropertyChanged("Subreddits");
-
                 Messenger.Default.Send<SelectIndexMessage>(
                     new SelectIndexMessage
                     {
@@ -263,7 +258,7 @@ namespace BaconographyPortable.ViewModel
                 //PivotItems.Add(new SubredditSelectorViewModel(_baconProvider));
 
                 if (subreddits == null || subreddits.Count() == 0)
-                    subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(SubredditInfo.GetFrontPageThing()) };
+                    subreddits = new List<TypedThing<Subreddit>> { new TypedThing<Subreddit>(ThingUtility.GetFrontPageThing()) };
 
                 foreach (var sub in subreddits)
                 {

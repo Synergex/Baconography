@@ -336,6 +336,58 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool RoundedLockScreen
+        {
+            get
+            {
+                return _settingsService.RoundedLockScreen;
+            }
+            set
+            {
+                _settingsService.RoundedLockScreen = value;
+                RaisePropertyChanged("RoundedLockScreen");
+            }
+        }
+
+        public bool MultiColorCommentMargins
+        {
+            get
+            {
+                return _settingsService.MultiColorCommentMargins;
+            }
+            set
+            {
+                _settingsService.MultiColorCommentMargins = value;
+                RaisePropertyChanged("MultiColorCommentMargins");
+            }
+        }
+
+        public bool InvertSystemTheme
+        {
+            get
+            {
+                return _settingsService.InvertSystemTheme;
+            }
+            set
+            {
+                _settingsService.InvertSystemTheme = value;
+                RaisePropertyChanged("InvertSystemTheme");
+            }
+        }
+
+        public bool OnlyFlipViewUnread
+        {
+            get
+            {
+                return _settingsService.OnlyFlipViewUnread;
+            }
+            set
+            {
+                _settingsService.OnlyFlipViewUnread = value;
+                RaisePropertyChanged("OnlyFlipViewUnread");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get

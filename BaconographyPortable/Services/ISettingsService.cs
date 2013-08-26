@@ -41,6 +41,10 @@ namespace BaconographyPortable.Services
         string LiveTileReddit { get; set; }
         int OfflineCacheDays { get; set; }
         bool TapForComments { get; set; }
+        bool RoundedLockScreen { get; set; }
+        bool MultiColorCommentMargins { get; set; }
+        bool InvertSystemTheme { get; set; }
+        bool OnlyFlipViewUnread { get; set; }
        
         bool AllowAdvertising { get; set; }
 

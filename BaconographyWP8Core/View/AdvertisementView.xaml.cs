@@ -26,6 +26,7 @@ namespace BaconographyWP8.View
         {
             advertisement.Height = 0;
             advertisement.Visibility = System.Windows.Visibility.Collapsed;
+            adDuplexAd.Visibility = System.Windows.Visibility.Visible;
         }
     }
 }

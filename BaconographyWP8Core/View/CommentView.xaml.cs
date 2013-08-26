@@ -1,8 +1,10 @@
 ﻿
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Messages;
 using BaconographyWP8Core;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +24,10 @@ namespace BaconographyWP8.View
     {
         public CommentView()
         {
-            this.InitializeComponent();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
         }
 
         private bool IsParentButton(UIElement element)

@@ -184,6 +184,7 @@
     <Content Include="Assets\Icons\goto.png" />
     <Content Include="Assets\Icons\manage.png" />
     <Content Include="Assets\Icons\new.png" />
+    <Content Include="Assets\Icons\read.png" />
     <Content Include="Assets\Icons\refresh.png" />
     <Content Include="Assets\Icons\reply.png" />
     <Content Include="Assets\Icons\send.png" />

@@ -115,5 +115,14 @@ namespace BaconographyWP8.PlatformServices
             ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
             await Launcher.LaunchUriAsync(uri);
         }
+
+
+        public void RemoveBackEntry()
+        {
+            if (((PhoneApplicationFrame)_frame).CanGoBack)
+            {
+                ((PhoneApplicationFrame)_frame).RemoveBackEntry();
+            }
+        }
     }
 }

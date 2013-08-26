@@ -1,0 +1,109 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="BaconographyWP8Core.View.SearchView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    mc:Ignorable="d"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  
+    Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
+    DataContext="{Binding Search, Source={StaticResource Locator}}">
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="Type:CommentViewModel">
+            <local:CommentView/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <local:LinkView/>
+        </DataTemplate>
+        <DataTemplate x:Key="Type:SubredditViewModel">
+            <local:SubredditView />
+        </DataTemplate>
+        <DataTemplate x:Key="Type:AdvertisementViewModel">
+            <local:AdvertisementView Margin="-24,0,-24,0"/>
+        </DataTemplate>
+        <DataTemplate x:Key="typedTemplateSelector">
+            <common:TypedTemplateSelector Content="{Binding}" />
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Margin="12,17,0,12"
+            Text="BACONOGRAPHY > SEARCH" Style="{StaticResource PhoneTextNormalStyle}"/>
+
+        <StackPanel Grid.Row="1" Margin="12,0,12,6"
+                    Orientation="Horizontal" Visibility="{Binding IsFrontPage, Converter={StaticResource invertBooleanVisibilityConverter}}">
+            <CheckBox IsChecked="{Binding SearchOnlySubreddit, Mode=TwoWay}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,0" Text="Only search within " />
+                    <TextBlock TextWrapping="Wrap" Margin="0,0,0,0" Text="{Binding TargetSubreddit}"/>
+                </StackPanel>
+            </CheckBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="12,0,12,6" Orientation="Horizontal">
+            <TextBlock FontSize="26" FontFamily="Segoe UI Symbol" Margin="12,14,3,0" Text="&#xE11A;" />
+            <TextBox HorizontalAlignment="Stretch" MinHeight="25" Width="380"
+                Margin="0,0,0,0"
+                x:Name="manualBox" Text="{Binding Query, Mode=TwoWay}"
+                KeyUp="manualBox_KeyDown"
+                LostFocus="manualBox_LostFocus"
+                MouseLeave="manualBox_MouseLeave"/>
+        </StackPanel>
+
+        <common:FixedLongListSelector
+            Grid.Row="3"
+            BorderThickness="0" VerticalAlignment="Stretch" 
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            HorizontalContentAlignment="Stretch"
+            GotFocus="FixedLongListSelector_GotFocus"
+            DataContext="{Binding}"
+            ItemsSource="{Binding Path=SearchResults, Converter={StaticResource portableAsyncCollectionConverter}}"
+            ItemRealized="newList_ItemRealized">
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+        </common:FixedLongListSelector>
+    </Grid>
+
+</phone:PhoneApplicationPage>

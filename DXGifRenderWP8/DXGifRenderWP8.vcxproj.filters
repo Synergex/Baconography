@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>5922df0b-c921-4910-be99-d9ed4dc29392</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GifRenderer.cpp" />
+    <ClCompile Include="dgif_lib.cpp" />
+    <ClCompile Include="gif_err.cpp" />
+    <ClCompile Include="gif_font.cpp" />
+    <ClCompile Include="gif_hash.cpp" />
+    <ClCompile Include="gifalloc.cpp" />
+    <ClCompile Include="quantize.cpp" />
+    <ClCompile Include="Direct3DBase.cpp" />
+    <ClCompile Include="Direct3DContentProvider.cpp" />
+    <ClCompile Include="Direct3DInterop.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GifRenderer.h" />
+    <ClInclude Include="gif_hash.h" />
+    <ClInclude Include="gif_lib.h" />
+    <ClInclude Include="gif_lib_private.h" />
+    <ClInclude Include="BasicTimer.h" />
+    <ClInclude Include="Direct3DBase.h" />
+    <ClInclude Include="Direct3DContentProvider.h" />
+    <ClInclude Include="Direct3DInterop.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

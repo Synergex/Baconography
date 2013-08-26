@@ -40,6 +40,7 @@ namespace BaconographyWP8
         /// </summary>
         public App()
         {
+            
             Styles.Resources = this.Resources;
             // Global handler for uncaught exceptions.
             UnhandledException += Application_UnhandledException;
@@ -52,6 +53,8 @@ namespace BaconographyWP8
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            SystemServices._uiDispatcher = RootFrame.Dispatcher;
 
             // Bacon-specific initialization
             InitializeBacon();
@@ -96,32 +99,32 @@ namespace BaconographyWP8
                 // e.g. Get a logging file from IsoStore and upload to the server 
 
                 // start a timer to report memory conditions every 2 seconds
-                //timer = new Timer(state =>
-                //{
-                //    // every 2 seconds do something 
-                //    string report =
-                //        DateTime.Now.ToLongTimeString() + " memory conditions: " +
-                //        Environment.NewLine +
-                //        "\tApplicationCurrentMemoryUsage: " +
-                //            DeviceStatus.ApplicationCurrentMemoryUsage +
-                //            Environment.NewLine +
-                //        "\tApplicationPeakMemoryUsage: " +
-                //            DeviceStatus.ApplicationPeakMemoryUsage +
-                //            Environment.NewLine +
-                //        "\tApplicationMemoryUsageLimit: " +
-                //            DeviceStatus.ApplicationMemoryUsageLimit +
-                //            Environment.NewLine +
-                //        "\tDeviceTotalMemory: " + DeviceStatus.DeviceTotalMemory + Environment.NewLine +
-                //        "\tApplicationWorkingSetLimit: " +
-                //            DeviceExtendedProperties.GetValue("ApplicationWorkingSetLimit") +
-                //            Environment.NewLine;
+                timer = new Timer(state =>
+                {
+                    // every 2 seconds do something 
+                    string report =
+                        DateTime.Now.ToLongTimeString() + " memory conditions: " +
+                        Environment.NewLine +
+                        "\tApplicationCurrentMemoryUsage: " +
+                            DeviceStatus.ApplicationCurrentMemoryUsage +
+                            Environment.NewLine +
+                        "\tApplicationPeakMemoryUsage: " +
+                            DeviceStatus.ApplicationPeakMemoryUsage +
+                            Environment.NewLine +
+                        "\tApplicationMemoryUsageLimit: " +
+                            DeviceStatus.ApplicationMemoryUsageLimit +
+                            Environment.NewLine +
+                        "\tDeviceTotalMemory: " + DeviceStatus.DeviceTotalMemory + Environment.NewLine +
+                        "\tApplicationWorkingSetLimit: " +
+                            DeviceExtendedProperties.GetValue("ApplicationWorkingSetLimit") +
+                            Environment.NewLine;
 
-                //    // write to IsoStore or debug conolse
-                //    Debug.WriteLine(report);
-                //},
-                //    null,
-                //    TimeSpan.FromSeconds(2),
-                //    TimeSpan.FromSeconds(2));
+                    // write to IsoStore or debug conolse
+                    Debug.WriteLine(report);
+                },
+                    null,
+                    TimeSpan.FromSeconds(2),
+                    TimeSpan.FromSeconds(2));
             }
         }
 
@@ -185,7 +188,8 @@ namespace BaconographyWP8
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
-            LowMemoryHelper.BeginRecording();
+            Styles.Resources = this.Resources;
+            //LowMemoryHelper.BeginRecording();
 			if (RootFrame.Content == null)
 			{
 				// When the navigation stack isn't restored navigate to the first page,
@@ -202,6 +206,7 @@ namespace BaconographyWP8
         // This code will not execute when the application is first launched
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
+            Styles.Resources = this.Resources;
             _baconProvider.GetService<ISuspensionService>().FireResuming();
         }
 
@@ -210,6 +215,7 @@ namespace BaconographyWP8
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
             _baconProvider.GetService<ISuspensionService>().FireSuspending();
+            Thread.Sleep(400);
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
@@ -217,6 +223,7 @@ namespace BaconographyWP8
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
             _baconProvider.GetService<ISuspensionService>().FireSuspending();
+            Thread.Sleep(400);
         }
 
         // Code to execute if a navigation fails
@@ -236,6 +243,12 @@ namespace BaconographyWP8
             {
                 // An unhandled exception has occurred; break into the debugger
                 Debugger.Break();
+            }
+
+            //this appears to be a bullshit error that pops up with no stack trace and trys to terminate the process
+            if ((uint)e.ExceptionObject.HResult == 0x80004005)
+            {
+                e.Handled = true;
             }
 
             //ask things nicely to vacate as much memory as possible so we dont die

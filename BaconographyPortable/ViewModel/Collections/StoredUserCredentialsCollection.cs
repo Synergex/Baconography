@@ -23,9 +23,9 @@ namespace BaconographyPortable.ViewModel.Collections
             return storedCredentials.Select(uc => uc.Username);
         }
 
-        protected override Task Refresh(Dictionary<object, object> state)
+        protected override void Refresh(Dictionary<object, object> state)
         {
-            return Task.Run(() => { });
+
         }
 
         protected override Task<IEnumerable<string>> LoadAdditional(Dictionary<object, object> state)

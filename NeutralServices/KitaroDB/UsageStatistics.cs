@@ -302,6 +302,11 @@ namespace Baconography.NeutralServices.KitaroDB
             return retval;
         }
 
+        internal void Resume()
+        {
+            _terminateSource = new CancellationTokenSource();
+        }
+
         internal void Terminate()
         {
             _terminateSource.Cancel();
