@@ -1,61 +1,68 @@
 ﻿using System;
+using System.Collections.Generic;
 namespace BaconographyPortable
 {
-    public class CircularBuffer<T>
+    public class EndlessStack<T> where T : class
     {
-        T[] _buffer;
-        int _head;
-        int _tail;
-        int _length;
-        int _bufferSize;
-        object _lock = new object();
+        LinkedList<T> _data;
+        int _headDiff;
+        int _maxSize;
 
-        public CircularBuffer(int bufferSize)
+        public EndlessStack(int size)
         {
-            _buffer = new T[bufferSize];
-            _bufferSize = bufferSize;
-            _head = bufferSize - 1;
+            _data = new LinkedList<T>();
+            _headDiff = 0;
+            _maxSize = size;
         }
 
-        public bool IsEmpty
+        public void Push(T t)
         {
-            get { return _length == 0; }
-        }
-
-        public bool IsFull
-        {
-            get { return _length == _bufferSize; }
-        }
-
-        public T Dequeue()
-        {
-            lock (_lock)
+            _data.AddFirst(t);
+            if (_data.Count > _maxSize)
             {
-                if (IsEmpty) throw new InvalidOperationException("Queue exhausted");
-
-                T dequeued = _buffer[_tail];
-                _tail = NextPosition(_tail);
-                _length--;
-                return dequeued;
+                _data.RemoveLast();
             }
         }
 
-        private int NextPosition(int position)
+        public T Forward()
         {
-            return (position + 1) % _bufferSize;
+            if (_headDiff > 0)
+            {
+                var lstNode = _data.First;
+                for(int i = 1; lstNode != null && i < _headDiff; i++)
+                {
+                    lstNode = lstNode.Next;
+                }
+                _headDiff--;
+                return lstNode != null ? lstNode.Value : null;
+            }
+            else
+                return null;
         }
 
-        public void Enqueue(T toAdd)
+        public bool EmptyForward
         {
-            lock (_lock)
+            get
             {
-                _head = NextPosition(_head);
-                _buffer[_head] = toAdd;
-                if (IsFull)
-                    _tail = NextPosition(_tail);
-                else
-                    _length++;
+                return _headDiff == 0;
             }
+        }
+
+
+        public T Backward()
+        {
+            if (_headDiff < _data.Count)
+            {
+                var lstNode = _data.First;
+                for (int i = 0; lstNode != null && i < _headDiff; i++)
+                {
+                    lstNode = lstNode.Next;
+                }
+                _headDiff++;
+                return lstNode != null ? lstNode.Value : null;
+            }
+            else
+                return null;
         }
     }
 }
