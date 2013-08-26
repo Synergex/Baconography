@@ -194,9 +194,17 @@ namespace BaconographyPortable.ViewModel
                     var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
                     var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
                     var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-                    var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
-                    var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, false);
-                    return await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
+                    //need to go backwards in time, not paying attention to the unread rules
+                    if (settingsService.OnlyFlipViewUnread && !LinkedPictureHistory.IsEmpty)
+                    {
+                        return LinkedPictureHistory.Dequeue();
+                    }
+                    else
+                    {
+                        var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
+                        var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, false);
+                        return await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
+                    }
 
                 }
             }
@@ -299,6 +307,8 @@ namespace BaconographyPortable.ViewModel
         {
             vm.ParentLink.NavigateToComments.Execute(vm.ParentLink);
         }
-        
+
+
+        public static CircularBuffer<LinkedPictureViewModel> LinkedPictureHistory = new CircularBuffer<LinkedPictureViewModel>(100);
     }
 }

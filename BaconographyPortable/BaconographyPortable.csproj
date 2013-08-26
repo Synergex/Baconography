@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
+    <Compile Include="Common\CircularBuffer.cs" />
     <Compile Include="Common\IMergableThing.cs" />
     <Compile Include="Common\UtilityCommandImpl.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
