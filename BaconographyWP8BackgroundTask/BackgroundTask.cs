@@ -117,7 +117,7 @@ namespace BaconographyWP8
                         if (!string.IsNullOrWhiteSpace(cookie))
                         {
                             redditService = new TinyRedditService(null, null, cookie);
-                            hasMail = await redditService.HasMail();
+                            hasMail = true;// dont make two calls when we can just ask for unread messages once
                         }
                     }
                 }
@@ -159,7 +159,7 @@ namespace BaconographyWP8
                                 ShellToast toast = new ShellToast();
                                 toast.Title = "New message";
                                 toast.Content = message;
-                                toast.NavigationUri = new Uri("/View/MessagingPageView.xaml", UriKind.Relative);
+                                toast.NavigationUri = new Uri("/BaconographyWP8Core;component/View/MessagingPageView.xaml?refresh", UriKind.Relative);
                                 toast.Show();
                             }
                             lockScreenViewModel.OverlayItems.Add(new LockScreenMessage { DisplayText = message, Glyph = "\uE119" });

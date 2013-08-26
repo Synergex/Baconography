@@ -173,7 +173,7 @@ namespace BaconographyWP8BackgroundTask.Hacks
 
         public async Task<Tuple<IEnumerable<string>, int>> GetNewMessages(int? limit)
         {
-            var targetUri = "http://www.reddit.com/message/inbox/.json";
+            var targetUri = "http://www.reddit.com/message/unread/.json";
 
             try
             {
