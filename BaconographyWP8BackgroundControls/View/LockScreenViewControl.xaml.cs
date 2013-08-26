@@ -40,6 +40,9 @@ namespace BaconographyWP8BackgroundControls.View
             InitializeComponent();
             backgroundImage.ImageSource = GetImageFromIsolatedStorage(lockScreenViewModel.ImageSource);
             borderBackground.Opacity = lockScreenViewModel.OverlayOpacity;
+            overlayBorder.Margin = lockScreenViewModel.Margin;
+            overlayBorder.CornerRadius = lockScreenViewModel.CornerRadius;
+            innerBorder.Margin = lockScreenViewModel.InnerMargin;
             if (lockScreenViewModel.NumberOfItems > 0 && lockScreenViewModel.OverlayItems.Count > 0)
             {
                 foreach (var item in lockScreenViewModel.OverlayItems)

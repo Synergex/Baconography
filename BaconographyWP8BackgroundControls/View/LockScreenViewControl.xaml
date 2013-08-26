@@ -13,11 +13,14 @@
         <Grid.Background>
             <ImageBrush x:Name="backgroundImage" Stretch="UniformToFill"/>
         </Grid.Background>
-        <Border CornerRadius="5" BorderThickness="1" Margin="12,32,12,12" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+        <Border x:Name="overlayBorder" BorderThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Top">
             <Border.Background>
                 <SolidColorBrush x:Name="borderBackground" Color="Black" />
             </Border.Background>
-            <ListBox x:Name="itemsControl" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="6" MaxHeight="300"/>
+            <Border x:Name="innerBorder"
+                    Margin="0" Padding="0" BorderThickness="0">
+                <ListBox x:Name="itemsControl" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="8" MaxHeight="300"/>
+            </Border>
         </Border>
 
     </Grid>

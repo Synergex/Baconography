@@ -59,5 +59,11 @@ namespace BaconographyW8.PlatformServices
         {
             await Launcher.LaunchUriAsync(uri);
         }
+
+
+        public void RemoveBackEntry()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

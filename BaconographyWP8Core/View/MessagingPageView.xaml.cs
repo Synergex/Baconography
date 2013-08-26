@@ -35,6 +35,12 @@ namespace BaconographyWP8.View
             {
                 if (vm.HasMail)
                     pivot.SelectedIndex = 1;
+
+                if (e.Uri.ToString().Contains("?refresh"))
+                {
+                    pivot.SelectedIndex = 1;
+                    vm.RefreshMessages.Execute(vm);
+                }
             }
             UpdateMenuItems();
             base.OnNavigatedTo(e);
@@ -145,6 +151,7 @@ namespace BaconographyWP8.View
             if (vm != null)
             {
                 vm.SelectedItem = null;
+                vm.SelectedUnreadItem = null;
             }
             UpdateMenuItems();
         }

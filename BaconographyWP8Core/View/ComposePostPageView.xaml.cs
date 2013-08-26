@@ -29,7 +29,28 @@ namespace BaconographyWP8.View
             {
                 var vm = this.DataContext as ComposePostViewModel;
                 if (vm != null)
+                {
+                    
                     vm.RefreshUser.Execute(null);
+                }
+            }
+            else if (e.NavigationMode == NavigationMode.New)
+            {
+                var vm = this.DataContext as ComposePostViewModel;
+                if (vm.Editing)
+                {
+                    pivot.Title = "BACONOGRAPHY > EDIT POST";
+                    TitleBox.SetValue(Grid.RowProperty, 0);
+                    TextInput.SetValue(Grid.RowProperty, 1);
+                    TextInput.SetValue(Grid.RowSpanProperty, 3);
+                }
+                else
+                {
+                    pivot.Title = "BACONOGRAPHY > SUBMIT POST";
+                    TitleBox.SetValue(Grid.RowProperty, 2);
+                    TextInput.SetValue(Grid.RowProperty, 3);
+                    TextInput.SetValue(Grid.RowSpanProperty, 1);
+                }
             }
             UpdateMenuItems();
             base.OnNavigatedTo(e);
@@ -108,15 +129,6 @@ namespace BaconographyWP8.View
             }
 
             UpdateMenuItems();
-        }
-
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            BindingExpression bindingExpression = preview.GetBindingExpression(ScalingPictureView.ImageSourceProperty);
-            if (bindingExpression != null)
-            {
-                bindingExpression.UpdateSource();
-            }
         }
 
         private void pivot_LoadedPivotItem(object sender, PivotItemEventArgs e)

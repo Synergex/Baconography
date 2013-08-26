@@ -21,6 +21,7 @@ using System.Windows.Media;
 using BaconographyWP8BackgroundControls.View;
 using System.Text;
 using Windows.ApplicationModel.Store;
+using BaconographyWP8Core.ViewModel;
 
 namespace BaconographyWP8.View
 {
@@ -47,6 +48,29 @@ namespace BaconographyWP8.View
             if (e.NavigationMode == NavigationMode.New && this.NavigationContext.QueryString.ContainsKey("data") && !string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
             {
                 pivot.SelectedIndex = 1;
+            }
+
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                CompletePickerTask();
+            }
+
+            UpdateLockScreenStatus();
+        }
+
+        private void UpdateLockScreenStatus()
+        {
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+
+            if (isProvider)
+            {
+                lockStatus.IsChecked = true;
+                lockStatus.IsEnabled = false;
+            }
+            else
+            {
+                lockStatus.IsChecked = false;
+                lockStatus.IsEnabled = true;
             }
         }
 
@@ -118,6 +142,7 @@ namespace BaconographyWP8.View
 			}
 		}
 
+
         private async void ShowSystemLockScreenSettings(object sender, RoutedEventArgs e)
         {
             await Windows.System.Launcher.LaunchUriAsync(new Uri("ms-settings-lock:"));
@@ -132,34 +157,141 @@ namespace BaconographyWP8.View
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), true);
 
             var lockScreen = new ViewModelLocator().LockScreen;
-            lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            if (!settingsService.UseImagePickerForLockScreen)
+            {
+                lockScreen.ImageSource = Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + lockScreen.ImageSource;
+            }
 
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate<LockScreen>(null);
         }
 
-        
+        enum PickerTask
+        {
+            None,
+            ImagesReddit,
+            TopPostReddit,
+            LiveTileReddit
+        }
+
+        private PickerTask _pickerTask = PickerTask.None;
+
+        private async void CompletePickerTask()
+        {
+            var locator = new ViewModelLocator();
+            var spvm = locator.SubredditPicker;
+            var cpvm = locator.ContentPreferences;
+
+            switch (_pickerTask)
+            {
+                case PickerTask.None:
+                    break;
+                case PickerTask.ImagesReddit:
+                    _pickerTask = PickerTask.None;
+                    cpvm.ImagesSubreddit = spvm.GetSubredditString();
+
+                    SetLockScreen(null, null);
+                    break;
+                case PickerTask.TopPostReddit:
+                    _pickerTask = PickerTask.None;
+                    cpvm.LockScreenReddit = spvm.GetSubredditString();
+
+                    SetLockScreen(null, null);
+                    break;
+                case PickerTask.LiveTileReddit:
+                    _pickerTask = PickerTask.None;
+                    cpvm.LiveTileReddit = spvm.GetSubredditString();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SelectLockScreenSubreddit(object sender, RoutedEventArgs e)
+        {
+            var locator = new ViewModelLocator();
+            var spvm = locator.SubredditPicker;
+            var cpvm = locator.ContentPreferences;
+            _pickerTask = PickerTask.ImagesReddit;
+
+            cpvm.UseImagePickerForLockScreen = false;
+            spvm.SetSubredditList(cpvm.ImagesSubreddit);
+
+            for (int i = 0; i < 10; i++)
+            {
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", i)))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", i));
+                }
+            }
+
+
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate<SubredditPickerPageView>(null);
+        }
+
+        private void SelectTopPostSubreddit(object sender, RoutedEventArgs e)
+        {
+            var locator = new ViewModelLocator();
+            var spvm = locator.SubredditPicker;
+            var cpvm = locator.ContentPreferences;
+            _pickerTask = PickerTask.TopPostReddit;
+
+            spvm.SetSubredditList(cpvm.LockScreenReddit);
+
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate<SubredditPickerPageView>(null);
+        }
+
+        private void SelectLiveTileSubreddit(object sender, RoutedEventArgs e)
+        {
+            var locator = new ViewModelLocator();
+            var spvm = locator.SubredditPicker;
+            var cpvm = locator.ContentPreferences;
+            _pickerTask = PickerTask.LiveTileReddit;
+
+            spvm.SetSubredditList(cpvm.LiveTileReddit);
+
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate<SubredditPickerPageView>(null);
+        }
 
         private async void SetLockScreen(object sender, RoutedEventArgs e)
         {
+            var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+            if (sender is CheckBox && isProvider)
+                return;
+
+            isProvider = await Utility.RequestLockAccess();
+            UpdateLockScreenStatus();
+
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
+            var locator = new ViewModelLocator();
+            var cpvm = locator.ContentPreferences;
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 
-            if (settingsService.UseImagePickerForLockScreen && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
+            if (cpvm.UseImagePickerForLockScreen && File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
             {
                 File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
             }
-            settingsService.UseImagePickerForLockScreen = false;
+            cpvm.UseImagePickerForLockScreen = false;
 
             await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                 ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
-            
         }
 
-        private void PickLockScreen(object sender, RoutedEventArgs e)
+        public static readonly DependencyProperty ImagePreviewProperty =
+            DependencyProperty.Register(
+                "ImagePreview",
+                typeof(string),
+                typeof(SettingsPageView),
+                new PropertyMetadata(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg")
+            );
+
+        private async void SelectLockScreenImage(object sender, RoutedEventArgs e)
         {
-            var userService = ServiceLocator.Current.GetInstance<IUserService>();
-            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+            var isProvider = await Utility.RequestLockAccess();
+            UpdateLockScreenStatus();
 
             Microsoft.Phone.Tasks.PhotoChooserTask picker = new Microsoft.Phone.Tasks.PhotoChooserTask();
             picker.Completed += picker_Completed;
@@ -170,18 +302,30 @@ namespace BaconographyWP8.View
         {
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
             var userService = ServiceLocator.Current.GetInstance<IUserService>();
-            if (e.Error == null)
+            var locator = new ViewModelLocator();
+            var cpvm = locator.ContentPreferences;
+
+            if (e.Error == null && e.ChosenPhoto != null)
             {
-                using (var lockscreenFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg"))
-                {
-                    e.ChosenPhoto.CopyTo(lockscreenFile);
-                }
-                settingsService.UseImagePickerForLockScreen = true;
+                BitmapImage image = new BitmapImage();
+                image.CreateOptions = BitmapCreateOptions.None;
+                image.SetSource(e.ChosenPhoto);
+                Utility.MakeSingleLockScreenFromImage(0, image);
+                cpvm.UseImagePickerForLockScreen = true;
+
+                ClearValue(ImagePreviewProperty);
+                SetValue(ImagePreviewProperty, Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg");
 
                 await Utility.DoActiveLockScreen(settingsService, ServiceLocator.Current.GetInstance<IRedditService>(), userService,
                     ServiceLocator.Current.GetInstance<IImagesService>(), ServiceLocator.Current.GetInstance<INotificationService>(), false);
             }
+            else
+            {
+                subredditRadioButton.IsChecked = true;
+            }
         }
+
+
 
         private void HelpOfflineButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
@@ -219,5 +363,6 @@ namespace BaconographyWP8.View
             }
  
         }
+
 	}
 }

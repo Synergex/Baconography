@@ -67,13 +67,18 @@ namespace BaconographyPortable.ViewModel
                     case "":
                     case "hot":
                     default:
-                        _sortOrder = "";
+                        _sortOrder = "hot";
                         break;
                 }
 
                 if (_sortOrder != orig)
                 {
-                    Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : ""), _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+                    var permalink = _linkThing.Data.Permalink;
+                    if (!permalink.Contains("?"))
+                    {
+                        permalink = permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : "");
+                    }
+                    Comments = new CommentViewModelCollection(_baconProvider, permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
                     RaisePropertyChanged("Comments");
                     RaisePropertyChanged("SortOrder");
                 }
@@ -108,7 +113,10 @@ namespace BaconographyPortable.ViewModel
         private void LoadLink(TypedThing<Link> link, TypedThing<Comment> rootComment)
         {
             _linkThing = link;
-            Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+            if(_linkThing.Data.IsSelf)
+                SelfText = _baconProvider.GetService<IMarkdownProcessor>().Process(_linkThing.Data.Selftext);
+            SortOrder = "hot"; //load the hot comments
+            //Comments = new CommentViewModelCollection(_baconProvider, _linkThing.Data.Permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
         }
 
         public CommentViewModelCollection Comments { get; private set; }
@@ -165,13 +173,15 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public string SelfText
+        public bool CanEditPost
         {
             get
             {
-                return _linkThing.Data.Selftext;
+                return IsSelfPost && _userService.GetUser().Result.Username == _linkThing.Data.Author;
             }
         }
+
+        public object SelfText { get; set; }
 
 		public bool IsSelfPost
 		{

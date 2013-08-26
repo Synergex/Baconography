@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyW8.PlatformServices
 {
-    class UserService : IUserService, BaconProvider.IBaconService
+    class UserService : IUserService, IBaconService
     {
         IRedditService _redditService;
         User _currentUser;

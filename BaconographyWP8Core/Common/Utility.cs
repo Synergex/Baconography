@@ -1,4 +1,5 @@
 ﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Model;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
 using BaconographyWP8.Converters;
@@ -40,19 +41,10 @@ namespace BaconographyWP8.Common
 			);
 		}
 
-        const string ReadMailGlyph = "\uE166";
-        const string UnreadMailGlyph = "\uE119";
+        public const string ReadMailGlyph = "\uE166";
+        public const string UnreadMailGlyph = "\uE119";
 
-        struct TaskSettings
-        {
-            public string cookie;
-            public string opacity;
-            public string number_of_items;
-            public string link_reddit;
-            public string live_reddit;
-            public string[] lock_images;
-            public string[] tile_images;
-        }
+        
 
         private static bool loadingActiveLockScreen = false;
 
@@ -98,7 +90,12 @@ namespace BaconographyWP8.Common
             try
             {
                 if (loadingActiveLockScreen)
+                {
+                    while (loadingActiveLockScreen)
+                        await Task.Yield();
+
                     return;
+                }
 
                 var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
                 var connectionCostType = connectionProfile.GetConnectionCost().NetworkCostType;
@@ -108,7 +105,7 @@ namespace BaconographyWP8.Common
 
                 var user = await userService.GetUser();
                 var loginCookie = user.LoginCookie;
-
+                var liveTileService = ServiceLocator.Current.GetInstance<ILiveTileService>();
                 IEnumerable<string> lockScreenImages = new string[0];
                 IEnumerable<string> tileImages = new string[0];
 
@@ -116,14 +113,14 @@ namespace BaconographyWP8.Common
                     (connectionCostType != NetworkCostType.Variable))
                 {
                     if(!settingsService.UseImagePickerForLockScreen)
-                        lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService);
+                        lockScreenImages = await MakeLockScreenImages(settingsService, redditService, userService, imagesService, liveTileService);
                     tileImages = await MakeTileImages(settingsService, redditService, userService, imagesService);
 
                 }
                 else if(File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
                 {
                     //find the images we used last time
-                    var taskSettings = LoadTaskSettings();
+                    var taskSettings = liveTileService.LoadTaskSettings();
                     if (taskSettings != null)
                     {
                         if (!settingsService.UseImagePickerForLockScreen)
@@ -137,13 +134,11 @@ namespace BaconographyWP8.Common
                     lockScreenImages = new string[] { Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\lockScreenCache0.jpg" };
                 }
 
-                using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    TaskSettings settings = new TaskSettings { cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
-                    var settingsBlob = JsonConvert.SerializeObject(settings);
-                    var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
-                    taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
-                }
+                liveTileService.StoreTaskSettings((unused) =>
+                    {
+                        return new TaskSettings { rounded = settingsService.RoundedLockScreen, cookie = loginCookie ?? "", opacity = settingsService.OverlayOpacity.ToString(), number_of_items = settingsService.OverlayItemCount.ToString(), link_reddit = CleanRedditLink(settingsService.LockScreenReddit, user), live_reddit = CleanRedditLink(settingsService.LiveTileReddit, user), lock_images = lockScreenImages.ToArray(), tile_images = tileImages.ToArray() };
+                    }, false);
+                
 
                 //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                 await Task.Yield();
@@ -320,36 +315,14 @@ namespace BaconographyWP8.Common
             }
         }
 
-        static TaskSettings? LoadTaskSettings()
-        {
-            try
-            {
-                using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    byte[] taskCookieBytes = new byte[4096];
-                    var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
-                    var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
-                    var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
-                    return taskSettings;
-                }
-            }
-            catch
-            {
-                //bad file dont know how it got messed up but kill it
-                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
-                {
-                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
-                }
-                return null;
-            }
-        }
 
-        public static async Task<IEnumerable<string>> MakeLockScreenImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService)
+
+        public static async Task<IEnumerable<string>> MakeLockScreenImages(ISettingsService settingsService, IRedditService redditService, IUserService userService, IImagesService imagesService, ILiveTileService liveTileService)
         {
             try
             {
                 //find the images we used last time
-                var lockScreenSettings = LoadTaskSettings();
+                var lockScreenSettings = liveTileService.LoadTaskSettings();
 
                 if (lockScreenSettings != null && lockScreenSettings.Value.lock_images != null && lockScreenSettings.Value.lock_images.Length > 0)
                 {
@@ -427,24 +400,7 @@ namespace BaconographyWP8.Common
                                 || imageSource.PixelWidth < 480))
                             continue;
 
-                        Image lockScreenView = new Image();
-                        lockScreenView.Width = 480;
-                        lockScreenView.Height = 800;
-                        lockScreenView.Source = imageSource;
-                        lockScreenView.Stretch = Stretch.UniformToFill;
-                        lockScreenView.UpdateLayout();
-                        lockScreenView.Measure(new Size(480, 800));
-                        lockScreenView.Arrange(new Rect(0, 0, 480, 800));
-                        WriteableBitmap bitmap = new WriteableBitmap(480, 800);
-                        bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
-                        bitmap.Invalidate();
-
-                        using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", results.Count.ToString())))
-                        {
-                            bitmap.SaveJpeg(theFile, 480, 800, 0, 100);
-                            theFile.Flush(true);
-                            theFile.Close();
-                        }
+                        MakeSingleLockScreenFromImage(results.Count, imageSource);
                         //this can happen when the user is still trying to use the application so dont lock up the UI thread with this work
                         await Task.Yield();
                         results.Add(string.Format("lockScreenCache{0}.jpg", results.Count.ToString()));
@@ -464,6 +420,28 @@ namespace BaconographyWP8.Common
                 }
             }
             return results;
+        }
+
+        public static void MakeSingleLockScreenFromImage(int pos, BitmapImage imageSource)
+        {
+            Image lockScreenView = new Image();
+            lockScreenView.Width = 480;
+            lockScreenView.Height = 800;
+            lockScreenView.Source = imageSource;
+            lockScreenView.Stretch = Stretch.UniformToFill;
+            lockScreenView.UpdateLayout();
+            lockScreenView.Measure(new Size(480, 800));
+            lockScreenView.Arrange(new Rect(0, 0, 480, 800));
+            WriteableBitmap bitmap = new WriteableBitmap(480, 800);
+            bitmap.Render(lockScreenView, new ScaleTransform() { ScaleX = 1, ScaleY = 1 });
+            bitmap.Invalidate();
+
+            using (var theFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + string.Format("\\lockScreenCache{0}.jpg", pos.ToString())))
+            {
+                bitmap.SaveJpeg(theFile, 480, 800, 0, 100);
+                theFile.Flush(true);
+                theFile.Close();
+            }
         }
 
         public static Dimensions GetJpegDimensions(Stream fs)
@@ -555,9 +533,13 @@ namespace BaconographyWP8.Common
 
                         url = imagesList.First().Item2;
 
-                        using (var stream = new MemoryStream(await imagesService.ImageBytesFromUrl(url)))
+                        var imageBytes = await imagesService.ImageBytesFromUrl(url);
+                        if (imageBytes != null)
                         {
-                            imageSource.SetSource(stream);
+                            using (var stream = new MemoryStream(imageBytes))
+                            {
+                                imageSource.SetSource(stream);
+                            }
                         }
                         if (imageSource.PixelHeight == 0 || imageSource.PixelWidth == 0)
                             continue;
@@ -600,6 +582,31 @@ namespace BaconographyWP8.Common
             return results;
         }
 
+        public static async Task<bool> RequestLockAccess()
+        {
+            try
+            {
+                var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+                if (!isProvider)
+                {
+                    // If you're not the provider, this call will prompt the user for permission.
+                    // Calling RequestAccessAsync from a background agent is not allowed.
+                    var op = await Windows.Phone.System.UserProfile.LockScreenManager.RequestAccessAsync();
+
+                    // Only do further work if the access was granted.
+                    isProvider = op == Windows.Phone.System.UserProfile.LockScreenRequestResult.Granted;
+                }
+
+                return isProvider;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+
+            return false;
+        }
+
         public static async void LockHelper(string filePathOfTheImage, bool isAppResource, bool supressInit)
         {
             try
@@ -638,25 +645,20 @@ namespace BaconographyWP8.Common
         public static async Task<LockScreenViewModel> MakeLockScreenControl(ISettingsService settingsService, IRedditService redditService, IUserService userService, IEnumerable<string> lockScreenImages)
         {
             var user = (await userService.GetUser());
-            if (user.Me != null && (user.Me.HasMail || user.Me.HasModMail))
-            {
-                //toast the user that they have mail
-                //ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("you have new mail");
-            }
             
             LinkGlyphConverter linkGlyphConverter = new LinkGlyphConverter();
             List<LockScreenMessage> lockScreenMessages = new List<LockScreenMessage>();
 
-            //maybe call for messages from logged in user
-            if (user != null && user.LoginCookie != null && settingsService.MessagesInLockScreenOverlay)
-            {
-                var messages = await redditService.GetMessages(null);
-                lockScreenMessages.AddRange(messages.Data.Children.Where(thing => thing.Data is Message && ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
-                {
-                    DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
-                    Glyph = ((Message)thing.Data).New ? UnreadMailGlyph : ReadMailGlyph
-                }));
-            }
+            //dont call for messages here, its wastefull and we're going to toast them if there are an new messages anyway
+            //if (user != null && user.LoginCookie != null && settingsService.MessagesInLockScreenOverlay)
+            //{
+            //    var messages = await redditService.GetMessages(null);
+            //    lockScreenMessages.AddRange(messages.Data.Children.Where(thing => thing.Data is Message && ((Message)thing.Data).New).Take(3).Select(thing => new LockScreenMessage
+            //    {
+            //        DisplayText = thing.Data is CommentMessage ? ((CommentMessage)thing.Data).LinkTitle : ((Message)thing.Data).Subject,
+            //        Glyph = ((Message)thing.Data).New ? UnreadMailGlyph : ReadMailGlyph
+            //    }));
+            //}
 
             if (settingsService.PostsInLockScreenOverlay && settingsService.OverlayItemCount > 0)
             {
@@ -674,6 +676,7 @@ namespace BaconographyWP8.Common
             vml.OverlayItems = lockScreenMessages;
             vml.OverlayOpacity = settingsService.OverlayOpacity;
             vml.NumberOfItems = settingsService.OverlayItemCount;
+            vml.RoundedCorners = settingsService.RoundedLockScreen;
             return vml;
         }
 

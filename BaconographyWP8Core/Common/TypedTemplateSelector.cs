@@ -71,6 +71,9 @@ namespace BaconographyWP8.Common
 
         private DataTemplate GetCachedDataTemplate(string key)
         {
+            if (key == null)
+                return null;
+
             if (!IsCacheEnabled) { return null; }
             VerifyCachedDataTemplateStorage();
             if (_cachedDataTemplates.ContainsKey(key))
@@ -108,6 +111,9 @@ namespace BaconographyWP8.Common
         /// <returns></returns>
         private static DataTemplate FindTemplate(object source, string key)
         {
+            if (key == null)
+                return null;
+
             var fe = source as FrameworkElement;
             object obj;
             ResourceDictionary rd = fe != null ? fe.Resources : Styles.Resources;

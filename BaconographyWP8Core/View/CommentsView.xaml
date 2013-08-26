@@ -78,11 +78,24 @@
                     <TextBlock Grid.Row="3" Grid.Column="2" Margin="0,4,0,0" Text="Reply" FontSize="14" HorizontalAlignment="Center" />
 
                     <Button Grid.Row="1" Grid.Column="3"
-                                            FontFamily="Segoe UI Symbol" FontSize="16"
-                                            Width="40" Height="40"
-                                            Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
-                                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoUserDetails}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="3" Margin="0,4,0,0" Text="User" FontSize="14" HorizontalAlignment="Center" />
+                            FontFamily="Segoe UI Symbol" FontSize="16"
+                            Width="40" Height="40"
+                            Visibility="{Binding ElementName=controlRoot, Path=DataContext.CanEditPost, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                            Content="&#xE13D;" Style="{StaticResource RoundButtonStyle}"
+                            Command="{Binding ElementName=controlRoot, Path=DataContext.GotoUserDetails}" CommandParameter="{Binding ElementName=controlRoot, Path=DataContext}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="3"
+                               Visibility="{Binding ElementName=controlRoot, Path=DataContext.CanEditPost, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                               Margin="0,4,0,0" Text="User" FontSize="14" HorizontalAlignment="Center" />
+
+                    <Button Grid.Row="1" Grid.Column="3"
+                            FontFamily="Segoe UI Symbol" FontSize="16"
+                            Width="40" Height="40"
+                            Visibility="{Binding ElementName=controlRoot, Path=DataContext.CanEditPost, Converter={StaticResource booleanVisibilityConverter}}"
+                            Content="&#xE104;" Style="{StaticResource RoundButtonStyle}"
+                            Tap="EditPostButton_Tap"/>
+                    <TextBlock Grid.Row="3" Grid.Column="3"
+                               Visibility="{Binding ElementName=controlRoot, Path=DataContext.CanEditPost, Converter={StaticResource booleanVisibilityConverter}}"
+                               Margin="0,4,0,0" Text="Edit" FontSize="14" HorizontalAlignment="Center" />
 
                     <Button Grid.Row="1" Grid.Column="4"
                                             FontFamily="Segoe UI Symbol" FontSize="16"
@@ -94,7 +107,7 @@
                     <Button Grid.Row="1" Grid.Column="5"
                     FontFamily="Segoe UI Symbol" FontSize="16"
                     Width="40" Height="40"
-                    Content="&#xE12F;" Style="{StaticResource RoundButtonStyle}"
+                    Content="&#xE174;" Style="{StaticResource RoundButtonStyle}"
                     Click="MenuSort_Click"/>
                     <TextBlock Grid.Row="3" Grid.Column="5" Margin="0,4,0,0" Text="Sort" FontSize="14" HorizontalAlignment="Center" />
                 </Grid>
@@ -133,7 +146,7 @@
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding Path=Comments, Converter={StaticResource flattenCommentsCollectionConverter}}"
+                ItemsSource="{Binding Comments}"
                 x:Name="commentList">
 
             <ListBox.ItemTemplate>

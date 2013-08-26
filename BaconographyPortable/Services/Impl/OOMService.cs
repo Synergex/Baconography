@@ -17,9 +17,15 @@ namespace BaconographyPortable.Services.Impl
             if (OutOfMemory != null)
                 OutOfMemory(args);
             if (forceGC)
-                GC.Collect(2, GCCollectionMode.Forced, true);
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                    GC.WaitForPendingFinalizers();
+                }
+            }
 
-            return args.HasCleanedUp;
+            return true;
         }
 
         public event Action<OutOfMemoryEventArgs> OutOfMemory;

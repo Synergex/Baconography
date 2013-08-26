@@ -11,4 +11,8 @@ namespace BaconographyPortable.Services
     {
         T GetService<T>() where T : class; 
     }
+    public interface IBaconService
+    {
+        Task Initialize(IBaconProvider baconProvider);
+    }
 }

@@ -39,13 +39,13 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   ~~Show Images inline RES style~~
 *   ~~Use the imgur api (and the other domains supported by RES) to download and display images/albums directly~~
 *   Use NReadability to generate offline versions of (non image) links
-*   Add drop down tick for 'sort by' in RedditView and CommentsView
+*   ~~Add drop down tick for 'sort by' in RedditView and CommentsView~~
 *   ~~If nothing in offline cache when we're in offline mode show a message letting the user know there isnt anything there~~
-*   Implement messaging
-*   Add support for a lockscreen indicator to show messages/replys 
+*   ~~Implement messaging~~
+*   ~~Add support for a lockscreen indicator to show messages/replys~~
 *   ~~Fix layout for 1/4 and 3/4 snapped view~~
 *   Multi-Reddit selector
-*   Add support for Posting
+*   ~~Add support for Posting~~
 *   Add in RES style keyboard shortcuts
 *   ~~Integrate Animated gif renderer (Windows 8 Xaml doesnt allow animated gif's in the Image control)~~
 *   ~~Get it on Windows Phone 8~~

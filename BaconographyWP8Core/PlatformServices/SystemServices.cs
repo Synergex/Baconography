@@ -11,8 +11,9 @@ using Windows.System.Threading;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class SystemServices : ISystemServices
+    public class SystemServices : ISystemServices
     {
+        public static Dispatcher _uiDispatcher;
         public SystemServices()
         {
             NetworkInformation.NetworkStatusChanged += networkStatusChanged;
@@ -38,6 +39,14 @@ namespace BaconographyWP8.PlatformServices
                 if (((DispatcherTimer)tickHandle).IsEnabled)
                     ((DispatcherTimer)tickHandle).Stop();
             }
+            else if (tickHandle is Task<DispatcherTimer>)
+            {
+                _uiDispatcher.BeginInvoke(async () =>
+                    {
+                        var timer = await (Task<DispatcherTimer>)tickHandle;
+                        timer.Stop();
+                    });
+            }
             else if (tickHandle is ThreadPoolTimer)
             {
                 ((ThreadPoolTimer)tickHandle).Cancel();
@@ -53,11 +62,25 @@ namespace BaconographyWP8.PlatformServices
         {
             if (uiThread)
             {
-                DispatcherTimer dt = new DispatcherTimer();
-                dt.Tick += (sender, args) => tickHandler(sender, args);
-                dt.Interval = tickSpan;
-                dt.Start();
-                return dt;
+                if (tickSpan.Ticks == 0)
+                {
+                    _uiDispatcher.BeginInvoke(() => tickHandler(null, null));
+                    return null;
+                }
+                else
+                {
+
+                    TaskCompletionSource<DispatcherTimer> completionSource = new TaskCompletionSource<DispatcherTimer>();
+                    _uiDispatcher.BeginInvoke(() =>
+                        {
+                            DispatcherTimer dt = new DispatcherTimer();
+                            dt.Tick += (sender, args) => tickHandler(sender, args);
+                            dt.Interval = tickSpan;
+                            dt.Start();
+                            completionSource.SetResult(dt);
+                        });
+                    return completionSource.Task;
+                }
             }
             else
             {
@@ -65,11 +88,19 @@ namespace BaconographyWP8.PlatformServices
             }
         }
 
-        public void RestartTimer(object tickHandle)
+        public async void RestartTimer(object tickHandle)
         {
             if (tickHandle is DispatcherTimer)
             {
                 ((DispatcherTimer)tickHandle).Start();
+            }
+            else if (tickHandle is Task<DispatcherTimer>)
+            {
+                _uiDispatcher.BeginInvoke(async () =>
+                {
+                    var timer = await (Task<DispatcherTimer>)tickHandle;
+                    timer.Start();
+                });
             }
             else if (tickHandle is ThreadPoolTimer)
             {

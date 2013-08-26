@@ -1,17 +1,29 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
+using BaconographyWP8.Common;
+using BaconographyWP8.Converters;
+using BaconographyWP8.PlatformServices;
 using BaconographyWP8Core;
+using BaconographyWP8Core.Common;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.Xna.Framework.Media;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -33,19 +45,18 @@ namespace BaconographyWP8.View
         //cheating a little bit here but its for the best
 		string _pictureData;
 		LinkedPictureViewModel _pictureViewModel;
-		PivotItem _currentItem;
         IViewModelContextService _viewModelContextService;
         ISmartOfflineService _smartOfflineService;
         public LinkedPictureView()
         {
-            this.InitializeComponent();
-			_imageOrigins = new Dictionary<object, string>();
+            using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+            {
+                this.InitializeComponent();
+            }
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
-            //Typography.SetFraction(slashMe, System.Windows.FontFraction.Slashed);
+            
         }
-
-		private Dictionary<object, string> _imageOrigins;
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
@@ -54,12 +65,13 @@ namespace BaconographyWP8.View
 				_pictureData = this.State["PictureViewModelData"] as string;
 				if (_pictureData != null)
 				{
-                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(_pictureData);
+                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>, string>>(_pictureData);
                     if (deserializedObject != null)
                     {
                         _pictureViewModel = new LinkedPictureViewModel 
                         { 
-                            LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                            LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(),
+                            LinkId = deserializedObject.Item3,
                             Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
                             { 
                                 Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
@@ -72,12 +84,13 @@ namespace BaconographyWP8.View
 			else if (this.NavigationContext.QueryString["data"] != null)
 			{
 				var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
-                var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>>>(unescapedData);
+                var deserializedObject = JsonConvert.DeserializeObject<Tuple<string, IEnumerable<Tuple<string, string>>, string>>(unescapedData);
 				if (deserializedObject != null)
 				{
                     _pictureViewModel = new LinkedPictureViewModel 
                     { 
                         LinkTitle = deserializedObject.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
+                        LinkId = deserializedObject.Item3,
                         Pictures = deserializedObject.Item2.Select(tpl => new LinkedPictureViewModel.LinkedPicture 
                         { 
                             Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), 
@@ -88,17 +101,19 @@ namespace BaconographyWP8.View
 				}
 			}
 			if (DataContext == null || e == null)
+            {
 				DataContext = _pictureViewModel;
+            }
 
             
             _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
             _smartOfflineService.NavigatedToView(typeof(LinkedPictureView), e == null ? true : e.NavigationMode == NavigationMode.New);
-            
+            SetMenuState();
 		}
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.New && e.IsCancelable)
+            if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "/BaconographyWP8Core;component/MainPage.xaml" && e.IsCancelable)
             {
                 OnNavigatedTo(null);
                 e.Cancel = true;
@@ -110,100 +125,285 @@ namespace BaconographyWP8.View
 		{
             if(e.NavigationMode == NavigationMode.Back)
                 CleanupImageSource();
+
+            if (e.NavigationMode == NavigationMode.New && e.IsNavigationInitiator)
+            {
+                
+                var absPath = e.Uri.ToString().Contains('?') ? e.Uri.ToString().Substring(0, e.Uri.ToString().IndexOf("?")) : e.Uri.ToString();
+                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml")
+                {
+                    CleanupImageSource();
+                    ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();
+                }
+            }
 		}
 
+        Task _cleanup;
         private void CleanupImageSource()
         {
             try
             {
-                this.State["PictureViewModelData"] = _pictureData;
-                //Content = null;
-                if (_currentItem != null)
+                ReifiedAlbumItemConverter.CancelSource.Cancel();
+                ReifiedAlbumItemConverter.CancelSource = new CancellationTokenSource();
+                this.State.Clear();
+                foreach (var item in albumPivot.Items)
                 {
-                    var context = _currentItem.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-                    if (context.ImageSource is string)
+                    if (item is PivotItem)
                     {
+
+                        var content = ((PivotItem)item).Content;
+                        if (content is ScalingGifView)
+                        {
+                            ((ScalingGifView)content).ImageSource = null;
+                        }
+                        else if (content is ScalingPictureView)
+                        {
+                            ((ScalingPictureView)content).ImageSource = null;
+                        }
+
+                        ((PivotItem)item).Content = null;
+
+                        var context = ((PivotItem)item).DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
                         context.ImageSource = null;
                     }
-                    context = null;
-                    _currentItem = null;
+                    else if (item is BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture)
+                    {
+                        ((BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture)item).ImageSource = null;
+                    }
                 }
                 ((LinkedPictureViewModel)DataContext).Cleanup();
+                if (albumPivot.ItemsSource is ObservableCollection<PivotItem>)
+                {
+                    ((ObservableCollection<PivotItem>)albumPivot.ItemsSource).Clear();
+                }
+                this.Content = null;
+                if (_gcCount <= 0)
+                    Task.Factory.StartNew(RunGC, TaskCreationOptions.LongRunning);
+                
             }
-            catch (Exception ex)
+            catch
             {
 
             }
         }
 
-		private void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
+        private static int _gcCount = 0;
+        private static void RunGC()
+        {
+            if (_gcCount >= 1)
+                return;
+
+            _gcCount++;
+            for(int i = 0; i < 3; i++)
+            {
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                GC.WaitForPendingFinalizers();
+            }
+            _gcCount--;
+        }
+
+        private PivotItem _priorItem;
+        private PivotItem _currentItem;
+        private PivotItem _nextItem;
+
+        private Tuple<PivotItem, PivotItem, PivotItem> GenerateItemTripplet(PivotItem newCurrent)
+        {
+            PivotItem prior = null, current = newCurrent, next = null;
+            var currentIndex = albumPivot.Items.IndexOf(newCurrent);
+            if (currentIndex > 0)
+                prior = albumPivot.Items[currentIndex - 1] as PivotItem;
+            if (currentIndex + 1 < albumPivot.Items.Count)
+                next = albumPivot.Items[currentIndex + 1] as PivotItem;
+
+            return Tuple.Create(prior, current, next);
+        }
+
+		private async void albumPivot_LoadingPivotItem(object sender, PivotItemEventArgs e)
 		{
-			if (e.Item != null)
-			{
-				e.Item.Visibility = System.Windows.Visibility.Visible;
+            if (e.Item != null)
+            {
+                var itemTpl = GenerateItemTripplet(e.Item);
+                if (itemTpl.Item2 != null && itemTpl.Item2.Content == null)
+                {
+                    lock (itemTpl.Item2)
+                    {
+                        if(itemTpl.Item2.Content == null)
+                            itemTpl.Item2.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item2.DataContext as ViewModelBase);
+                    }
+                }
 
-				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
+                await Task.Yield();
 
-				if (context != null && _imageOrigins.ContainsKey(e.Item))
-				{
-					context.ImageSource = _imageOrigins[e.Item];
-				}
+                if (itemTpl.Item3 != null && itemTpl.Item3.Content == null && _priorItem != itemTpl.Item2)
+                {
+                    lock (itemTpl.Item3)
+                    {
+                        if (itemTpl.Item3.Content == null)
+                            itemTpl.Item3.Content = ReifiedAlbumItemConverter.MapPictureVM(itemTpl.Item3.DataContext as ViewModelBase);
+                    }
+                }
 
-				_currentItem = e.Item;
-			}
+                lock (this)
+                {
+                    _priorItem = itemTpl.Item1;
+                    _currentItem = itemTpl.Item2;
+                    _nextItem = itemTpl.Item3;
+                }
+            }
+			
+            
 		}
 
 		private void albumPivot_UnloadingPivotItem(object sender, PivotItemEventArgs e)
 		{
-			if (e.Item != null)
+            if (e.Item != null)
 			{
-				e.Item.Visibility = System.Windows.Visibility.Collapsed;
-
-				var context = e.Item.DataContext as BaconographyPortable.ViewModel.LinkedPictureViewModel.LinkedPicture;
-
-				if (context != null)
-				{	
-					if (context.ImageSource is string)
-					{
-						if (!_imageOrigins.ContainsKey(e.Item))
-						{
-							_imageOrigins.Add(e.Item, context.ImageSource as String);
-						}
-
-						context.ImageSource = null;
-					}
-				}
+                ClearItem(e.Item);
+                if(_gcCount <= 0)
+                    Task.Factory.StartNew(RunGC, TaskCreationOptions.LongRunning);
 			}
 		}
 
-        private void Caption_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        private static void ClearItem(PivotItem item)
         {
-            if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
+            if (item.Content is ScalingGifView)
             {
-                caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
-                caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+                ((ScalingGifView)item.Content).ImageSource = null;
             }
-            else
+            else if (item.Content is ScalingPictureView)
             {
-                caption.TextWrapping = System.Windows.TextWrapping.Wrap;
-                caption.TextTrimming = System.Windows.TextTrimming.None;
+                ((ScalingPictureView)item.Content).ImageSource = null;
+            }
+            item.Content = null;
+        }
+
+        enum ImageContextMenuState
+        {
+            Extended,
+            Collapsed
+        }
+
+        private static ImageContextMenuState _contextMenuState = ImageContextMenuState.Extended;
+
+        private void CaptionHitbox_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        {
+            switch (_contextMenuState)
+            {
+                case ImageContextMenuState.Extended:
+                    // Animate to Collapsed
+                    _contextMenuState = ImageContextMenuState.Collapsed;
+                    break;
+                case ImageContextMenuState.Collapsed:
+                    // Animate to Extended
+                    _contextMenuState = ImageContextMenuState.Extended;
+                    break;
+            }
+
+            SetMenuState();
+        }
+
+        private void SetMenuState()
+        {
+            switch (_contextMenuState)
+            {
+                case ImageContextMenuState.Collapsed:
+                    // Animate to Collapsed
+                    caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
+                    caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
+                    trayButtons.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case ImageContextMenuState.Extended:
+                    // Animate to Extended
+                    caption.TextWrapping = System.Windows.TextWrapping.Wrap;
+                    caption.TextTrimming = System.Windows.TextTrimming.None;
+                    trayButtons.Visibility = System.Windows.Visibility.Visible;
+                    break;
             }
         }
 
-        private void Caption_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        private Tuple<string, IEnumerable<Tuple<string, string>>, string> MakeSerializable(LinkedPictureViewModel vm)
         {
-            if (caption.TextWrapping == System.Windows.TextWrapping.Wrap)
+            return Tuple.Create(vm.LinkTitle, vm.Pictures.Select(linkedPicture => Tuple.Create(linkedPicture.Title, linkedPicture.Url)), vm.LinkId);
+        }
+
+
+        bool _flicking;
+        private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
+        {
+            if (_flicking)
+                return;
+
+            if (e.Direction == System.Windows.Controls.Orientation.Vertical)
             {
-                caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
-                caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
-            }
-            else
-            {
-                caption.TextWrapping = System.Windows.TextWrapping.Wrap;
-                caption.TextTrimming = System.Windows.TextTrimming.None;
+                //Up
+                if (e.VerticalVelocity < -1500)
+                {
+                    _flicking = true;
+                    try
+                    {
+                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+                        {
+                            var next = await _pictureViewModel.Next();
+                            if (next != null)
+                            {
+                                TransitionService.SetNavigationOutTransition(this,
+                                    new NavigationOutTransition()
+                                    {
+                                        Forward = new SlideTransition()
+                                        {
+                                            Mode = SlideTransitionMode.SlideUpFadeOut
+                                        }
+                                    }
+                                );
+                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _flicking = false;
+                    }
+                   
+                    
+                }
+                else if (e.VerticalVelocity > 1500) //Down
+                {
+                    _flicking = true;
+                    try
+                    {
+                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
+                        {
+                            var previous = await _pictureViewModel.Previous();
+                            if (previous != null)
+                            {
+                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        _flicking = false;
+                    }
+                }
             }
         }
-		
+
+        private async void SaveImage_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var linkedPicture = _pictureViewModel.Pictures.ToList()[albumPivot.SelectedIndex];
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            if (linkedPicture != null)
+            {
+                MediaLibrary library = new MediaLibrary();
+                var libraryPicture = library.SavePicture(linkedPicture.Url.Substring(linkedPicture.Url.LastIndexOf('/') + 1), await ImagesService.ImageStreamFromUrl(linkedPicture.Url));
+                var notificationService = ServiceLocator.Current.GetInstance<INotificationService>();
+                if (libraryPicture != null)
+                    notificationService.CreateNotification("Picture saved.");
+                else
+                    notificationService.CreateNotification("Error downloading picture.");
+            }
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+        }
+
     }
 }

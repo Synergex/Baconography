@@ -141,7 +141,6 @@
     <Compile Include="PlatformServices\LiveTileService.cs" />
     <Compile Include="PlatformServices\NavigationService.cs" />
     <Compile Include="PlatformServices\NotificationService.cs" />
-    <Compile Include="PlatformServices\SettingsService.cs" />
     <Compile Include="PlatformServices\SimpleHttpService.cs" />
     <Compile Include="PlatformServices\SystemServices.cs" />
     <Compile Include="PlatformServices\UserService.cs" />

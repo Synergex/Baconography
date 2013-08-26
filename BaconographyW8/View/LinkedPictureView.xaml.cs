@@ -59,15 +59,22 @@ namespace BaconographyW8.View
                 _navData = pictureData;
                 var pictureTasks = pictureData.Select(async (tpl) =>
                 {
-                    var renderer = GifRenderer.CreateGifRenderer(await ServiceLocator.Current.GetInstance<IImagesService>().ImageBytesFromUrl(tpl.Item2));
-                    if (renderer != null)
+                    var imageBytes = await ServiceLocator.Current.GetInstance<IImagesService>().ImageBytesFromUrl(tpl.Item2);
+                    if (imageBytes != null)
                     {
-                        renderer.Visible = true;
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = renderer, Url = tpl.Item2 };
+                        var renderer = GifRenderer.CreateGifRenderer(imageBytes);
+                        if (renderer != null)
+                        {
+                            renderer.Visible = true;
+                            return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = renderer, Url = tpl.Item2 };
+                        }
+                        else
+                            return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = tpl.Item2, Url = tpl.Item2 };
                     }
                     else
-                        return new LinkedPictureViewModel.LinkedPicture { Title = tpl.Item1.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'").Trim(), ImageSource = tpl.Item2, Url = tpl.Item2 };
+                        return null;
                 })
+                .Where(val => val != null)
                 .ToArray();
 
                 _pictureViewModel = new LinkedPictureViewModel 

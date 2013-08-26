@@ -1,9 +1,12 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Model;
+using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using BaconographyWP8.Common;
 using Microsoft.Phone.Shell;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,14 +14,61 @@ using Windows.Storage;
 
 namespace BaconographyWP8.PlatformServices
 {
-    class LiveTileService : ILiveTileService, BaconProvider.IBaconService
+    class LiveTileService : ILiveTileService, IBaconService
     {
-
         IImagesService _imagesService;
 
         public async Task Initialize(IBaconProvider baconProvider)
         {
             _imagesService = baconProvider.GetService<IImagesService>();
+        }
+
+        private TaskSettings? LoadTaskSettingsImpl()
+        {
+            try
+            {
+                using (var settingsFile = File.OpenRead(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    byte[] taskCookieBytes = new byte[4096];
+                    var readBytes = settingsFile.Read(taskCookieBytes, 0, 4096);
+                    var json = Encoding.UTF8.GetString(taskCookieBytes, 0, readBytes);
+                    var taskSettings = JsonConvert.DeserializeObject<TaskSettings>(json);
+                    return taskSettings;
+                }
+            }
+            catch
+            {
+                //bad file dont know how it got messed up but kill it
+                if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    File.Delete(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json");
+                }
+                return null;
+            }
+        }
+
+        public TaskSettings? LoadTaskSettings()
+        {
+            lock (this)
+            {
+                return LoadTaskSettingsImpl();
+            }
+        }
+
+        public void StoreTaskSettings(Func<TaskSettings?, TaskSettings> getSettings, bool atomic)
+        {
+            lock (this)
+            {
+                var currentSettings = atomic ? LoadTaskSettingsImpl() : null;
+                var newSettings = getSettings(currentSettings);
+
+                using (var taskCookieFile = File.Create(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "taskSettings.json"))
+                {
+                    var settingsBlob = JsonConvert.SerializeObject(newSettings);
+                    var settingsBytes = Encoding.UTF8.GetBytes(settingsBlob);
+                    taskCookieFile.Write(settingsBytes, 0, settingsBytes.Length);
+                }
+            }
         }
 
         Queue<DateTime> _tileCreationDates = new Queue<DateTime>();
@@ -304,5 +354,105 @@ namespace BaconographyWP8.PlatformServices
 //            TileNotification notification = new TileNotification(final);
 //            _tileUpdater.Update(notification);
         }
+
+
+        public void SetCount(int count)
+        {
+            lock (this)
+            {
+                List<object> liveTileImages = new List<object>();
+                var settings = LoadTaskSettingsImpl();
+                if (settings != null)
+                {
+                    liveTileImages.AddRange(settings.Value.tile_images);
+                }
+
+                UpdateLiveTile(liveTileImages, count, 0, 0);
+            }
+        }
+
+        public void SetMessageRead(string id)
+        {
+            try
+            {
+                lock (this)
+                {
+                    if (!File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                    {
+                        File.CreateText(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt").Close();
+                    }
+
+                    using (var bgTaskToastedMessages = File.AppendText(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                    {
+                        bgTaskToastedMessages.WriteLine(id);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public IEnumerable<string> GetMessagesMarkedRead()
+        {
+            try
+            {
+                lock (this)
+                {
+                    HashSet<string> existingMessages = new HashSet<string>();
+                    if (File.Exists(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                    {
+                        using (var bgTaskToastedMessages = File.OpenText(Windows.Storage.ApplicationData.Current.LocalFolder.Path + "bgtaskMessages.txt"))
+                        {
+                            while (!bgTaskToastedMessages.EndOfStream)
+                            {
+                                var msgId = bgTaskToastedMessages.ReadLine();
+                                if (!existingMessages.Contains(msgId))
+                                    existingMessages.Add(msgId);
+                            }
+                        }
+
+                    }
+                    return existingMessages;
+                }
+            }
+            catch { }
+            return Enumerable.Empty<string>();
+        }
+
+        private static void UpdateLiveTile(List<object> tileImages, int messageCount, int liveTileCounter, int startTileCounter)
+        {
+            var activeTiles = ShellTile.ActiveTiles;
+            var activeTile = activeTiles.FirstOrDefault();
+            if (activeTile != null)
+            {
+                var uris = new List<Uri>();
+
+                Utility.Shuffle(tileImages);
+
+                if (startTileCounter != liveTileCounter)
+                {
+                    uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
+                }
+
+                foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
+                {
+                    uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
+                }
+
+                if (uris.Count == 0)
+                {
+                    uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
+                }
+
+                CycleTileData cycleTile = new CycleTileData()
+                {
+                    Title = "Baconography",
+                    Count = messageCount,
+                    SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
+                    CycleImages = uris
+                };
+                activeTile.Update(cycleTile);
+            }
+        }
+
     }
 }

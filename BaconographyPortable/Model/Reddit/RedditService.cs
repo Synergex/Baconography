@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,6 +42,7 @@ namespace BaconographyPortable.Model.Reddit
         //this one is seperated out so we can use it interally on initial user login
         public async Task<Account> GetMe(User user)
         {
+            bool needsRetry = false;
             try
             {
                 var meString = await _simpleHttpService.SendGet(user.LoginCookie, "http://www.reddit.com/api/me.json");
@@ -52,11 +54,28 @@ namespace BaconographyPortable.Model.Reddit
                 else
                     return null;
             }
+            catch (WebException webException)
+            {
+                if (webException.Status == WebExceptionStatus.RequestCanceled)
+                    needsRetry = true;
+                else
+                {
+                    _notificationService.CreateErrorNotification(webException);
+                    return null;
+                }
+            }
             catch (Exception ex)
             {
                 _notificationService.CreateErrorNotification(ex);
                 return null;
             }
+
+            if (needsRetry)
+            {
+                return await GetMe();
+            }
+            else
+                return null;
         }
 
         public async Task<User> Login(string username, string password)
@@ -90,17 +109,25 @@ namespace BaconographyPortable.Model.Reddit
 
         }
 
-        public async Task<Listing> Search(string query, int? limit, bool reddits)
+        public async Task<Listing> Search(string query, int? limit, bool reddits, string restrictedToSubreddit)
         {
             var maxLimit = (await UserIsGold()) ? 1500 : 100;
             var guardedLimit = Math.Min(maxLimit, limit ?? maxLimit);
 
-            var targetUri = string.Format(
-                reddits ? 
-                    "http://www.reddit.com/subreddits/search.json?limit={0}&q={1}" : 
-                    "http://www.reddit.com/search.json?limit={0}&q={1}",
-                                           guardedLimit,
-                                           query);
+            string targetUri = null;
+
+            if (reddits)
+            {
+                targetUri = string.Format("http://www.reddit.com/subreddits/search.json?limit={0}&q={1}", guardedLimit, query);
+            }
+            else if (string.IsNullOrWhiteSpace(restrictedToSubreddit))
+            {
+                targetUri = string.Format("http://www.reddit.com/search.json?limit={0}&q={1}", guardedLimit, query);
+            }
+            else
+            {
+                targetUri = string.Format("http://www.reddit.com/r/{2}/search.json?limit={0}&q={1}&restrict_sr=on", guardedLimit, query, restrictedToSubreddit);
+            }
 
             var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
             var newListing = JsonConvert.DeserializeObject<Listing>(comments);
@@ -414,8 +441,8 @@ namespace BaconographyPortable.Model.Reddit
                 else
                 {
                     targetUri = limit == -1 ?
-                                string.Format("http://www.reddit.com{0}.json?depth=5", permalink) :
-                                string.Format("http://www.reddit.com{0}.json?limit={1}&depth=5", permalink, limit);
+                                string.Format("http://www.reddit.com{0}.json", permalink) :
+                                string.Format("http://www.reddit.com{0}.json?limit={1}", permalink, limit);
                 }
 
                 Listing listing = null;
@@ -609,6 +636,21 @@ namespace BaconographyPortable.Model.Reddit
             await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
+        public virtual async Task EditPost(string text, string name)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"api_type", "json"},
+                {"text", text},
+                {"thing_id", name},
+                {"uh", modhash}
+            };
+
+            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+        }
+
         public async Task SubmitCaptcha(string captcha)
         {
             Captcha = captcha;
@@ -687,6 +729,23 @@ namespace BaconographyPortable.Model.Reddit
             }
 
             return response;
+        }
+
+        public virtual async Task ReadMessage(string id)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"id", id},
+                {"uh", modhash}
+            };
+
+            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message");
+            if (temp == null)
+            {
+                temp = "hello";
+            }
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)

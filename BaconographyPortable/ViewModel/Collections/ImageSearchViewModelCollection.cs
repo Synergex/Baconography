@@ -28,7 +28,7 @@ namespace BaconographyPortable.ViewModel.Collections
             //we only want image results and this seems to be the best way to get that
             var searchQuery = query + " AND (site:'imgur' OR site:'flickr' OR site:'memecrunch' OR site:'quickmeme' OR site:qkme OR site:'min' OR site:'picsarus')";
 
-            _onlineListingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(_baconProvider, searchQuery, false);
+            _onlineListingProvider = new BaconographyPortable.Model.Reddit.ListingHelpers.SearchResults(_baconProvider, searchQuery, false, null);
             _offlineListingProvider = new BaconographyPortable.Model.KitaroDB.ListingHelpers.SearchResults(_baconProvider, searchQuery, false);
         }
 
@@ -78,9 +78,9 @@ namespace BaconographyPortable.ViewModel.Collections
         private Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
             if (_settingsService.IsOnline())
-                return _onlineListingProvider.GetInitialListing(state).Item2();
+                return _onlineListingProvider.GetInitialListing(state);
             else
-                return _offlineListingProvider.GetInitialListing(state).Item2();
+                return _offlineListingProvider.GetInitialListing(state);
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -91,7 +91,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 return _offlineListingProvider.GetAdditionalListing(after, state);
         }
 
-        protected override async Task Refresh(Dictionary<object, object> state)
+        protected override void Refresh(Dictionary<object, object> state)
         {
             //TODO implement this
         }

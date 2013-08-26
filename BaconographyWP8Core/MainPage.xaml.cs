@@ -25,6 +25,7 @@ using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight;
 using BaconographyWP8Core.Common;
 using BaconographyWP8.Converters;
+using BaconographyWP8Core.View;
 
 namespace BaconographyWP8
 {
@@ -37,6 +38,7 @@ namespace BaconographyWP8
         IViewModelContextService _viewModelContextService;
         ISmartOfflineService _smartOfflineService;
         INavigationService _navigationService;
+        IUserService _userService;
         public MainPage()
         {
             InitializeComponent();
@@ -49,6 +51,8 @@ namespace BaconographyWP8
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
             _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _userService = ServiceLocator.Current.GetInstance<IUserService>();
+            MaybeUserIsLoggedIn();
         }
 
 		private void AdjustForOrientation(PageOrientation orientation)
@@ -72,7 +76,23 @@ namespace BaconographyWP8
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            _viewModelContextService.PopViewModelContext();
+            if (e.NavigationMode == NavigationMode.Back && DataContext is ViewModelBase)
+            {
+                _viewModelContextService.PopViewModelContext(DataContext as ViewModelBase);
+            }
+            else if (e.NavigationMode == NavigationMode.New)
+            {
+                //Cleanup so we dont reposition to something old when we return
+                if (pivot != null && pivot.Items != null && pivot.Items.FirstOrDefault() != null)
+                {
+                    var pivotItem = pivot.Items.FirstOrDefault() as PivotItem;
+                    if (pivotItem != null && pivotItem.DataContext is RedditViewModel)
+                    {
+                        var redditViewModel = pivotItem.DataContext as RedditViewModel;
+                        redditViewModel.TopVisibleLink = null;
+                    }
+                }
+            }
             base.OnNavigatingFrom(e);
         }
 
@@ -82,6 +102,19 @@ namespace BaconographyWP8
 
 			if (e.NavigationMode == NavigationMode.Back)
 			{
+                if (pivot != null && pivot.Items != null &&  pivot.Items.FirstOrDefault() != null)
+                {
+                    var pivotItem = pivot.Items.FirstOrDefault() as PivotItem;
+                    if (pivotItem != null && pivotItem.DataContext is RedditViewModel)
+                    {
+                        var redditViewModel = pivotItem.DataContext as RedditViewModel;
+                        if (pivotItem.Content is RedditView)
+                        {
+                            var redditView = pivotItem.Content as RedditView;
+                            redditView.LoadWithScroll();
+                        }
+                    }
+                }
 			}
             else if (e.NavigationMode == NavigationMode.Refresh)
             {
@@ -164,6 +197,18 @@ namespace BaconographyWP8
 		}
 
 		private string loginItemText = "login";
+
+        private async void MaybeUserIsLoggedIn()
+        {
+            try
+            {
+                var currentUser = await _userService.GetUser();
+                if (currentUser != null && !string.IsNullOrWhiteSpace(currentUser.LoginCookie))
+                    OnUserLoggedIn(new UserLoggedInMessage { CurrentUser = currentUser, UserTriggered = false });
+            }
+            catch {}
+        }
+
 		private void OnUserLoggedIn(UserLoggedInMessage message)
 		{
             if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
@@ -227,11 +272,6 @@ namespace BaconographyWP8
 
         private void MenuMail_Click(object sender, EventArgs e)
         {
-            var locator = Styles.Resources["Locator"] as ViewModelLocator;
-            if (locator != null)
-            {
-                locator.Messages.RefreshMessages.Execute(locator.Messages);
-            }
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate(typeof(MessagingPageView), null);
         }
@@ -296,6 +336,7 @@ namespace BaconographyWP8
 		enum MenuEnum
 		{
 			Login = 0,
+            Search,
             Submit,
 			Close,
 			Pin
@@ -326,10 +367,16 @@ namespace BaconographyWP8
             appBarButtons[(int)ButtonEnum.ManageSubreddits].Click += MenuManage_Click;
 
             appBarButtons.Add(new ApplicationBarIconButton());
-            appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+            SetMailButtonIcon(null);
             appBarButtons[(int)ButtonEnum.Mail].Text = "mail";
             appBarButtons[(int)ButtonEnum.Mail].IsEnabled = false;
             appBarButtons[(int)ButtonEnum.Mail].Click += MenuMail_Click;
+
+            ServiceLocator.Current.GetInstance<MessagesViewModel>().PropertyChanged += (sender, args) => 
+            {
+                SetMailButtonIcon(args);
+            };
+
 
             appBarButtons.Add(new ApplicationBarIconButton());
             appBarButtons[(int)ButtonEnum.Settings].IconUri = new Uri("\\Assets\\Icons\\settings.png", UriKind.Relative);
@@ -358,6 +405,11 @@ namespace BaconographyWP8
 			appMenuItems[(int)MenuEnum.Login].Text = loginItemText;
 			appMenuItems[(int)MenuEnum.Login].IsEnabled = true;
 			appMenuItems[(int)MenuEnum.Login].Click += MenuLogin_Click;
+
+            appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Search].Text = "search";
+            appMenuItems[(int)MenuEnum.Search].IsEnabled = true;
+            appMenuItems[(int)MenuEnum.Search].Click += MenuSearch_Click;
 
             appMenuItems.Add(new ApplicationBarMenuItem());
             appMenuItems[(int)MenuEnum.Submit].Text = "new post";
@@ -400,6 +452,7 @@ namespace BaconographyWP8
 
 			ApplicationBar.MenuItems.Clear();
             ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Login]);
+            ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Search]);
             ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Submit]);
             /*
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Manage]);
@@ -407,6 +460,23 @@ namespace BaconographyWP8
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
             */
 		}
+
+        private void SetMailButtonIcon(System.ComponentModel.PropertyChangedEventArgs args)
+        {
+            if (args == null || args.PropertyName == "HasMail")
+            {
+                if (ServiceLocator.Current.GetInstance<MessagesViewModel>().HasMail)
+                    appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\read.png", UriKind.Relative);
+                else
+                    appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+            }
+        }
+
+        private void MenuSearch_Click(object sender, EventArgs e)
+        {
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate(typeof(SearchView), null);
+        }
 
 		private void UpdateMenuItems()
 		{
@@ -456,6 +526,27 @@ namespace BaconographyWP8
             //        appBarState = 0;
             //        break;
             //}
+        }
+
+        private void pivot_DoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            if (!(e.OriginalSource is TextBlock))
+                return;
+
+            if (pivot.SelectedItem is PivotItem)
+            {
+                var pivotItem = pivot.SelectedItem as PivotItem;
+                if (pivotItem.Content is RedditView)
+                {
+                    var view = pivotItem.Content as RedditView;
+                    var context = view.DataContext as RedditViewModel;
+                    var source = e.OriginalSource as TextBlock;
+                    if (source.Text != context.Heading)
+                        return;
+
+                    view.linksView.ScrollTo(context.Links.First());
+                }
+            }
         }
 
         // Sample code for building a localized ApplicationBar

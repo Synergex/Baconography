@@ -21,6 +21,7 @@ namespace BaconographyPortable.ViewModel.Collections
         protected ISettingsService _settingsService;
         protected IListingProvider _onlineListingProvider;
         protected IListingProvider _offlineListingProvider;
+        protected ISuspendableWorkQueue _suspendableWorkQueue;
 
         public ThingViewModelCollection(IBaconProvider baconProvider, IListingProvider onlineListingProvider, IListingProvider offlineListingProvider)
         {
@@ -29,6 +30,7 @@ namespace BaconographyPortable.ViewModel.Collections
             _navigationService = _baconProvider.GetService<INavigationService>();
             _userService = _baconProvider.GetService<IUserService>();
             _settingsService = _baconProvider.GetService<ISettingsService>();
+            _suspendableWorkQueue = _baconProvider.GetService<ISuspendableWorkQueue>();
             _onlineListingProvider = onlineListingProvider;
             _offlineListingProvider = offlineListingProvider;
         }
@@ -66,22 +68,30 @@ namespace BaconographyPortable.ViewModel.Collections
                 throw new NotImplementedException();
         }
 
+        private HashSet<string> _ids = new HashSet<string>();
         protected virtual IEnumerable<ViewModelBase> MapListing(Listing listing, Dictionary<object, object> state)
         {
             if (listing.Data.After != null)
             {
                 state["After"] = listing.Data.After;
             }
-
-            return listing.Data.Children
-                .Select(thing => MapThing(thing, state))
-                .Where(vmb => vmb != null);
+            lock (_ids)
+            {
+                return listing.Data.Children
+                    .Select(thing => MapThing(thing, state))
+                    .Where(vmb => vmb != null);
+            }
         }
 
         protected virtual ViewModelBase MapThing(Thing thing, Dictionary<object, object> state)
         {
             if (thing.Data is Link)
             {
+                if (_ids.Contains(((Link)thing.Data).Id))
+                    return null;
+                else
+                    _ids.Add(((Link)thing.Data).Id);
+
                 var linkView = new LinkViewModel(thing, _baconProvider);
                 if (state.ContainsKey("MultiRedditSource"))
                     linkView.FromMultiReddit = true;
@@ -95,6 +105,10 @@ namespace BaconographyPortable.ViewModel.Collections
                     ((HashSet<string>)state["SubscribedSubreddits"]).Contains(((Subreddit)thing.Data).Name) :
                     false;
                 return new AboutSubredditViewModel(_baconProvider, thing, isSubscribed);
+            }
+            else if (thing.Data is Message)
+            {
+                return new MessageViewModel(_baconProvider, thing);
             }
             else if (thing.Data is More)
             {
@@ -135,67 +149,89 @@ namespace BaconographyPortable.ViewModel.Collections
         {
             if (_settingsService.IsOnline())
             {
-                var initTpl = _onlineListingProvider.GetInitialListing(state);
-
-                if (initTpl.Item1 != null)
+                Listing initialListing = null;
+                if (_onlineListingProvider is ICachedListingProvider)
                 {
-					var initCache = await initTpl.Item1;
-                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                    Task.Run(async () =>
-                    {
-                        Listing target = null;
-                        try
-                        {
-                            await Task.Delay(1000);
-                            target = await initTpl.Item2();
-                        }
-                        catch
-                        {
-                        }
-                        if (target == null || !_settingsService.IsOnline())
-                            target = await _offlineListingProvider.GetInitialListing(state).Item2();
-                        return target;
-                    }).ContinueWith(async (result) =>
-                        {
-                            var targetListing = result.Result;
-                            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                            if (targetListing != null)
-                            {
-                                var mappedListing = MapListing(targetListing, state).ToArray();
-                                for (int i = 0; i < mappedListing.Length; i++)
-                                {
-                                    if (this.Count > i)
-                                    {
-                                        if (this[i] is IMergableThing)
-                                        {
-                                            if (((IMergableThing)this[i]).MaybeMerge(mappedListing[i]))
-                                                continue;
-                                        }
-                                        this[i] = mappedListing[i];
-                                    }
-                                    else
-                                        Add(mappedListing[i]);
-                                }
-
-
-                            }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
-                    return initCache;
+                    initialListing = await ((ICachedListingProvider)_onlineListingProvider).GetCachedListing(state);
                 }
                 else
                 {
-                    var result = await initTpl.Item2();
-                    //make sure we arent starting up in offline mode
-                    if (_settingsService.IsOnline())
-                    {
-                        return result;
-                    }
-                    else
-                        return await _offlineListingProvider.GetInitialListing(state).Item2();
+                    initialListing = await _offlineListingProvider.GetInitialListing(state);
                 }
+
+                BackgroundUpdate(state);
+                return initialListing;
             }
             else
-                return await _offlineListingProvider.GetInitialListing(state).Item2();
+                return await _offlineListingProvider.GetInitialListing(state);
+        }
+
+        private void BackgroundUpdate(Dictionary<object, object> state)
+        {
+            _suspendableWorkQueue.QueueInteruptableUI(async (token) =>
+            {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                var targetListing = await _onlineListingProvider.GetInitialListing(state);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (targetListing != null)
+                {
+                    ViewModelBase[] mappedListing;
+                    lock (_ids)
+                    {
+                        foreach (var vm in this)
+                        {
+                            var linkViewModel = vm as LinkViewModel;
+                            if (linkViewModel != null)
+                            {
+                                _ids.Remove(linkViewModel.Id);
+                            }
+                        }
+                        mappedListing = MapListing(targetListing, state).ToArray();
+                    }
+
+                    //remove the ones we're not replacing, otherwise we end up with state results
+                    if (Count > mappedListing.Length)
+                    {
+                        for (int i = Count - 1; i >= mappedListing.Length; i--)
+                        {
+                            RemoveAt(i);
+                        }
+                    }
+
+                    for (int i = 0; i < mappedListing.Length; i++)
+                    {
+                        if (token.IsCancellationRequested)
+                            break;
+
+                        if (Count > i)
+                        {
+                            if (this[i] is IMergableThing)
+                            {
+                                if (((IMergableThing)this[i]).MaybeMerge(mappedListing[i]))
+                                    continue;
+                            }
+                            this[i] = mappedListing[i];
+                        }
+                        else
+                            Add(mappedListing[i]);
+                    }
+
+                    if (_onlineListingProvider is ICachedListingProvider)
+                    {
+                        try
+                        {
+                            await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) => await ((ICachedListingProvider)_onlineListingProvider).CacheIt(targetListing));
+                        }
+                        catch (TaskCanceledException)
+                        {
+                        }
+                    }
+                }
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            });
         }
 
         private Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)
@@ -214,43 +250,9 @@ namespace BaconographyPortable.ViewModel.Collections
                 return _offlineListingProvider.GetMore(ids, state);
         }
 
-        protected override Task Refresh(Dictionary<object, object> state)
+        protected override void Refresh(Dictionary<object, object> state)
         {
-            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-
-            return Task.Run(async () =>
-                {
-                    Listing target = null;
-                    try
-                    {
-                        if (_settingsService.IsOnline())
-                            target = await _onlineListingProvider.Refresh(state);
-                    }
-                    catch
-                    {
-                    }
-                    if (target == null || !_settingsService.IsOnline())
-                        target = await _offlineListingProvider.Refresh(state);
-                    return target;
-                }).ContinueWith((result) =>
-                {
-                    var targetListing = result.Result;
-                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                    if (targetListing != null)
-                    {
-                        var mappedListing = MapListing(targetListing, state).ToArray();
-						if (mappedListing.Length < this.Count)
-							this.Clear();
-
-                        for (int i = 0; i < mappedListing.Length; i++)
-                        {
-                            if (this.Count > i)
-                                this[i] = mappedListing[i];
-                            else
-                                Add(mappedListing[i]);
-                        }
-                    }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+            BackgroundUpdate(state);
         }
     }
 }

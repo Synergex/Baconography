@@ -97,6 +97,9 @@ namespace BaconographyWP8.PlatformServices
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
                 using (WebResponse response = await SimpleHttpService.GetResponseAsync(request))
                 {
+                    if (response == null)
+                        return null;
+
                     using (Stream imageStream = response.GetResponseStream())
                     {
                         using (var result = new MemoryStream())
