@@ -59,6 +59,7 @@ namespace BaconographyPortable.Services.Impl
         public bool UseImagePickerForLockScreen { get; set; }
         public bool RoundedLockScreen { get; set; }
         public bool MultiColorCommentMargins { get; set; }
+        public bool OnlyFlipViewUnread { get; set; }
         public bool InvertSystemTheme { get; set; }
 
         public bool AllowAdvertising { get; set; }
@@ -291,6 +292,12 @@ namespace BaconographyPortable.Services.Impl
                 else
                     InvertSystemTheme = false;
                 
+                var onlyFlipViewUnread = await offlineService.GetSetting("OnlyFlipViewUnread");
+                if (!string.IsNullOrWhiteSpace(onlyFlipViewUnread))
+                    OnlyFlipViewUnread = bool.Parse(onlyFlipViewUnread);
+                else
+                    OnlyFlipViewUnread = false;
+
                 Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
             catch
@@ -338,6 +345,7 @@ namespace BaconographyPortable.Services.Impl
             await offlineService.StoreSetting("UseImagePickerForLockScreen", UseImagePickerForLockScreen.ToString());
             await offlineService.StoreSetting("MultiColorCommentMargins", MultiColorCommentMargins.ToString());
             await offlineService.StoreSetting("InvertSystemTheme", InvertSystemTheme.ToString());
+            await offlineService.StoreSetting("OnlyFlipViewUnread", OnlyFlipViewUnread.ToString());
         }
 
 

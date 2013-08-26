@@ -89,7 +89,7 @@ namespace BaconographyWP8.View
                 {
                     ((RedditViewModel)DataContext).TopVisibleLink = linksView.GetFirstVisibleItem();
                     if (((RedditViewModel)DataContext).TopVisibleLink != null)
-                    {
+                    { 
                         linksView.ScrollTo(((RedditViewModel)DataContext).TopVisibleLink);
                         linksView.UpdateLayout();
                     }

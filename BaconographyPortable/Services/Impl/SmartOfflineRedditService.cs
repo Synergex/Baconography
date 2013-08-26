@@ -384,9 +384,7 @@ namespace BaconographyPortable.Services.Impl
             //make sure there are some comments otherwise its more expensive to make two calls then just the one
             if (cachedLink != null && commentMetadata.Item1 != 0)
             {
-                //compare to see if there was any significant change
-                var percentChange = Math.Abs((commentMetadata.Item1 - cachedLink.TypedData.CommentCount) / ((commentMetadata.Item1 + cachedLink.TypedData.CommentCount) / 2));
-                if (percentChange > 5)
+                if (commentMetadata.Item1 != cachedLink.TypedData.CommentCount || _invalidatedIds.Contains(cachedLink.Data.Name))
                     return MaybeStoreCommentsOnPost(await _redditService.GetCommentsOnPost(subreddit, permalink, limit), permalink);
 
                 var comments = await _offlineService.GetTopLevelComments(cachedPermalink, limit ?? 500);
@@ -481,12 +479,17 @@ namespace BaconographyPortable.Services.Impl
 
         }
 
+        public HashSet<string> _invalidatedIds = new HashSet<string>();
+
         public async Task EditComment(string thingId, string text)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(thingId) || text == null)
                     return;
+
+                _invalidatedIds.Add(thingId);
+
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                     await _redditService.EditComment(thingId, text);
                 else
@@ -567,6 +570,41 @@ namespace BaconographyPortable.Services.Impl
                         { "text", text},
                         { "subreddit", subreddit }, 
                         { "title", title } 
+                    }).Start();
+            }
+        }
+
+        public async Task EditPost(string text, string name)
+        {
+            try
+            {
+                if (text == null || name == null)
+                    return;
+
+                _invalidatedIds.Add(name);
+
+                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                    await _redditService.EditPost(text, name);
+                else
+                    await _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
+                    });
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                    _notificationService.CreateErrorNotification(ex);
+
+                _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                    { 
+                        {"text", text},
+                        {"thing_id", name}
                     }).Start();
             }
         }
@@ -692,6 +730,11 @@ namespace BaconographyPortable.Services.Impl
                                     await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
                                     break;
                                 }
+                            case "EditPost":
+                                {
+                                    await EditPost(actionTpl.Item2["text"], actionTpl.Item2["name"]);
+                                    break;
+                                }
                             case "AddVote":
                                 {
                                     await AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
@@ -773,7 +816,7 @@ namespace BaconographyPortable.Services.Impl
             }
 
             if (user.Me != null)
-                return await _redditService.GetMessages(limit);
+                return MaybeStoreMessages(user, await _redditService.GetMessages(limit));
 
             var messages = await _offlineService.GetMessages(user);
             if (messages != null && messages.Data.Children.Count > 0)

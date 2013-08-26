@@ -20,7 +20,7 @@ namespace BaconographyWP8.View
             InitializeComponent();
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             var linkViewModel = DataContext as LinkViewModel;
             if (linkViewModel != null)
@@ -30,10 +30,16 @@ namespace BaconographyWP8.View
                 {
                     Visibility = System.Windows.Visibility.Collapsed;
                     Height = 1;
+                    await Task.Yield();
+                    Height = 0;
                 }
                 else
                 {
+                    Visibility = System.Windows.Visibility.Visible;
+                    Height = 74;
                     ExpandSB.Begin();
+                    await Task.Yield();
+                    Height = 75;
                 }
             }
         }
@@ -59,8 +65,10 @@ namespace BaconographyWP8.View
                         if (Visibility != System.Windows.Visibility.Visible)
                         {
                             Visibility = System.Windows.Visibility.Visible;
-                            Height = 75;
+                            Height = 74;
                             ExpandSB.Begin();
+                            await Task.Yield();
+                            Height = 75;
                         }
                     }
                     else

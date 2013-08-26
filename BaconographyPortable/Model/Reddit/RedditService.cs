@@ -636,6 +636,21 @@ namespace BaconographyPortable.Model.Reddit
             await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
         }
 
+        public virtual async Task EditPost(string text, string name)
+        {
+            var modhash = await GetCurrentModhash();
+
+            var arguments = new Dictionary<string, string>
+            {
+                {"api_type", "json"},
+                {"text", text},
+                {"thing_id", name},
+                {"uh", modhash}
+            };
+
+            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+        }
+
         public async Task SubmitCaptcha(string captcha)
         {
             Captcha = captcha;
@@ -727,6 +742,10 @@ namespace BaconographyPortable.Model.Reddit
             };
 
             var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message");
+            if (temp == null)
+            {
+                temp = "hello";
+            }
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)

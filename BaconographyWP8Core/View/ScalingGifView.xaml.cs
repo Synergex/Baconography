@@ -160,22 +160,35 @@ namespace BaconographyWP8.View
 				}
                 else if (image != null && _interop == null && value is byte[])
                 {
-                    _interop = new Direct3DInterop(value as byte[]);
-
-                    // Set native resolution in pixels
-                    _interop.RenderResolution = _interop.NativeResolution = _interop.WindowBounds = new Windows.Foundation.Size(_interop.Width, _interop.Height);
-                    image.Height = _interop.Height;
-                    image.Width = _interop.Width;
-                    // Hook-up native component to DrawingSurface
-                    image.SetContentProvider(_interop.CreateContentProvider());
-                    _scale = 0;
-                    CoerceScale(true);
-                    _scale = _coercedScale;
-                    ResizeImage(true);
+                    SetContentProvider(value as byte[]);
                 }
 				SetValue(ImageSourceProperty, value);
 			}
 		}
+
+        private async void SetContentProvider(byte[] asset)
+        {
+            try
+            {
+                _interop = new Direct3DInterop(asset);
+                await Task.Yield();
+                // Set native resolution in pixels
+                _interop.RenderResolution = _interop.NativeResolution = _interop.WindowBounds = new Windows.Foundation.Size(_interop.Width, _interop.Height);
+                image.Height = _interop.Height;
+                image.Width = _interop.Width;
+                // Hook-up native component to DrawingSurface
+                image.SetContentProvider(_interop.CreateContentProvider());
+                
+                _scale = 0;
+                CoerceScale(true);
+                _scale = _coercedScale;
+                ResizeImage(true);
+            }
+            catch
+            {
+                ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Invalid Gif detected");
+            }
+        }
 
         private async void SetContentProvider(string sourceUrl)
         {

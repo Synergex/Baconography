@@ -173,6 +173,14 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool CanEditPost
+        {
+            get
+            {
+                return IsSelfPost && _userService.GetUser().Result.Username == _linkThing.Data.Author;
+            }
+        }
+
         public object SelfText { get; set; }
 
 		public bool IsSelfPost

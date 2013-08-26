@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.Reddit.ListingHelpers
 {
-    class UserMessages : IListingProvider
+    class UserMessages : IListingProvider, ICachedListingProvider
     {
         IRedditService _redditService;
 
@@ -34,6 +34,17 @@ namespace BaconographyPortable.Model.Reddit.ListingHelpers
         public Task<Listing> Refresh(Dictionary<object, object> state)
         {
             return _redditService.GetMessages(100);
+        }
+
+        //we arent really a caching provide we just dont want the collection to load from offline if we arent offline
+        public Task<Listing> GetCachedListing(Dictionary<object, object> state)
+        {
+            return Task.FromResult(new Listing { Data = new ListingData { Children = new List<Thing>() } });
+        }
+
+        public async Task CacheIt(Listing listing)
+        {
+            
         }
     }
 }

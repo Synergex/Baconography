@@ -179,7 +179,6 @@
     <Compile Include="Converters\TimeRelationConverter.cs" />
     <Compile Include="Converters\TotalPointsConverter.cs" />
     <Compile Include="Converters\UnixTimeConverter.cs" />
-    <Compile Include="Converters\UnreadMessagesConverter.cs" />
     <Compile Include="Converters\VisitedLinkConverter.cs" />
     <Compile Include="Converters\VoteColorConverter.cs" />
     <Compile Include="Converters\VoteIndicatorConverter.cs" />
@@ -471,6 +470,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="AdDuplex.WindowsPhone">
+      <HintPath>..\packages\AdDuplexWP8.2.8.0.3\lib\wp8\AdDuplex.WindowsPhone.dll</HintPath>
+    </Reference>
     <Reference Include="Coding4Fun.Toolkit.Controls">
       <HintPath>..\packages\Coding4Fun.Toolkit.Controls.2.0.7\lib\windowsphone8\Coding4Fun.Toolkit.Controls.dll</HintPath>
     </Reference>

@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
+    <Compile Include="Common\CircularBuffer.cs" />
     <Compile Include="Common\IMergableThing.cs" />
     <Compile Include="Common\UtilityCommandImpl.cs" />
     <Compile Include="Messages\CloseSettingsMessage.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Model\Reddit\ThingUtility.cs" />
     <Compile Include="Model\Reddit\User.cs" />
     <Compile Include="Model\Reddit\UserCredential.cs" />
+    <Compile Include="Model\TaskSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

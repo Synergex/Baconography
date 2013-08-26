@@ -272,11 +272,6 @@ namespace BaconographyWP8
 
         private void MenuMail_Click(object sender, EventArgs e)
         {
-            var locator = Styles.Resources["Locator"] as ViewModelLocator;
-            if (locator != null)
-            {
-                locator.Messages.RefreshMessages.Execute(locator.Messages);
-            }
             var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
             _navigationService.Navigate(typeof(MessagingPageView), null);
         }
@@ -372,10 +367,16 @@ namespace BaconographyWP8
             appBarButtons[(int)ButtonEnum.ManageSubreddits].Click += MenuManage_Click;
 
             appBarButtons.Add(new ApplicationBarIconButton());
-            appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+            SetMailButtonIcon(null);
             appBarButtons[(int)ButtonEnum.Mail].Text = "mail";
             appBarButtons[(int)ButtonEnum.Mail].IsEnabled = false;
             appBarButtons[(int)ButtonEnum.Mail].Click += MenuMail_Click;
+
+            ServiceLocator.Current.GetInstance<MessagesViewModel>().PropertyChanged += (sender, args) => 
+            {
+                SetMailButtonIcon(args);
+            };
+
 
             appBarButtons.Add(new ApplicationBarIconButton());
             appBarButtons[(int)ButtonEnum.Settings].IconUri = new Uri("\\Assets\\Icons\\settings.png", UriKind.Relative);
@@ -459,6 +460,17 @@ namespace BaconographyWP8
 			ApplicationBar.MenuItems.Add(appMenuItems[(int)MenuEnum.Settings]);
             */
 		}
+
+        private void SetMailButtonIcon(System.ComponentModel.PropertyChangedEventArgs args)
+        {
+            if (args == null || args.PropertyName == "HasMail")
+            {
+                if (ServiceLocator.Current.GetInstance<MessagesViewModel>().HasMail)
+                    appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\read.png", UriKind.Relative);
+                else
+                    appBarButtons[(int)ButtonEnum.Mail].IconUri = new Uri("\\Assets\\Icons\\email.png", UriKind.Relative);
+            }
+        }
 
         private void MenuSearch_Click(object sender, EventArgs e)
         {

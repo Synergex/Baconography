@@ -33,6 +33,7 @@ namespace BaconographyPortable.Services
         Task AddSavedThing(string thingId);
         Task AddReportOnThing(string thingId);
         Task AddPost(string kind, string url, string text, string subreddit, string title);
+        Task EditPost(string text, string name);
         Task AddMessage(string recipient, string subject, string message);
         Task AddComment(string parentId, string content);
         Task EditComment(string thingId, string text);

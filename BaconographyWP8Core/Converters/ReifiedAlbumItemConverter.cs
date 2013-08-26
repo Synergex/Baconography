@@ -52,6 +52,7 @@ namespace BaconographyWP8.Converters
 
         async Task<PivotItem> MapViewModel(ViewModelBase viewModel)
         {
+            var cancelToken = CancelSource.Token;
             var rvm = viewModel as LinkedPictureViewModel.LinkedPicture;
             string domain = rvm.Url;
             try
@@ -65,7 +66,7 @@ namespace BaconographyWP8.Converters
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = 0, Message = "loading from " + domain });
             try
             {
-                var imageBytes = await SimpleHttpService.GetBytesWithProgress(rvm.Url, (progress) => 
+                var imageBytes = await SimpleHttpService.GetBytesWithProgress(cancelToken, rvm.Url, (progress) => 
                     {
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = progress, Message = "loading from " + domain });
                     });
@@ -93,7 +94,12 @@ namespace BaconographyWP8.Converters
             }
             catch (Exception ex)
             {
-                ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("failed to load image: " + ex.Message);
+                if (!(ex is TaskCanceledException))
+                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("failed to load image: " + ex.Message);
+                else
+                {
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                }
             }
 
             return new PivotItem { DataContext = viewModel };
@@ -107,11 +113,11 @@ namespace BaconographyWP8.Converters
             {
                 if (linkedPicture.IsGif)
                 {
-                    return new ScalingGifView { DataContext = linkedPicture, ImageSource = linkedPicture.Url };
+                    return new ScalingGifView { DataContext = linkedPicture, ImageSource = linkedPicture.ImageSource };
                 }
                 else
                 {
-                    return new ScalingPictureView { DataContext = linkedPicture, ImageSource = linkedPicture.Url };
+                    return new ScalingPictureView { DataContext = linkedPicture, ImageSource = linkedPicture.ImageSource };
                 }
             }
             return null;

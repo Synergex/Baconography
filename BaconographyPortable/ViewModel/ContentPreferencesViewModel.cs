@@ -375,6 +375,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool OnlyFlipViewUnread
+        {
+            get
+            {
+                return _settingsService.OnlyFlipViewUnread;
+            }
+            set
+            {
+                _settingsService.OnlyFlipViewUnread = value;
+                RaisePropertyChanged("OnlyFlipViewUnread");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get

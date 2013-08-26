@@ -257,38 +257,7 @@ namespace BaconographyWP8
 
                     try
                     {
-                        var activeTiles = ShellTile.ActiveTiles;
-                        var activeTile = activeTiles.FirstOrDefault();
-                        if (activeTile != null)
-                        {
-                            var uris = new List<Uri>();
-
-                            Shuffle(tileImages);
-
-                            if (startTileCounter != liveTileCounter)
-                            {
-                                uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
-                            }
-
-                            foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
-                            {
-                                uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
-                            }
-
-                            if (uris.Count == 0)
-                            {
-                                uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
-                            }
-
-                            CycleTileData cycleTile = new CycleTileData()
-                            {
-                                Title = "Baconography",
-                                Count = messageCount,
-                                SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
-                                CycleImages = uris
-                            };
-                            activeTile.Update(cycleTile);
-                        }
+                        UpdateLiveTile(tileImages, messageCount, liveTileCounter, startTileCounter);
                     }
                     catch { }
 
@@ -372,6 +341,42 @@ namespace BaconographyWP8
                 {
                     NotifyComplete();
                 }
+            }
+        }
+
+        public static void UpdateLiveTile(List<object> tileImages, int messageCount, int liveTileCounter, int startTileCounter)
+        {
+            var activeTiles = ShellTile.ActiveTiles;
+            var activeTile = activeTiles.FirstOrDefault();
+            if (activeTile != null)
+            {
+                var uris = new List<Uri>();
+
+                Shuffle(tileImages);
+
+                if (startTileCounter != liveTileCounter)
+                {
+                    uris.Add(new Uri(string.Format("isostore:/Shared/ShellContent/tileCache{0}.jpg", startTileCounter), UriKind.Absolute));
+                }
+
+                foreach (var image in tileImages.Take(startTileCounter != liveTileCounter ? 8 : 9))
+                {
+                    uris.Add(new Uri("isostore:/Shared/ShellContent/" + ((string)image), UriKind.Absolute));
+                }
+
+                if (uris.Count == 0)
+                {
+                    uris.Add(new Uri("/Assets/BaconographyPhoneIconWide.png", UriKind.Relative));
+                }
+
+                CycleTileData cycleTile = new CycleTileData()
+                {
+                    Title = "Baconography",
+                    Count = messageCount,
+                    SmallBackgroundImage = new Uri("/Assets/ApplicationIconSmall.png", UriKind.Relative),
+                    CycleImages = uris
+                };
+                activeTile.Update(cycleTile);
             }
         }
 

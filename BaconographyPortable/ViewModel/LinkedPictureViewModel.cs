@@ -192,21 +192,31 @@ namespace BaconographyPortable.ViewModel
                     RepositionContextScroll();
 
                     var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
-                    var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
-                    var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, false);
-                    return await MakeContextedImageTuple(imagesService, linksEnumerator);
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                    //need to go backwards in time, not paying attention to the unread rules
+                    if (settingsService.OnlyFlipViewUnread && !LinkedPictureHistory.IsEmpty)
+                    {
+                        return LinkedPictureHistory.Dequeue();
+                    }
+                    else
+                    {
+                        var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
+                        var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, false);
+                        return await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
+                    }
 
                 }
             }
             return null;
         }
 
-        private static async Task<LinkedPictureViewModel> MakeContextedImageTuple(IImagesService imagesService, NeverEndingRedditView linksEnumerator)
+        private static async Task<LinkedPictureViewModel> MakeContextedImageTuple(IImagesService imagesService, IOfflineService offlineService, ISettingsService settingsService, NeverEndingRedditView linksEnumerator)
         {
             ViewModelBase vm;
             while((vm = await linksEnumerator.Next()) != null)
             {
-                if (vm is LinkViewModel && imagesService.MightHaveImagesFromUrl(((LinkViewModel)vm).Url))
+                if (vm is LinkViewModel && imagesService.MightHaveImagesFromUrl(((LinkViewModel)vm).Url) && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
                 {
                     var targetViewModel = vm as LinkViewModel;
                     var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
@@ -280,9 +290,12 @@ namespace BaconographyPortable.ViewModel
                     RepositionContextScroll();
 
                     var imagesService = ServiceLocator.Current.GetInstance<IImagesService>();
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+
                     var currentLinkPos = firstRedditViewModel.Links.IndexOf(parentLink);
                     var linksEnumerator = new NeverEndingRedditView(firstRedditViewModel, currentLinkPos, true);
-                    return await MakeContextedImageTuple(imagesService, linksEnumerator);
+                    return await MakeContextedImageTuple(imagesService, offlineService, settingsService, linksEnumerator);
                 }
             }
             return null;
@@ -294,6 +307,8 @@ namespace BaconographyPortable.ViewModel
         {
             vm.ParentLink.NavigateToComments.Execute(vm.ParentLink);
         }
-        
+
+
+        public static CircularBuffer<LinkedPictureViewModel> LinkedPictureHistory = new CircularBuffer<LinkedPictureViewModel>(100);
     }
 }

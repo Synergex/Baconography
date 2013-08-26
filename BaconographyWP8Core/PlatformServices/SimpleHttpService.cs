@@ -333,7 +333,7 @@ namespace BaconographyWP8.PlatformServices
             return null;
         }
 
-        public static Task<byte[]> GetBytesWithProgress(string url, Action<uint> progress)
+        public static Task<byte[]> GetBytesWithProgress(CancellationToken cancelToken, string url, Action<uint> progress)
         {
             TaskCompletionSource<byte[]> taskCompletion = new TaskCompletionSource<byte[]>();
             WebClient client = new WebClient();
@@ -341,26 +341,48 @@ namespace BaconographyWP8.PlatformServices
             client.AllowReadStreamBuffering = true;
             client.DownloadProgressChanged += (sender, args) =>
             {
-                progress((uint)args.ProgressPercentage);
+                if (cancelToken.IsCancellationRequested)
+                {
+                    client.CancelAsync();
+                }
+                else
+                {
+                    progress((uint)args.ProgressPercentage);
+                }
             };
 
             client.OpenReadCompleted += (sender, args) =>
             {
                 if (args.Cancelled)
                 {
-
-                    if(cancelCount++ < 5)
+                    if(cancelCount++ < 5 && !cancelToken.IsCancellationRequested)
                         client.OpenReadAsync(new Uri(url));
                     else
                         taskCompletion.SetCanceled();
                 }
                 else if (args.Error != null)
-                    taskCompletion.SetException(args.Error);
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetException(args.Error);
+                    }
+                }
                 else
                 {
-                    var result = new byte[args.Result.Length];
-                    args.Result.Read(result, 0, (int)args.Result.Length);
-                    taskCompletion.SetResult(result);
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        var result = new byte[args.Result.Length];
+                        args.Result.Read(result, 0, (int)args.Result.Length);
+                        taskCompletion.SetResult(result);
+                    }
                 }
             };
             client.OpenReadAsync(new Uri(url));

@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Model.Reddit;
+﻿using BaconographyPortable.Model;
+using BaconographyPortable.Model.Reddit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,10 @@ namespace BaconographyPortable.Services
         Task CreateSecondaryTileForSubreddit(TypedThing<Subreddit> subreddit);
         bool TileExists(string name);
         void RemoveSecondaryTile(string name);
+        void SetCount(int count);
+        void SetMessageRead(string id);
+        IEnumerable<string> GetMessagesMarkedRead();
+        TaskSettings? LoadTaskSettings();
+        void StoreTaskSettings(Func<TaskSettings?, TaskSettings> getSettings, bool atomic);
     }
 }

@@ -145,6 +145,7 @@ namespace BaconographyWP8.View
             if (vm != null)
             {
                 vm.SelectedItem = null;
+                vm.SelectedUnreadItem = null;
             }
             UpdateMenuItems();
         }
