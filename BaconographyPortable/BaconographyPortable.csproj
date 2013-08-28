@@ -38,6 +38,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <ProjectReference Include="..\NBoilerpipePortable\NBoilerpipePortable.csproj">
+      <Project>{17272736-fe78-416b-96c4-90fcf0bea45b}</Project>
+      <Name>NBoilerpipePortable</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BaseIncrementalLoadCollection.cs" />
@@ -165,6 +169,7 @@
     <Compile Include="ViewModel\LoadIndicatorViewModel.cs" />
     <Compile Include="ViewModel\LoginViewModel.cs" />
     <Compile Include="ViewModel\MoreViewModel.cs" />
+    <Compile Include="ViewModel\ReadableArticleViewModel.cs" />
     <Compile Include="ViewModel\RedditPickerViewModel.cs" />
     <Compile Include="ViewModel\RedditViewModel.cs" />
     <Compile Include="ViewModel\ReplyViewModel.cs" />
