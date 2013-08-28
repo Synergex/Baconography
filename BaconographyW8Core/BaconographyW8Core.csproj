@@ -53,6 +53,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -104,6 +105,10 @@
       <Project>{386be814-a21a-4a84-abf3-f9b61130d4f2}</Project>
       <Name>BaconographyPortable</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
+      <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>
+      <Name>SoldOutW8</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\neutralservices\kitarodb\Comments.cs">
@@ -139,6 +144,7 @@
     <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
     <Compile Include="PlatformServices\ImagesService.cs" />
     <Compile Include="PlatformServices\LiveTileService.cs" />
+    <Compile Include="PlatformServices\MarkdownProcessor.cs" />
     <Compile Include="PlatformServices\NavigationService.cs" />
     <Compile Include="PlatformServices\NotificationService.cs" />
     <Compile Include="PlatformServices\SimpleHttpService.cs" />

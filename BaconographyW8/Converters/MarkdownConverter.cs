@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.ViewModel;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using SoldOutW8;
 using System;
 using System.Collections.Generic;
@@ -22,88 +23,70 @@ namespace BaconographyW8.Converters
             if (bindingContext == null)
             {
                 bindingContext = new
-                        {
-                            TextButtonStyle = App.Current.Resources["TextButtonStyle"] as Style,
-                            BodyText = App.Current.Resources["BaconReadingBodyParagraphStyle"] as Style,
-                            Locator = App.Current.Resources["Locator"] as ViewModelLocator,
-                            StaticCommands = App.Current.Resources["StaticCommands"]
-                        };
+                {
+                    TextButtonStyle = App.Current.Resources["TextButtonStyle"] as Style,
+                    BodyText = App.Current.Resources["BaconReadingBodyParagraphStyle"] as Style,
+                    Locator = App.Current.Resources["Locator"] as ViewModelLocator,
+                    StaticCommands = App.Current.Resources["StaticCommands"]
+                };
             }
 
-            if (!string.IsNullOrWhiteSpace(value as string))
+            if (value is MarkdownData)
             {
+                var markdownData = value as MarkdownData;
                 try
                 {
-                    var startingText = value as string;
-                    string markdown = null;
-                    fixed (char* textPtr = startingText)
+                    if (markdownData.ProcessedMarkdownBlock.Count > 1)
                     {
-                        var markdownPtr = SoldOut.MarkdownToXaml((uint)textPtr, (uint)startingText.Length);
-                        if(markdownPtr != 0)
-                            markdown = new string((char*)markdownPtr);
-                    }
-
-                    //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
-
-                    if (isSame)
-                    {
-                        var rtb = new RichTextBlock();
-                        var pp = new Paragraph();
-                        pp.Inlines.Add(new Run { Text = startingText } );
-                        rtb.Blocks.Add(pp);
-                        return rtb;
+                        var stackPanel = new StackPanel { Orientation = Orientation.Vertical };
+                        foreach (var part in markdownData.ProcessedMarkdownBlock)
+                        {
+                            stackPanel.Children.Add(MakeMarkdown(part) as UIElement);
+                        }
+                        return stackPanel;
                     }
                     else
-                    {
-                        markdown = markdown.Trim('\n');
-                        if (!markdown.EndsWith("</Paragraph>"))
-                        {
-                            var lastParagraph = markdown.LastIndexOf("</Paragraph>");
-                            if (lastParagraph != -1)
-                            {
-                                markdown = markdown.Substring(0, lastParagraph + "</Paragraph>".Length) + "<Paragraph>" + markdown.Substring(lastParagraph + "</Paragraph>".Length + 1) + "</Paragraph>";
-                            }
-                        }
-
-                        for (int lineBreakPos = markdown.IndexOf("<LineBreak/>", 0); lineBreakPos != -1 && lineBreakPos + "<LineBreak/>".Length + 1 < markdown.Length; lineBreakPos = markdown.IndexOf("<LineBreak/>", lineBreakPos + insertionLength))
-                        {
-                            //unfortnately the renderer doesnt really allow us to  wrap this in a paragrpah properly (For xaml)
-                            if (lineBreakPos > -1)
-                            {
-                                var paragraphEnding = markdown.LastIndexOf("</Paragraph>", lineBreakPos);
-                                if (paragraphEnding != -1)
-                                {
-                                    markdown = markdown.Insert(paragraphEnding + "</Paragraph>".Length, "<Paragraph>").Insert(lineBreakPos + "<Paragraph>".Length + "<LineBreak/>".Length, "</Paragraph>");
-                                }
-                            }
-                        }
-                        var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"using:BaconographyW8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
-                        uiElement.DataContext = bindingContext;
-                        return uiElement;
-                    }
+                        return MakeMarkdown(markdownData.ProcessedMarkdownBlock[0]);
                 }
                 catch
                 {
-                    var rtb = new RichTextBlock();
-                    var pp = new Paragraph();
-
-                    var semiCleanText = value as string;
-                    if(semiCleanText != null)
-                        semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
-
-                    pp.Inlines.Add(new Run { Text = semiCleanText });
-                    rtb.Blocks.Add(pp);
-                    return rtb;
+                    return MakePlain(markdownData.ProcessedMarkdownBlock[0].Item3);
                 }
             }
             else
                 return new TextBlock { Text = "" };
         }
 
+        private unsafe object MakeMarkdown(Tuple<bool, string, string> value)
+        {
+            if (value.Item1)
+            {
+                return MakePlain(value.Item3);
+            }
+            else
+            {
+                try
+                {
+                    var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"using:BaconographyW8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
+                    uiElement.DataContext = bindingContext;
+                    return uiElement;
+                }
+                catch
+                {
+                    return MakePlain(value.Item3);
+                }
+            }
+        }
+
+        private object MakePlain(string value)
+        {
+            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(10, 0, 0, 0) };
+        }
+
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
         }
+
     }
 }
