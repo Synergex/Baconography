@@ -5,8 +5,11 @@
 
 using System;
 using NBoilerpipePortable.Labels;
+using System.Linq;
 
 using HtmlAgilityPack;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace NBoilerpipePortable.Parser
 {
@@ -86,15 +89,68 @@ namespace NBoilerpipePortable.Parser
             {
             }
 
+            private string FindAlternateSrc(HtmlAttributeCollection atts)
+            {
+                foreach (var att in atts)
+                {
+                    if (att.Value.EndsWith(".jpg") || att.Value.EndsWith(".png"))
+                        return att.Value;
+                }
+                return null;
+            }
+
+            private Tuple<int, int> FindAlternateWidthHieght(string src)
+            {
+                var match = Regex.Match(src, "([0-9]+)x([0-9]+)");
+                if (match.Groups.Count == 3)
+                {
+                    return Tuple.Create(int.Parse(match.Groups[1].Value), int.Parse(match.Groups[2].Value));
+                }
+                else
+                    return Tuple.Create(0, 0);
+            }
+
             public bool Start(NBoilerpipeContentHandler instance, string localName, HtmlAttributeCollection atts)
             {
-                if (instance.inIgnorableElement <= 0 && atts.Contains("alt") && atts["alt"].Value.Length > 5)
+                try
                 {
-                    if (instance.textBlocks.Count > 0)
-                    {
-                        instance.textBlocks[instance.textBlocks.Count - 1].nearbyImage = atts["src"].Value;
+                    var alt = atts.Contains("alt") ? atts["alt"].Value : "";
+                    if (alt.Length < 5)
+                    { 
+                        alt = (atts.Contains("title") ? atts["title"].Value : alt);
                     }
-                    //instance.textBlocks.Add(new Document.TextBlock("", new Sharpen.BitSet(), 0, 0, 0, 0, 0, atts["src"].Value));
+                    if (instance.inIgnorableElement <= 0 && alt.Length > 5)
+                    {
+                        int width = Math.Max(atts.Contains("width") ? int.Parse(atts["width"].Value) : 0, 1);
+                        int height = Math.Max(atts.Contains("height") ? int.Parse(atts["height"].Value) : 0, 1);
+                        var src = atts.Contains("src") ? atts["src"].Value : FindAlternateSrc(atts);
+
+
+                        if (!string.IsNullOrWhiteSpace(src))
+                        {
+                            var altWidthHeight = FindAlternateWidthHieght(src);
+                            width = Math.Max(altWidthHeight.Item1, width);
+                            height = Math.Max(altWidthHeight.Item2, height);
+                            if (width > 400 || height > 320)
+                            {
+                                var tb = new Document.TextBlock("", new Sharpen.BitSet(), Math.Max((Math.Max(width, height) / 6), alt.Length), 0, 0, 0, 0, src);
+                                tb.SetIsContent(true);
+                                instance.textBlocks.Add(tb);
+                            }
+                            else if (instance.textBlocks.Count > 0)
+                            {
+                                var lastContent = instance.textBlocks.LastOrDefault();
+                                if (lastContent != null)
+                                    lastContent.nearbyImage = src;
+                            }
+                        }
+                    }
+                    instance.inIgnorableElement++;
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine("during boilerpipe parsing: " + ex.ToString());
                 }
                 instance.inIgnorableElement++;
                 return true;

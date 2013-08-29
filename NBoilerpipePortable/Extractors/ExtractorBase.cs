@@ -71,30 +71,33 @@ namespace NBoilerpipePortable.Extractors
             title = doc.GetTitle();
             foreach (var textblock in doc.GetTextBlocks())
             {
-                var nearbyImage = textblock.NearbyImage;
-                if (!string.IsNullOrEmpty(nearbyImage) && uri != null)
+                if (textblock.IsContent())
                 {
-                    try
-                    {
-                        Uri imageUri = new Uri(textblock.NearbyImage);
-                        if (!imageUri.IsAbsoluteUri)
-                        {
-                            nearbyImage = new Uri(uri, nearbyImage).ToString();
-                        }
-                    }
-                    catch
+                    var nearbyImage = textblock.NearbyImage;
+                    if (!string.IsNullOrEmpty(nearbyImage) && uri != null)
                     {
                         try
                         {
-                            nearbyImage = new Uri(uri, nearbyImage).ToString();
+                            Uri imageUri = new Uri(textblock.NearbyImage);
+                            if (!imageUri.IsAbsoluteUri)
+                            {
+                                nearbyImage = new Uri(uri, nearbyImage).ToString();
+                            }
                         }
                         catch
                         {
-                            nearbyImage = null;
+                            try
+                            {
+                                nearbyImage = new Uri(uri, nearbyImage).ToString();
+                            }
+                            catch
+                            {
+                                nearbyImage = null;
+                            }
                         }
                     }
+                    result.Add(Tuple.Create(textblock.GetText(), nearbyImage));
                 }
-                result.Add(Tuple.Create(textblock.GetText(), nearbyImage));
             }
             return result;
         }

@@ -124,7 +124,7 @@ namespace NBoilerpipePortable.Util
                  */
                 if (linkHref.IndexOf(articleBaseUrl, StringComparison.OrdinalIgnoreCase) == -1)
                 {
-                    linkObj.Score -= 25;
+                    linkObj.Score -= 50;
                 }
 
                 string linkData = linkText + " " + GetClass(linkElement) + " " + GetId(linkElement);

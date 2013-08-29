@@ -42,7 +42,7 @@
             <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="10" Text="{Binding Text}" TextWrapping="Wrap"/>
         </DataTemplate>
         <DataTemplate x:Key="Type:ReadableArticleImage">
-            <Image Source="{Binding Url}" Stretch="None" Margin="10" />
+            <Image Source="{Binding Url}" Stretch="Uniform" Margin="10"/>
         </DataTemplate>
     </phone:PhoneApplicationPage.Resources>
 
