@@ -228,9 +228,12 @@ namespace BaconographyPortable.Common
                     var targetHost = uri.DnsSafeHost.ToLower();
                     bool isVideoLink = false;
 
-                    //TODO: include liveleak and vimeo here
                     if (targetHost == "www.youtube.com" ||
-                        targetHost == "youtube.com")
+                        targetHost == "youtube.com" ||
+                        targetHost == "vimeo.com" ||
+                        targetHost == "www.vimeo.com" ||
+                        targetHost == "liveleak.com" ||
+                        targetHost == "www.liveleak.com")
                         isVideoLink = true;
 
                     Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
@@ -239,15 +242,15 @@ namespace BaconographyPortable.Common
                     {
                         navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
                     }
-                    else //if (settingsService.ApplyReadabliltyToLinks && !isVideoLink)
+                    else if (settingsService.ApplyReadabliltyToLinks && !isVideoLink)
                     {
                         navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, str);
                     }
-                    //else
-                    //{
-                    //    //its not an image/video url we can understand so whatever it is just show it in the browser
-                    //    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-                    //}
+                    else
+                    {
+                        //its not an image/video url we can understand so whatever it is just show it in the browser
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    }
 				}
 			}
         }

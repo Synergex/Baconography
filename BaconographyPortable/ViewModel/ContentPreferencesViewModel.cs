@@ -388,6 +388,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool OptimizeWebContent
+        {
+            get
+            {
+                return _settingsService.ApplyReadabliltyToLinks;
+            }
+            set
+            {
+                _settingsService.ApplyReadabliltyToLinks = value;
+                RaisePropertyChanged("OptimizeWebContent");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get
