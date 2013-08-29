@@ -63,7 +63,7 @@ namespace Baconography.NeutralServices
                     .Select(str => MakeUniqueDictionary(SplitAmp(str)))
                     .Where(elem => elem.ContainsKey("itag") && elem.ContainsKey("type") && elem.ContainsKey("sig") && elem.ContainsKey("url"))
                     //need to take video stream type into account for preference, mp4 is the most playable stream available here
-                    .OrderByDescending(elem => int.Parse(elem["itag"]) * (elem["type"].StartsWith("video/mp4") ? 100 : 1))
+                    .OrderByDescending(elem => int.Parse(elem["itag"]) * scoreFileType(elem["type"]))
                     .ToList();
                 //var html5VideoElement = parsedStreamMap.FirstOrDefault(dict => dict["type"].StartsWith("video/mp4"));
                 //var flvVideoElement = parsedStreamMap.FirstOrDefault(dict => dict["type"].Contains("flv"));
@@ -74,6 +74,16 @@ namespace Baconography.NeutralServices
                     return null;
             }
             return null;
+        }
+
+        int scoreFileType(string type)
+        {
+            if (type.StartsWith("video/mp4"))
+                return 100;
+            else if (type.StartsWith("video/3gp"))
+                return 50;
+            else
+                return 1;
         }
 
         static string ampFubar = (char)92 + "u0026";
