@@ -388,6 +388,19 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool OnlyFlipViewImages
+        {
+            get
+            {
+                return _settingsService.OnlyFlipViewImages;
+            }
+            set
+            {
+                _settingsService.OnlyFlipViewImages = value;
+                RaisePropertyChanged("OnlyFlipViewImages");
+            }
+        }
+
         public bool OptimizeWebContent
         {
             get
