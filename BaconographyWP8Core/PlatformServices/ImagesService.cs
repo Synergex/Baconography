@@ -247,6 +247,7 @@ namespace BaconographyWP8.PlatformServices
                     switch (targetHost)
                     {
                         case "imgur.com":
+                        case "i.imgur.com":
                             return await Imgur.GetImagesFromUri(title, uri);
                         case "min.us":
                             return await Minus.GetImagesFromUri(title, uri);
@@ -258,6 +259,7 @@ namespace BaconographyWP8.PlatformServices
                         case "memecrunch.com":
                             return Memecrunch.GetImagesFromUri(title, uri);
                         case "flickr.com":
+                        case "www.flickr.com":
                             return await Flickr.GetImagesFromUri(title, uri);
                         default:
                             return Enumerable.Empty<Tuple<string, string>>();
@@ -293,12 +295,14 @@ namespace BaconographyWP8.PlatformServices
                     switch (targetHost)
                     {
                         case "imgur.com":
+                        case "i.imgur.com":
                         case "min.us":
                         case "www.quickmeme.com":
                         case "i.qkme.me":
                         case "quickmeme.com":
                         case "qkme.me":
                         case "memecrunch.com":
+                        case "www.flickr.com":
                         case "flickr.com":
                             return true;
                     }
@@ -348,10 +352,12 @@ namespace BaconographyWP8.PlatformServices
                     switch (targetHost)
                     {
                         case "imgur.com":
+                        case "i.imgur.com":
                             return Imgur.IsAPI(uri);
                         case "min.us":
                             return Minus.IsAPI(uri);
                         case "flickr.com":
+                        case "www.flickr.com":
                             return Flickr.IsAPI(uri);
                         case "www.quickmeme.com":
                         case "i.qkme.me":

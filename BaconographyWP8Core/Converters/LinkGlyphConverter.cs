@@ -80,7 +80,11 @@ namespace BaconographyWP8.Converters
 
                 if (subreddit == "videos" ||
                     targetHost == "www.youtube.com" ||
-                    targetHost == "youtube.com")
+                    targetHost == "youtube.com" ||
+                    targetHost == "vimeo.com" ||
+                    targetHost == "www.vimeo.com" ||
+                    targetHost == "liveleak.com" ||
+                    targetHost == "www.liveleak.com")
                     return VideoGlyph;
 
                 if (targetHost == "www.imgur.com" ||
@@ -93,6 +97,7 @@ namespace BaconographyWP8.Converters
                     targetHost == "qkme.me" ||
                     targetHost == "memecrunch.com" ||
                     targetHost == "flickr.com" ||
+                    targetHost == "www.flickr.com" ||
                     filename.EndsWith(".jpg") ||
                     filename.EndsWith(".gif") ||
                     filename.EndsWith(".png") ||
