@@ -61,13 +61,14 @@ namespace NBoilerpipePortable.Extractors
 
 		public abstract bool Process(TextDocument arg1);
 
-        public  IEnumerable<Tuple<string, string>> GetTextAndImageBlocks(string html, Uri uri)
+        public IEnumerable<Tuple<string, string>> GetTextAndImageBlocks(string html, Uri uri, out string title)
         {
             NBoilerpipeHtmlParser parser = new NBoilerpipeHtmlParser(new NBoilerpipeContentHandler());
             parser.Parse(html);
             var doc = parser.ToTextDocument();
             this.Process(doc);
             List<Tuple<string, string>> result = new List<Tuple<string, string>>();
+            title = doc.GetTitle();
             foreach (var textblock in doc.GetTextBlocks())
             {
                 var nearbyImage = textblock.NearbyImage;

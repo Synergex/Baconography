@@ -92,6 +92,7 @@ namespace BaconographyPortable.Common
 
         public static async void GotoLinkImpl(string str, TypedThing<Link> sourceLink)
         {
+            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
             _longNavWatcher.ClearInFlight();
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
             var navigationService = baconProvider.GetService<INavigationService>();
@@ -122,7 +123,6 @@ namespace BaconographyPortable.Common
 
                 TypedThing<Subreddit> subreddit = null;
 
-                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
                 var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
                 if (settingsService.IsOnline())
                 {
@@ -158,7 +158,6 @@ namespace BaconographyPortable.Common
 
                 TypedThing<Subreddit> subreddit = null;
 
-                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
                 var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
                 if (settingsService.IsOnline())
                 {
@@ -192,7 +191,6 @@ namespace BaconographyPortable.Common
 
 				TypedThing<Account> account = null;
 
-				var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
 				var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
 				if (settingsService.IsOnline())
 				{
@@ -226,17 +224,30 @@ namespace BaconographyPortable.Common
 				}
 				else
 				{
+                    var uri = new Uri(str);
+                    var targetHost = uri.DnsSafeHost.ToLower();
+                    bool isVideoLink = false;
+
+                    //TODO: include liveleak and vimeo here
+                    if (targetHost == "www.youtube.com" ||
+                        targetHost == "youtube.com")
+                        isVideoLink = true;
+
                     Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
 					var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
                     if (videoResults != null)
                     {
                         navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
                     }
-                    else
+                    else //if (settingsService.ApplyReadabliltyToLinks && !isVideoLink)
                     {
-                        //its not an image/video url we can understand so whatever it is just show it in the browser
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, str);
                     }
+                    //else
+                    //{
+                    //    //its not an image/video url we can understand so whatever it is just show it in the browser
+                    //    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    //}
 				}
 			}
         }

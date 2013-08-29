@@ -1,5 +1,6 @@
 ﻿using BaconographyPortable.Services;
 using BaconographyWP8.View;
+using BaconographyWP8Core.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,6 +79,11 @@ namespace BaconographyWP8.PlatformServices
         public Type CaptchaView
         {
             get { return typeof(CaptchaPageView); }
+        }
+
+        public Type LinkedReadabilityView
+        {
+            get { return typeof(LinkedReadabilityView); }
         }
     }
 }

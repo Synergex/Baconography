@@ -22,5 +22,6 @@ namespace BaconographyPortable.Services
         Type MessagesView { get; }
         Type ComposeView { get; }
         Type CaptchaView { get; }
+        Type LinkedReadabilityView { get; }
     }
 }

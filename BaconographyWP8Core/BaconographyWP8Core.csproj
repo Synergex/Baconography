@@ -214,6 +214,9 @@
     <Compile Include="View\HelpView.xaml.cs">
       <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedReadabilityView.xaml.cs">
+      <DependentUpon>LinkedReadabilityView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
     </Compile>
@@ -321,6 +324,10 @@
     <Page Include="View\HelpView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\LinkedReadabilityView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\LockScreen.xaml">
       <SubType>Designer</SubType>
