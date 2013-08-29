@@ -7,6 +7,7 @@ using NBoilerpipePortablePortable.Util;
 using Sharpen;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 
@@ -21,7 +22,7 @@ namespace NBoilerpipePortable.Document
 	/// <author>Christian Kohlsch√ºtter</author>
 	public class TextBlock : ICloneable
 	{
-        internal string nearbyImage;
+        internal List<string> nearbyImages;
 		internal bool isContent = false;
 		CharSequence text;
 		internal ICollection<string> labels = null;
@@ -59,15 +60,18 @@ namespace NBoilerpipePortable.Document
 			this.numWrappedLines = numWrappedLines;
 			this.offsetBlocksStart = offsetBlocks;
 			this.offsetBlocksEnd = offsetBlocks;
-            this.nearbyImage = imageSrc;
+            if (imageSrc != null)
+            {
+                this.nearbyImages = new List<string> { imageSrc };
+            }
 			InitDensities();
 		}
 
-        public string NearbyImage
+        public IEnumerable<string> NearbyImages
         {
             get
             {
-                return nearbyImage;
+                return nearbyImages != null ? nearbyImages : Enumerable.Empty<string>();
             }
         }
 
@@ -144,9 +148,12 @@ namespace NBoilerpipePortable.Document
 				}
 			}
 			tagLevel = Math.Min (tagLevel, other.tagLevel);
-            if (other.nearbyImage != null)
+            if (other.nearbyImages != null)
             {
-                nearbyImage = other.nearbyImage;
+                if (nearbyImages != null)
+                    nearbyImages.AddRange(other.nearbyImages);
+                else
+                    nearbyImages = other.nearbyImages;
             }
 		}
 
