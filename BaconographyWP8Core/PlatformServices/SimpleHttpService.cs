@@ -227,11 +227,22 @@ namespace BaconographyWP8.PlatformServices
 
         private async Task<string> UnAuthedGet(string uri, bool hasRetried)
         {
+            return await UnAuthedGet(uri, hasRetried, null);
+        }
+
+        private async Task<string> UnAuthedGet(string uri, bool hasRetried, CookieContainer cookieContainer)
+        {
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            if (cookieContainer != null)
+                request.CookieContainer = cookieContainer;
+            else
+                request.CookieContainer = new CookieContainer();
+
             request.AllowReadStreamBuffering = true;
+            request.AllowAutoRedirect = true;
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
 
@@ -239,7 +250,11 @@ namespace BaconographyWP8.PlatformServices
 
             if (getResult.StatusCode == HttpStatusCode.OK)
             {
-                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());  
+                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());
+            }
+            else if (getResult.StatusCode == HttpStatusCode.Found || getResult.StatusCode == HttpStatusCode.SeeOther)
+            {
+                return await UnAuthedGet(getResult.ResponseUri.ToString(), hasRetried, request.CookieContainer);
             }
             else if (!hasRetried)
             {
@@ -256,6 +271,7 @@ namespace BaconographyWP8.PlatformServices
             else
                 throw new Exception(getResult.StatusCode.ToString());
         }
+
         public Task<string> UnAuthedGet(string uri)
         {
             return UnAuthedGet(uri, false);

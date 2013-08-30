@@ -140,21 +140,6 @@ namespace NBoilerpipePortable.Parser
                             tb.SetIsContent(true);
                             instance.textBlocks.Add(tb);
                         }
-                        else if (instance.textBlocks.Count > 0)
-                        {
-                            var lastContent = instance.textBlocks.LastOrDefault();
-                            if (lastContent != null)
-                            {
-                                if (lastContent.nearbyImages != null)
-                                {
-                                    lastContent.nearbyImages.Add(src);
-                                }
-                                else
-                                {
-                                    lastContent.nearbyImages = new System.Collections.Generic.List<string> { src };
-                                }
-                            }
-                        }
                     }
                     instance.inIgnorableElement++;
                     return true;
