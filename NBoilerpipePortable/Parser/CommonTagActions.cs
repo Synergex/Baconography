@@ -123,14 +123,18 @@ namespace NBoilerpipePortable.Parser
                     int width = Math.Max(atts.Contains("width") ? int.Parse(atts["width"].Value) : 0, 1);
                     int height = Math.Max(atts.Contains("height") ? int.Parse(atts["height"].Value) : 0, 1);
                     var src = atts.Contains("src") ? atts["src"].Value : FindAlternateSrc(atts);
-
+                    bool isWikimedia = false;
                     if (instance.inIgnorableElement <= 0 && !string.IsNullOrWhiteSpace(src) &&
-                        (alt.Length > 5 || width > 400 || height > 320))
+                        (alt.Length > 5 || width > 400 || height > 320 || (isWikimedia = src.StartsWith("//upload.wikimedia.org"))))
                     {
                         var altWidthHeight = FindAlternateWidthHieght(src);
                         width = Math.Max(altWidthHeight.Item1, width);
                         height = Math.Max(altWidthHeight.Item2, height);
-                        if (width > 400 || height > 320)
+
+                        if (src.StartsWith("//"))
+                            src = "http:" + src;
+
+                        if (width > 400 || height > 320 || isWikimedia)
                         {
                             var tb = new Document.TextBlock("", new Sharpen.BitSet(), Math.Max((Math.Max(width, height) / 6), alt.Length), 0, 0, 0, 0, src);
                             tb.SetIsContent(true);

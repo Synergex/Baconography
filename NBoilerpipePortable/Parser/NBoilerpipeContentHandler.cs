@@ -60,7 +60,7 @@ namespace NBoilerpipePortable
         {
             if (atts.Contains("class"))
             {
-                return atts["class"].Value.Split(' ').Any(str => str == "hidden");
+                return atts["class"].Value.Split(' ').Any(str => str == "hidden" || str.Contains("promo") || str.Contains("comment"));
             }
             else
                 return false;
