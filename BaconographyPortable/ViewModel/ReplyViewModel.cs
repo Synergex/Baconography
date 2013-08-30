@@ -17,6 +17,7 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         IUserService _userService;
         IRedditService _redditService;
+        IMarkdownProcessor _markdownProcessor;
         Action<Thing> _convertIntoUIReply;
         public ReplyViewModel(IBaconProvider baconProvider, Thing replyTargetThing, RelayCommand cancel, Action<Thing> convertIntoUIReply)
         {
@@ -25,6 +26,7 @@ namespace BaconographyPortable.ViewModel
             _baconProvider = baconProvider;
             _redditService = _baconProvider.GetService<IRedditService>();
             _userService = _baconProvider.GetService<IUserService>();
+            _markdownProcessor = _baconProvider.GetService<IMarkdownProcessor>();
             _replyTargetThing = replyTargetThing;
 
 			RefreshUserImpl();
@@ -109,6 +111,25 @@ namespace BaconographyPortable.ViewModel
             {
                 _replyBody = value;
                 RaisePropertyChanged("ReplyBody");
+                try
+                {
+                    ReplyBodyMD = _markdownProcessor.Process(value);
+                }
+                catch { }
+            }
+        }
+
+        private Object _replyBodyMD;
+        public Object ReplyBodyMD
+        {
+            get
+            {
+                return _replyBodyMD;
+            }
+            set
+            {
+                _replyBodyMD = value;
+                RaisePropertyChanged("ReplyBodyMD");
             }
         }
 
