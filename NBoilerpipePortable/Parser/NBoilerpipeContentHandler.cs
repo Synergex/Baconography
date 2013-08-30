@@ -10,6 +10,7 @@ using NBoilerpipePortable.Util;
 using Sharpen;
 using System.Collections;
 using NBoilerpipePortablePortable.Util;
+using System.Linq;
 
 
 namespace NBoilerpipePortable
