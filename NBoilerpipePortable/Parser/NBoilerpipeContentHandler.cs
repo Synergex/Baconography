@@ -53,43 +53,70 @@ namespace NBoilerpipePortable
 		
 		static readonly Sharpen.Pattern PAT_VALID_WORD_CHARACTER = Sharpen.Pattern
 			.Compile ("[\\p{L}\\p{Nd}\\p{Nl}\\p{No}]");
-		
-		
-		public void StartElement (HtmlNode node)
-		{
-			labelStacks.AddItem (null);
-			TagAction ta = tagActions.Get (node.Name);
-			if (ta != null) {
-				if (ta.ChangesTagLevel ()) {
-					tagLevel++;
-				}
-				flush = ta.Start (this, node.Name, node.Attributes) | flush;
-			} else {
-				tagLevel++;
-				flush = true;
-			}
-			lastEvent = NBoilerpipeContentHandler.Event.START_TAG;
-			lastStartTag = node.Name;
-		}
-		
-		public void EndElement (HtmlNode node)
-		{
-			TagAction ta = tagActions.Get (node.Name);
-			if (ta != null) {
-				flush = ta.End (this, node.Name) | flush;
-			} else {
-				flush = true;
-			}
-			if (ta == null || ta.ChangesTagLevel ()) {
-				tagLevel--;
-			}
-			if (flush) {
-				FlushBlock ();
-			}
-			lastEvent = NBoilerpipeContentHandler.Event.END_TAG;
-			lastEndTag = node.Name;
-			labelStacks.RemoveLast ();
-		}
+
+
+        private bool IsHidden(HtmlAttributeCollection atts)
+        {
+            if (atts.Contains("class"))
+            {
+                return atts["class"].Value.Split(' ').Any(str => str == "hidden");
+            }
+            else
+                return false;
+        }
+
+        public void StartElement(HtmlNode node)
+        {
+            labelStacks.AddItem(null);
+            TagAction ta = tagActions.Get(node.Name);
+            if (ta != null)
+            {
+                if (ta.ChangesTagLevel())
+                {
+                    tagLevel++;
+                }
+                flush = ta.Start(this, node.Name, node.Attributes) | flush;
+            }
+            else
+            {
+                tagLevel++;
+                flush = true;
+            }
+
+            if (IsHidden(node.Attributes))
+                inIgnorableElement++;
+
+            lastEvent = NBoilerpipeContentHandler.Event.START_TAG;
+            lastStartTag = node.Name;
+        }
+
+        public void EndElement(HtmlNode node)
+        {
+            TagAction ta = tagActions.Get(node.Name);
+            if (ta != null)
+            {
+                flush = ta.End(this, node.Name) | flush;
+            }
+            else
+            {
+                flush = true;
+            }
+            if (ta == null || ta.ChangesTagLevel())
+            {
+                tagLevel--;
+            }
+            if (flush)
+            {
+                FlushBlock();
+            }
+
+            if (inIgnorableElement > 0 && IsHidden(node.Attributes))
+                inIgnorableElement--;
+
+            lastEvent = NBoilerpipeContentHandler.Event.END_TAG;
+            lastEndTag = node.Name;
+            labelStacks.RemoveLast();
+        }
 		
         public void HandleText (HtmlTextNode node)
 		{
