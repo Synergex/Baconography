@@ -19,7 +19,7 @@ namespace BaconographyPortable.ViewModel
         IRedditService _redditService;
         IMarkdownProcessor _markdownProcessor;
         Action<Thing> _convertIntoUIReply;
-        public ReplyViewModel(IBaconProvider baconProvider, Thing replyTargetThing, RelayCommand cancel, Action<Thing> convertIntoUIReply)
+        public ReplyViewModel(IBaconProvider baconProvider, Thing replyTargetThing, RelayCommand cancel, Action<Thing> convertIntoUIReply, bool isEdit = false)
         {
             _convertIntoUIReply = convertIntoUIReply;
             _cancel = cancel;
@@ -28,6 +28,13 @@ namespace BaconographyPortable.ViewModel
             _userService = _baconProvider.GetService<IUserService>();
             _markdownProcessor = _baconProvider.GetService<IMarkdownProcessor>();
             _replyTargetThing = replyTargetThing;
+
+            if (isEdit)
+            {
+                Editing = true;
+                EditingId = ((Comment)_replyTargetThing.Data).Name;
+                ReplyBody = ((Comment)_replyTargetThing.Data).Body;
+            }
 
 			RefreshUserImpl();
 
@@ -132,6 +139,9 @@ namespace BaconographyPortable.ViewModel
                 RaisePropertyChanged("ReplyBodyMD");
             }
         }
+
+        public bool Editing { get; set; }
+        public string EditingId { get; set; }
 
         private Tuple<int, int, string> SurroundSelection(int startPosition, int endPosition, string startText, string newTextFormat)
         {
@@ -278,7 +288,14 @@ namespace BaconographyPortable.ViewModel
 
         private async void SubmitImpl()
         {
-            await _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
+            if (Editing && !string.IsNullOrEmpty(EditingId))
+            {
+                await _redditService.EditComment(EditingId, ReplyBody);
+            }
+            else
+            {
+                await _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
+            }
             var theComment = new Thing
             {
                 Kind = "t2",
@@ -289,6 +306,7 @@ namespace BaconographyPortable.ViewModel
                     Likes = true,
                     Ups = 1,
                     ParentId = ((dynamic)_replyTargetThing.Data).Name,
+                    Name = EditingId,
                     Replies = new Listing { Data = new ListingData { Children = new List<Thing>() } },
                     Created = DateTime.Now,
                     CreatedUTC = DateTime.UtcNow

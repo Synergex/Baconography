@@ -51,8 +51,9 @@ namespace BaconographyPortable.ViewModel
             _gotoFullLink = new RelayCommand(GotoFullLinkImpl);
             _gotoContext = new RelayCommand(GotoContextImpl);
             _gotoUserDetails = new RelayCommand(GotoUserDetailsImpl);
+            _gotoEdit = new RelayCommand(GotoEditImpl);
             _minimizeCommand = new RelayCommand(() => IsMinimized = !IsMinimized);
-            Body = _markdownProcessor.Process(_comment.Data.Body);
+            Body = _comment.Data.Body;
         }
 
         public bool OddNesting { get; private set; }
@@ -93,7 +94,23 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public object Body { get; set; }
+        private object _body;
+        public object Body 
+        {
+            get
+            {
+                return _body;
+            }
+            set
+            {
+                if (value is string)
+                    _body = _markdownProcessor.Process(value as string);
+                else
+                    _body = value;
+
+                RaisePropertyChanged("Body");
+            }
+        }
 
         public string PosterName
         {
@@ -165,6 +182,17 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool IsEditable
+        {
+            get
+            {
+                //this looks really bad but it shouldnt actually end up being an issue in practice because we 
+                //shouldnt be in a state where we can be looking at a comment but be waiting on GetUser to return
+                var userTask = _userService.GetUser();
+                return userTask.IsCompleted && userTask.Result != null && userTask.Result.Username == PosterName;
+            }
+        }
+
         public Tuple<bool, CommentViewModel> ExtendedData
         {
             get
@@ -201,11 +229,13 @@ namespace BaconographyPortable.ViewModel
         public RelayCommand Report { get { return _report; } }
         public RelayCommand Save { get { return _save; } }
         public RelayCommand GotoReply { get { return _gotoReply; } }
+        public RelayCommand GotoEdit { get { return _gotoEdit; } }
         public RelayCommand GotoUserDetails { get { return _gotoUserDetails; } }
 
         RelayCommand _showExtendedView;
 
         RelayCommand _gotoReply;
+        RelayCommand _gotoEdit;
         RelayCommand _save;
         RelayCommand _report;
         RelayCommand _gotoFullLink;
@@ -271,6 +301,15 @@ namespace BaconographyPortable.ViewModel
             else
                 ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
                             (madeComment) => _replies.Add(new CommentViewModel(_baconProvider, madeComment, _linkId, !OddNesting, Depth + 1)));
+        }
+
+        private void GotoEditImpl()
+        {
+            if (ReplyData != null)
+                ReplyData = null;
+            else
+                ReplyData = new ReplyViewModel(_baconProvider, _comment, new RelayCommand(() => ReplyData = null),
+                            (madeComment) => Body = ((Comment)madeComment.Data).Body, true);
         }
 
     }
