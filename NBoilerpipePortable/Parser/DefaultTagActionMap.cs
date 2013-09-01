@@ -4,6 +4,7 @@
  */
 
 
+using NBoilerpipePortable.Labels;
 namespace NBoilerpipePortable.Parser
 {
 	/// <summary>
@@ -51,6 +52,11 @@ namespace NBoilerpipePortable.Parser
 			// added in 1.1.1
 			SetTagAction("NOSCRIPT", CommonTagActions.TA_IGNORABLE_ELEMENT);
             SetTagAction("IMG", CommonTagActions.TA_IMG_ELEMENT);
+
+            SetTagAction("LI", new CommonTagActions.BlockTagLabelAction(new LabelAction(DefaultLabels.LI)));
+            SetTagAction("H1", new CommonTagActions.BlockTagLabelAction(new LabelAction(DefaultLabels.H1, DefaultLabels.HEADING)));
+            SetTagAction("H2", new CommonTagActions.BlockTagLabelAction(new LabelAction(DefaultLabels.H2, DefaultLabels.HEADING)));
+            SetTagAction("H3", new CommonTagActions.BlockTagLabelAction(new LabelAction(DefaultLabels.H3, DefaultLabels.HEADING)));
 		}
 	}
 }

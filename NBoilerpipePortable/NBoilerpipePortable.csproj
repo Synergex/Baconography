@@ -72,7 +72,10 @@
     <Compile Include="Filters\Heuristics\ExpandTitleToContentFilter.cs" />
     <Compile Include="Filters\Heuristics\KeepLargestBlockFilter.cs" />
     <Compile Include="Filters\Heuristics\LabelFusion.cs" />
+    <Compile Include="Filters\Heuristics\LargeBlockSameTagLevelToContentFilter.cs" />
+    <Compile Include="Filters\Heuristics\ListAtEndFilter.cs" />
     <Compile Include="Filters\Heuristics\SimpleBlockFusionProcessor.cs" />
+    <Compile Include="Filters\Heuristics\TrailingHeadlineToBoilerplateFilter.cs" />
     <Compile Include="Filters\Simple\BoilerplateBlockFilter.cs" />
     <Compile Include="Filters\Simple\InvertedFilter.cs" />
     <Compile Include="Filters\Simple\LabelToBoilerplateFilter.cs" />

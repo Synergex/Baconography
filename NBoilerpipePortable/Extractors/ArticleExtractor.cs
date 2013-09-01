@@ -42,11 +42,14 @@ namespace NBoilerpipePortable.Extractors
 				| new DocumentTitleMatchClassifier (doc.GetTitle ()).Process (doc) 
 				| NumWordsRulesClassifier.INSTANCE.Process (doc) 
 				| IgnoreBlocksAfterContentFilter.DEFAULT_INSTANCE.Process (doc) 
+                | TrailingHeadlineToBoilerplateFilter.INSTANCE.Process(doc)
 				| BlockProximityFusion.MAX_DISTANCE_1.Process (doc) 
 				| BoilerplateBlockFilter.INSTANCE.Process (doc) 
 				| BlockProximityFusion.MAX_DISTANCE_1_CONTENT_ONLY.Process (doc) 
 				| KeepLargestBlockFilter.INSTANCE.Process (doc) 
-				| ExpandTitleToContentFilter.INSTANCE.Process (doc);
+				| ExpandTitleToContentFilter.INSTANCE.Process (doc)
+                | LargeBlockSameTagLevelToContentFilter.INSTANCE.Process(doc)
+                | ListAtEndFilter.INSTANCE.Process(doc);
 			
 			return ret;
 		}
