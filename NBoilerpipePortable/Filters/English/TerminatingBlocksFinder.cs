@@ -52,7 +52,7 @@ namespace NBoilerpipePortable.Filters.English
 					if (len >= 8)
 					{
 						string textLC = text.ToLower();
-						if (textLC.StartsWith("comments") || StartsWithNumber(textLC, len, " comments", " users responded in"
+						if (textLC.StartsWith("comments") || textLC.StartsWith("references") || StartsWithNumber(textLC, len, " comments", " users responded in"
 							) || textLC.StartsWith("¬© reuters") || textLC.StartsWith("please rate this") ||
 							 textLC.StartsWith("post a comment") || textLC.Contains("what you think...") || 
 							textLC.Contains("add your comment") || textLC.Contains("add comment") || textLC.
@@ -64,6 +64,14 @@ namespace NBoilerpipePortable.Filters.English
 							changes = true;
 						}
 					}
+                    else if (tb.GetLinkDensity() == 1.0)
+                    {
+                        if (text == "Comment")
+                        {
+                            tb.AddLabel(DefaultLabels.INDICATES_END_OF_TEXT);
+                            changes = true;
+                        }
+                    }
 				}
 			}
 			// timeSpent += System.currentTimeMillis() - t;
