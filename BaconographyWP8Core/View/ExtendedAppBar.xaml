@@ -10,18 +10,13 @@
     d:DesignHeight="480" d:DesignWidth="480" x:Name="theControl">
 
     <UserControl.Resources>
-        <Style x:Key="CustomTrayStyle" TargetType="Button">
+        <Style x:Key="RoundVoteToggle" TargetType="ToggleButton">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button" x:Name="LayoutRoot">
+                    <ControlTemplate TargetType="ToggleButton">
                         <Grid Background="Transparent">
-                            <Ellipse x:Name="Circle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeThickness="2"/>
-                            <ContentControl x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        Content="{TemplateBinding Content}">
-                                <ContentControl.RenderTransform>
-                                    <CompositeTransform Rotation="180" CenterX="10" CenterY="11" />
-                                </ContentControl.RenderTransform>
-                            </ContentControl>
+                            <Ellipse x:Name="Circle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeThickness="3"/>
+                            <ContentControl x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding Content}" />
 
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
@@ -84,45 +79,46 @@
                                             </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup
-                                x:Name="PulldownStates">
-                                    <VisualState
-                                    x:Name="NotPulling" />
-                                    <VisualState
-                                    x:Name="Pulling">
+                                    <VisualState x:Name="Checked">
                                         <Storyboard>
-                                            <DoubleAnimation
-                                            Storyboard.TargetName="Content" 
-                                            Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
-                                            To="0"
-                                            Duration="0:0:0.5"/>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="Circle"
+                                                Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneForegroundBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="Content"
+                                                Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="Orange" />
+                                            </ObjectAnimationUsingKeyFrames>
                                         </Storyboard>
                                     </VisualState>
-                                    <VisualStateGroup.Transitions>
-                                        <VisualTransition
-                                        To="NotPulling">
-                                            <Storyboard>
-                                                <DoubleAnimation
-                                                Storyboard.TargetName="Content" 
-                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
-                                                To="180"
-                                                Duration="0:0:0.5"/>
-                                            </Storyboard>
-                                        </VisualTransition>
-                                        <VisualTransition
-                                        To="Pulling">
-                                            <Storyboard>
-                                                <DoubleAnimation
-                                                Storyboard.TargetName="Content" 
-                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)"
-                                                To="0"
-                                                Duration="0:0:0.5"/>
-                                            </Storyboard>
-                                        </VisualTransition>
-                                    </VisualStateGroup.Transitions>
+
+                                    <VisualState x:Name="Unchecked">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="Circle"
+                                                Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneForegroundBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="Content"
+                                                Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneForegroundBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
                                 </VisualStateGroup>
-                                <VisualStateGroup x:Name="FocusStates"/>
                             </VisualStateManager.VisualStateGroups>
                         </Grid>
                     </ControlTemplate>
@@ -171,7 +167,7 @@
             <ToggleButton Grid.Row="0" Grid.Column="0"
                     FontFamily="Segoe UI Symbol" FontSize="22"
                     Width="50" Height="50"
-                    Content="&#xE110;" Style="{StaticResource HeavyRoundToggleButtonStyle}"
+                    Content="&#xE110;" Style="{StaticResource RoundVoteToggle}"
                     Command="{Binding Path=Votable.ToggleUpvote}" CommandParameter="{Binding Votable}"
                     IsChecked="{Binding Path=Votable.Like, Mode=TwoWay}"
                     IsEnabled="{Binding HasContext}"/>
@@ -180,7 +176,7 @@
             <ToggleButton Grid.Row="0" Grid.Column="1"
                     FontFamily="Segoe UI Symbol" FontSize="22"
                     Width="50" Height="50"
-                    Content="&#xE110;" Style="{StaticResource HeavyRoundToggleButtonStyle}"
+                    Content="&#xE110;" Style="{StaticResource RoundVoteToggle}"
                     Command="{Binding Path=Votable.ToggleDownvote}" CommandParameter="{Binding Votable}"
                     IsChecked="{Binding Path=Votable.Dislike, Mode=TwoWay}"
                     IsEnabled="{Binding HasContext}">
