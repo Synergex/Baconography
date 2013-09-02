@@ -8,6 +8,7 @@ using NBoilerpipePortable;
 using NBoilerpipePortable.Document;
 using NBoilerpipePortable.Filters.Simple;
 using System.Linq;
+using NBoilerpipePortable.Labels;
 
 
 namespace NBoilerpipePortable.Filters.Simple
@@ -20,21 +21,20 @@ namespace NBoilerpipePortable.Filters.Simple
 	/// <author>Christian Kohlsch√ºtter</author>
 	public sealed class BoilerplateBlockFilter : BoilerpipeFilter
 	{
-		public static readonly BoilerplateBlockFilter INSTANCE = new BoilerplateBlockFilter
-			();
+		public static readonly BoilerplateBlockFilter INSTANCE = new BoilerplateBlockFilter(null);
+        public static readonly BoilerplateBlockFilter INSTANCE_KEEP_TITLE = new BoilerplateBlockFilter(DefaultLabels.TITLE);
 
-		/// <summary>Returns the singleton instance for BoilerplateBlockFilter.</summary>
-		/// <remarks>Returns the singleton instance for BoilerplateBlockFilter.</remarks>
-		public static BoilerplateBlockFilter GetInstance()
-		{
-			return INSTANCE;
-		}
+        private BoilerplateBlockFilter(string labelToKeep)
+        {
+            this.labelToKeep = labelToKeep;
+        }
 
+        private readonly string labelToKeep;
 		/// <exception cref="NBoilerpipePortable.BoilerpipeProcessingException"></exception>
 		public bool Process(TextDocument doc)
 		{
 			IList<TextBlock> textBlocks = doc.GetTextBlocks();
-            var removeMe = textBlocks.Where(tb => !tb.IsContent()).ToList();
+            var removeMe = textBlocks.Where(tb => !tb.IsContent() && (labelToKeep == null || !tb.HasLabel(DefaultLabels.TITLE))).ToList();
 
             foreach (var tb in removeMe)
 			{
@@ -42,5 +42,6 @@ namespace NBoilerpipePortable.Filters.Simple
 			}
             return removeMe.Count > 0;
 		}
+
 	}
 }

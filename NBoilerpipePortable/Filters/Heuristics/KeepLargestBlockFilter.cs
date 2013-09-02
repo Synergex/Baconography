@@ -27,15 +27,20 @@ namespace NBoilerpipePortable.Filters.Heuristics
 	public sealed class KeepLargestBlockFilter : BoilerpipeFilter
 	{
 		public static readonly NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter INSTANCE
-			 = new NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter(false);
+			 = new NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter(false, 0);
 
 		public static readonly NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter INSTANCE_EXPAND_TO_SAME_TAGLEVEL
-			 = new NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter(true);
+			 = new NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter(true, 0);
+
+        public static readonly NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter INSTANCE_EXPAND_TO_SAME_TAGLEVEL_MIN_WORDS
+             = new NBoilerpipePortable.Filters.Heuristics.KeepLargestBlockFilter(true, 150);
 
 		private readonly bool expandToSameLevelText;
+        private readonly int minWords;
 
-		public KeepLargestBlockFilter(bool expandToSameLevelText)
+		public KeepLargestBlockFilter(bool expandToSameLevelText, int minWords)
 		{
+            this.minWords = minWords;
 			this.expandToSameLevelText = expandToSameLevelText;
 		}
 
@@ -70,23 +75,23 @@ namespace NBoilerpipePortable.Filters.Heuristics
 				}
 				i++;
 			}
-			foreach (TextBlock tb_1 in textBlocks)
+			foreach (TextBlock tb in textBlocks)
 			{
-				if (tb_1 == largestBlock)
+				if (tb == largestBlock)
 				{
-					tb_1.SetIsContent(true);
+					tb.SetIsContent(true);
 				}
 				else
 				{
-					tb_1.SetIsContent(false);
-					tb_1.AddLabel(DefaultLabels.MIGHT_BE_CONTENT);
+					tb.SetIsContent(false);
+					tb.AddLabel(DefaultLabels.MIGHT_BE_CONTENT);
 				}
 			}
 			if (expandToSameLevelText && n != -1)
 			{
-                foreach (var tb_2 in textBlocks.Take(n).Reverse())
+                foreach (var tb in textBlocks.Take(n).Reverse())
                 {
-                    int tl = tb_2.GetTagLevel();
+                    int tl = tb.GetTagLevel();
                     if (tl < level)
                     {
                         break;
@@ -95,14 +100,15 @@ namespace NBoilerpipePortable.Filters.Heuristics
                     {
                         if (tl == level)
                         {
-                            tb_2.SetIsContent(true);
+                            if(tb.GetNumWords() >= minWords)
+                                tb.SetIsContent(true);
                         }
                     }
                 }
 
-                foreach (var tb_2 in textBlocks.Skip(n))
+                foreach (var tb in textBlocks.Skip(n))
                 {
-                    int tl = tb_2.GetTagLevel();
+                    int tl = tb.GetTagLevel();
                     if (tl < level)
                     {
                         break;
@@ -111,7 +117,8 @@ namespace NBoilerpipePortable.Filters.Heuristics
                     {
                         if (tl == level)
                         {
-                            tb_2.SetIsContent(true);
+                            if (tb.GetNumWords() >= minWords)
+                                tb.SetIsContent(true);
                         }
                     }
                 }
