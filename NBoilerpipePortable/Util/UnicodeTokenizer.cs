@@ -42,6 +42,14 @@ namespace Sharpen
 {
     public class CharSequence
     {
+        public virtual int Length
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public static implicit operator CharSequence(string str)
         {
             return new StringCharSequence(str);
@@ -56,6 +64,14 @@ namespace Sharpen
     public class StringCharSequence : CharSequence
     {
         string str;
+
+        public override int Length
+        {
+            get
+            {
+                return str.Length;
+            }
+        }
 
         public StringCharSequence(string str)
         {

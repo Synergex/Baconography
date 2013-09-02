@@ -22,7 +22,7 @@ namespace NBoilerpipePortable.Document
 	/// <author>Christian Kohlsch√ºtter</author>
 	public class TextBlock : ICloneable
 	{
-        internal List<string> nearbyImages;
+        internal List<Tuple<int, string>> nearbyImages;
 		internal bool isContent = false;
 		CharSequence text;
 		internal ICollection<string> labels = null;
@@ -62,16 +62,16 @@ namespace NBoilerpipePortable.Document
 			this.offsetBlocksEnd = offsetBlocks;
             if (imageSrc != null)
             {
-                this.nearbyImages = new List<string> { imageSrc };
+                this.nearbyImages = new List<Tuple<int, string>> { Tuple.Create(0, imageSrc) };
             }
 			InitDensities();
 		}
 
-        public IEnumerable<string> NearbyImages
+        public IEnumerable<Tuple<int, string>> NearbyImages
         {
             get
             {
-                return nearbyImages != null ? nearbyImages : Enumerable.Empty<string>();
+                return nearbyImages != null ? nearbyImages : Enumerable.Empty<Tuple<int, string>>();
             }
         }
 
@@ -120,6 +120,17 @@ namespace NBoilerpipePortable.Document
 
 		public virtual void MergeNext (NBoilerpipePortable.Document.TextBlock other)
 		{
+            if (other.nearbyImages != null)
+            {
+                if (nearbyImages != null)
+                    nearbyImages.AddRange(other.nearbyImages.Select(imgTpl => Tuple.Create(imgTpl.Item1 + text.Length, imgTpl.Item2)));
+                else
+                {
+                    //rebase the image index off the current text length
+                    nearbyImages = other.nearbyImages.Select(imgTpl => Tuple.Create(imgTpl.Item1 + text.Length, imgTpl.Item2)).ToList();
+                }
+            }
+
 			StringBuilder sb = new StringBuilder ();
 			sb.Append (text);
 			sb.Append ('\n');
@@ -148,13 +159,7 @@ namespace NBoilerpipePortable.Document
 				}
 			}
 			tagLevel = Math.Min (tagLevel, other.tagLevel);
-            if (other.nearbyImages != null)
-            {
-                if (nearbyImages != null)
-                    nearbyImages.AddRange(other.nearbyImages);
-                else
-                    nearbyImages = other.nearbyImages;
-            }
+            
 		}
 
 		private void InitDensities()

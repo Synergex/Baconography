@@ -78,20 +78,25 @@ namespace NBoilerpipePortable.Extractors
             {
                 if (textblock.IsContent())
                 {
-                    var nearbyImage = textblock.NearbyImages.FirstOrDefault();
-                    if (nearbyImage != null)
+                    int textOffset = 0;
+                    var remainingText = textblock.GetText();
+                    foreach (var imageTpl in textblock.NearbyImages)
                     {
-                        nearbyImage = CleanImageUrl(uri, nearbyImage);
+                        if (imageTpl.Item1 == 0)
+                            result.Add(Tuple.Create("", CleanImageUrl(uri, imageTpl.Item2)));
+                        else
+                        {
+                            var substring = remainingText.Substring(0, (imageTpl.Item1 - textOffset));
+                            remainingText = remainingText.Substring(imageTpl.Item1 - textOffset);
+                            textOffset = imageTpl.Item1;
+                            result.Add(Tuple.Create(substring, ""));
+                            result.Add(Tuple.Create("", CleanImageUrl(uri, imageTpl.Item2)));
+                        }
                     }
 
-                    result.Add(Tuple.Create(textblock.GetText(), nearbyImage));
-
-                    if (textblock.NearbyImages.Count() > 1)
+                    if (!string.IsNullOrWhiteSpace(remainingText))
                     {
-                        foreach (var additionalImage in textblock.NearbyImages.Skip(1))
-                        {
-                            result.Add(Tuple.Create("", additionalImage));
-                        }
+                        result.Add(Tuple.Create(remainingText, ""));
                     }
                 }
             }
