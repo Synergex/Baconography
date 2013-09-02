@@ -73,7 +73,6 @@
                 </DataTemplate>
             </phone:Pivot.HeaderTemplate>
         </phone:Pivot>
-        <localc:ExtendedAppBar Name="appBar" DataContext="{Binding}" Text="{Binding ElementName=albumPivot, Path=SelectedItem.DataContext.Title}"/>
-        
+        <localc:ExtendedAppBar Name="appBar" DataContext="{Binding}" LastButtonSymbol="&#xE118;" LastButtonText="Save" LastButtonCommand="{Binding SaveCommand, ElementName=pageRoot}" Text="{Binding ElementName=albumPivot, Path=SelectedItem.DataContext.Title}"/>
     </Grid>
 </phone:PhoneApplicationPage>

@@ -8,6 +8,7 @@ using BaconographyWP8Core;
 using BaconographyWP8Core.Common;
 using BaconographyWP8Core.View;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
@@ -56,7 +57,7 @@ namespace BaconographyWP8.View
             }
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
-            
+            _saveCommand = new RelayCommand(SaveImage_Tap);
         }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -345,7 +346,16 @@ namespace BaconographyWP8.View
             }
         }
 
-        private async void SaveImage_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        private RelayCommand _saveCommand;
+        public RelayCommand SaveCommand
+        {
+            get
+            {
+                return _saveCommand;
+            }
+        }
+
+        private async void SaveImage_Tap()
         {
             var linkedPicture = _pictureViewModel.Pictures.ToList()[albumPivot.SelectedIndex];
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });

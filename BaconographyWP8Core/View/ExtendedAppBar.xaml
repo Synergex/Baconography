@@ -197,12 +197,12 @@
                     Command="{Binding NavigateToComments}" CommandParameter="{Binding}"
                     IsEnabled="{Binding HasContext}"/>
             <TextBlock Grid.Row="2" Grid.Column="2" Margin="0,4,0,0" Text="Comments" FontSize="14" HorizontalAlignment="Center" Foreground="{StaticResource PhoneForegroundBrush}" />
-
             <Button Grid.Row="0" Grid.Column="3"
                     FontFamily="Segoe UI Symbol" FontSize="24"
-                    Width="50" Height="50" Content="&#xE118;"
-                    Style="{StaticResource HeavyRoundButtonStyle}"/>
-            <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,4,0,0" Text="Save" FontSize="14" HorizontalAlignment="Center" Foreground="{StaticResource PhoneForegroundBrush}" />
+                    Width="50" Height="50" Content="{Binding LastButtonSymbol, ElementName=theControl}"
+                    Style="{StaticResource HeavyRoundButtonStyle}"
+                    Command="{Binding LastButtonCommand, ElementName=theControl}"/>
+            <TextBlock Grid.Row="2" Grid.Column="3" Margin="0,4,0,0" Text="{Binding LastButtonText, ElementName=theControl}" FontSize="14" HorizontalAlignment="Center" Foreground="{StaticResource PhoneForegroundBrush}" />
         </Grid>
     </Grid>
 </UserControl>

@@ -278,7 +278,7 @@ namespace BaconographyWP8.View
             {
                 var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _bitmap.PixelWidth, _bitmap.PixelHeight, 0.0);
                 _minScale = result.Item1;
-                _scale = result.Item2;
+                _coercedScale = _scale = result.Item2;
             }
 
 		}
@@ -303,8 +303,7 @@ namespace BaconographyWP8.View
 
             if (_coercedScale >= (_minScale * 2.5) || _coercedScale < 0)
             {
-                _scale = 0.0;
-                CoerceScale(true);
+                _coercedScale = _minScale;
             }
             else
                 _coercedScale *= 1.75;

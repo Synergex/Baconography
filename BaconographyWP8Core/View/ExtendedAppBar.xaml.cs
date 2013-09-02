@@ -48,6 +48,41 @@ namespace BaconographyWP8Core.View
         public static readonly DependencyProperty MenuStateProperty =
             DependencyProperty.Register("MenuState", typeof(ExtendedAppMenuState), typeof(ExtendedAppBar), new PropertyMetadata(ExtendedAppMenuState.Extended, OnMenuStateChanged));
 
+        public string LastButtonSymbol
+        {
+            get { return (string)GetValue(LastButtonSymbolProperty); }
+            set { SetValue(LastButtonSymbolProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LastButtonSymbol.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LastButtonSymbolProperty =
+            DependencyProperty.Register("LastButtonSymbol", typeof(string), typeof(ExtendedAppBar), new PropertyMetadata(""));
+
+
+        public ICommand LastButtonCommand
+        {
+            get { return (ICommand)GetValue(LastButtonCommandProperty); }
+            set { SetValue(LastButtonCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LastButtonCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LastButtonCommandProperty =
+            DependencyProperty.Register("LastButtonCommand", typeof(ICommand), typeof(ExtendedAppBar), new PropertyMetadata(null));
+
+
+
+        public string LastButtonText
+        {
+            get { return (string)GetValue(LastButtonTextProperty); }
+            set { SetValue(LastButtonTextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LastButtonText.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LastButtonTextProperty =
+            DependencyProperty.Register("LastButtonText", typeof(string), typeof(ExtendedAppBar), new PropertyMetadata(""));
+
+        
+
         private static void OnMenuStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var thisp = d as ExtendedAppBar;
