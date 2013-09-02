@@ -211,6 +211,9 @@
     <Compile Include="View\ComposePostPageView.xaml.cs">
       <DependentUpon>ComposePostPageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ExtendedAppBar.xaml.cs">
+      <DependentUpon>ExtendedAppBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\HelpView.xaml.cs">
       <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
@@ -320,6 +323,10 @@
     <Page Include="View\ComposePostPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExtendedAppBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\HelpView.xaml">
       <Generator>MSBuild:Compile</Generator>
