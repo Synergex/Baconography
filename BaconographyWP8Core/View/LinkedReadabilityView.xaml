@@ -6,6 +6,7 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:localc="clr-namespace:BaconographyWP8Core.View"
     xmlns:common="clr-namespace:BaconographyWP8.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -18,11 +19,8 @@
 
     <toolkit:TransitionService.NavigationInTransition>
         <toolkit:NavigationInTransition>
-            <toolkit:NavigationInTransition.Backward>
-                <toolkit:TurnstileTransition Mode="BackwardIn"/>
-            </toolkit:NavigationInTransition.Backward>
             <toolkit:NavigationInTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+                <toolkit:SlideTransition Mode="SlideUpFadeIn"/>
             </toolkit:NavigationInTransition.Forward>
         </toolkit:NavigationInTransition>
     </toolkit:TransitionService.NavigationInTransition>
@@ -32,10 +30,13 @@
                 <toolkit:TurnstileTransition Mode="BackwardOut"/>
             </toolkit:NavigationOutTransition.Backward>
             <toolkit:NavigationOutTransition.Forward>
-                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+                <toolkit:SlideTransition Mode="SlideDownFadeOut"/>
             </toolkit:NavigationOutTransition.Forward>
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
+    <toolkit:GestureService.GestureListener>
+        <toolkit:GestureListener x:Name="myGridGestureListener" Flick="myGridGestureListener_Flick" />
+    </toolkit:GestureService.GestureListener>
     
     <phone:PhoneApplicationPage.Resources>
         <DataTemplate x:Key="Type:ReadableArticleParagraph">
@@ -47,24 +48,26 @@
     </phone:PhoneApplicationPage.Resources>
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <common:FixedLongListSelector Name="articleView"
-                Margin="0"
-                Padding="0"
-                DataContext="{Binding}"
-                BorderThickness="0" VerticalAlignment="Stretch" 
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding Path=ArticleParts}">
+    <Grid>
+        <common:FixedLongListSelector Name="articleView"
+                    Margin="0"
+                    Padding="0"
+                    DataContext="{Binding}"
+                    BorderThickness="0" VerticalAlignment="Stretch" 
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                    HorizontalContentAlignment="Stretch"
+                    ItemsSource="{Binding Path=ArticleParts}">
 
-        <common:FixedLongListSelector.ListHeader>
-                <TextBlock Text="{Binding Title}" HorizontalAlignment="Left" FontSize="32" Margin="20" TextWrapping="Wrap"/>
-        </common:FixedLongListSelector.ListHeader>
-        <common:FixedLongListSelector.ItemTemplate>
-            <DataTemplate>
-                <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
-            </DataTemplate>
-        </common:FixedLongListSelector.ItemTemplate>
-    </common:FixedLongListSelector>
-
+            <common:FixedLongListSelector.ListHeader>
+                    <TextBlock Text="{Binding Title}" HorizontalAlignment="Left" FontSize="32" Margin="20" TextWrapping="Wrap"/>
+            </common:FixedLongListSelector.ListHeader>
+            <common:FixedLongListSelector.ItemTemplate>
+                <DataTemplate>
+                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
+                </DataTemplate>
+            </common:FixedLongListSelector.ItemTemplate>
+        </common:FixedLongListSelector>
+        <localc:ExtendedAppBar DataContext="{Binding}" LastButtonSymbol="&#xE12B;" LastButtonText="Web" LastButtonCommand="{Binding LaunchBrowser}"/>
+    </Grid>
 </phone:PhoneApplicationPage>

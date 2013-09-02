@@ -55,6 +55,7 @@ namespace BaconographyWP8
 				SimpleIoc.Default.Register<LoginPageViewModel>();
 				SimpleIoc.Default.Register<LoadIndicatorViewModel>();
 				SimpleIoc.Default.Register<LinkedWebViewModel>();
+                SimpleIoc.Default.Register<ReadableArticleViewModel>();
 				SimpleIoc.Default.Register<SubredditsViewModel>();
 				SimpleIoc.Default.Register<SubredditSelectorViewModel>();
 				SimpleIoc.Default.Register<AboutUserViewModel>();

@@ -12,6 +12,12 @@ using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
 using GalaSoft.MvvmLight.Messaging;
 using BaconographyPortable.Messages;
+using GalaSoft.MvvmLight.Command;
+using BaconographyWP8Core.Common;
+using GalaSoft.MvvmLight;
+using BaconographyWP8;
+using GalaSoft.MvvmLight.Ioc;
+using Newtonsoft.Json;
 
 namespace BaconographyWP8Core.View
 {
@@ -44,20 +50,31 @@ namespace BaconographyWP8Core.View
             }
             else
             {
-                if (this.NavigationContext.QueryString["data"] != null)
+                if (this.NavigationContext.QueryString.ContainsKey("data") && this.NavigationContext.QueryString["data"] != null)
                 {
-                    var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]).Trim('\"');
+                    var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
                     try
                     {
+                        var argTpl = JsonConvert.DeserializeObject<Tuple<string, string>>(unescapedData);
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                        DataContext = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), unescapedData);
+                        DataContext = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), argTpl.Item1, argTpl.Item2);
                     }
                     finally
                     {
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                     }
                 }
+                else
+                {
+                    var preloadedDataContext = SimpleIoc.Default.GetInstance<ReadableArticleViewModel>();
+                    DataContext = preloadedDataContext;
+                }
             }
+        }
+
+        public void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
+        {
+            FlipViewUtility.FlickHandler(sender, e, DataContext as ViewModelBase, this);
         }
     }
 }

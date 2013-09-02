@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8;
 using BaconographyWP8.Common;
@@ -40,12 +41,12 @@ namespace BaconographyWP8Core.ViewModel
                 }
 
                 var SampleCollection = new List<LockScreenMessage> {
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.PhotoGlyph, DisplayText = "The funniest picture on the front page" },
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.WebGlyph, DisplayText = "Very interesting article about cats" },
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.DetailsGlyph, DisplayText = "I am the walrus, AMA" },
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.VideoGlyph, DisplayText = "I am proud to present a short film about film critics" },
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.MultiredditGlyph, DisplayText = "A multireddit of all of the best stuff that reddit has to offer" },
-                    new LockScreenMessage { Glyph = LinkGlyphConverter.PhotoGlyph, DisplayText = "Breathtaking vista of a massive canyon" }
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.PhotoGlyph, DisplayText = "The funniest picture on the front page" },
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.WebGlyph, DisplayText = "Very interesting article about cats" },
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.DetailsGlyph, DisplayText = "I am the walrus, AMA" },
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.VideoGlyph, DisplayText = "I am proud to present a short film about film critics" },
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.MultiredditGlyph, DisplayText = "A multireddit of all of the best stuff that reddit has to offer" },
+                    new LockScreenMessage { Glyph = LinkGlyphUtility.PhotoGlyph, DisplayText = "Breathtaking vista of a massive canyon" }
                 };
 
                 this._overlayItems.AddRange(SampleCollection);

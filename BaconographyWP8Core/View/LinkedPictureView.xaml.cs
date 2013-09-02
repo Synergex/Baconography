@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Messages;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Common;
@@ -278,72 +279,9 @@ namespace BaconographyWP8.View
             item.Content = null;
         }
 
-        
-        private Tuple<string, IEnumerable<Tuple<string, string>>, string> MakeSerializable(LinkedPictureViewModel vm)
+        public void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
         {
-            return Tuple.Create(vm.LinkTitle, vm.Pictures.Select(linkedPicture => Tuple.Create(linkedPicture.Title, linkedPicture.Url)), vm.LinkId);
-        }
-
-
-        bool _flicking;
-        private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
-        {
-            if (_flicking)
-                return;
-
-            if (e.Direction == System.Windows.Controls.Orientation.Vertical)
-            {
-                //Up
-                if (e.VerticalVelocity < -1500)
-                {
-                    _flicking = true;
-                    try
-                    {
-                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
-                        {
-                            var next = await _pictureViewModel.Next();
-                            if (next != null)
-                            {
-                                TransitionService.SetNavigationOutTransition(this,
-                                    new NavigationOutTransition()
-                                    {
-                                        Forward = new SlideTransition()
-                                        {
-                                            Mode = SlideTransitionMode.SlideUpFadeOut
-                                        }
-                                    }
-                                );
-                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        _flicking = false;
-                    }
-                   
-                    
-                }
-                else if (e.VerticalVelocity > 1500) //Down
-                {
-                    _flicking = true;
-                    try
-                    {
-                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
-                        {
-                            var previous = await _pictureViewModel.Previous();
-                            if (previous != null)
-                            {
-                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        _flicking = false;
-                    }
-                }
-            }
+            FlipViewUtility.FlickHandler(sender, e, DataContext as ViewModelBase, this);
         }
 
         private RelayCommand _saveCommand;

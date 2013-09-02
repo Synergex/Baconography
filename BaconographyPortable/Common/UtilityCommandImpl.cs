@@ -1,6 +1,8 @@
 ﻿using BaconographyPortable.Messages;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
 using System;
@@ -226,15 +228,6 @@ namespace BaconographyPortable.Common
 				{
                     var uri = new Uri(str);
                     var targetHost = uri.DnsSafeHost.ToLower();
-                    bool isVideoLink = false;
-
-                    if (targetHost == "www.youtube.com" ||
-                        targetHost == "youtube.com" ||
-                        targetHost == "vimeo.com" ||
-                        targetHost == "www.vimeo.com" ||
-                        targetHost == "liveleak.com" ||
-                        targetHost == "www.liveleak.com")
-                        isVideoLink = true;
 
                     Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
 					var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
@@ -242,9 +235,9 @@ namespace BaconographyPortable.Common
                     {
                         navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
                     }
-                    else if (settingsService.ApplyReadabliltyToLinks && !isVideoLink)
+                    else if (settingsService.ApplyReadabliltyToLinks && LinkGlyphUtility.GetLinkGlyph(str) == LinkGlyphUtility.WebGlyph)
                     {
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, str);
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, Tuple.Create<string, string>(str, sourceLink != null ? sourceLink.Data.Id : ""));
                     }
                     else
                     {

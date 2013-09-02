@@ -112,8 +112,15 @@ namespace BaconographyWP8.PlatformServices
 
         public async void NavigateToExternalUri(Uri uri)
         {
-            ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
-            await Launcher.LaunchUriAsync(uri);
+            try
+            {
+                ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
+                await Launcher.LaunchUriAsync(uri);
+            }
+            catch (AccessViolationException)
+            {
+                //this is platform sillyness when somehow someone triggers this twice it crashes the app
+            }
         }
 
 
