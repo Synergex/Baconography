@@ -49,7 +49,12 @@ namespace BaconographyWP8.View
             if (e.NavigationMode == NavigationMode.New && e.Uri.ToString() == "/BaconographyWP8Core;component/MainPage.xaml" && e.IsCancelable)
                 e.Cancel = true;
             else
+            {
+                var vm = this.DataContext as ReplyViewModel;
+                if (vm != null)
+                    vm.Cancel.Execute(vm);
                 base.OnNavigatingFrom(e);
+            }
         }
 
 		private void ShowMoreButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)

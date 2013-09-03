@@ -38,23 +38,30 @@ namespace BaconographyPortable.ViewModel
             var articleViewModel = new ReadableArticleViewModel { ArticleUrl = url, ArticleParts = new ObservableCollection<object>(), LinkId = linkId };
             LoadOneImpl(httpService, url, articleViewModel.ArticleParts).ContinueWith(async (task) =>
                 {
-                    if (task.IsCompleted)
+                    try
                     {
-                        Tuple<string, string> tpl = await task;
-                        var nextPage = tpl.Item1;
-                        articleViewModel.Title = tpl.Item2;
-                        result.SetResult(articleViewModel);
-                        if (!string.IsNullOrEmpty(nextPage))
+                        if (task.IsCompleted)
                         {
-                            var remainingParts = await Task.Run(() => LoadFullyImpl(httpService, nextPage));
-                            foreach (var part in remainingParts.Item2)
+                            Tuple<string, string> tpl = await task;
+                            var nextPage = tpl.Item1;
+                            articleViewModel.Title = tpl.Item2;
+                            result.SetResult(articleViewModel);
+                            if (!string.IsNullOrEmpty(nextPage))
                             {
-                                articleViewModel.ArticleParts.Add(part);
+                                var remainingParts = await Task.Run(() => LoadFullyImpl(httpService, nextPage));
+                                foreach (var part in remainingParts.Item2)
+                                {
+                                    articleViewModel.ArticleParts.Add(part);
+                                }
                             }
                         }
+                        else if (task.Exception != null)
+                            result.SetException(task.Exception);
                     }
-                    else if(task.Exception != null)
-                        result.SetException(task.Exception);
+                    catch (Exception ex)
+                    {
+                        result.SetException(ex);
+                    }
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             return result.Task;
             

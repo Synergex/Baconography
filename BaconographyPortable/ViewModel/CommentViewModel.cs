@@ -94,8 +94,8 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        private object _body;
-        public object Body 
+        private string _body;
+        public string Body 
         {
             get
             {
@@ -103,14 +103,14 @@ namespace BaconographyPortable.ViewModel
             }
             set
             {
-                if (value is string)
-                    _body = _markdownProcessor.Process(value as string);
-                else
-                    _body = value;
-
+                _body = value;
+                BodyMD = _markdownProcessor.Process(value);
                 RaisePropertyChanged("Body");
+                RaisePropertyChanged("BodyMD");
             }
         }
+
+        public object BodyMD { get; private set; }
 
         public string PosterName
         {

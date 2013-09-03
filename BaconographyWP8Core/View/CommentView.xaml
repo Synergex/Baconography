@@ -59,7 +59,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <ContentPresenter Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left"
+            <ContentPresenter Content="{Binding BodyMD, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left"
                               Margin="3,0,0,0"/>
             <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
                 Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>

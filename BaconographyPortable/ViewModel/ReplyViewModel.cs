@@ -33,7 +33,7 @@ namespace BaconographyPortable.ViewModel
             {
                 Editing = true;
                 EditingId = ((Comment)_replyTargetThing.Data).Name;
-                ReplyBody = ((Comment)_replyTargetThing.Data).Body;
+                ReplyBody = ((Comment)_replyTargetThing.Data).Body.Replace("&gt;", ">").Replace("&lt;", "<");
             }
 
 			RefreshUserImpl();
