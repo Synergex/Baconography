@@ -120,8 +120,8 @@ namespace NBoilerpipePortable.Parser
                         alt = (atts.Contains("title") ? atts["title"].Value : alt);
                     }
 
-                    int width = Math.Max(atts.Contains("width") ? int.Parse(atts["width"].Value) : 0, 1);
-                    int height = Math.Max(atts.Contains("height") ? int.Parse(atts["height"].Value) : 0, 1);
+                    int width = Math.Max(atts.Contains("width") ? int.Parse(atts["width"].Value.TrimEnd('p', 'x', ';')) : 0, 1);
+                    int height = Math.Max(atts.Contains("height") ? int.Parse(atts["height"].Value.TrimEnd('p', 'x', ';')) : 0, 1);
                     var src = atts.Contains("src") ? atts["src"].Value : FindAlternateSrc(atts);
                     bool isWikimedia = false;
                     if (instance.inIgnorableElement <= 0 && !string.IsNullOrWhiteSpace(src) &&

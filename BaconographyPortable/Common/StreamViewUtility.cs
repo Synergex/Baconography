@@ -122,7 +122,7 @@ namespace BaconographyPortable.Common
                         };
                     }
                 }
-                else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.WebGlyph)
+                else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.WebGlyph && settingsService.ApplyReadabliltyToLinks && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
                 {
                     var targetViewModel = vm as LinkViewModel;
                     var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
