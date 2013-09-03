@@ -55,7 +55,7 @@ namespace BaconographyPortable.ViewModel
                     }
                     else if(task.Exception != null)
                         result.SetException(task.Exception);
-                });
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             return result.Task;
             
         }
@@ -68,14 +68,12 @@ namespace BaconographyPortable.ViewModel
 
         private static async Task<Tuple<string, string>> LoadOneImpl(ISimpleHttpService httpService, string url, IList<Object> target)
         {
-            var page = await httpService.UnAuthedGet(new CancellationTokenSource().Token, url, (pct) =>
-                {
-                    string domain = url;
-                    if(Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                        domain = new Uri(url).Authority;
-
-                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = pct, Message = "loading from " + domain });
-                });
+            string domain = url;
+            if(Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                domain = new Uri(url).Authority;
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = 0, Message = "loading from " + domain });
+            var page = await httpService.UnAuthedGet(url);
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = 50, Message = "processing page from " + domain });
             string title;
             var pageBlocks = ArticleExtractor.INSTANCE.GetTextAndImageBlocks(page, new Uri(url), out title);
             foreach (var tpl in pageBlocks)
@@ -105,6 +103,8 @@ namespace BaconographyPortable.ViewModel
                 var loadResult = await LoadOneImpl(httpService, nextUrl, result);
                 if (title == null)
                     title = loadResult.Item2;
+
+                nextUrl = loadResult.Item1;
             }
             return Tuple.Create<string, IEnumerable<object>>(title, result);
         }
