@@ -404,5 +404,59 @@ namespace BaconographyWP8.PlatformServices
             client.OpenReadAsync(new Uri(url));
             return taskCompletion.Task;
         }
+
+        public Task<string> UnAuthedGet(CancellationToken cancelToken, string url, Action<uint> progress)
+        {
+            TaskCompletionSource<string> taskCompletion = new TaskCompletionSource<string>();
+            WebClient client = new WebClient();
+            int cancelCount = 0;
+            client.AllowReadStreamBuffering = true;
+            client.DownloadProgressChanged += (sender, args) =>
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    client.CancelAsync();
+                }
+                else
+                {
+                    progress((uint)args.ProgressPercentage);
+                }
+            };
+
+            client.DownloadStringCompleted += (sender, args) =>
+            {
+                if (args.Cancelled)
+                {
+                    if (cancelCount++ < 5 && !cancelToken.IsCancellationRequested)
+                        client.OpenReadAsync(new Uri(url));
+                    else
+                        taskCompletion.SetCanceled();
+                }
+                else if (args.Error != null)
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetException(args.Error);
+                    }
+                }
+                else
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetResult(args.Result);
+                    }
+                }
+            };
+            client.DownloadStringAsync(new Uri(url));
+            return taskCompletion.Task;
+        }
     }
 }

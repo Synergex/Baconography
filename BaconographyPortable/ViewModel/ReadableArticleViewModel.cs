@@ -1,6 +1,8 @@
-﻿using BaconographyPortable.Services;
+﻿using BaconographyPortable.Messages;
+using BaconographyPortable.Services;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Practices.ServiceLocation;
 using NBoilerpipePortable.Extractors;
 using NBoilerpipePortable.Util;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel
@@ -65,7 +68,14 @@ namespace BaconographyPortable.ViewModel
 
         private static async Task<Tuple<string, string>> LoadOneImpl(ISimpleHttpService httpService, string url, IList<Object> target)
         {
-            var page = await httpService.UnAuthedGet(url);
+            var page = await httpService.UnAuthedGet(new CancellationTokenSource().Token, url, (pct) =>
+                {
+                    string domain = url;
+                    if(Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                        domain = new Uri(url).Authority;
+
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true, Percentage = pct, Message = "loading from " + domain });
+                });
             string title;
             var pageBlocks = ArticleExtractor.INSTANCE.GetTextAndImageBlocks(page, new Uri(url), out title);
             foreach (var tpl in pageBlocks)
@@ -81,6 +91,7 @@ namespace BaconographyPortable.ViewModel
                 }
             }
             var nextPageUrl = MultiPageUtils.FindNextPageLink(SgmlDomBuilder.GetBody(SgmlDomBuilder.BuildDocument(page)), url);
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
             return Tuple.Create(nextPageUrl, title);
         }
 
@@ -99,6 +110,19 @@ namespace BaconographyPortable.ViewModel
         }
         public string LinkId { get; set; }
         public string ArticleUrl { get; set; }
+        public string ArticleDomain
+        {
+            get
+            {
+                if (Uri.IsWellFormedUriString(ArticleUrl, UriKind.Absolute))
+                {
+                    var uri = new Uri(ArticleUrl);
+                    return uri.Authority;
+                }
+                else
+                    return ArticleUrl;
+            }
+        }
         public string Title { get; set; }
         public ObservableCollection<Object> ArticleParts { get; set; }
 
@@ -177,6 +201,23 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        private bool _contentIsFocused = false;
+        public bool ContentIsFocused
+        {
+            get
+            {
+                return _contentIsFocused;
+            }
+            set
+            {
+                if (_contentIsFocused != value)
+                {
+                    _contentIsFocused = value;
+                    RaisePropertyChanged("ContentIsChanged");
+                }
+            }
+        }
+
         public RelayCommand NavigateToComments 
         { 
             get 
@@ -186,7 +227,7 @@ namespace BaconographyPortable.ViewModel
                 return _navigateToComments; 
             } 
         }
-        static RelayCommand _navigateToComments;
+        RelayCommand _navigateToComments;
         private void NavigateToCommentsImpl()
         {
             ParentLink.NavigateToComments.Execute(ParentLink);

@@ -34,9 +34,7 @@
             </toolkit:NavigationOutTransition.Forward>
         </toolkit:NavigationOutTransition>
     </toolkit:TransitionService.NavigationOutTransition>
-    <toolkit:GestureService.GestureListener>
-        <toolkit:GestureListener x:Name="myGridGestureListener" Flick="myGridGestureListener_Flick" />
-    </toolkit:GestureService.GestureListener>
+    
     
     <phone:PhoneApplicationPage.Resources>
         <DataTemplate x:Key="Type:ReadableArticleParagraph">
@@ -49,25 +47,33 @@
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid>
-        <common:FixedLongListSelector Name="articleView"
-                    Margin="0"
-                    Padding="0"
-                    DataContext="{Binding}"
-                    BorderThickness="0" VerticalAlignment="Stretch" 
-                    ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
-                    HorizontalContentAlignment="Stretch"
-                    ItemsSource="{Binding Path=ArticleParts}">
+        <Grid UseOptimizedManipulationRouting="False">
+            <toolkit:GestureService.GestureListener>
+                <toolkit:GestureListener x:Name="myGridGestureListener" Flick="myGridGestureListener_Flick" />
+            </toolkit:GestureService.GestureListener>
+            <common:FixedLongListSelector 
+                Name="articleView"
+                Margin="0"
+                Padding="0"
+                DataContext="{Binding}"
+                BorderThickness="0" VerticalAlignment="Stretch" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                HorizontalContentAlignment="Stretch"
+                IsHitTestVisible="{Binding ContentIsFocused}"
+                ItemsSource="{Binding Path=ArticleParts}">
 
-            <common:FixedLongListSelector.ListHeader>
-                    <TextBlock Text="{Binding Title}" HorizontalAlignment="Left" FontSize="32" Margin="20" TextWrapping="Wrap"/>
-            </common:FixedLongListSelector.ListHeader>
-            <common:FixedLongListSelector.ItemTemplate>
-                <DataTemplate>
-                    <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
-                </DataTemplate>
-            </common:FixedLongListSelector.ItemTemplate>
-        </common:FixedLongListSelector>
-        <localc:ExtendedAppBar DataContext="{Binding}" LastButtonSymbol="&#xE12B;" LastButtonText="Web" LastButtonCommand="{Binding LaunchBrowser}"/>
+                <common:FixedLongListSelector.ListHeader>
+                        <TextBlock Text="{Binding Title}" HorizontalAlignment="Left" FontSize="32" Margin="20" TextWrapping="Wrap"/>
+                </common:FixedLongListSelector.ListHeader>
+                <common:FixedLongListSelector.ItemTemplate>
+                    <DataTemplate>
+                        <common:TypedTemplateSelector HorizontalContentAlignment="Stretch" Content="{Binding}" />
+                    </DataTemplate>
+                </common:FixedLongListSelector.ItemTemplate>
+            </common:FixedLongListSelector>
+            <Rectangle x:Name="disabledRect" UseOptimizedManipulationRouting="False" Fill="{StaticResource PhoneBackgroundBrush}" Opacity=".35" Stretch="Fill" Tap="disabledRect_Tap" />
+        </Grid>
+        <localc:ExtendedAppBar x:Name="appBar" DataContext="{Binding}" Text="{Binding ArticleDomain}" Opacity="1" LastButtonSymbol="&#xE12B;" LastButtonText="Web" LastButtonCommand="{Binding LaunchBrowser}"/>
     </Grid>
 </phone:PhoneApplicationPage>

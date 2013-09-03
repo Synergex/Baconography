@@ -92,7 +92,8 @@ namespace BaconographyWP8.PlatformServices
 				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
 				{
 					var targetUri = parameter != null ? new Uri(uri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
-					return _frame.Navigate(targetUri);
+					var navResult = _frame.Navigate(targetUri);
+                    return navResult;
 				}
 				else
 				{

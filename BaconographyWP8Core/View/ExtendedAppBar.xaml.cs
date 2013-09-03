@@ -27,6 +27,20 @@ namespace BaconographyWP8Core.View
         }
 
 
+
+
+        public double Opacity
+        {
+            get { return (double)GetValue(OpacityProperty); }
+            set { SetValue(OpacityProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Opacity.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OpacityProperty =
+            DependencyProperty.Register("Opacity", typeof(double), typeof(ExtendedAppBar), new PropertyMetadata(0.66));
+
+        
+
         public string Text
         {
             get { return (string)GetValue(TextProperty); }

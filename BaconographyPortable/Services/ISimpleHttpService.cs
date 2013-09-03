@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.Services
@@ -12,5 +13,6 @@ namespace BaconographyPortable.Services
         Task<string> SendGet(string cookie, string uri);
         Task<Tuple<string, Dictionary<string, string>>> SendPostForCookies(Dictionary<string, string> urlEncodedData, string uri);
         Task<string> UnAuthedGet(string uri);
+        Task<string> UnAuthedGet(CancellationToken cancelToken, string uri, Action<uint> progress);
     }
 }

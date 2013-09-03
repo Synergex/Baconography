@@ -44,8 +44,8 @@ namespace BaconographyWP8Core.Common
                 SimpleIoc.Default.Unregister<ReadableArticleViewModel>();
             }
 
-            SimpleIoc.Default.Register<ReadableArticleViewModel>(() => vm);
-            return null;
+            SimpleIoc.Default.Register<ReadableArticleViewModel>(() => vm, true);
+            return Tuple.Create(vm.ArticleUrl, vm.LinkId);
         }
 
         public static async void FlickHandler(object sender, FlickGestureEventArgs e, ViewModelBase currentViewModel, UIElement rootPage)

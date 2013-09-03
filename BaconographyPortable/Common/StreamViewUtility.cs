@@ -124,7 +124,12 @@ namespace BaconographyPortable.Common
                 }
                 else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.WebGlyph)
                 {
-                    return await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), ((LinkViewModel)vm).Url, ((LinkViewModel)vm).LinkThing.Data.Id);
+                    var targetViewModel = vm as LinkViewModel;
+                    var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
+                    smartOfflineService.NavigatedToOfflineableThing(targetViewModel.LinkThing, true);
+                    await ServiceLocator.Current.GetInstance<IOfflineService>().StoreHistory(targetViewModel.Url);
+                    var result = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), targetViewModel.Url, targetViewModel.LinkThing.Data.Id);
+                    return result;
                 }
                 else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.CommentGlyph)
                 {

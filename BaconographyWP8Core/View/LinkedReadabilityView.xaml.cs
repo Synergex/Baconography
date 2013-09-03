@@ -18,6 +18,7 @@ using GalaSoft.MvvmLight;
 using BaconographyWP8;
 using GalaSoft.MvvmLight.Ioc;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace BaconographyWP8Core.View
 {
@@ -27,6 +28,40 @@ namespace BaconographyWP8Core.View
         public LinkedReadabilityView()
         {
             InitializeComponent();
+        }
+
+        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+        {
+            if (ContentFocused)
+            {
+                e.Cancel = true;
+                var context = DataContext as ReadableArticleViewModel;
+                if (context != null)
+                    context.ContentIsFocused = false;
+
+                articleView.IsHitTestVisible = false;
+                disabledRect.Opacity = 0.35;
+                disabledRect.IsHitTestVisible = true;
+                Focus();
+                appBar.Opacity = 1;
+            }
+            else
+                base.OnBackKeyPress(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            if (e.NavigationMode == NavigationMode.New && e.IsNavigationInitiator)
+            {
+
+                var absPath = e.Uri.ToString().Contains('?') ? e.Uri.ToString().Substring(0, e.Uri.ToString().IndexOf("?")) : e.Uri.ToString();
+                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml" || absPath == "/BaconographyWP8Core;component/View/LinkedReadabilityView.xaml")
+                {
+                    ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();
+                }
+            }
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -50,7 +85,13 @@ namespace BaconographyWP8Core.View
             }
             else
             {
-                if (this.NavigationContext.QueryString.ContainsKey("data") && this.NavigationContext.QueryString["data"] != null)
+                if(SimpleIoc.Default.IsRegistered<ReadableArticleViewModel>())
+                {
+                    var preloadedDataContext = SimpleIoc.Default.GetInstance<ReadableArticleViewModel>();
+                    DataContext = preloadedDataContext;
+                    SimpleIoc.Default.Unregister<ReadableArticleViewModel>();
+                }
+                else if (this.NavigationContext.QueryString.ContainsKey("data") && this.NavigationContext.QueryString["data"] != null)
                 {
                     var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
                     try
@@ -64,17 +105,42 @@ namespace BaconographyWP8Core.View
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                     }
                 }
+            }
+        }
+
+        private bool ContentFocused
+        {
+            get
+            {
+                var context = DataContext as ReadableArticleViewModel;
+                if (context != null)
+                    return context.ContentIsFocused;
                 else
-                {
-                    var preloadedDataContext = SimpleIoc.Default.GetInstance<ReadableArticleViewModel>();
-                    DataContext = preloadedDataContext;
-                }
+                    return false;
             }
         }
 
         public void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
         {
-            FlipViewUtility.FlickHandler(sender, e, DataContext as ViewModelBase, this);
+            if (!ContentFocused)
+            {
+                FlipViewUtility.FlickHandler(sender, e, DataContext as ViewModelBase, this);
+            }
+        }
+
+        private async void disabledRect_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            //gesture listener crashes if we dont let it process first
+            await Task.Yield();
+            var context = DataContext as ReadableArticleViewModel;
+            if (context != null)
+                context.ContentIsFocused = true;
+
+            articleView.IsHitTestVisible = true;
+            disabledRect.IsHitTestVisible = false;
+            articleView.Focus();
+            disabledRect.Opacity = 0.0;
+            appBar.Opacity = .80;
         }
     }
 }

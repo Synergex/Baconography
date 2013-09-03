@@ -132,7 +132,7 @@ namespace BaconographyWP8.View
             {
                 
                 var absPath = e.Uri.ToString().Contains('?') ? e.Uri.ToString().Substring(0, e.Uri.ToString().IndexOf("?")) : e.Uri.ToString();
-                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml")
+                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml" || absPath == "/BaconographyWP8Core;component/View/LinkedReadabilityView.xaml")
                 {
                     CleanupImageSource();
                     ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();
