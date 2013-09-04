@@ -25,9 +25,10 @@ namespace BaconographyPortable.ViewModel.Collections
         string _permaLink;
         string _subreddit;
         string _targetName;
+        TypedThing<Link> _sourceLink;
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
+        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName, TypedThing<Link> sourceLink = null)
         {
             var suspensionService = baconProvider.GetService<ISuspensionService>();
             suspensionService.Suspending += CommentViewModelCollection_Suspending;
@@ -50,6 +51,13 @@ namespace BaconographyPortable.ViewModel.Collections
             //to the actual observable collection leaving a bit of time in between so we dont block anything
 
             _systemServices = baconProvider.GetService<ISystemServices>();
+
+            if (sourceLink != null)
+            {
+                _sourceLink = sourceLink;
+                Add(MapThing(sourceLink, null));
+            }
+
             RunInitialLoad();
         }
 
@@ -214,6 +222,9 @@ namespace BaconographyPortable.ViewModel.Collections
 
         private int VisitAddChildren(ViewModelBase vm, int index = -1)
         {
+            if (_sourceLink != null && vm is LinkViewModel)
+                return 0;
+
             int count = 1;
             if (index < 0)
                 this.Add(vm);
