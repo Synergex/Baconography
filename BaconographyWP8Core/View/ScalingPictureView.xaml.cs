@@ -89,7 +89,7 @@ namespace BaconographyWP8.View
                         _bitmap.ImageFailed += _bitmap_ImageFailed;
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                         _bitmap.SetSource(new MemoryStream(value as byte[]));
-                        if(_loaded)
+                        if (_loaded)
                             OnImageOpened(null, null);
                     }
                     _imageSource = value;
@@ -181,9 +181,9 @@ namespace BaconographyWP8.View
 					_screenMidpoint = xform.Transform(center);
 				}
 
-				_scale = _originalScale * e.PinchManipulation.CumulativeScale;
+				_coercedScale = _scale = _originalScale * e.PinchManipulation.CumulativeScale;
 
-				CoerceScale(false);
+				//CoerceScale(false);
 				ResizeImage(false);
 			}
 			else if (_pinching)
