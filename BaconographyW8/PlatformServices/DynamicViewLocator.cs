@@ -79,5 +79,10 @@ namespace BaconographyW8.PlatformServices
         {
             get { throw new NotImplementedException(); }
         }
+
+        public Type LinkedReadabilityView
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }
