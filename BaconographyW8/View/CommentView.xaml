@@ -39,7 +39,7 @@
                 </StackPanel>
             </Button.Content>
         </Button>
-        <ContentPresenter Grid.Row="1" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Stretch"/>
+        <ContentPresenter Grid.Row="1" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding BodyMD, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Stretch"/>
         <ContentControl Grid.Row="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
         <ContentControl Grid.Row="3" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
         <Border Grid.Row="4" BorderThickness="0" Height="1"/>
