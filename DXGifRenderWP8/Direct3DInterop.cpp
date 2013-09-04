@@ -111,7 +111,10 @@ namespace DXGifRenderWP8
 
 	HRESULT Direct3DInterop::GetTexture(_In_ const DrawingSurfaceSizeF* size, _Inout_ IDrawingSurfaceSynchronizedTextureNative** synchronizedTexture, _Inout_ DrawingSurfaceRectF* textureSubRectangle)
 	{
-		m_timer->Update();
+		if(!m_renderer->StartedRendering())
+			m_timer->Reset();
+		else
+			m_timer->Update();
 		if(m_renderer->Update(m_timer->Total, m_timer->Delta))
 			m_renderer->Render();
 
