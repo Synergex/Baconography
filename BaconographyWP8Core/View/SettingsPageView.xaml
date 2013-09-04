@@ -69,7 +69,7 @@
                             <CheckBox Margin="12,0,0,0" Content="Optimize web content"
                                 IsChecked="{Binding OptimizeWebContent, Mode=TwoWay}" />
 
-                            <CheckBox Margin="12,0,0,0" Content="Mutli-Color comment margins"
+                            <CheckBox Margin="12,0,0,0" Content="Multi-Color comment margins"
                                 IsChecked="{Binding MultiColorCommentMargins, Mode=TwoWay}" />
 
                             <StackPanel Orientation="Horizontal">
