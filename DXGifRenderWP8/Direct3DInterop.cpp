@@ -35,8 +35,9 @@ namespace DXGifRenderWP8
 		int error = 0;
 		gif_user_data userData = { 0, asset->Length, asset->Data };
 		GifFileType* gifFile = DGifOpen(&userData, istreamReader, &error);
-		if(gifFile != nullptr && DGifSlurp(gifFile) == GIF_OK)
+		if(gifFile != nullptr)
 		{
+			DGifSlurp(gifFile);
 			Height = gifFile->SHeight;
 			Width = gifFile->SWidth;
 			_gifFile = gifFile;

@@ -53,7 +53,7 @@ void mapRasterBits(uint8_t* rasterBits, std::unique_ptr<uint32_t>& targetFrame, 
 			{
 				auto& gifColor = colorMap->Colors[index];
 				bgraColor color = { gifColor.Blue, gifColor.Green, gifColor.Red, (uint8_t)255};
-				targetFrame.get()[offset ] = *((uint32_t*)&color);
+				memcpy(targetFrame.get() + offset, &color, 4);
 			}
 			i++;
 		}
@@ -176,7 +176,7 @@ void loadGifFrame(GifFileType* gifFile, GifFrame& frame, std::unique_ptr<uint32_
 			for (int x = 0; x < width; x++)
 			{
 				int offset = y * width + x;
-				buffer.get()[offset] = *(uint32_t*)&bgColor;
+				memcpy(buffer.get() + offset, &bgColor, 4);
 			}
 		}
 	}
@@ -205,7 +205,7 @@ void loadGifFrame(GifFileType* gifFile, GifFrame& frame, std::unique_ptr<uint32_
 				for (int x = 0; x < width; x++)
 				{
 					int offset = y * width + x;
-					buffer.get()[offset] = *(uint32_t*)&bgColor;
+					memcpy(buffer.get() + offset, &bgColor, 4);
 				}
 			}
 			break;
