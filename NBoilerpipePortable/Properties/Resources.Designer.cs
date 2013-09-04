@@ -78,9 +78,18 @@ namespace NBoilerpipePortable.Properties {
         ///    ...
         ///  [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string HTML_DTD {
+        internal static string HTML_DTD1 {
             get {
-                return ResourceManager.GetString("HTML_DTD", resourceCulture);
+                return ResourceManager.GetString("HTML_DTD1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string HTML_DTD2 {
+            get {
+                return ResourceManager.GetString("HTML_DTD2", resourceCulture);
             }
         }
     }
