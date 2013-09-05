@@ -28,6 +28,8 @@ namespace BaconographyWP8Core.Common
                 return ((ReadableArticleViewModel)viewModel).ParentLink;
             else if (viewModel is CommentsViewModel)
                 return ((CommentsViewModel)viewModel).Link;
+            else if (viewModel is LinkViewModel)
+                return ((LinkViewModel)viewModel).ParentLink;
             else
                 throw new ArgumentException();
         }
@@ -46,6 +48,11 @@ namespace BaconographyWP8Core.Common
 
             SimpleIoc.Default.Register<ReadableArticleViewModel>(() => vm, true);
             return Tuple.Create(vm.ArticleUrl, vm.LinkId);
+        }
+
+        private static object MakeSerializable(LinkViewModel vm)
+        {
+            return Tuple.Create(vm.LinkThing, true);
         }
 
         public static async void FlickHandler(object sender, FlickGestureEventArgs e, ViewModelBase currentViewModel, UIElement rootPage)
@@ -85,6 +92,10 @@ namespace BaconographyWP8Core.Common
                                     {
                                         ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedReadabilityView), MakeSerializable(next as ReadableArticleViewModel));
                                     }
+                                    else if (next is LinkViewModel)
+                                    {
+                                        ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedSelfTextPageView), MakeSerializable(next as LinkViewModel));
+                                    }
                                 }
                             }
                         }
@@ -110,6 +121,10 @@ namespace BaconographyWP8Core.Common
                                 else if (previous is ReadableArticleViewModel)
                                 {
                                     ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedReadabilityView), MakeSerializable(previous as ReadableArticleViewModel));
+                                }
+                                else if (previous is LinkViewModel)
+                                {
+                                    ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedSelfTextPageView), MakeSerializable(previous as LinkViewModel));
                                 }
                             }
                         }

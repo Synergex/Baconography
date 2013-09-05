@@ -8,35 +8,32 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BaconographyPortable.ViewModel;
-using Microsoft.Practices.ServiceLocation;
-using BaconographyPortable.Services;
-using GalaSoft.MvvmLight.Messaging;
-using BaconographyPortable.Messages;
-using GalaSoft.MvvmLight.Command;
 using BaconographyWP8Core.Common;
 using GalaSoft.MvvmLight;
-using BaconographyWP8;
-using GalaSoft.MvvmLight.Ioc;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Microsoft.Practices.ServiceLocation;
+using BaconographyPortable.Services;
+using Newtonsoft.Json;
+using BaconographyPortable.Messages;
+using BaconographyPortable.Model.Reddit;
 
 namespace BaconographyWP8Core.View
 {
-    [ViewUri("/BaconographyWP8Core;component/View/LinkedReadabilityView.xaml")]
-    public partial class LinkedReadabilityView : PhoneApplicationPage
+    [ViewUri("/BaconographyWP8Core;component/View/LinkedSelfTextPageView.xaml")]
+    public partial class LinkedSelfTextPageView : PhoneApplicationPage
     {
-        public LinkedReadabilityView()
+        public LinkedSelfTextPageView()
         {
             InitializeComponent();
         }
 
-        private void DeFocusContent()
+        private void DefocusContent()
         {
-            var context = DataContext as ReadableArticleViewModel;
+            var context = DataContext as LinkViewModel;
             if (context != null)
                 context.ContentIsFocused = false;
 
-            articleView.IsHitTestVisible = false;
+            selfTextView.IsHitTestVisible = false;
             disabledRect.Opacity = 0.35;
             disabledRect.IsHitTestVisible = true;
             Focus();
@@ -49,9 +46,9 @@ namespace BaconographyWP8Core.View
             if (context != null)
                 context.ContentIsFocused = true;
 
-            articleView.IsHitTestVisible = true;
+            selfTextView.IsHitTestVisible = true;
             disabledRect.IsHitTestVisible = false;
-            articleView.Focus();
+            selfTextView.Focus();
             disabledRect.Opacity = 0.0;
             appBar.Opacity = .80;
         }
@@ -61,7 +58,7 @@ namespace BaconographyWP8Core.View
             if (ContentFocused)
             {
                 e.Cancel = true;
-                DeFocusContent();
+                DefocusContent();
             }
             else
                 base.OnBackKeyPress(e);
@@ -91,53 +88,47 @@ namespace BaconographyWP8Core.View
             }
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (e.NavigationMode == NavigationMode.Back)
-			{
-                
-			}
+            {
+
+            }
             else if (e.NavigationMode == NavigationMode.Reset)
             {
                 //do nothing we have everything we want already here
             }
             else
             {
-                if(SimpleIoc.Default.IsRegistered<ReadableArticleViewModel>())
-                {
-                    var preloadedDataContext = SimpleIoc.Default.GetInstance<ReadableArticleViewModel>();
-                    DataContext = preloadedDataContext;
-                    SimpleIoc.Default.Unregister<ReadableArticleViewModel>();
-
-                    if (preloadedDataContext.ContentIsFocused)
-                        FocusContent();
-                    else
-                        DeFocusContent();
-                }
-                else if (this.NavigationContext.QueryString.ContainsKey("data") && this.NavigationContext.QueryString["data"] != null)
+                if (!string.IsNullOrWhiteSpace(this.NavigationContext.QueryString["data"]))
                 {
                     var unescapedData = HttpUtility.UrlDecode(this.NavigationContext.QueryString["data"]);
-                    try
+                    var deserializedObject = JsonConvert.DeserializeObject<Tuple<Thing, bool>>(unescapedData);
+                    if (deserializedObject != null && deserializedObject.Item1.Data is Link)
                     {
-                        var argTpl = JsonConvert.DeserializeObject<Tuple<string, string>>(unescapedData);
-                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                        DataContext = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), argTpl.Item1, argTpl.Item2);
-                        FocusContent();
+                        var vm = new LinkViewModel(deserializedObject.Item1, ServiceLocator.Current.GetInstance<IBaconProvider>(), deserializedObject.Item2);
+                        DataContext = vm;
+                        if (vm.ContentIsFocused)
+                        {
+                            FocusContent();
+                        }
+                        else
+                            DefocusContent();
                     }
-                    finally
-                    {
-                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                    }
+                }
+                else
+                {
+                    var notificationService = ServiceLocator.Current.GetInstance<INotificationService>();
+                    notificationService.CreateNotification("TLDR; something bad happened, send /u/hippiehunter a PM letting us know what you clicked on");
                 }
             }
         }
-
         private bool ContentFocused
         {
             get
             {
-                var context = DataContext as ReadableArticleViewModel;
+                var context = DataContext as LinkViewModel;
                 if (context != null)
                     return context.ContentIsFocused;
                 else

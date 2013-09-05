@@ -221,6 +221,9 @@
     <Compile Include="View\LinkedReadabilityView.xaml.cs">
       <DependentUpon>LinkedReadabilityView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedSelfTextPageView.xaml.cs">
+      <DependentUpon>LinkedSelfTextPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
     </Compile>
@@ -334,6 +337,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\LinkedReadabilityView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedSelfTextPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

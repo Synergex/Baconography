@@ -84,5 +84,10 @@ namespace BaconographyW8.PlatformServices
         {
             get { throw new NotImplementedException(); }
         }
+
+        public Type SelfTextView
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

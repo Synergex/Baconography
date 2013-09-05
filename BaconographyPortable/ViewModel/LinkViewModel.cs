@@ -29,7 +29,7 @@ namespace BaconographyPortable.ViewModel
         bool _loading;
         bool _registeredLongNav;
 
-        public LinkViewModel(Thing linkThing, IBaconProvider baconProvider)
+        public LinkViewModel(Thing linkThing, IBaconProvider baconProvider, bool? wasStreamed = null)
         {
             _linkThing = new TypedThing<Link>(linkThing);
             _baconProvider = baconProvider;
@@ -44,7 +44,9 @@ namespace BaconographyPortable.ViewModel
             _registeredLongNav = false;
             ShowPreview = new RelayCommand(() => IsPreviewShown = !IsPreviewShown);
 			ShowExtendedOptions = new RelayCommand(() => IsExtendedOptionsShown = !IsExtendedOptionsShown);
+            WasStreamed = wasStreamed ?? false;
 
+            ContentIsFocused = !WasStreamed;
 
             if (Url != null)
             {
@@ -261,10 +263,84 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        private bool _contentIsFocused = false;
+        public bool ContentIsFocused
+        {
+            get
+            {
+                return _contentIsFocused;
+            }
+            set
+            {
+                if (_contentIsFocused != value)
+                {
+                    _contentIsFocused = value;
+                    RaisePropertyChanged("ContentIsChanged");
+                }
+            }
+        }
+
+        public bool WasStreamed { get; set; }
+
+        object _selfText;
+        public object SelfText
+        {
+            get
+            {
+                if (_selfText == null)
+                {
+                    _selfText = _baconProvider.GetService<IMarkdownProcessor>().Process(_linkThing.Data.Selftext);
+                }
+                return _selfText;
+            }
+        }
+
+        LinkViewModel _parentLink;
+        public LinkViewModel ParentLink
+        {
+            get
+            {
+                if (_parentLink == null)
+                {
+                    if (string.IsNullOrWhiteSpace(this.LinkThing.Data.Id))
+                        return null;
+
+                    var viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
+                    var firstRedditViewModel = viewModelContextService.ContextStack.FirstOrDefault(context => context is RedditViewModel) as RedditViewModel;
+                    if (firstRedditViewModel != null)
+                    {
+                        for (int i = 0; i < firstRedditViewModel.Links.Count; i++)
+                        {
+                            var linkViewModel = firstRedditViewModel.Links[i] as LinkViewModel;
+                            if (linkViewModel != null)
+                            {
+                                if (linkViewModel.LinkThing.Data.Id == this.LinkThing.Data.Id)
+                                {
+                                    _parentLink = linkViewModel;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return _parentLink;
+            }
+        }
+
+        public bool HasContext
+        {
+            get
+            {
+                return ParentLink != null;
+            }
+        }
+
         public RelayCommand<LinkViewModel> NavigateToComments { get { return _navigateToComments; } }
         public RelayCommand<LinkViewModel> GotoLink { get { return _gotoLink; } }
 		public RelayCommand<LinkViewModel> GotoSubreddit { get { return _gotoSubreddit; } }
 		public RelayCommand<LinkViewModel> GotoUserDetails { get { return _gotoUserDetails; } }
+        public RelayCommand GotoUser { get { return new RelayCommand(() => GotoUserStatic(this)); } }
 
         static RelayCommand<LinkViewModel> _navigateToComments = new RelayCommand<LinkViewModel>(NavigateToCommentsImpl);
         static RelayCommand<LinkViewModel> _gotoLink = new RelayCommand<LinkViewModel>(GotoLinkImpl);
@@ -332,7 +408,15 @@ namespace BaconographyPortable.ViewModel
         {
             if (vm.IsExtendedOptionsShown)
                 vm.IsExtendedOptionsShown = false;
-            UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
+
+            if (vm.IsSelfPost)
+            {
+                vm._navigationService.Navigate(vm._dynamicViewLocator.SelfPostView, Tuple.Create(vm.LinkThing, false));
+            }
+            else
+            {
+                UtilityCommandImpl.GotoLinkImpl(vm.Url, vm._linkThing);
+            }
             vm.RaisePropertyChanged("Url");
         }
 

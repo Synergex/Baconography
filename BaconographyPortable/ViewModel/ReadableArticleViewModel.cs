@@ -35,7 +35,7 @@ namespace BaconographyPortable.ViewModel
         public static Task<ReadableArticleViewModel> LoadAtLeastOne(ISimpleHttpService httpService, string url, string linkId)
         {
             TaskCompletionSource<ReadableArticleViewModel> result = new TaskCompletionSource<ReadableArticleViewModel>();
-            var articleViewModel = new ReadableArticleViewModel { ArticleUrl = url, ArticleParts = new ObservableCollection<object>(), LinkId = linkId };
+            var articleViewModel = new ReadableArticleViewModel { ArticleUrl = url, ArticleParts = new ObservableCollection<object>(), LinkId = linkId, ContentIsFocused = true };
             LoadOneImpl(httpService, url, articleViewModel.ArticleParts).ContinueWith(async (task) =>
                 {
                     try
@@ -131,6 +131,7 @@ namespace BaconographyPortable.ViewModel
             }
         }
         public string Title { get; set; }
+        public bool WasStreamed { get; set; }
         public ObservableCollection<Object> ArticleParts { get; set; }
 
         private RelayCommand _launchBrowser;

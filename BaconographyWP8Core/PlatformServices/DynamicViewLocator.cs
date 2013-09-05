@@ -85,5 +85,10 @@ namespace BaconographyWP8.PlatformServices
         {
             get { return typeof(LinkedReadabilityView); }
         }
+
+        public Type SelfPostView
+        {
+            get { return typeof(LinkedSelfTextPageView); }
+        }
     }
 }

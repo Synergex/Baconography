@@ -129,11 +129,17 @@ namespace BaconographyPortable.Common
                     smartOfflineService.NavigatedToOfflineableThing(targetViewModel.LinkThing, true);
                     await ServiceLocator.Current.GetInstance<IOfflineService>().StoreHistory(targetViewModel.Url);
                     var result = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), targetViewModel.Url, targetViewModel.LinkThing.Data.Id);
+                    result.WasStreamed = true;
+                    result.ContentIsFocused = false;
                     return result;
                 }
-                else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.CommentGlyph)
+                else if (vm is LinkViewModel && ((LinkViewModel)vm).IsSelfPost && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
                 {
-                    //do something for self posts, dont load the comments just the text
+                    var targetViewModel = vm as LinkViewModel;
+                    var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
+                    smartOfflineService.NavigatedToOfflineableThing(targetViewModel.LinkThing, true);
+                    await ServiceLocator.Current.GetInstance<IOfflineService>().StoreHistory(targetViewModel.Url);
+                    return vm;
                 }
             }
             return null;
