@@ -58,7 +58,7 @@ namespace BaconographyWP8Core.View
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
         {
-            if (ContentFocused)
+            if (ContentFocused && !ServiceLocator.Current.GetInstance<ISettingsService>().OnlyFlipViewImages)
             {
                 e.Cancel = true;
                 DeFocusContent();

@@ -122,7 +122,7 @@ namespace BaconographyPortable.Common
                         };
                     }
                 }
-                else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.WebGlyph && settingsService.ApplyReadabliltyToLinks && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
+                else if (vm is LinkViewModel && LinkGlyphUtility.GetLinkGlyph(vm) == LinkGlyphUtility.WebGlyph && !settingsService.OnlyFlipViewImages && settingsService.ApplyReadabliltyToLinks && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
                 {
                     var targetViewModel = vm as LinkViewModel;
                     var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
@@ -133,7 +133,7 @@ namespace BaconographyPortable.Common
                     result.ContentIsFocused = false;
                     return result;
                 }
-                else if (vm is LinkViewModel && ((LinkViewModel)vm).IsSelfPost && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
+                else if (vm is LinkViewModel && ((LinkViewModel)vm).IsSelfPost && !settingsService.OnlyFlipViewImages && (!settingsService.OnlyFlipViewUnread || !offlineService.HasHistory(((LinkViewModel)vm).Url)))
                 {
                     var targetViewModel = vm as LinkViewModel;
                     var smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();

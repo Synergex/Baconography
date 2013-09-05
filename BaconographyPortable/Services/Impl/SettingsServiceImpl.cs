@@ -299,11 +299,11 @@ namespace BaconographyPortable.Services.Impl
                 else
                     OnlyFlipViewUnread = false;
 
-                var onlyFlipViewImages = await offlineService.GetSetting("OnlyFlipViewImages");
+                var onlyFlipViewImages = await offlineService.GetSetting("OnlyFlipViewImages2");
                 if (!string.IsNullOrWhiteSpace(onlyFlipViewImages))
                     OnlyFlipViewImages = bool.Parse(onlyFlipViewImages);
                 else
-                    OnlyFlipViewImages = false;
+                    OnlyFlipViewImages = true;
 
                 Messenger.Default.Send<SettingsChangedMessage>(new SettingsChangedMessage { InitialLoad = true });
             }
@@ -353,7 +353,7 @@ namespace BaconographyPortable.Services.Impl
             await offlineService.StoreSetting("MultiColorCommentMargins", MultiColorCommentMargins.ToString());
             await offlineService.StoreSetting("InvertSystemTheme", InvertSystemTheme.ToString());
             await offlineService.StoreSetting("OnlyFlipViewUnread", OnlyFlipViewUnread.ToString());
-            await offlineService.StoreSetting("OnlyFlipViewImages", OnlyFlipViewImages.ToString());
+            await offlineService.StoreSetting("OnlyFlipViewImages2", OnlyFlipViewImages.ToString());
         }
 
 

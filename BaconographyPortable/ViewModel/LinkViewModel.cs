@@ -409,7 +409,7 @@ namespace BaconographyPortable.ViewModel
             if (vm.IsExtendedOptionsShown)
                 vm.IsExtendedOptionsShown = false;
 
-            if (vm.IsSelfPost)
+            if (vm.IsSelfPost && !vm._settingsService.OnlyFlipViewImages)
             {
                 vm._navigationService.Navigate(vm._dynamicViewLocator.SelfPostView, Tuple.Create(vm.LinkThing, false));
             }
