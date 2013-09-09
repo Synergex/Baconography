@@ -619,15 +619,27 @@ namespace SnuDom
 		}
 		virtual void Visit(Paragraph^ paragraph)
 		{
+			int count = 0;
 			for (auto elem : paragraph)
             {
+				if(count == 1)
+				{
+					UpgradeCategory(MarkdownCategory::Formatted);
+				}
+				count++;
                 elem->Accept(this);
             }
 		}
 		virtual void Visit(Document^ document)
 		{
+			int count = 0;
 			for (auto elem : document)
             {
+				if(count == 1)
+				{
+					UpgradeCategory(MarkdownCategory::Formatted);
+				}
+				count++;
                 elem->Accept(this);
 				if(Category == MarkdownCategory::Full)
 					break;

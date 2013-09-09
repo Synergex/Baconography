@@ -269,7 +269,7 @@ namespace BaconographyW8.Converters
             }
 
 
-            if (categoryVisitor.Category == MarkdownCategory.PlainText)
+            if (categoryVisitor.Category == MarkdownCategory.PlainText && code.Count() == 1)
             {
                 var plainTextVisitor = new SnuDomPlainTextVisitor();
 

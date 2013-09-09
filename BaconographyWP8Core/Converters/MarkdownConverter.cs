@@ -107,11 +107,6 @@ namespace BaconographyWP8.Converters
         public void Visit(Text text)
         {
             var madeRun = new Run { Text = text.Contents };
-            if (text.Contents.Contains('\n'))
-            {
-                //do something
-                _textLengthInCurrent++;
-            }
             _textLengthInCurrent += text.Contents.Length;
 
             if (text.Italic)
@@ -255,11 +250,6 @@ namespace BaconographyWP8.Converters
                 MaybeSplitForParagraph();
             }
             _currentParagraph.Inlines.Add(madeRun);
-
-            if (code.IsBlock)
-            {
-                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
-            }
         }
 
         public void Visit(Quote code)
@@ -274,7 +264,7 @@ namespace BaconographyWP8.Converters
             }
 
 
-            if (categoryVisitor.Category == MarkdownCategory.PlainText)
+            if (categoryVisitor.Category == MarkdownCategory.PlainText && code.Count() == 1)
             {
                 var plainTextVisitor = new SnuDomPlainTextVisitor();
 

@@ -19,7 +19,7 @@ namespace SnuDom
 		}
 	public:
 		virtual property uint32_t DomID;
-		virtual Windows::Foundation::Collections::IIterator<IDomObject^>^ First(){return nullptr;}
-		virtual void Accept(IDomVisitor^ visitor){}
+		virtual Windows::Foundation::Collections::IIterator<IDomObject^>^ First(){return _children.First();}
+		virtual void Accept(IDomVisitor^ visitor){ visitor->Visit(this); }
 	};
 }

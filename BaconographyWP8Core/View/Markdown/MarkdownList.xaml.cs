@@ -20,7 +20,8 @@ namespace BaconographyWP8Core.View.Markdown
             {
                 var itemPanel = new StackPanel();
                 itemPanel.Orientation = Orientation.Horizontal;
-                itemPanel.Children.Add(new TextBlock { Margin = new Thickness(5, 0, 15, 0), Text = numbered ? (number++).ToString() + "." : "&#x25CF;" });
+                var text = new TextBlock { Margin = new Thickness(5, 0, 15, 0), Text = numbered ? (number++).ToString() + "." : "\u25CF" };
+                itemPanel.Children.Add(text);
                 itemPanel.Children.Add(element);
                 items.Children.Add(itemPanel);
             }
