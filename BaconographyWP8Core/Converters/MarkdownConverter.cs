@@ -43,7 +43,10 @@ namespace BaconographyWP8.Converters
                             {
                                 var visitor = new SnuDomFullUIVisitor(Styles.Resources["PhoneForegroundBrush"] as Brush);
                                 ((IDomObject)markdownData.MarkdownDom).Accept(visitor);
-                                return visitor.Result;
+                                if (visitor.ResultGroup != null)
+                                    return visitor.ResultGroup;
+                                else
+                                    return visitor.Result;
                             }
                         default:
                             return new TextBlock { Text = "" };
@@ -78,12 +81,33 @@ namespace BaconographyWP8.Converters
             _forgroundBrush = forgroundBrush;
         }
         Brush _forgroundBrush;
+        private int _textLengthInCurrent = 0;
         public RichTextBox Result = new RichTextBox { TextWrapping = TextWrapping.Wrap };
+        public StackPanel ResultGroup = null;
         System.Windows.Documents.Paragraph _currentParagraph;
+
+        private void MaybeSplitForParagraph()
+        {
+            if (_textLengthInCurrent > 1000)
+            {
+                if (ResultGroup == null)
+                {
+                    ResultGroup = new StackPanel { Orientation = Orientation.Vertical };
+                    ResultGroup.Children.Add(Result);
+                }
+
+                ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap });
+                _textLengthInCurrent = 0;
+            }
+
+            _currentParagraph = new System.Windows.Documents.Paragraph();
+            Result.Blocks.Add(_currentParagraph);
+        }
+
         public void Visit(Text text)
         {
             var madeRun = new Run { Text = text.Contents };
-
+            _textLengthInCurrent += text.Contents.Length;
 
             if (text.Italic)
                 madeRun.FontStyle = FontStyles.Italic;
@@ -97,28 +121,40 @@ namespace BaconographyWP8.Converters
                 switch (text.HeaderSize)
                 {
                     case 1:
-                        madeRun.FontSize = 12;
-                        break;
-                    case 2:
-                        madeRun.FontSize = 16;
-                        break;
-                    case 3:
-                        madeRun.FontSize = 20;
-                        break;
-                    case 4:
                         madeRun.FontSize = 24;
                         break;
-                    case 5:
-                        madeRun.FontSize = 28;
+                    case 2:
+                        madeRun.FontSize = 24;
+                        madeRun.FontWeight = FontWeights.Bold;
+                        madeRun.Foreground = _forgroundBrush; 
                         break;
+                    case 3:
+                    case 4:
+                    case 5:
                     case 6:
-                        madeRun.FontSize = 32;
+                        madeRun.FontSize = 28;
+                        madeRun.FontWeight = FontWeights.Bold;
                         break;
                 }
-                _currentParagraph = new System.Windows.Documents.Paragraph();
-                Result.Blocks.Add(_currentParagraph);
+                MaybeSplitForParagraph();
                 _currentParagraph.Inlines.Add(madeRun);
+                if (text.HeaderSize == 1)
+                {
+                    var inlineContainer = new System.Windows.Documents.InlineUIContainer();
+                    inlineContainer.Child = new Border
+                    {
+                        Margin = new Thickness(0, 5, 0, 5),
+                        Height = 1,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        BorderBrush = _forgroundBrush,
+                        BorderThickness = new Thickness(1),
+                        MinWidth = 1800
+                    };
+                    _currentParagraph.Inlines.Add(inlineContainer);
+                }
+                
                 _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+                
             }
             else
             {
@@ -133,8 +169,7 @@ namespace BaconographyWP8.Converters
 
         public void Visit(SnuDomWP8.Paragraph paragraph)
         {
-            _currentParagraph = new System.Windows.Documents.Paragraph();
-            Result.Blocks.Add(_currentParagraph);
+            MaybeSplitForParagraph();
             foreach (var elem in paragraph)
             {
                 elem.Accept(this);
@@ -154,9 +189,8 @@ namespace BaconographyWP8.Converters
                 BorderThickness = new Thickness(2),
                 MinWidth = 1800
             };
-            _currentParagraph = new System.Windows.Documents.Paragraph();
+            MaybeSplitForParagraph();
             _currentParagraph.Inlines.Add(inlineContainer);
-            Result.Blocks.Add(_currentParagraph);
         }
 
         public void Visit(SnuDomWP8.LineBreak lineBreak)
@@ -211,12 +245,16 @@ namespace BaconographyWP8.Converters
                 item.Accept(plainTextVisitor);
 
             var madeRun = new Run { Text = plainTextVisitor.Result };
-            if (_currentParagraph == null)
+            if (_currentParagraph == null || code.IsBlock)
             {
-                _currentParagraph = new System.Windows.Documents.Paragraph();
-                Result.Blocks.Add(_currentParagraph);
+                MaybeSplitForParagraph();
             }
             _currentParagraph.Inlines.Add(madeRun);
+
+            if (code.IsBlock)
+            {
+                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+            }
         }
 
         public void Visit(Quote code)
@@ -253,8 +291,7 @@ namespace BaconographyWP8.Converters
 
             if (_currentParagraph == null)
             {
-                _currentParagraph = new System.Windows.Documents.Paragraph();
-                Result.Blocks.Add(_currentParagraph);
+                MaybeSplitForParagraph();
             }
             else
             {
@@ -275,10 +312,18 @@ namespace BaconographyWP8.Converters
                 if (categoryVisitor.Category == MarkdownCategory.PlainText)
                 {
                     var plainTextVisitor = new SnuDomPlainTextVisitor();
+                    //this might be a pp
                     var column = item as TableColumn;
-                    foreach (var contents in column.Contents)
+                    if (column != null)
                     {
-                        contents.Accept(plainTextVisitor);
+                        foreach (var contents in column.Contents)
+                        {
+                            contents.Accept(plainTextVisitor);
+                        }
+                    }
+                    else if(item is SnuDomWP8.Paragraph)
+                    {
+                        item.Accept(plainTextVisitor);
                     }
 
                     results.Add(new TextBlock { Text = plainTextVisitor.Result });
@@ -298,9 +343,8 @@ namespace BaconographyWP8.Converters
             var uiElements = BuildChildUIList(orderedList);
             var inlineContainer = new InlineUIContainer();
             inlineContainer.Child = new MarkdownList(true, uiElements);
-            _currentParagraph = new System.Windows.Documents.Paragraph();
+            MaybeSplitForParagraph();
             _currentParagraph.Inlines.Add(inlineContainer);
-            Result.Blocks.Add(_currentParagraph);
         }
 
         public void Visit(UnorderedList unorderedList)
@@ -308,9 +352,8 @@ namespace BaconographyWP8.Converters
             var uiElements = BuildChildUIList(unorderedList);
             var inlineContainer = new InlineUIContainer();
             inlineContainer.Child = new MarkdownList(false, uiElements);
-            _currentParagraph = new System.Windows.Documents.Paragraph();
+            MaybeSplitForParagraph();
             _currentParagraph.Inlines.Add(inlineContainer);
-            Result.Blocks.Add(_currentParagraph);
         }
 
         public void Visit(Table table)
@@ -326,8 +369,7 @@ namespace BaconographyWP8.Converters
 
             if (_currentParagraph == null)
             {
-                _currentParagraph = new System.Windows.Documents.Paragraph();
-                Result.Blocks.Add(_currentParagraph);
+                MaybeSplitForParagraph();
             }
             else
             {

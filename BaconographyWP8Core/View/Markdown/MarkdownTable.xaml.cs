@@ -17,11 +17,13 @@ namespace BaconographyWP8Core.View.Markdown
             InitializeComponent();
             int x = 0, y = 0;
             theGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            int maxX = headers.Count() - 1;
             foreach (var header in headers)
             {
                 theGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 header.SetValue(Grid.ColumnProperty, x);
                 header.SetValue(Grid.RowProperty, y);
+                
                 theGrid.Children.Add(header);
                 x++;
             }

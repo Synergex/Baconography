@@ -35,8 +35,8 @@ namespace BaconographyWP8.Common
 			DependencyProperty.Register(
 				"Url",
 				typeof(string),
-				typeof(MarkdownButton),
-				new PropertyMetadata(null, OnUrlChanged)
+                typeof(RichMarkdownButton),
+				new PropertyMetadata(null)
 			);
 
 		public string Url
@@ -49,22 +49,14 @@ namespace BaconographyWP8.Common
 				else
 					this.Foreground = noHistory;
 				SetValue(UrlProperty, value);
-				if (String.IsNullOrEmpty((string)GetValue(RealContentProperty)))
-					SetValue(RealContentProperty, value);
 			}
-		}
-
-		private static void OnUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var button = (MarkdownButton)d;
-			button.Url = (string)e.NewValue;
 		}
 
 		public static readonly DependencyProperty RealContentProperty =
 			DependencyProperty.Register(
                 "RealContent",
                 typeof(UIElement),
-				typeof(MarkdownButton),
+                typeof(RichMarkdownButton),
                 new PropertyMetadata(null)
 			);
 

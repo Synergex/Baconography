@@ -174,6 +174,7 @@ namespace SnuDom
 		consume_text(text, state, expanded);
 		auto newDomId = state->domId++;
 		auto result = ref new Code(expanded, newDomId);
+		result->IsBlock = true;
 		state->unclaimedDomIdMap[newDomId] = result;
 		makeDomId(ob, newDomId, opaque);
 	}
@@ -198,6 +199,7 @@ namespace SnuDom
 		consume_text(text, state, expanded);
 		auto newDomId = state->domId++;
 		auto result = ref new Code(expanded, newDomId);
+		result->IsBlock = false;
 		state->unclaimedDomIdMap[newDomId] = result;
 		makeDomId(ob, newDomId, opaque);
 		return 1;
@@ -417,7 +419,7 @@ namespace SnuDom
 		vector<IDomObject^> expanded;
 		consume_text(text, state, expanded);
 		auto newDomId = state->domId++;
-		auto result = ref new TableColumn(expanded, newDomId);
+		auto result = ref new TableColumn(expanded, newDomId, flags);
 		state->unclaimedDomIdMap[newDomId] = result;
 		makeDomId(ob, newDomId, opaque);
 	}
