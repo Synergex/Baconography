@@ -108,7 +108,18 @@ static char_trigger markdown_char_ptrs[] = {
 	&char_superscript,
 };
 
+/* render • structure containing one particular render */
+struct sd_markdown {
+	struct sd_callbacks	cb;
+	void *opaque;
 
+	struct link_ref *refs[REF_TABLE_SIZE];
+	uint8_t active_char[256];
+	struct stack work_bufs[2];
+	unsigned int ext_flags;
+	size_t max_nesting;
+	int in_link_body;
+};
 
 /***************************
  * HELPER FUNCTIONS *
@@ -126,7 +137,7 @@ rndr_newbuf(struct sd_markdown *rndr, int type)
 		work = (buf*)pool->item[pool->size++];
 		work->size = 0;
 	} else {
-		work = bufnew(buf_size[type]);
+		work = bufnew(rndr->opaque, rndr->cb.allocate, buf_size[type]);
 		stack_push(pool, work);
 	}
 
@@ -140,7 +151,7 @@ rndr_popbuf(struct sd_markdown *rndr, int type)
 }
 
 static void
-unscape_text(struct buf *ob, struct buf *src)
+unscape_text(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *ob, struct buf *src)
 {
 	size_t i = 0, org;
 	while (i < src->size) {
@@ -149,12 +160,12 @@ unscape_text(struct buf *ob, struct buf *src)
 			i++;
 
 		if (i > org)
-			bufput(ob, src->data + org, i - org);
+			bufput(opaque, allocate, ob, src->data + org, i - org);
 
 		if (i + 1 >= src->size)
 			break;
 
-		bufputc(ob, src->data[i + 1]);
+		bufputc(opaque, allocate, ob, src->data[i + 1]);
 		i += 2;
 	}
 }
@@ -173,10 +184,12 @@ hash_link_ref(const uint8_t *link_ref, size_t length)
 
 static struct link_ref *
 add_link_ref(
+void* opaque, void* (*allocate)(void *opaque, size_t size),
 	struct link_ref **references,
 	const uint8_t *name, size_t name_size)
 {
-	struct link_ref *ref = (link_ref*)calloc(1, sizeof(struct link_ref));
+	struct link_ref *ref = (link_ref*)allocate(opaque, sizeof(struct link_ref));
+	memset(ref, 0, sizeof(struct link_ref));
 
 	if (!ref)
 		return NULL;
@@ -364,7 +377,7 @@ parse_inline(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t siz
 			rndr->cb.normal_text(ob, &work, rndr->opaque);
 		}
 		else
-			bufput(ob, data + i, end - i);
+			bufput(rndr->opaque, rndr->cb.allocate, ob, data + i, end - i);
 
 		if (end >= size) break;
 		i = end;
@@ -688,9 +701,9 @@ char_escape(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offs
 			work.size = 1;
 			rndr->cb.normal_text(ob, &work, rndr->opaque);
 		}
-		else bufputc(ob, data[1]);
+		else bufputc(rndr->opaque, rndr->cb.allocate, ob, data[1]);
 	} else if (size == 1) {
-		bufputc(ob, data[0]);
+		bufputc(rndr->opaque, rndr->cb.allocate, ob, data[0]);
 	}
 
 	return 2;
@@ -720,7 +733,7 @@ char_entity(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offs
 		work.size = end;
 		rndr->cb.entity(ob, &work, rndr->opaque);
 	}
-	else bufput(ob, data, end);
+	else bufput(rndr->opaque, rndr->cb.allocate, ob, data, end);
 
 	return end;
 }
@@ -739,7 +752,7 @@ char_langle_tag(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 			struct buf *u_link = rndr_newbuf(rndr, BUFFER_SPAN);
 			work.data = data + 1;
 			work.size = end - 2;
-			unscape_text(u_link, &work);
+			unscape_text(rndr->opaque, rndr->cb.allocate, u_link, &work);
 			ret = rndr->cb.autolink(ob, u_link, altype, rndr->opaque);
 			rndr_popbuf(rndr, BUFFER_SPAN);
 		}
@@ -762,10 +775,10 @@ char_autolink_www(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	if ((link_len = sd_autolink__www(&rewind, link, data, offset, size, 0)) > 0) {
+	if ((link_len = sd_autolink__www(rndr->opaque, rndr->cb.allocate, &rewind, link, data, offset, size, 0)) > 0) {
 		link_url = rndr_newbuf(rndr, BUFFER_SPAN);
-		BUFPUTSL(link_url, "http://");
-		bufput(link_url, link->data, link->size);
+		BUFPUTSL(rndr->opaque, rndr->cb.allocate,link_url, "http://");
+		bufput(rndr->opaque, rndr->cb.allocate, link_url, link->data, link->size);
 
 		ob->size -= rewind;
 		if (rndr->cb.normal_text) {
@@ -793,10 +806,10 @@ char_autolink_subreddit_or_username(struct buf *ob, struct sd_markdown *rndr, ui
 		return 0;
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
-	if ((link_len = sd_autolink__subreddit(&rewind, link, data, offset, size)) > 0) {
+	if ((link_len = sd_autolink__subreddit(rndr->opaque, rndr->cb.allocate, &rewind, link, data, offset, size)) > 0) {
 		ob->size -= rewind;
 		rndr->cb.autolink(ob, link, MKDA_NORMAL, rndr->opaque);
-	} else if ((link_len = sd_autolink__username(&rewind, link, data, offset, size)) > 0) {
+	} else if ((link_len = sd_autolink__username(rndr->opaque, rndr->cb.allocate, &rewind, link, data, offset, size)) > 0) {
 		ob->size -= rewind;
 		rndr->cb.autolink(ob, link, MKDA_NORMAL, rndr->opaque);
 	}
@@ -816,7 +829,7 @@ char_autolink_email(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, siz
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	if ((link_len = sd_autolink__email(&rewind, link, data, offset, size, 0)) > 0) {
+	if ((link_len = sd_autolink__email(rndr->opaque, rndr->cb.allocate, &rewind, link, data, offset, size, 0)) > 0) {
 		ob->size -= rewind;
 		rndr->cb.autolink(ob, link, MKDA_EMAIL, rndr->opaque);
 	}
@@ -836,7 +849,7 @@ char_autolink_url(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_
 
 	link = rndr_newbuf(rndr, BUFFER_SPAN);
 
-	if ((link_len = sd_autolink__url(&rewind, link, data, offset, size, 0)) > 0) {
+	if ((link_len = sd_autolink__url(rndr->opaque, rndr->cb.allocate, &rewind, link, data, offset, size, 0)) > 0) {
 		ob->size -= rewind;
 		rndr->cb.autolink(ob, link, MKDA_NORMAL, rndr->opaque);
 	}
@@ -952,12 +965,12 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 		/* building escaped link and title */
 		if (link_e > link_b) {
 			link = rndr_newbuf(rndr, BUFFER_SPAN);
-			bufput(link, data + link_b, link_e - link_b);
+			bufput(rndr->opaque, rndr->cb.allocate, link, data + link_b, link_e - link_b);
 		}
 
 		if (title_e > title_b) {
 			title = rndr_newbuf(rndr, BUFFER_SPAN);
-			bufput(title, data + title_b, title_e - title_b);
+			bufput(rndr->opaque, rndr->cb.allocate, title, data + title_b, title_e - title_b);
 		}
 
 		i++;
@@ -983,9 +996,9 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 
 				for (j = 1; j < txt_e; j++) {
 					if (data[j] != '\n')
-						bufputc(b, data[j]);
+						bufputc(rndr->opaque, rndr->cb.allocate, b, data[j]);
 					else if (data[j - 1] != ' ')
-						bufputc(b, ' ');
+						bufputc(rndr->opaque, rndr->cb.allocate, b, ' ');
 				}
 
 				id.data = b->data;
@@ -1021,9 +1034,9 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 
 			for (j = 1; j < txt_e; j++) {
 				if (data[j] != '\n')
-					bufputc(b, data[j]);
+					bufputc(rndr->opaque, rndr->cb.allocate, b, data[j]);
 				else if (data[j - 1] != ' ')
-					bufputc(b, ' ');
+					bufputc(rndr->opaque, rndr->cb.allocate, b, ' ');
 			}
 
 			id.data = b->data;
@@ -1050,7 +1063,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	if (txt_e > 1) {
 		content = rndr_newbuf(rndr, BUFFER_SPAN);
 		if (is_img) {
-			bufput(content, data + 1, txt_e - 1);
+			bufput(rndr->opaque, rndr->cb.allocate, content, data + 1, txt_e - 1);
 		} else {
 			/* disable autolinking when parsing inline the
 			 * content of a link */
@@ -1062,7 +1075,7 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 
 	if (link) {
 		u_link = rndr_newbuf(rndr, BUFFER_SPAN);
-		unscape_text(u_link, link);
+		unscape_text(rndr->opaque, rndr->cb.allocate, u_link, link);
 	} else {
 		goto cleanup;
 	}
@@ -1581,14 +1594,14 @@ parse_fencedcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t
 			/* verbatim copy to the working buffer,
 				escaping entities */
 			if (is_empty(data + beg, end - beg))
-				bufputc(work, '\n');
-			else bufput(work, data + beg, end - beg);
+				bufputc(rndr->opaque, rndr->cb.allocate, work, '\n');
+			else bufput(rndr->opaque, rndr->cb.allocate, work, data + beg, end - beg);
 		}
 		beg = end;
 	}
 
 	if (work->size && work->data[work->size - 1] != '\n')
-		bufputc(work, '\n');
+		bufputc(rndr->opaque, rndr->cb.allocate, work, '\n');
 
 	if (rndr->cb.blockcode)
 		rndr->cb.blockcode(ob, work, lang.size ? &lang : NULL, rndr->opaque);
@@ -1620,8 +1633,8 @@ parse_blockcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 			/* verbatim copy to the working buffer,
 				escaping entities */
 			if (is_empty(data + beg, end - beg))
-				bufputc(work, '\n');
-			else bufput(work, data + beg, end - beg);
+				bufputc(rndr->opaque, rndr->cb.allocate, work, '\n');
+			else bufput(rndr->opaque, rndr->cb.allocate, work, data + beg, end - beg);
 		}
 		beg = end;
 	}
@@ -1629,7 +1642,7 @@ parse_blockcode(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t 
 	while (work->size && work->data[work->size - 1] == '\n')
 		work->size -= 1;
 
-	bufputc(work, '\n');
+	bufputc(rndr->opaque, rndr->cb.allocate, work, '\n');
 
 	if (rndr->cb.blockcode)
 		rndr->cb.blockcode(ob, work, NULL, rndr->opaque);
@@ -1668,7 +1681,7 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 	inter = rndr_newbuf(rndr, BUFFER_SPAN);
 
 	/* putting the first line into the working buffer */
-	bufput(work, data + beg, end - beg);
+	bufput(rndr->opaque, rndr->cb.allocate, work, data + beg, end - beg);
 	beg = end;
 
 	/* process the following lines */
@@ -1733,14 +1746,14 @@ parse_listitem(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t s
 			break;
 		}
 		else if (in_empty) {
-			bufputc(work, '\n');
+			bufputc(rndr->opaque, rndr->cb.allocate, work, '\n');
 			has_inside_empty = 1;
 		}
 
 		in_empty = 0;
 
 		/* adding the line without prefix into the working buffer */
-		bufput(work, data + beg + i, end - beg - i);
+		bufput(rndr->opaque, rndr->cb.allocate, work, data + beg + i, end - beg - i);
 		beg = end;
 	}
 
@@ -2083,7 +2096,8 @@ parse_table_header(
 		pipes--;
 
 	*columns = pipes + 1;
-	*column_data = (int*)calloc(*columns, sizeof(int));
+	*column_data = (int*)rndr->cb.allocate(rndr->opaque, (*columns * sizeof(int)));
+	memset(*column_data, 0, (*columns * sizeof(int)));
 
 	/* Parse the header underline */
 	i++;
@@ -2192,7 +2206,7 @@ parse_table(
 			rndr->cb.table(ob, header_work, body_work, rndr->opaque);
 	}
 
-	free(col_data);
+	//free(col_data);
 	rndr_popbuf(rndr, BUFFER_SPAN);
 	rndr_popbuf(rndr, BUFFER_BLOCK);
 	return i;
@@ -2267,7 +2281,7 @@ parse_block(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t size
 
 /* is_ref • returns whether a line is a reference or not */
 static int
-is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_ref **refs)
+is_ref(void* opaque, void* (*allocate)(void *opaque, size_t size), const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_ref **refs)
 {
 /*	int n; */
 	size_t i = 0;
@@ -2363,23 +2377,23 @@ is_ref(const uint8_t *data, size_t beg, size_t end, size_t *last, struct link_re
 	if (refs) {
 		struct link_ref *ref;
 
-		ref = add_link_ref(refs, data + id_offset, id_end - id_offset);
+		ref = add_link_ref(opaque, allocate, refs, data + id_offset, id_end - id_offset);
 		if (!ref)
 			return 0;
 
-		ref->link = bufnew(link_end - link_offset);
-		bufput(ref->link, data + link_offset, link_end - link_offset);
+		ref->link = bufnew(opaque, allocate, link_end - link_offset);
+		bufput(opaque, allocate, ref->link, data + link_offset, link_end - link_offset);
 
 		if (title_end > title_offset) {
-			ref->title = bufnew(title_end - title_offset);
-			bufput(ref->title, data + title_offset, title_end - title_offset);
+			ref->title = bufnew(opaque, allocate, title_end - title_offset);
+			bufput(opaque, allocate, ref->title, data + title_offset, title_end - title_offset);
 		}
 	}
 
 	return 1;
 }
 
-static void expand_tabs(struct buf *ob, const uint8_t *line, size_t size)
+static void expand_tabs(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *ob, const uint8_t *line, size_t size)
 {
 	size_t  i = 0, tab = 0;
 
@@ -2391,13 +2405,13 @@ static void expand_tabs(struct buf *ob, const uint8_t *line, size_t size)
 		}
 
 		if (i > org)
-			bufput(ob, line + org, i - org);
+			bufput(opaque,allocate, ob, line + org, i - org);
 
 		if (i >= size)
 			break;
 
 		do {
-			bufputc(ob, ' '); tab++;
+			bufputc(opaque, allocate, ob, ' '); tab++;
 		} while (tab % 4);
 
 		i++;
@@ -2419,14 +2433,14 @@ sd_markdown_new(
 
 	assert(max_nesting > 0 && callbacks);
 
-	md = (sd_markdown*)malloc(sizeof(struct sd_markdown));
+	md = (sd_markdown*)callbacks->allocate(opaque, sizeof(struct sd_markdown));
 	if (!md)
 		return NULL;
 
 	memcpy(&md->cb, callbacks, sizeof(struct sd_callbacks));
 
-	stack_init(&md->work_bufs[BUFFER_BLOCK], 4);
-	stack_init(&md->work_bufs[BUFFER_SPAN], 8);
+	stack_init(opaque, md->cb.allocate,&md->work_bufs[BUFFER_BLOCK], 4);
+	stack_init(opaque, md->cb.allocate,&md->work_bufs[BUFFER_SPAN], 8);
 
 	memset(md->active_char, 0x0, 256);
 
@@ -2473,17 +2487,17 @@ void
 sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, struct sd_markdown *md)
 {
 #define MARKDOWN_GROW(x) ((x) + ((x) >> 1))
-	static const unsigned char UTF8_BOM[] = {0xEF, 0xBB, 0xBF};
+	static const char UTF8_BOM[] = {0xEF, 0xBB, 0xBF};
 
 	struct buf *text;
 	size_t beg, end;
 
-	text = bufnew(64);
+	text = bufnew(md->opaque, md->cb.allocate, 64);
 	if (!text)
 		return;
 
 	/* Preallocate enough space for our buffer to avoid expanding while copying */
-	bufgrow(text, doc_size);
+	bufgrow(md->opaque, md->cb.allocate, text, doc_size);
 
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
@@ -2497,7 +2511,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		beg += 3;
 
 	while (beg < doc_size) /* iterating over lines */
-		if (is_ref(document, beg, doc_size, &end, md->refs))
+		if (is_ref(md->opaque, md->cb.allocate, document, beg, doc_size, &end, md->refs))
 			beg = end;
 		else { /* skipping to the next line */
 			end = beg;
@@ -2506,12 +2520,12 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 			/* adding the line body if present */
 			if (end > beg)
-				expand_tabs(text, document + beg, end - beg);
+				expand_tabs(md->opaque, md->cb.allocate, text, document + beg, end - beg);
 
 			while (end < doc_size && (document[end] == '\n' || document[end] == '\r')) {
 				/* add one \n per newline */
 				if (document[end] == '\n' || (end + 1 < doc_size && document[end + 1] != '\n'))
-					bufputc(text, '\n');
+					bufputc(md->opaque, md->cb.allocate, text, '\n');
 				end++;
 			}
 
@@ -2519,7 +2533,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 		}
 
 	/* pre-grow the output buffer to minimize allocations */
-	bufgrow(ob, MARKDOWN_GROW(text->size));
+	bufgrow(md->opaque, md->cb.allocate, ob, MARKDOWN_GROW(text->size));
 
 	/* second pass: actual rendering */
 	if (md->cb.doc_header)
@@ -2528,7 +2542,7 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	if (text->size) {
 		/* adding a final newline if not already present */
 		if (text->data[text->size - 1] != '\n' &&  text->data[text->size - 1] != '\r')
-			bufputc(text, '\n');
+			bufputc(md->opaque, md->cb.allocate, text, '\n');
 
 		parse_block(ob, md, text->data, text->size);
 	}

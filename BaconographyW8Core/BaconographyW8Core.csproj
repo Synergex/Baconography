@@ -107,9 +107,9 @@
       <Project>{386be814-a21a-4a84-abf3-f9b61130d4f2}</Project>
       <Name>BaconographyPortable</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
-      <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>
-      <Name>SoldOutW8</Name>
+    <ProjectReference Include="..\SnuDom\SnuDom.vcxproj">
+      <Project>{4f36f5b4-d188-4350-9bd8-1ff34eb282c3}</Project>
+      <Name>SnuDom</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

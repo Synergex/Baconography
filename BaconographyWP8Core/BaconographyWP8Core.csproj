@@ -107,11 +107,18 @@
     <Compile Include="..\NeutralServices\VideoService.cs">
       <Link>NeutralServices\VideoService.cs</Link>
     </Compile>
+    <Compile Include="Common\RichMarkdownButton.xaml.cs">
+      <DependentUpon>RichMarkdownButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Common\FlipViewUtility.cs" />
     <Compile Include="Converters\ReifiedAlbumItemConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Common\RichMarkdownButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -226,6 +233,15 @@
     </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownList.xaml.cs">
+      <DependentUpon>MarkdownList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownQuote.xaml.cs">
+      <DependentUpon>MarkdownQuote.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownTable.xaml.cs">
+      <DependentUpon>MarkdownTable.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
@@ -345,6 +361,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\LockScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownQuote.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownTable.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -469,9 +497,9 @@
       <Project>{B9A8ED65-C137-4751-AF3A-44D2D7DCA0F5}</Project>
       <Name>DXGifRenderWP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
-      <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>
-      <Name>SoldOutWP8</Name>
+    <ProjectReference Include="..\SnuDom\SnuDomWP8.vcxproj">
+      <Project>{4D497A51-5483-4236-B2F0-640A4DC26E18}</Project>
+      <Name>SnuDomWP8</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

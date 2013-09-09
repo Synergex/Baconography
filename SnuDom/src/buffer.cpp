@@ -23,18 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <list>
 
 /* MSVC compat */
 #if defined(_MSC_VER)
 #	define _buf_vsnprintf _vsnprintf
 #else
 #	define _buf_vsnprintf vsnprintf
-#endif
-
-std::list<buf*> g_smallBuffers;
-#ifdef DEBUG
-std::list<buf*> g_inuseBuffers;
 #endif
 
 int
@@ -56,7 +50,7 @@ bufprefix(const struct buf *buf, const char *prefix)
 
 /* bufgrow: increasing the allocated size to the given value */
 int
-bufgrow(struct buf *buf, size_t neosz)
+bufgrow(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf, size_t neosz)
 {
 	size_t neoasz;
 	void *neodata;
@@ -73,9 +67,12 @@ bufgrow(struct buf *buf, size_t neosz)
 	while (neoasz < neosz)
 		neoasz += buf->unit;
 
-	neodata = realloc(buf->data, neoasz);
+	neodata = allocate(opaque, neoasz);
 	if (!neodata)
 		return BUF_ENOMEM;
+
+	if(buf->asize > 0)
+		memcpy(neodata, buf->data, buf->size);
 
 	buf->data = (uint8_t*)neodata;
 	buf->asize = neoasz;
@@ -85,47 +82,29 @@ bufgrow(struct buf *buf, size_t neosz)
 
 /* bufnew: allocation of a new buffer */
 struct buf *
-bufnew(size_t unit)
+bufnew(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t unit)
 {
-	if(unit < 2048)
-		unit = 2048;
+	struct buf *ret;
+	ret = (buf*)allocate(opaque, (sizeof (struct buf)));
 
-	struct buf *ret = nullptr;
-	if(unit == 2048 && g_smallBuffers.size() > 0)
-	{
-		ret = g_smallBuffers.back();
-		g_smallBuffers.pop_back();
+	if (ret) {
+		ret->data = 0;
+		ret->size = ret->asize = 0;
+		ret->unit = unit;
 	}
-	else
-	{
-
-		ret = (buf*)malloc(sizeof (struct buf));
-
-		if (ret) {
-			ret->data = 0;
-			ret->size = ret->asize = 0;
-			ret->unit = unit;
-		}
-	}
-
-
-#ifdef DEBUG
-	g_inuseBuffers.push_back(ret);
-#endif
-
 	return ret;
 }
 
 /* bufnullterm: NULL-termination of the string array */
 const char *
-bufcstr(struct buf *buf)
+bufcstr(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf)
 {
 	assert(buf && buf->unit);
 
 	if (buf->size < buf->asize && buf->data[buf->size] == 0)
 		return (char *)buf->data;
 
-	if (buf->size + 1 <= buf->asize || bufgrow(buf, buf->size + 1) == 0) {
+	if (buf->size + 1 <= buf->asize || bufgrow(opaque, allocate, buf, buf->size + 1) == 0) {
 		buf->data[buf->size] = 0;
 		return (char *)buf->data;
 	}
@@ -135,14 +114,14 @@ bufcstr(struct buf *buf)
 
 /* bufprintf: formatted printing to a buffer */
 void
-bufprintf(struct buf *buf, const char *fmt, ...)
+bufprintf(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf, const char *fmt, ...)
 {
 	va_list ap;
 	int n;
 
 	assert(buf && buf->unit);
 
-	if (buf->size >= buf->asize && bufgrow(buf, buf->size + 1) < 0)
+	if (buf->size >= buf->asize && bufgrow(opaque, allocate, buf, buf->size + 1) < 0)
 		return;
 	va_start(ap, fmt);
 	n = _buf_vsnprintf((char *)buf->data + buf->size, buf->asize - buf->size, fmt, ap);
@@ -158,7 +137,7 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 #endif
 	}
 	if ((size_t)n >= buf->asize - buf->size) {
-		if (bufgrow(buf, buf->size + n + 1) < 0)
+		if (bufgrow(opaque, allocate, buf, buf->size + n + 1) < 0)
 			return;
 
 		va_start(ap, fmt);
@@ -174,11 +153,11 @@ bufprintf(struct buf *buf, const char *fmt, ...)
 
 /* bufput: appends raw data to a buffer */
 void
-bufput(struct buf *buf, const void *data, size_t len)
+bufput(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf, const void *data, size_t len)
 {
 	assert(buf && buf->unit);
 
-	if (buf->size + len > buf->asize && bufgrow(buf, buf->size + len) < 0)
+	if (buf->size + len > buf->asize && bufgrow(opaque, allocate, buf, buf->size + len) < 0)
 		return;
 
 	memcpy(buf->data + buf->size, data, len);
@@ -187,19 +166,19 @@ bufput(struct buf *buf, const void *data, size_t len)
 
 /* bufputs: appends a NUL-terminated string to a buffer */
 void
-bufputs(struct buf *buf, const char *str)
+bufputs(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf, const char *str)
 {
-	bufput(buf, str, strlen(str));
+	bufput(opaque, allocate, buf, str, strlen(str));
 }
 
 
 /* bufputc: appends a single uint8_t to a buffer */
 void
-bufputc(struct buf *buf, int c)
+bufputc(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *buf, int c)
 {
 	assert(buf && buf->unit);
 
-	if (buf->size + 1 > buf->asize && bufgrow(buf, buf->size + 1) < 0)
+	if (buf->size + 1 > buf->asize && bufgrow(opaque, allocate, buf, buf->size + 1) < 0)
 		return;
 
 	buf->data[buf->size] = c;
@@ -210,24 +189,11 @@ bufputc(struct buf *buf, int c)
 void
 bufrelease(struct buf *buf)
 {
-	
-#ifdef DEBUG
-	g_inuseBuffers.remove(buf);
-#endif
+	if (!buf)
+		return;
 
-	if(buf->unit == 2048)
-	{
-		g_smallBuffers.push_back(buf);
-		buf->size = 0;
-	}
-	else
-	{
-		if (!buf)
-			return;
-
-		free(buf->data);
-		free(buf);
-	}
+	//free(buf->data);
+	//free(buf);
 }
 
 
@@ -238,7 +204,7 @@ bufreset(struct buf *buf)
 	if (!buf)
 		return;
 
-	free(buf->data);
+	//free(buf->data);
 	buf->data = NULL;
 	buf->size = buf->asize = 0;
 }

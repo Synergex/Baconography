@@ -15,20 +15,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef BUFFER_H__
-#define BUFFER_H__
+#pragma once
 
 #include <stddef.h>
 #include <stdarg.h>
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if defined(_MSC_VER)
-#define __attribute__(x)
-#endif
 
 typedef enum {
 	BUF_OK = 0,
@@ -52,29 +43,29 @@ struct buf {
 	{ (uint8_t *)strname, strlen(strname), 0, 0, 0 }
 
 /* BUFPUTSL: optimized bufputs of a string litteral */
-#define BUFPUTSL(output, literal) \
-	bufput(output, literal, sizeof literal - 1)
+#define BUFPUTSL(opaque, alloc, output, literal) \
+	bufput(opaque, alloc, output, literal, sizeof literal - 1)
 
 /* bufgrow: increasing the allocated size to the given value */
-int bufgrow(struct buf *, size_t);
+int bufgrow(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *, size_t);
 
 /* bufnew: allocation of a new buffer */
-struct buf *bufnew(size_t) __attribute__ ((malloc));
+struct buf *bufnew(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t);
 
 /* bufnullterm: NUL-termination of the string array (making a C-string) */
-const char *bufcstr(struct buf *);
+const char *bufcstr(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *);
 
 /* bufprefix: compare the beginning of a buffer with a string */
 int bufprefix(const struct buf *buf, const char *prefix);
 
 /* bufput: appends raw data to a buffer */
-void bufput(struct buf *, const void *, size_t);
+void bufput(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *, const void *, size_t);
 
 /* bufputs: appends a NUL-terminated string to a buffer */
-void bufputs(struct buf *, const char *);
+void bufputs(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *, const char *);
 
 /* bufputc: appends a single char to a buffer */
-void bufputc(struct buf *, int);
+void bufputc(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *, int);
 
 /* bufrelease: decrease the reference count and free the buffer if needed */
 void bufrelease(struct buf *);
@@ -86,10 +77,4 @@ void bufreset(struct buf *);
 void bufslurp(struct buf *, size_t);
 
 /* bufprintf: formatted printing to a buffer */
-void bufprintf(struct buf *, const char *, ...) __attribute__ ((format (printf, 2, 3)));
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+void bufprintf(void* opaque, void* (*allocate)(void *opaque, size_t size), struct buf *, const char *, ...);

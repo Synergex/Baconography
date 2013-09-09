@@ -14,7 +14,7 @@ using BaconographyPortable.Common;
 
 namespace BaconographyWP8.Common
 {
-	public partial class MarkdownButton : Button
+	public partial class RichMarkdownButton : Button
 	{
 
 		IOfflineService _offlineService;
@@ -22,13 +22,13 @@ namespace BaconographyWP8.Common
 		static SolidColorBrush history = new SolidColorBrush(Colors.Gray);
 		static SolidColorBrush noHistory = new SolidColorBrush(Color.FromArgb(255, 218, 165, 32));
 
-		public MarkdownButton(string url, object content)
+        public RichMarkdownButton(string url, object content)
 		{
 			InitializeComponent();
 			_offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
 			this.BorderThickness = new Thickness(0);
             Url = url;
-            Text = content as string;
+            RealContent = content as UIElement;
 		}
 
 		public static readonly DependencyProperty UrlProperty =
@@ -49,8 +49,8 @@ namespace BaconographyWP8.Common
 				else
 					this.Foreground = noHistory;
 				SetValue(UrlProperty, value);
-				if (String.IsNullOrEmpty((string)GetValue(TextProperty)))
-					SetValue(TextProperty, value);
+				if (String.IsNullOrEmpty((string)GetValue(RealContentProperty)))
+					SetValue(RealContentProperty, value);
 			}
 		}
 
@@ -60,30 +60,24 @@ namespace BaconographyWP8.Common
 			button.Url = (string)e.NewValue;
 		}
 
-		public static readonly DependencyProperty TextProperty =
+		public static readonly DependencyProperty RealContentProperty =
 			DependencyProperty.Register(
-				"Text",
-				typeof(string),
+                "RealContent",
+                typeof(UIElement),
 				typeof(MarkdownButton),
-				new PropertyMetadata(null, OnTextChanged)
+                new PropertyMetadata(null)
 			);
 
-		public string Text
+		public UIElement RealContent
 		{
 			get
 			{
-				return (string)GetValue(TextProperty);
+                return (UIElement)GetValue(RealContentProperty);
 			}
 			set
 			{
-				SetValue(TextProperty, value);
+				SetValue(RealContentProperty, value);
 			}
-		}
-
-		private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var button = (MarkdownButton)d;
-			button.Text = (string)e.NewValue;
 		}
 
 		protected override void OnClick()

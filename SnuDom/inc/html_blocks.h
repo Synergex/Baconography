@@ -87,7 +87,7 @@ inline
 #endif
 #endif
 static unsigned int
-hash_block_tag (const char* str, size_t len)
+hash_block_tag (const char *str, unsigned int len)
 {
   static const unsigned char asso_values[] =
     {
@@ -139,7 +139,7 @@ __attribute__ ((__gnu_inline__))
 #endif
 #endif
 const char *
-find_block_tag (const char* str, size_t len)
+find_block_tag (const char *str, unsigned int len)
 {
   enum
     {

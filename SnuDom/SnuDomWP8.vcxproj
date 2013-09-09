@@ -19,11 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{de2eb691-c3c1-49be-9de0-fed05d2ec220}</ProjectGuid>
-    <RootNamespace>SoldOutWP8</RootNamespace>
+    <ProjectGuid>{4d497a51-5483-4236-b2f0-640a4dc26e18}</ProjectGuid>
+    <RootNamespace>SnuDomWP8</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
-    <TargetPlatformVersion>8.0</TargetPlatformVersion>
     <WinMDAssembly>true</WinMDAssembly>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -57,25 +56,29 @@
   <PropertyGroup>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>$(ProjectName)</TargetName>
+    <IntDir>$(Platform)\WP8\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\WP8\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>$(Platform)\WP8\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\WP8\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(SolutionDir)$(Platform)\WP8\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(Platform)\WP8\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(SolutionDir)$(Platform)\WP8\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(Platform)\WP8\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WP8;_CRT_SECURE_NO_WARNINGS;_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <CompileAsWinRT>true</CompileAsWinRT>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>ole32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WP8;_CRT_SECURE_NO_WARNINGS;_WINRT_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -90,12 +93,26 @@
       <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WP8;_CRT_SECURE_NO_WARNINGS;_WINRT_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <CompileAsWinRT>true</CompileAsWinRT>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <PreprocessorDefinitions>WP8;_CRT_SECURE_NO_WARNINGS;_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
@@ -110,11 +127,10 @@
     <ClCompile>
       <PreprocessorDefinitions>WP8;_CRT_SECURE_NO_WARNINGS;_WINRT_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(ProjectDir)inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,19 +146,30 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="autolink.h" />
-    <ClInclude Include="buffer.h" />
-    <ClInclude Include="html_blocks.h" />
-    <ClInclude Include="markdown.h" />
-    <ClInclude Include="SoldOut.h" />
-    <ClInclude Include="stack.h" />
+    <ClInclude Include="inc\autolink.h" />
+    <ClInclude Include="inc\buffer.h" />
+    <ClInclude Include="inc\Code.h" />
+    <ClInclude Include="inc\DomObject.h" />
+    <ClInclude Include="inc\HorizontalRule.h" />
+    <ClInclude Include="inc\html_blocks.h" />
+    <ClInclude Include="inc\LineBreak.h" />
+    <ClInclude Include="inc\Link.h" />
+    <ClInclude Include="inc\markdown.h" />
+    <ClInclude Include="inc\OrderedList.h" />
+    <ClInclude Include="inc\Paragraph.h" />
+    <ClInclude Include="inc\Quote.h" />
+    <ClInclude Include="inc\SimpleSessionMemoryPool.h" />
+    <ClInclude Include="inc\stack.h" />
+    <ClInclude Include="inc\Table.h" />
+    <ClInclude Include="inc\Text.h" />
+    <ClInclude Include="inc\UnorderedList.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="autolink.cpp" />
-    <ClCompile Include="buffer.cpp" />
-    <ClCompile Include="markdown.cpp" />
-    <ClCompile Include="SoldOut.cpp" />
-    <ClCompile Include="stack.cpp" />
+    <ClCompile Include="src\autolink.cpp" />
+    <ClCompile Include="src\buffer.cpp" />
+    <ClCompile Include="src\DomRenderer.cpp" />
+    <ClCompile Include="src\markdown.cpp" />
+    <ClCompile Include="src\stack.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsPhone\v$(TargetPlatformVersion)\Microsoft.Cpp.WindowsPhone.$(TargetPlatformVersion).targets" />

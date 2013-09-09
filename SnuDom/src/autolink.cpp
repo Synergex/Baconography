@@ -29,11 +29,11 @@
 int
 sd_autolink_issafe(const uint8_t *link, size_t link_len)
 {
-	static const size_t valid_uris_count = 13;
+	static const size_t valid_uris_count = 14;
 	static const char *valid_uris[] = {
 		"http://", "https://", "ftp://", "mailto://",
 		"/", "git://", "steam://", "irc://", "news://", "mumble://",
-		"ssh://", "ircs://", "#"
+		"ssh://", "ircs://", "ts3server://", "#"
 	};
 
 	size_t i;
@@ -162,6 +162,7 @@ check_domain(uint8_t *data, size_t size, int allow_short)
 
 size_t
 sd_autolink__www(
+	void* opaque, void* (*allocate)(void *opaque, size_t size),
 	size_t *rewind_p,
 	struct buf *link,
 	uint8_t *data,
@@ -190,7 +191,7 @@ sd_autolink__www(
 	if (link_end == 0)
 		return 0;
 
-	bufput(link, data, link_end);
+	bufput(opaque, allocate, link, data, link_end);
 	*rewind_p = 0;
 
 	return (int)link_end;
@@ -198,6 +199,7 @@ sd_autolink__www(
 
 size_t
 sd_autolink__email(
+	void* opaque, void* (*allocate)(void *opaque, size_t size),
 	size_t *rewind_p,
 	struct buf *link,
 	uint8_t *data,
@@ -209,7 +211,7 @@ sd_autolink__email(
 	int nb = 0, np = 0;
 
 	for (rewind = 0; rewind < offset; ++rewind) {
-		uint8_t c = data[-((int)rewind) - 1];
+		uint8_t c = data[-((ptrdiff_t)rewind) - 1];
 
 		if (isalnum(c))
 			continue;
@@ -245,7 +247,7 @@ sd_autolink__email(
 	if (link_end == 0)
 		return 0;
 
-	bufput(link, data - rewind, link_end + rewind);
+	bufput(opaque, allocate, link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
 
 	return link_end;
@@ -253,6 +255,7 @@ sd_autolink__email(
 
 size_t
 sd_autolink__url(
+	void* opaque, void* (*allocate)(void *opaque, size_t size),
 	size_t *rewind_p,
 	struct buf *link,
 	uint8_t *data,
@@ -265,7 +268,7 @@ sd_autolink__url(
 	if (size < 4 || data[1] != '/' || data[2] != '/')
 		return 0;
 
-	while (rewind < offset && isalpha(data[-((int)rewind) - 1]))
+	while (rewind < offset && isalpha(data[-((ptrdiff_t)rewind) - 1]))
 		rewind++;
 
 	if (!sd_autolink_issafe(data - rewind, size + rewind))
@@ -290,24 +293,28 @@ sd_autolink__url(
 	if (link_end == 0)
 		return 0;
 
-	bufput(link, data - rewind, link_end + rewind);
+	bufput(opaque, allocate, link, data - rewind, link_end + rewind);
 	*rewind_p = rewind;
 
 	return link_end;
 }
 
 size_t
-sd_autolink__subreddit(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
+sd_autolink__subreddit(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
 {
 	size_t link_end;
+	int is_allminus = 0;
 
 	if (size < 3)
 		return 0;
 
 	/* make sure this / is part of /r/ */
-	if (strncasecmp((char*)data, "/r/", 3) != 0)
+	if (strncmp((char*)data, "/r/", 3) != 0)
 		return 0;
 	link_end = strlen("/r/");
+
+	if (strncasecmp((char*)data + link_end, "all-", 4) == 0)
+		is_allminus = 1;
 
 	do {
 		size_t start = link_end;
@@ -346,17 +353,25 @@ sd_autolink__subreddit(size_t *rewind_p, struct buf *link, uint8_t *data, size_t
 			return 0;
 
 		/* If we are linking to a multireddit, continue */
-	} while ( link_end < size && data[link_end] == '+' && link_end++ );
+	} while ( link_end < size && (data[link_end] == '+' || (is_allminus && data[link_end] == '-')) && link_end++ );
+
+	if (link_end < size && data[link_end] == '/') {
+		while (link_end < size && (isalnum(data[link_end]) ||
+									data[link_end] == '_' ||
+									data[link_end] == '/' ||
+									data[link_end] == '-'))
+			link_end++;
+	}
 
 	/* make the link */
-	bufput(link, data, link_end);
+	bufput(opaque, allocate, link, data, link_end);
 	*rewind_p = 0;
 
 	return link_end;
 }
 
 size_t
-sd_autolink__username(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
+sd_autolink__username(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size)
 {
 	size_t link_end;
 
@@ -364,7 +379,7 @@ sd_autolink__username(size_t *rewind_p, struct buf *link, uint8_t *data, size_t 
 		return 0;
 
 	/* make sure this / is part of /u/ */
-	if (strncasecmp((char*)data, "/u/", 3) != 0)
+	if (strncmp((char*)data, "/u/", 3) != 0)
 		return 0;
 
 	/* the first letter of a username must... well, be valid, we don't care otherwise */
@@ -373,14 +388,15 @@ sd_autolink__username(size_t *rewind_p, struct buf *link, uint8_t *data, size_t 
 		return 0;
 	link_end += 1;
 
-	/* consume valid characters ([A-Za-z0-9_-]) until we run out */
+	/* consume valid characters ([A-Za-z0-9_-/]) until we run out */
 	while (link_end < size && (isalnum(data[link_end]) ||
 								data[link_end] == '_' ||
+								data[link_end] == '/' ||
 								data[link_end] == '-'))
 		link_end++;
 
 	/* make the link */
-	bufput(link, data, link_end);
+	bufput(opaque, allocate, link, data, link_end);
 	*rewind_p = 0;
 
 	return link_end;

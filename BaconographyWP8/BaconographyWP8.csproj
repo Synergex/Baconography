@@ -139,10 +139,6 @@
       <Project>{09FF6663-CB96-438E-ABC8-59981E6F1AFD}</Project>
       <Name>BaconographyWP8Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
-      <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>
-      <Name>SoldOutWP8</Name>
-    </ProjectReference>
     <Reference Include="GalaSoft.MvvmLight, Version=4.0.23.23876, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Portable.MvvmLightLibs.4.1.24-beta5\lib\sl4-wp71\GalaSoft.MvvmLight.dll</HintPath>

@@ -60,37 +60,5 @@ namespace NBoilerpipePortable.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;!--
-        ///    This HTML DTD is based on loose.dtd from the W3C, but it is even looser
-        ///    so as to allow for the types of real world messy HTML you find out on the
-        ///    web.  For example, allowing all kinds of content like &lt;script&gt; inside a &lt;TD&gt;
-        ///    and so forth.
-        ///--&gt;
-        ///&lt;!ENTITY % HTML.Version &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;
-        ///  -- Typical usage:
-        ///
-        ///    &lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;
-        ///            &quot;http://www.w3.org/TR/html4/loose.dtd&quot;&gt;
-        ///    &lt;html&gt;
-        ///    &lt;head&gt;
-        ///    ...
-        ///  [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string HTML_DTD1 {
-            get {
-                return ResourceManager.GetString("HTML_DTD1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string HTML_DTD2 {
-            get {
-                return ResourceManager.GetString("HTML_DTD2", resourceCulture);
-            }
-        }
     }
 }

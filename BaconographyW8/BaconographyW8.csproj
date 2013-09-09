@@ -371,10 +371,6 @@
       <Project>{93f2fa2a-cee4-45cd-88f8-1224f6af2e6f}</Project>
       <Name>DXRenderInterop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
-      <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>
-      <Name>SoldOutW8</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="KitaroDBSDK, Version=2.0.0.0">

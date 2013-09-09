@@ -12,6 +12,7 @@ namespace BaconographyPortable.Services
     }
     public class MarkdownData
     {
-        public List<Tuple<bool, string, string>> ProcessedMarkdownBlock { get; set; }
+        //public List<Tuple<bool, string, string>> ProcessedMarkdownBlock { get; set; }
+        public object MarkdownDom { get; set; }
     }
 }

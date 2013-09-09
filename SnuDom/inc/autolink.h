@@ -31,22 +31,22 @@ int
 sd_autolink_issafe(const uint8_t *link, size_t link_len);
 
 size_t
-sd_autolink__www(size_t *rewind_p, struct buf *link,
+sd_autolink__www(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link,
 	uint8_t *data, size_t offset, size_t size, unsigned int flags);
 
 size_t
-sd_autolink__email(size_t *rewind_p, struct buf *link,
+sd_autolink__email(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link,
 	uint8_t *data, size_t offset, size_t size, unsigned int flags);
 
 size_t
-sd_autolink__url(size_t *rewind_p, struct buf *link,
+sd_autolink__url(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link,
 	uint8_t *data, size_t offset, size_t size, unsigned int flags);
 
 extern size_t
-sd_autolink__subreddit(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size);
+sd_autolink__subreddit(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size);
 
 extern size_t
-sd_autolink__username(size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size);
+sd_autolink__username(void* opaque, void* (*allocate)(void *opaque, size_t size), size_t *rewind_p, struct buf *link, uint8_t *data, size_t offset, size_t size);
 
 #ifdef __cplusplus
 }
