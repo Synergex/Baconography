@@ -11,7 +11,7 @@ namespace BaconographyW8.PlatformServices
     {
         public MarkdownData Process(string markdown)
         {
-            var processed = SnuDom.SnuDom.MarkdownToDOM(markdown);
+            var processed = SnuDom.SnuDom.MarkdownToDOM(System.Net.WebUtility.HtmlDecode(markdown));
             return new MarkdownData { MarkdownDom = processed };
         }
     }

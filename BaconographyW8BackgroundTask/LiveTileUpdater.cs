@@ -50,7 +50,7 @@ namespace BaconographyW8BackgroundTask
 
                     SortedSet<Tuple<string, string, TypedThing<Link>>> sortedLinks = new SortedSet<Tuple<string, string, TypedThing<Link>>>(linkComparer);
 
-                    foreach (var link in posts.Data.Children)
+                    foreach (var link in posts.Data.Children.Where(thing => thing.Data is Link))
                         sortedLinks.Add(await MapLink(link));
 
                     foreach (var linkTpl in sortedLinks)

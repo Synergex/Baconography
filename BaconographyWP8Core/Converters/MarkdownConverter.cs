@@ -107,6 +107,11 @@ namespace BaconographyWP8.Converters
         public void Visit(Text text)
         {
             var madeRun = new Run { Text = text.Contents };
+            if (text.Contents.Contains('\n'))
+            {
+                //do something
+                _textLengthInCurrent++;
+            }
             _textLengthInCurrent += text.Contents.Length;
 
             if (text.Italic)
@@ -152,8 +157,8 @@ namespace BaconographyWP8.Converters
                     };
                     _currentParagraph.Inlines.Add(inlineContainer);
                 }
-                
-                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+                else
+                    _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
                 
             }
             else
