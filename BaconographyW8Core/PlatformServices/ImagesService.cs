@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Networking.BackgroundTransfer;
@@ -255,7 +257,33 @@ namespace BaconographyW8.PlatformServices
 
         public Task<byte[]> ImageBytesFromUrl(string url)
         {
-            throw new NotImplementedException();
+			return ImageBytesFromUrl(url, false);
         }
+
+		public async Task<byte[]> ImageBytesFromUrl(string url, bool isRetry)
+		{
+			try
+			{
+				var getClient = new HttpClient();
+				var imageStream = await getClient.GetStreamAsync(url);
+				if (imageStream == null)
+					return null;
+
+				using (var result = new MemoryStream())
+				{
+					await imageStream.CopyToAsync(result);
+					return result.ToArray();
+				}
+			}
+			catch (WebException ex)
+			{
+				if (isRetry || !System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+					return null;
+			}
+
+			//delay a bit and try again
+			await Task.Delay(500);
+			return await ImageBytesFromUrl(url, true);
+		}
     }
 }

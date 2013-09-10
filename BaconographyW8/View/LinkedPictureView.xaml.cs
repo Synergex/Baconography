@@ -29,7 +29,7 @@ namespace BaconographyW8.View
     {
         //cheating a little bit here but its for the best
         LinkedPictureViewModel _pictureViewModel;
-        IEnumerable<Tuple<string, string>> _navData;
+		IEnumerable<Tuple<string, string>> _navData;
         public LinkedPictureView()
         {
             this.InitializeComponent();
@@ -46,11 +46,12 @@ namespace BaconographyW8.View
         /// session.  This will be null the first time a page is visited.</param>
         protected override async void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
-            var pictureData = navigationParameter as IEnumerable<Tuple<string, string>>;
+			var rawData = navigationParameter as Tuple<string, IEnumerable<Tuple<string, string>>, string>;
+			var pictureData = rawData.Item2;
 
             if (pictureData == null && pageState != null && pageState.ContainsKey("NavagationData"))
             {
-                var data = pageState["NavagationData"] as Tuple<string,IEnumerable<Tuple<string, string>>>;
+				var data = pageState["NavagationData"] as Tuple<string, IEnumerable<Tuple<string, string>>, string>;
                 _navData = pictureData = data.Item2;
             }
 
