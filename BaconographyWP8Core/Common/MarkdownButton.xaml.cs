@@ -28,7 +28,12 @@ namespace BaconographyWP8.Common
 			_offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
 			this.BorderThickness = new Thickness(0);
             Url = url;
-            Text = content as string;
+            if (url.StartsWith("#") && url == ((string)content))
+            {
+                Text = "";
+            }
+            else
+                Text = content as string;
 		}
 
 		public static readonly DependencyProperty UrlProperty =
