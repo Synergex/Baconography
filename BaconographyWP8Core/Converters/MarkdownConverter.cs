@@ -233,7 +233,12 @@ namespace BaconographyWP8.Converters
 
                 inlineContainer.Child = new RichMarkdownButton(link.Url, fullUIVisitor.Result);
             }
-            
+
+            if (_currentParagraph == null)
+            {
+                MaybeSplitForParagraph();
+            }
+
             _currentParagraph.Inlines.Add(inlineContainer);
         }
 

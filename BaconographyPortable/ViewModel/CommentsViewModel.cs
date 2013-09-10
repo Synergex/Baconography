@@ -140,7 +140,7 @@ namespace BaconographyPortable.ViewModel
 		{
 			get
 			{
-				if (_linkViewModel == null)
+				if (_linkViewModel == null && _linkThing != null && _linkThing.Data is Link)
 				{
 					_linkViewModel = new LinkViewModel(_linkThing, _baconProvider);
                     _linkViewModel.FromMultiReddit = true;
