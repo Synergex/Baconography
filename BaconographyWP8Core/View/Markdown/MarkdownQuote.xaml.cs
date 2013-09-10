@@ -15,7 +15,7 @@ namespace BaconographyWP8Core.View.Markdown
         public MarkdownQuote(string contents)
         {
             this.InitializeComponent();
-            content.Content = new TextBlock { Text = contents };
+            content.Content = new TextBlock {TextWrapping = System.Windows.TextWrapping.Wrap, Text = contents };
         }
 
         public MarkdownQuote(UIElement contents)

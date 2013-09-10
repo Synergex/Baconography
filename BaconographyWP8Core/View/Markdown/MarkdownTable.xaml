@@ -9,7 +9,9 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="480" d:DesignWidth="480">
 
-    <Grid x:Name="theGrid">
+    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+        <Grid x:Name="theGrid">
 
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
