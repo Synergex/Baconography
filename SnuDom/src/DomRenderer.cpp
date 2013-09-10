@@ -44,7 +44,7 @@ namespace SnuDom
 			return nullptr;
 
 		wchar_t* buffer = (wchar_t*)_alloca(sourceLength * 2);
-		auto len = mbstowcs( buffer, src, sourceLength );
+		auto len = MultiByteToWideChar(CP_UTF8, 0, src, sourceLength, buffer, sourceLength * 2);
 		return ref new Platform::String( buffer, len);
 	}
 
@@ -473,7 +473,7 @@ namespace SnuDom
 		}
 		int length = srcLength * 2;
 		bufgrow(opaque, allocate, target, length);
-		length = wcstombs((char*)target->data, src, length) ;
+		length = WideCharToMultiByte(CP_UTF8, 0, src, srcLength, (char*)target->data, length, NULL, NULL);
 		if(length == -1)
 			target->size = 0;
 		else
