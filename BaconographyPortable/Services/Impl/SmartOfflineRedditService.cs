@@ -338,6 +338,9 @@ namespace BaconographyPortable.Services.Impl
                 return null;
 
             var requestedLinkInfo = listing.Data.Children.FirstOrDefault(thing => thing.Data is Link);
+            if (requestedLinkInfo == null)
+                return listing;
+
             if (!_linkToOpMap.ContainsKey(((Link)requestedLinkInfo.Data).Name))
             {
                 _linkToOpMap.Add(((Link)requestedLinkInfo.Data).Name, ((Link)requestedLinkInfo.Data).Author);
