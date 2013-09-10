@@ -35,11 +35,13 @@ namespace BaconographyPortable.ViewModel
         public RelayCommand<VotableViewModel> ToggleUpvote { get { return _toggleUpvote; } }
         public RelayCommand<VotableViewModel> ToggleDownvote { get { return _toggleDownvote; } }
 
+        private int VoteModifier = 0;
+
         public int TotalVotes
         {
             get
             {
-                return (_votableThing.Data.Ups - _votableThing.Data.Downs) + (Like ? 1 : 0) + (Dislike ? -1 : 0);
+                return (_votableThing.Data.Ups - _votableThing.Data.Downs) + VoteModifier;
             }
         }
 
@@ -114,10 +116,12 @@ namespace BaconographyPortable.ViewModel
             if (!vm.Like) //moved to neutral
             {
                 voteDirection = 0;
+                vm.VoteModifier = 0;
             }
             else
             {
                 voteDirection = 1;
+                vm.VoteModifier = 1;
             }
 
             vm._redditService.AddVote(vm._votableThing.Data.Name, voteDirection);
@@ -130,10 +134,12 @@ namespace BaconographyPortable.ViewModel
             if (!vm.Dislike) //moved to neutral
             {
                 voteDirection = 0;
+                vm.VoteModifier = 0;
             }
             else
             {
                 voteDirection = -1;
+                vm.VoteModifier = -1;
             }
 
             vm._redditService.AddVote(vm._votableThing.Data.Name, voteDirection);
