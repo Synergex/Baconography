@@ -23,7 +23,7 @@ namespace BaconographyWP8Core.View.Markdown
                 theGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 header.SetValue(Grid.ColumnProperty, x);
                 header.SetValue(Grid.RowProperty, y);
-                
+                header.SetValue(FrameworkElement.MarginProperty, new Thickness(2.5));
                 theGrid.Children.Add(header);
                 x++;
             }
@@ -37,6 +37,7 @@ namespace BaconographyWP8Core.View.Markdown
                 {
                     column.SetValue(Grid.ColumnProperty, x);
                     column.SetValue(Grid.RowProperty, y);
+                    column.SetValue(FrameworkElement.MarginProperty, new Thickness(2.5));
                     theGrid.Children.Add(column);
                     x++;
                 }

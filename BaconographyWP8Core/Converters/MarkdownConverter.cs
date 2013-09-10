@@ -308,7 +308,21 @@ namespace BaconographyWP8.Converters
             foreach (var item in objects)
             {
                 SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
-                item.Accept(categoryVisitor);
+
+
+                if (item is TableColumn)
+                {
+                    foreach (var contents in ((TableColumn)item).Contents)
+                    {
+                        contents.Accept(categoryVisitor);
+                    }
+                }
+                else
+                {
+                    item.Accept(categoryVisitor);
+                }
+
+
                 if (categoryVisitor.Category == MarkdownCategory.PlainText)
                 {
                     var plainTextVisitor = new SnuDomPlainTextVisitor();
@@ -326,12 +340,23 @@ namespace BaconographyWP8.Converters
                         item.Accept(plainTextVisitor);
                     }
 
-                    results.Add(new TextBlock { Text = plainTextVisitor.Result });
+                    results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = plainTextVisitor.Result });
                 }
                 else
                 {
                     var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
-                    item.Accept(fullUIVisitor);
+                    var column = item as TableColumn;
+                    if (column != null)
+                    {
+                        foreach (var contents in column.Contents)
+                        {
+                            contents.Accept(fullUIVisitor);
+                        }
+                    }
+                    else if (item is SnuDomWP8.Paragraph)
+                    {
+                        item.Accept(fullUIVisitor);
+                    }
                     results.Add(fullUIVisitor.Result);
                 }
             }

@@ -312,8 +312,9 @@ namespace SnuDom
 			consume_text(content, state, expandedObjects);
 
 		auto newDomId = state->domId++;
-
-		auto result = ref new Link(toPlatformString(link), 
+		auto linkUrl = toPlatformString(link);
+		IDomObject^ result = nullptr;
+		result = ref new Link(linkUrl,
 			toPlatformString(title),expandedObjects, newDomId);
 		state->unclaimedDomIdMap[newDomId] = result;
 		makeDomId(ob, newDomId, opaque);

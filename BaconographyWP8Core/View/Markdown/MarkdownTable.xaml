@@ -10,8 +10,8 @@
     d:DesignHeight="480" d:DesignWidth="480">
 
     <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
-    <Grid x:Name="theGrid">
+        <Grid x:Name="theGrid">
 
-    </Grid>
+        </Grid>
     </ScrollViewer>
 </UserControl>

@@ -94,6 +94,11 @@ namespace BaconographyPortable.Common
 
         public static async void GotoLinkImpl(string str, TypedThing<Link> sourceLink)
         {
+            if (!Uri.IsWellFormedUriString(str, UriKind.RelativeOrAbsolute))
+            {
+                return;
+            }
+
             var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
             _longNavWatcher.ClearInFlight();
             var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
@@ -101,8 +106,14 @@ namespace BaconographyPortable.Common
 
             if (CommentRegex.IsMatch(str))
             {
-                var typedLinkThing = new TypedThing<Link>(new Thing { Kind = "t3", Data = new Link { Permalink = str } });
-                navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
+                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : 
+                    new Thing { Kind = "t3", Data = new Link { Permalink = str, Url = str, Title = str, Name= "", Author = "", Selftext = "" } };
+                if (targetLinkThing != null && targetLinkThing.Data is Link)
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(targetLinkThing)});
+                else
+                {
+                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                }
             }
             else if (CommentsPageRegex.IsMatch(str))
             {
