@@ -40,7 +40,9 @@ namespace BaconographyPortable.Services.Impl
             get
             {
                 lock (this)
-                    return _contextStack.Peek();
+                {
+                    return _contextStack.Count > 0 ? _contextStack.Peek() : null;
+                }
             }
         }
 
