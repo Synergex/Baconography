@@ -119,11 +119,13 @@ namespace BaconographyPortable.ViewModel.Collections
             if (thing.Data is More)
             {
 				var depth = 0;
+				bool oddNesting = false;
 				if (parent is CommentViewModel)
 				{
 					depth = ((CommentViewModel)parent).Depth + 1;
+					oddNesting = !((CommentViewModel)parent).OddNesting;
 				}
-				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
+				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth, oddNesting);
 				more.Parent = parent as CommentViewModel;
 				return more;
             }

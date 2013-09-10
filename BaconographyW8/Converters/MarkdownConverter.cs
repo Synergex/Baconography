@@ -64,7 +64,7 @@ namespace BaconographyW8.Converters
 
         private object MakePlain(string value)
         {
-            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(10, 0, 0, 0) };
+            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 0) };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
@@ -82,7 +82,7 @@ namespace BaconographyW8.Converters
         }
         Brush _forgroundBrush;
         private int _textLengthInCurrent = 0;
-        public RichTextBlock Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap };
+        public RichTextBlock Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Segoe UI"), FontSize = 15 };
         public StackPanel ResultGroup = null;
         Windows.UI.Xaml.Documents.Paragraph _currentParagraph;
 
@@ -96,7 +96,7 @@ namespace BaconographyW8.Converters
                     ResultGroup.Children.Add(Result);
                 }
 
-                ResultGroup.Children.Add(Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap });
+				ResultGroup.Children.Add(Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Segoe UI"), FontSize = 15 });
                 _textLengthInCurrent = 0;
             }
 
@@ -114,7 +114,6 @@ namespace BaconographyW8.Converters
 
             if (text.Bold)
                 madeRun.FontWeight = FontWeights.Bold;
-
 
             if (text.HeaderSize != 0)
             {
