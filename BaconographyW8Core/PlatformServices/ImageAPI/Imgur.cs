@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using BaconographyW8.PlatformServices;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,37 +26,70 @@ namespace Baconography.PlatformServices.ImageAPI
             var groups = hashRe.Match(href).Groups;
             GroupCollection albumGroups = null;
 
-            if (groups.Count == 0 || (groups.Count > 0 && string.IsNullOrWhiteSpace(groups[0].Value)))
-                albumGroups = albumHashRe.Match(href).Groups;
+			if (groups.Count == 0 || (groups.Count > 0 && string.IsNullOrWhiteSpace(groups[0].Value)))
+				albumGroups = albumHashRe.Match(href).Groups;
 
-            if (groups.Count > 2 && string.IsNullOrWhiteSpace(groups[2].Value))
-            {
-                if (Regex.IsMatch(groups[1].Value, "[&,]"))
-                {
-                    var hashes = Regex.Split(groups[1].Value, "[&,]");
-                    //Imgur doesn't really care about the extension and the browsers don't seem to either.
-                    return hashes
-                        .Select(hash => Tuple.Create(title, string.Format("http://i.imgur.com/{0}.jpg", hash)));
+			if (groups.Count > 2 && string.IsNullOrWhiteSpace(groups[2].Value))
+			{
+				if (Regex.IsMatch(groups[1].Value, "[&,]"))
+				{
+					var hashes = Regex.Split(groups[1].Value, "[&,]");
+					//Imgur doesn't really care about the extension and the browsers don't seem to either.
+					return hashes
+						.Select(hash => Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", hash)));
 
-                }
-                else
-                {
-                    //Imgur doesn't really care about the extension and the browsers don't seem to either.
-                    return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.jpg", groups[1].Value)) };
-                }
-            }
-            else if (albumGroups.Count > 2 && string.IsNullOrWhiteSpace(albumGroups[2].Value))
-            {
-                var apiURL = string.Format("{0}album/{1}.json", apiPrefix, albumGroups[1].Value);
-                var getClient = new HttpClient();
-                var jsonResult = await getClient.GetStringAsync(apiURL);
-                var result = JsonConvert.DeserializeObject(jsonResult) as JObject;
-                return ((IEnumerable)((JObject)result.GetValue("album")).GetValue("images"))
-                    .Cast<JObject>()
-                    .Select(e => Tuple.Create((string)((JObject)e.GetValue("image")).GetValue("caption"), (string)((JObject)e.GetValue("links")).GetValue("original")));
-            }
-            else
-                return Enumerable.Empty<Tuple<string, string>>();
+				}
+				else
+				{
+					if (uri.AbsolutePath.ToLower().StartsWith("/gallery"))
+					{
+						return await GetImagesFromUri(title, new Uri("http://imgur.com/a/" + groups[1].Value));
+					}
+					else
+					{
+						//Imgur doesn't really care about the extension and the browsers don't seem to either.
+						return new Tuple<string, string>[] { Tuple.Create(title, string.Format("http://i.imgur.com/{0}.gif", groups[1].Value)) };
+					}
+				}
+			}
+			else if (albumGroups.Count > 2 && string.IsNullOrWhiteSpace(albumGroups[2].Value))
+			{
+				var apiURL = string.Format("{0}album/{1}.json", apiPrefix, albumGroups[1].Value);
+				var getClient = new HttpClient();
+				var jsonResult = await getClient.GetStringAsync(apiURL);
+
+				if (string.IsNullOrWhiteSpace(jsonResult))
+					return Enumerable.Empty<Tuple<string, string>>();
+
+				var result = JsonConvert.DeserializeObject(jsonResult) as JObject;
+				if (result != null && result.HasValues)
+				{
+					JToken errorToken;
+					if (result.TryGetValue("error", out errorToken))
+					{
+						return Enumerable.Empty<Tuple<string, string>>();
+					}
+
+					var albumTitleElement = (string)((JObject)result.GetValue("album")).GetValue("title");
+					var albumTitle = string.IsNullOrWhiteSpace(albumTitleElement) ? title : albumTitleElement;
+
+					return ((IEnumerable)((JObject)result.GetValue("album")).GetValue("images"))
+						.Cast<JObject>()
+						.Select(e =>
+						{
+							var caption = (string)((JObject)e.GetValue("image")).GetValue("caption");
+
+							if (!string.IsNullOrWhiteSpace(caption))
+								caption = caption.Replace("&#039;", "'").Replace("&#038;", "&").Replace("&#034;", "\"");
+
+							return Tuple.Create(string.IsNullOrWhiteSpace(caption) ? albumTitle : caption, (string)((JObject)e.GetValue("links")).GetValue("original"));
+						});
+				}
+				else
+					return Enumerable.Empty<Tuple<string, string>>();
+			}
+			else
+				return Enumerable.Empty<Tuple<string, string>>();
         }
     }
 }
