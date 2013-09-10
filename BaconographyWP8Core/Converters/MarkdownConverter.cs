@@ -214,7 +214,7 @@ namespace BaconographyWP8.Converters
             if (categoryVisitor.Category == MarkdownCategory.PlainText)
             {
                 var plainTextVisitor = new SnuDomPlainTextVisitor();
-                if (link.Display != null)
+                if (link.Display != null && link.Display.FirstOrDefault() != null)
                 {
                     foreach (var item in link.Display)
                         item.Accept(plainTextVisitor);
