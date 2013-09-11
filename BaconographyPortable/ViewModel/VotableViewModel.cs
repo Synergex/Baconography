@@ -35,8 +35,8 @@ namespace BaconographyPortable.ViewModel
 
         public RelayCommand<VotableViewModel> ToggleUpvote { get { return _toggleUpvote; } }
         public RelayCommand<VotableViewModel> ToggleDownvote { get { return _toggleDownvote; } }
-
         private int originalVoteModifier = 0;
+
 
         public int TotalVotes
         {

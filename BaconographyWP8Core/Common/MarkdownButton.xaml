@@ -15,7 +15,7 @@
         <ControlTemplate TargetType="Button">
             <Grid Margin="0,-5,0,0" x:Name="container">
                 <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="0"
-                       Text="{Binding ElementName=buttonRoot, Path=Text}"/>
+                           TextWrapping="Wrap" Text="{Binding ElementName=buttonRoot, Path=Text}"/>
 
                 <VisualStateManager.VisualStateGroups>
                     <VisualStateGroup x:Name="CommonStates">

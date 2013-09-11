@@ -106,8 +106,10 @@ namespace BaconographyPortable.Common
 
             if (CommentRegex.IsMatch(str))
             {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : 
                     new Thing { Kind = "t3", Data = new Link { Permalink = str, Url = str, Title = str, Name= "", Author = "", Selftext = "" } };
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                 if (targetLinkThing != null && targetLinkThing.Data is Link)
                     navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(targetLinkThing)});
                 else
@@ -117,7 +119,9 @@ namespace BaconographyPortable.Common
             }
             else if (CommentsPageRegex.IsMatch(str))
             {
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                 var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                 if (targetLinkThing != null)
                 {
                     var typedLinkThing = new TypedThing<Link>(targetLinkThing);

@@ -16,6 +16,8 @@ using SnuDomWP8;
 using System.Windows.Media;
 using BaconographyWP8.Common;
 using BaconographyWP8Core.View.Markdown;
+using GalaSoft.MvvmLight.Command;
+using BaconographyPortable.Common;
 
 namespace BaconographyWP8.Converters
 {
@@ -200,8 +202,7 @@ namespace BaconographyWP8.Converters
 
         public void Visit(Link link)
         {
-            var inlineContainer = new System.Windows.Documents.InlineUIContainer();
-
+            Inline inlineContainer = null;
             SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
             if (link.Display != null)
             {
@@ -222,16 +223,55 @@ namespace BaconographyWP8.Converters
                 else
                     plainTextVisitor.Result = link.Url;
 
-                inlineContainer.Child = new MarkdownButton(link.Url, plainTextVisitor.Result);
+                inlineContainer = new Hyperlink { Command = new RelayCommand<string>(UtilityCommandImpl.GotoLinkImpl), CommandParameter = link.Url };
+                ((Hyperlink)inlineContainer).Inlines.Add(plainTextVisitor.Result);
+                //inlineContainer.Child = new MarkdownButton(link.Url, plainTextVisitor.Result);
             }
             else
             {
-                var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
-                //cant be null in this category
-                foreach (var item in link.Display)
-                    item.Accept(fullUIVisitor);
+                inlineContainer = new Hyperlink { Command = new RelayCommand<string>(UtilityCommandImpl.GotoLinkImpl), CommandParameter = link.Url };
+                var text = link.Display.FirstOrDefault() as Text;
+                if (text != null)
+                {
+                    if (text.Italic)
+                        inlineContainer.FontStyle = FontStyles.Italic;
 
-                inlineContainer.Child = new RichMarkdownButton(link.Url, fullUIVisitor.Result);
+                    if (text.Bold)
+                        inlineContainer.FontWeight = FontWeights.Bold;
+
+
+                    if (text.HeaderSize != 0)
+                    {
+                        switch (text.HeaderSize)
+                        {
+                            case 1:
+                                inlineContainer.FontSize = 24;
+                                break;
+                            case 2:
+                                inlineContainer.FontSize = 24;
+                                inlineContainer.FontWeight = FontWeights.Bold;
+                                inlineContainer.Foreground = _forgroundBrush;
+                                break;
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                                inlineContainer.FontSize = 28;
+                                inlineContainer.FontWeight = FontWeights.Bold;
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    inlineContainer = new System.Windows.Documents.InlineUIContainer();
+                    var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
+                    //cant be null in this category
+                    foreach (var item in link.Display)
+                        item.Accept(fullUIVisitor);
+
+                    ((InlineUIContainer)inlineContainer).Child = new RichMarkdownButton(link.Url, fullUIVisitor.Result);
+                }
             }
 
             if (_currentParagraph == null)
