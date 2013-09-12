@@ -41,8 +41,8 @@
                                     <TextBlock x:Name="AuthorField" Text="{Binding Author}" FontSize="34" FontFamily="Segoe UI" Foreground="{Binding IsNew, Converter={StaticResource boolToAccentBrushConverter}}" />
                                     <TextBlock Margin="0,3,0,3" x:Name="SubjectField" Text="{Binding Subject}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" Foreground="{Binding IsNew, Converter={StaticResource boolToAccentBrushConverter}}" />
                                     <TextBlock x:Name="PreviewField" Text="{Binding Preview}" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="19" FontFamily="Segoe UI" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
-                                    <TextBlock x:Name="BodyField" Text="{Binding Body}" HorizontalAlignment="Left" Visibility="Collapsed"
-                                                      FontSize="19" FontFamily="Segoe UI" TextWrapping="Wrap" Foreground="{StaticResource PhoneForegroundBrush}"/>
+                                    <ContentControl x:Name="BodyField" Content="{Binding BodyMD, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left" Visibility="Collapsed"
+                                                      FontSize="19" FontFamily="Segoe UI" Foreground="{StaticResource PhoneForegroundBrush}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                     <TextBlock x:Name="DateField" Text="{Binding CreatedUTC, Converter={StaticResource unixTimeConverter}}" />

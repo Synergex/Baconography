@@ -5,6 +5,7 @@ using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel.Collections;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +67,19 @@ namespace BaconographyPortable.ViewModel
         public string Replies { get { return _message.Data.Replies; } }
         public string Subject { get { return _message.Data.Subject; } }
         public string Subreddit { get { return _message.Data.Subreddit; } }
+
+        MarkdownData _bodyMD;
+        public MarkdownData BodyMD 
+        { 
+            get 
+            {
+                if (_bodyMD == null)
+                {
+                    _bodyMD = ServiceLocator.Current.GetInstance<IMarkdownProcessor>().Process(Body);
+                }
+                return _bodyMD; 
+            } 
+        }
 
         private string _preview;
         public string Preview

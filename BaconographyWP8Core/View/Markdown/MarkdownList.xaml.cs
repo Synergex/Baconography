@@ -16,14 +16,17 @@ namespace BaconographyWP8Core.View.Markdown
         {
             InitializeComponent();
             int number = 1;
+            int rowCount = 0;
             foreach (var element in elements)
             {
-                var itemPanel = new StackPanel();
-                itemPanel.Orientation = Orientation.Horizontal;
+                theGrid.RowDefinitions.Add(new RowDefinition());
                 var text = new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Margin = new Thickness(5, 0, 15, 0), Text = numbered ? (number++).ToString() + "." : "\u25CF" };
-                itemPanel.Children.Add(text);
-                itemPanel.Children.Add(element);
-                items.Children.Add(itemPanel);
+                text.SetValue(Grid.RowProperty, rowCount);
+                text.SetValue(Grid.ColumnProperty, 0);
+                element.SetValue(Grid.RowProperty, rowCount++);
+                element.SetValue(Grid.ColumnProperty, 1);
+                theGrid.Children.Add(text);
+                theGrid.Children.Add(element);
             }
         }
     }
