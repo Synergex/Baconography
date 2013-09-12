@@ -615,12 +615,10 @@ namespace BaconographyPortable.Model.Reddit
             {
                 { "sr", subreddit},
                 { "uh", modhash},
-                { "r", subreddit},
-                { "renderstyle", "html"},
                 { "action", unsub ? "unsub" : "sub"}
             };
 
-            ProcessJsonErrors(await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe"));
+            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe");
         }
 
         public virtual async Task AddSavedThing(string thingId)
