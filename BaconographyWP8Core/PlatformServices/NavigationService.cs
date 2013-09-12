@@ -83,6 +83,16 @@ namespace BaconographyWP8.PlatformServices
                 }
 			}
 
+            if (parameter is SelectCommentTreeMessage)
+            {
+                var commentMessage = parameter as SelectCommentTreeMessage;
+                if (commentMessage.LinkThing != null)
+                {
+                    commentMessage.LinkThing.Data.SelftextHtml = "";
+                }
+                
+            }
+
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {

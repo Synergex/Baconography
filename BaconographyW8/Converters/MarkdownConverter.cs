@@ -308,11 +308,11 @@ namespace BaconographyW8.Converters
             {
                 SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
                 item.Accept(categoryVisitor);
+                var column = item as TableColumn;
                 if (categoryVisitor.Category == MarkdownCategory.PlainText)
                 {
                     var plainTextVisitor = new SnuDomPlainTextVisitor();
                     //this might be a pp
-                    var column = item as TableColumn;
                     if (column != null)
                     {
                         foreach (var contents in column.Contents)
@@ -332,6 +332,23 @@ namespace BaconographyW8.Converters
                     var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
                     item.Accept(fullUIVisitor);
                     results.Add(fullUIVisitor.Result);
+                }
+
+
+                if (column != null)
+                {
+                    switch (column.Alignment)
+                    {
+                        case ColumnAlignment.Center:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+                            break;
+                        case ColumnAlignment.Left:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+                            break;
+                        case ColumnAlignment.Right:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Right);
+                            break;
+                    }
                 }
             }
             return results;

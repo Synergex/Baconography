@@ -370,7 +370,19 @@ namespace BaconographyPortable.Model.Reddit
             try
             {
                 var originalUrl = url;
-                url = url + ".json";
+                if (originalUrl.Contains(".json"))
+                {
+                }
+                else if (originalUrl.Contains("?"))
+                {
+                    var queryPos = url.IndexOf("?");
+                    url = string.Format("{0}.json{1}", originalUrl.Remove(queryPos), originalUrl.Substring(queryPos));
+                }
+                else 
+                {
+                    url = originalUrl + ".json";
+                }
+
                 Listing listing = null;
                 var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), url);
                 if (comments.StartsWith("["))

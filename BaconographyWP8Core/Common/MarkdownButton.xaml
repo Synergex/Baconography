@@ -10,53 +10,49 @@
     HorizontalContentAlignment="Left"
     VerticalContentAlignment="Top"
     BorderThickness="0" Margin="0,0,0,-3" Padding="0,0,0,0">
-
-    <Button.Template>
-        <ControlTemplate TargetType="Button">
-            <Grid Margin="0,-5,0,0" x:Name="container">
-                <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="0"
-                           TextWrapping="Wrap" Text="{Binding ElementName=buttonRoot, Path=Text}"/>
-
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal">
-                            <Storyboard>
-                                <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="container"
+    <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="CommonStates">
+            <VisualState x:Name="Normal">
+                <Storyboard>
+                    <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="buttonRoot"
                                                 Storyboard.TargetProperty="Background">
-                                    <DiscreteObjectKeyFrame
+                        <DiscreteObjectKeyFrame
                                                     KeyTime="0"
                                                     Value="Transparent" />
-                                </ObjectAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
+                    </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+            </VisualState>
 
-                        <VisualState x:Name="Disabled">
-                            <Storyboard>
-                                <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="container"
+            <VisualState x:Name="Disabled">
+                <Storyboard>
+                    <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="buttonRoot"
                                                 Storyboard.TargetProperty="Background">
-                                    <DiscreteObjectKeyFrame
+                        <DiscreteObjectKeyFrame
                                                     KeyTime="0"
                                                     Value="{StaticResource PhoneDisabledBrush}" />
-                                </ObjectAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
+                    </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+            </VisualState>
 
-                        <VisualState x:Name="Pressed">
-                            <Storyboard>
-                                <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="container"
+            <VisualState x:Name="Pressed">
+                <Storyboard>
+                    <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="buttonRoot"
                                                 Storyboard.TargetProperty="Background">
-                                    <DiscreteObjectKeyFrame
+                        <DiscreteObjectKeyFrame
                                                     KeyTime="0"
                                                     Value="{StaticResource PhoneAccentBrush}" />
-                                </ObjectAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-            </Grid>
+                    </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+            </VisualState>
+        </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+    <Button.Template>
+        <ControlTemplate TargetType="Button">
+                <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="0"
+                           TextWrapping="Wrap" Text="{Binding ElementName=buttonRoot, Path=Text}" TextDecorations="Underline"/>
         </ControlTemplate>
     </Button.Template>
 </Button>

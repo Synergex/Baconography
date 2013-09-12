@@ -15,15 +15,17 @@ namespace BaconographyWP8Core.View.Markdown
         public MarkdownTable(IEnumerable<UIElement> headers, IEnumerable<IEnumerable<UIElement>> body)
         {
             InitializeComponent();
+            var margin = new Thickness(4, 6, 4, 6);
             int x = 0, y = 0;
             theGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             int maxX = headers.Count() - 1;
             foreach (var header in headers)
             {
-                theGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                theGrid.ColumnDefinitions.Add(new ColumnDefinition { MaxWidth=400.0 });
                 header.SetValue(Grid.ColumnProperty, x);
                 header.SetValue(Grid.RowProperty, y);
-                header.SetValue(FrameworkElement.MarginProperty, new Thickness(2.5));
+                header.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
+                header.SetValue(FrameworkElement.MarginProperty, margin);
                 theGrid.Children.Add(header);
                 x++;
             }
@@ -37,7 +39,8 @@ namespace BaconographyWP8Core.View.Markdown
                 {
                     column.SetValue(Grid.ColumnProperty, x);
                     column.SetValue(Grid.RowProperty, y);
-                    column.SetValue(FrameworkElement.MarginProperty, new Thickness(2.5));
+                    column.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
+                    column.SetValue(FrameworkElement.MarginProperty, margin);
                     theGrid.Children.Add(column);
                     x++;
                 }

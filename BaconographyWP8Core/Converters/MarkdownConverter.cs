@@ -363,11 +363,13 @@ namespace BaconographyWP8.Converters
                 }
 
 
+                var column = item as TableColumn;
+                IDomObject columnFirstContent = null;
+
                 if (categoryVisitor.Category == MarkdownCategory.PlainText)
                 {
                     var plainTextVisitor = new SnuDomPlainTextVisitor();
                     //this might be a pp
-                    var column = item as TableColumn;
                     if (column != null)
                     {
                         foreach (var contents in column.Contents)
@@ -382,10 +384,26 @@ namespace BaconographyWP8.Converters
 
                     results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = plainTextVisitor.Result });
                 }
+                else if (column != null && ((TableColumn)item).Contents.Count() == 1 && (columnFirstContent = ((TableColumn)item).Contents.FirstOrDefault()) != null &&
+                    (columnFirstContent is Text))
+                {
+                    if (columnFirstContent is Link)
+                    {
+                        var plainTextVisitor = new SnuDomPlainTextVisitor();
+                        var lnk = columnFirstContent as Link;
+                        var firstContent = lnk.Display.FirstOrDefault();
+                        if(firstContent != null)
+                            firstContent.Accept(plainTextVisitor);
+                        results.Add(new MarkdownButton(lnk.Url, plainTextVisitor.Result));
+                    }
+                    else
+                    {
+                        results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = ((Text)columnFirstContent).Contents });
+                    }
+                }
                 else
                 {
                     var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
-                    var column = item as TableColumn;
                     if (column != null)
                     {
                         foreach (var contents in column.Contents)
@@ -398,6 +416,24 @@ namespace BaconographyWP8.Converters
                         item.Accept(fullUIVisitor);
                     }
                     results.Add(fullUIVisitor.Result);
+                }
+
+                if (column != null)
+                {
+                    switch (column.Alignment)
+                    {
+                        case ColumnAlignment.Center:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+                            break;
+                        case ColumnAlignment.Left:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+                            break;
+                        case ColumnAlignment.Right:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Right);
+                            break;
+                    }
+
+                    results.Last().SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Top);
                 }
             }
             return results;

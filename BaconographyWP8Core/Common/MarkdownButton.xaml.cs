@@ -11,6 +11,7 @@ using BaconographyPortable.Services;
 using System.Windows.Media;
 using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Common;
+using BaconographyWP8Core.Common;
 
 namespace BaconographyWP8.Common
 {
@@ -20,10 +21,15 @@ namespace BaconographyWP8.Common
 		IOfflineService _offlineService;
 
 		static SolidColorBrush history = new SolidColorBrush(Colors.Gray);
-		static SolidColorBrush noHistory = new SolidColorBrush(Color.FromArgb(255, 218, 165, 32));
+        static Brush noHistory;//new SolidColorBrush(Color.FromArgb(255, 218, 165, 32));
 
 		public MarkdownButton(string url, object content)
 		{
+            if (noHistory == null)
+            {
+                noHistory = Styles.Resources["PhoneForegroundBrush"] as Brush;
+            }
+
 			InitializeComponent();
 			_offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
 			this.BorderThickness = new Thickness(0);
