@@ -140,7 +140,7 @@ namespace BaconographyPortable.Model.Reddit
 
             try
             {
-                var thingStr = await _simpleHttpService.UnAuthedGet(targetUri);
+                var thingStr = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                 if(thingStr.StartsWith("{\"kind\": \"Listing\""))
                 {
                     var listing = JsonConvert.DeserializeObject<Listing>(thingStr);
@@ -209,7 +209,7 @@ namespace BaconographyPortable.Model.Reddit
                 targetUri = string.Format("http://www.reddit.com/r/{0}/about.json", name);
                 try
                 {
-                    var comments = await _simpleHttpService.UnAuthedGet(targetUri);
+                    var comments = await _simpleHttpService.SendGet(await GetCurrentLoginCookie(), targetUri);
                     //error page
                     if (comments.ToLower().StartsWith("<!doctype html>"))
                     {
