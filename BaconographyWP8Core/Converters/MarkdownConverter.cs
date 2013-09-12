@@ -465,20 +465,18 @@ namespace BaconographyWP8.Converters
             {
                 tableBody.Add(BuildChildUIList(row.Columns));
             }
-            var inlineContainer = new InlineUIContainer();
-            inlineContainer.Child = new MarkdownTable(headerUIElements, tableBody);
+            var madeTable = new MarkdownTable(headerUIElements, tableBody);
 
-            if (_currentParagraph == null)
+            if (ResultGroup == null)
             {
-                MaybeSplitForParagraph();
-            }
-            else
-            {
-                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+                ResultGroup = new StackPanel { Orientation = Orientation.Vertical };
+                ResultGroup.Children.Add(Result);
             }
 
-            _currentParagraph.Inlines.Add(inlineContainer);
-            _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+            ResultGroup.Children.Add(madeTable);
+
+            ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap });
+            _textLengthInCurrent = 0;
         }
 
         public void Visit(Document document)

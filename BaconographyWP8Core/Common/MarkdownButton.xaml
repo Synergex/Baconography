@@ -6,53 +6,57 @@
     mc:Ignorable="d"
     d:DesignHeight="80" d:DesignWidth="480"
     FontFamily="Segoe WP"
-    x:Name="buttonRoot" Height="20"
+    x:Name="buttonRoot"
     HorizontalContentAlignment="Left"
     VerticalContentAlignment="Top"
-    BorderThickness="0" Margin="0,0,0,-3" Padding="0,0,0,0">
-    <VisualStateManager.VisualStateGroups>
-        <VisualStateGroup x:Name="CommonStates">
-            <VisualState x:Name="Normal">
-                <Storyboard>
-                    <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="buttonRoot"
-                                                Storyboard.TargetProperty="Background">
-                        <DiscreteObjectKeyFrame
-                                                    KeyTime="0"
-                                                    Value="Transparent" />
-                    </ObjectAnimationUsingKeyFrames>
-                </Storyboard>
-            </VisualState>
+    BorderThickness="0" Margin="0,0,0,-3" Padding="0,0,0,0" MaxWidth="400">
 
-            <VisualState x:Name="Disabled">
-                <Storyboard>
-                    <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="buttonRoot"
-                                                Storyboard.TargetProperty="Background">
-                        <DiscreteObjectKeyFrame
-                                                    KeyTime="0"
-                                                    Value="{StaticResource PhoneDisabledBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                </Storyboard>
-            </VisualState>
-
-            <VisualState x:Name="Pressed">
-                <Storyboard>
-                    <ObjectAnimationUsingKeyFrames
-                                                Storyboard.TargetName="buttonRoot"
-                                                Storyboard.TargetProperty="Background">
-                        <DiscreteObjectKeyFrame
-                                                    KeyTime="0"
-                                                    Value="{StaticResource PhoneAccentBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                </Storyboard>
-            </VisualState>
-        </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
     <Button.Template>
         <ControlTemplate TargetType="Button">
-                <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="0"
-                           TextWrapping="Wrap" Text="{Binding ElementName=buttonRoot, Path=Text}" TextDecorations="Underline"/>
+            <Grid Margin="0,-5,0,0" x:Name="container" MaxWidth="400">
+                <TextBlock HorizontalAlignment="Left" FontSize="20" Padding="0" Margin="0" TextDecorations="Underline" MaxWidth="400"
+                           TextWrapping="Wrap" Text="{Binding ElementName=buttonRoot, Path=Text}"/>
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="container"
+                                                Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="Transparent" />
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+
+                        <VisualState x:Name="Disabled">
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="container"
+                                                Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneDisabledBrush}" />
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+
+                        <VisualState x:Name="Pressed">
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="container"
+                                                Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame
+                                                    KeyTime="0"
+                                                    Value="{StaticResource PhoneAccentBrush}" />
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </Grid>
         </ControlTemplate>
     </Button.Template>
 </Button>
