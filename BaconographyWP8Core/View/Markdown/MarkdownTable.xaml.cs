@@ -16,6 +16,7 @@ namespace BaconographyWP8Core.View.Markdown
         {
             InitializeComponent();
             var margin = new Thickness(4, 6, 4, 6);
+            var margin2 = new Thickness(-6, 6, 4, 6);
             int x = 0, y = 0;
             var theGrid = new Grid();
             bool twoOrLess = headers.Count() <= 2;
@@ -55,7 +56,10 @@ namespace BaconographyWP8Core.View.Markdown
                     column.SetValue(Grid.RowProperty, y);
                     if(!twoOrLess)
                         column.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
-                    column.SetValue(FrameworkElement.MarginProperty, margin);
+                    if((column is RichTextBox))
+                        column.SetValue(FrameworkElement.MarginProperty, margin2);
+                    else
+                        column.SetValue(FrameworkElement.MarginProperty, margin);
                     theGrid.Children.Add(column);
                     x++;
                 }
