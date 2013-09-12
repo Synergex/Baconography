@@ -26,6 +26,7 @@
             <Setter Property="SelectionBackground" Value="{StaticResource PhoneAccentBrush}"/>
             <Setter Property="SelectionForeground" Value="{StaticResource PhoneTextBoxSelectionForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="{StaticResource PhoneBorderThickness}"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
             <Setter Property="Padding" Value="2"/>
             <Setter Property="Template">
                 <Setter.Value>
