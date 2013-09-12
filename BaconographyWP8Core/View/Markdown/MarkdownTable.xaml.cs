@@ -17,6 +17,19 @@ namespace BaconographyWP8Core.View.Markdown
             InitializeComponent();
             var margin = new Thickness(4, 6, 4, 6);
             int x = 0, y = 0;
+            var theGrid = new Grid();
+            bool twoOrLess = headers.Count() <= 2;
+            if (twoOrLess)
+            {
+                Content = theGrid;
+            }
+            else
+            {
+                var viewer = new ScrollViewer { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled };
+                viewer.Content = theGrid;
+                Content = viewer;
+            }
+
             theGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             int maxX = headers.Count() - 1;
             foreach (var header in headers)
@@ -24,7 +37,8 @@ namespace BaconographyWP8Core.View.Markdown
                 theGrid.ColumnDefinitions.Add(new ColumnDefinition { MaxWidth=400.0 });
                 header.SetValue(Grid.ColumnProperty, x);
                 header.SetValue(Grid.RowProperty, y);
-                header.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
+                if(!twoOrLess)
+                    header.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
                 header.SetValue(FrameworkElement.MarginProperty, margin);
                 theGrid.Children.Add(header);
                 x++;
@@ -39,7 +53,8 @@ namespace BaconographyWP8Core.View.Markdown
                 {
                     column.SetValue(Grid.ColumnProperty, x);
                     column.SetValue(Grid.RowProperty, y);
-                    column.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
+                    if(!twoOrLess)
+                        column.SetValue(FrameworkElement.MaxWidthProperty, 400.0);
                     column.SetValue(FrameworkElement.MarginProperty, margin);
                     theGrid.Children.Add(column);
                     x++;
