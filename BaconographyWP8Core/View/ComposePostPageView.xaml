@@ -158,6 +158,7 @@
         <phone:Pivot Title="BACONOGRAPHY > SUBMIT POST" x:Name="pivot"
                      LoadedPivotItem="pivot_LoadedPivotItem">
             <phone:Pivot.Items>
+                <!--dont change the header name!-->
                 <phone:PivotItem Header="self">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -217,7 +218,7 @@
                         </Grid>
                     </Grid>
                 </phone:PivotItem>
-                
+                <!--dont change the header name!-->
                 <phone:PivotItem Header="link" IsEnabled="{Binding Editing, Converter={StaticResource invertBooleanConverter}}">
                     <Grid>
                         <Grid.RowDefinitions>

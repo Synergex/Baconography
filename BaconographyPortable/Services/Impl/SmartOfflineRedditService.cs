@@ -457,247 +457,108 @@ namespace BaconographyPortable.Services.Impl
 
         public async Task AddComment(string parentId, string content)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(parentId) || content == null)
-                    return;
+            if (string.IsNullOrWhiteSpace(parentId) || content == null)
+                return;
 
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddComment(parentId, content);
-                else
-                    await _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } }).Start();
-            }
-
-
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddComment(parentId, content);
+            else
+                await _offlineService.EnqueueAction("AddComment", new Dictionary<string, string> { { "parentId", parentId }, { "content", content } });
         }
 
         public HashSet<string> _invalidatedIds = new HashSet<string>();
 
         public async Task EditComment(string thingId, string text)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(thingId) || text == null)
-                    return;
+            if (string.IsNullOrWhiteSpace(thingId) || text == null)
+                return;
 
-                _invalidatedIds.Add(thingId);
+            _invalidatedIds.Add(thingId);
 
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.EditComment(thingId, text);
-                else
-                    await _offlineService.EnqueueAction("EditComment", new Dictionary<string, string> { { "thingId", thingId }, { "text", text } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("EditComment", new Dictionary<string, string> { { "thingId", thingId }, { "text", text } }).Start();
-            }
-
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.EditComment(thingId, text);
+            else
+                await _offlineService.EnqueueAction("EditComment", new Dictionary<string, string> { { "thingId", thingId }, { "text", text } });
 
         }
 
         public async Task AddMessage(string recipient, string subject, string message)
         {
-            try
-            {
-                if (recipient == null || subject == null || message == null)
-                    return;
+            if (recipient == null || subject == null || message == null)
+                return;
 
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddMessage(recipient, subject, message);
-                else
-                    await _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddMessage(recipient, subject, message);
+            else
+                await _offlineService.EnqueueAction("AddMessage", new Dictionary<string, string> { { "recipient", recipient }, { "subject", subject }, { "message", message } });
+            
         }
 
         public async Task AddPost(string kind, string url, string text, string subreddit, string title)
         {
-            try
-            {
-                if (kind == null || url == null || text == null || subreddit == null || title == null)
-                    return;
+            if (kind == null || url == null || text == null || subreddit == null || title == null)
+                return;
 
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddPost(kind, url, text, subreddit, title);
-                else
-                    await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
-                    { 
-                        { "kind", kind }, 
-                        { "url", url },
-                        { "text", text},
-                        { "subreddit", subreddit }, 
-                        { "title", title } 
-                    });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
-                    { 
-                        { "kind", kind }, 
-                        { "url", url }, 
-                        { "text", text},
-                        { "subreddit", subreddit }, 
-                        { "title", title } 
-                    }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddPost(kind, url, text, subreddit, title);
+            else
+                await _offlineService.EnqueueAction("AddPost", new Dictionary<string, string> 
+                { 
+                    { "kind", kind }, 
+                    { "url", url },
+                    { "text", text},
+                    { "subreddit", subreddit }, 
+                    { "title", title } 
+                });
         }
 
         public async Task EditPost(string text, string name)
         {
-            try
-            {
-                if (text == null || name == null)
-                    return;
+            if (text == null || name == null)
+                return;
 
-                _invalidatedIds.Add(name);
+            _invalidatedIds.Add(name);
 
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.EditPost(text, name);
-                else
-                    await _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
-                    { 
-                        {"text", text},
-                        {"thing_id", name}
-                    });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
-                    { 
-                        {"text", text},
-                        {"thing_id", name}
-                    }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.EditPost(text, name);
+            else
+                await _offlineService.EnqueueAction("EditPost", new Dictionary<string, string> 
+                { 
+                    {"text", text},
+                    {"thing_id", name}
+                });
         }
 
         public async Task AddVote(string thingId, int direction)
         {
-            try
-            {
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddVote(thingId, direction);
-                else
-                    await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddVote(thingId, direction);
+            else
+                await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "thingId", thingId }, { "direction", direction.ToString() } });
         }
 
         public async Task AddSubredditSubscription(string subreddit, bool unsub)
         {
-            try
-            {
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddSubredditSubscription(subreddit, unsub);
-                else
-                    await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddSubredditSubscription(subreddit, unsub);
+            else
+                await _offlineService.EnqueueAction("AddVote", new Dictionary<string, string> { { "subreddit", subreddit }, { "direcunsubtion", unsub.ToString() } });
         }
 
         public async Task AddSavedThing(string thingId)
         {
-            try
-            {
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddSavedThing(thingId);
-                else
-                    await _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddSavedThing(thingId);
+            else
+                await _offlineService.EnqueueAction("AddSavedThing", new Dictionary<string, string> { { "thingId", thingId } });
         }
 
         public async Task AddReportOnThing(string thingId)
         {
-            try
-            {
-                if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
-                    await _redditService.AddReportOnThing(thingId);
-                else
-                    await _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } });
-            }
-            catch (TaskCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                if(System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
-                    _notificationService.CreateErrorNotification(ex);
-
-                _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } }).Start();
-            }
+            if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
+                await _redditService.AddReportOnThing(thingId);
+            else
+                await _offlineService.EnqueueAction("AddReportOnThing", new Dictionary<string, string> { { "thingId", thingId } });
         }
 
         //we dont need to be particularly active here, as we dont want to burn battery when nothing is happening and we dont want to choke out
@@ -709,60 +570,68 @@ namespace BaconographyPortable.Services.Impl
                 if (_settingsService.IsOnline() && (await _userService.GetUser()).Username != null)
                 {
                     var actionTpl = await _offlineService.DequeueAction();
-                    if (actionTpl != null)
+                    try
                     {
-                        switch (actionTpl.Item1)
+                        if (actionTpl != null)
                         {
-                            case "AddComment":
-                                {
-                                    await AddComment(actionTpl.Item2["parentId"], actionTpl.Item2["content"]);
-                                    break;
-                                }
-                            case "EditComment":
-                                {
-                                    await EditComment(actionTpl.Item2["thingId"], actionTpl.Item2["text"]);
-                                    break;
-                                }
-                            case "AddMessage":
-                                {
-                                    await AddMessage(actionTpl.Item2["recipient"], actionTpl.Item2["subject"], actionTpl.Item2["message"]);
-                                    break;
-                                }
-                            case "AddPost":
-                                {
-                                    await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
-                                    break;
-                                }
-                            case "EditPost":
-                                {
-                                    await EditPost(actionTpl.Item2["text"], actionTpl.Item2["name"]);
-                                    break;
-                                }
-                            case "AddVote":
-                                {
-                                    await AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
-                                    break;
-                                }
-                            case "AddSubredditSubscription":
-                                {
-                                    await AddSubredditSubscription(actionTpl.Item2["subreddit"], bool.Parse(actionTpl.Item2["direction"]));
-                                    break;
-                                }
-                            case "AddSavedThing":
-                                {
-                                    await AddSavedThing(actionTpl.Item2["thingId"]);
-                                    break;
-                                }
-                            case "AddReportOnThing":
-                                {
-                                    await AddReportOnThing(actionTpl.Item2["thingId"]);
-                                    break;
-                                }
-                            default:
-                                return false;
+                            switch (actionTpl.Item1)
+                            {
+                                case "AddComment":
+                                    {
+                                        await AddComment(actionTpl.Item2["parentId"], actionTpl.Item2["content"]);
+                                        break;
+                                    }
+                                case "EditComment":
+                                    {
+                                        await EditComment(actionTpl.Item2["thingId"], actionTpl.Item2["text"]);
+                                        break;
+                                    }
+                                case "AddMessage":
+                                    {
+                                        await AddMessage(actionTpl.Item2["recipient"], actionTpl.Item2["subject"], actionTpl.Item2["message"]);
+                                        break;
+                                    }
+                                case "AddPost":
+                                    {
+                                        await AddPost(actionTpl.Item2["kind"], actionTpl.Item2["url"], actionTpl.Item2["text"], actionTpl.Item2["subreddit"], actionTpl.Item2["title"]);
+                                        break;
+                                    }
+                                case "EditPost":
+                                    {
+                                        await EditPost(actionTpl.Item2["text"], actionTpl.Item2["name"]);
+                                        break;
+                                    }
+                                case "AddVote":
+                                    {
+                                        await AddVote(actionTpl.Item2["thingId"], int.Parse(actionTpl.Item2["direction"]));
+                                        break;
+                                    }
+                                case "AddSubredditSubscription":
+                                    {
+                                        await AddSubredditSubscription(actionTpl.Item2["subreddit"], bool.Parse(actionTpl.Item2["direction"]));
+                                        break;
+                                    }
+                                case "AddSavedThing":
+                                    {
+                                        await AddSavedThing(actionTpl.Item2["thingId"]);
+                                        break;
+                                    }
+                                case "AddReportOnThing":
+                                    {
+                                        await AddReportOnThing(actionTpl.Item2["thingId"]);
+                                        break;
+                                    }
+                                default:
+                                    return false;
+                            }
+                            return true;
                         }
-                        return true;
                     }
+                    catch (Exception ex)
+                    {
+                        //fall through to the enqueue
+                    }
+                    await _offlineService.EnqueueAction(actionTpl.Item1, actionTpl.Item2);
                 }
             }
             catch (TaskCanceledException)

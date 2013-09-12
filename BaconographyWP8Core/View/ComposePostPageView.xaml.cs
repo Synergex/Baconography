@@ -72,9 +72,18 @@ namespace BaconographyWP8.View
                 bindingExpression.UpdateSource();
             }
 
+            
+
             var vm = this.DataContext as ComposePostViewModel;
             if (vm != null)
+            {
+                var pivotItem = pivot.SelectedItem as PivotItem;
+                if (pivotItem != null)
+                {
+                    vm.Kind = pivotItem.Header as string;
+                }
                 vm.Submit.Execute(null);
+            }
         }
 
         private void ChangeUser_Click(object sender, RoutedEventArgs e)
@@ -145,15 +154,6 @@ namespace BaconographyWP8.View
             var vm = this.DataContext as ComposePostViewModel;
             if (vm == null)
                 return;
-
-            if (pivot.SelectedIndex == 0)
-            {
-                vm.Kind = "link";
-            }
-            else
-            {
-                vm.Kind = "self";
-            }
         }
 
     }

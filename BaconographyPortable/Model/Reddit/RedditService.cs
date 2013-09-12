@@ -571,6 +571,28 @@ namespace BaconographyPortable.Model.Reddit
             }
         }
 
+        private void ProcessJsonErrors(string response)
+        {
+            string realErrorString = "";
+            try
+            {
+                if (response.Contains("errors"))
+                {
+                    var jsonErrors = JsonConvert.DeserializeObject<JsonErrorsData>(response);
+                    if (jsonErrors.Errors != null && jsonErrors.Errors.Length > 0)
+                    {
+                        realErrorString = jsonErrors.Errors[0].ToString();
+                    }
+                }
+
+            }
+            catch
+            {
+            }
+            if (!string.IsNullOrWhiteSpace(realErrorString))
+                throw new Exception(realErrorString);
+        }
+
         public virtual async Task AddVote(string thingId, int direction)
         {
             var modhash = await GetCurrentModhash();
@@ -582,7 +604,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/vote");
+            ProcessJsonErrors(await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/vote"));
         }
 
         public virtual async Task AddSubredditSubscription(string subreddit, bool unsub)
@@ -598,7 +620,7 @@ namespace BaconographyPortable.Model.Reddit
                 { "action", unsub ? "unsub" : "sub"}
             };
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe");
+            ProcessJsonErrors(await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, "http://www.reddit.com/api/subscribe"));
         }
 
         public virtual async Task AddSavedThing(string thingId)
@@ -612,7 +634,7 @@ namespace BaconographyPortable.Model.Reddit
                 { "uh", modhash}
             };
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
+            ProcessJsonErrors(await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri));
         }
 
         public virtual async Task AddReportOnThing(string thingId)
@@ -626,7 +648,7 @@ namespace BaconographyPortable.Model.Reddit
                 { "uh", modhash}
             };
 
-            await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri);
+            ProcessJsonErrors(await _simpleHttpService.SendPost(await GetCurrentLoginCookie(), content, targetUri));
         }
 
         public virtual async Task AddPost(string kind, string url, string text, string subreddit, string title)
@@ -645,7 +667,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/submit"));
         }
 
         public virtual async Task EditPost(string text, string name)
@@ -660,7 +682,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext"));
         }
 
         public async Task SubmitCaptcha(string captcha)
@@ -753,11 +775,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message");
-            if (temp == null)
-            {
-                temp = "hello";
-            }
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/read_message"));
         }
 
         public virtual async Task AddMessage(string recipient, string subject, string message)
@@ -775,7 +793,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose"));
         }
 
         public virtual async Task AddReply(string recipient, string subject, string message, string thing_id)
@@ -793,7 +811,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var temp = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/compose"));
         }
 
         public virtual async Task AddComment(string parentId, string content)
@@ -807,7 +825,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/comment"));
         }
 
         public virtual async Task EditComment(string thingId, string text)
@@ -821,7 +839,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"uh", modhash}
             };
 
-            var result = await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext");
+            ProcessJsonErrors(await this.SendPost(await GetCurrentLoginCookie(), arguments, "http://www.reddit.com/api/editusertext"));
         }
 
         private async Task<bool> UserIsGold()
