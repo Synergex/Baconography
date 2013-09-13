@@ -122,8 +122,18 @@ namespace BaconographyWP8Core.View
                     {
                         var argTpl = JsonConvert.DeserializeObject<Tuple<string, string>>(unescapedData);
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                        DataContext = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), argTpl.Item1, argTpl.Item2);
-                        FocusContent();
+                        try
+                        {
+                            DataContext = await ReadableArticleViewModel.LoadAtLeastOne(ServiceLocator.Current.GetInstance<ISimpleHttpService>(), argTpl.Item1, argTpl.Item2);
+                            FocusContent();
+                        }
+                        catch(Exception ex)
+                        {
+                            ServiceLocator.Current.GetInstance<INavigationService>().GoBack();
+                            if(Uri.IsWellFormedUriString(argTpl.Item1, UriKind.Absolute))
+                                ServiceLocator.Current.GetInstance<INavigationService>().NavigateToExternalUri(new Uri(argTpl.Item1));
+                            
+                        }
                     }
                     finally
                     {
