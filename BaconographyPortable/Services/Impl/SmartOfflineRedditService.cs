@@ -233,7 +233,20 @@ namespace BaconographyPortable.Services.Impl
             catch { }
         }
 
+        private async Task MaybeStoredSubredditListing(Listing listing)
+        {
+            try
+            {
+                if (listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
+                {
+                    await _offlineService.StoreOrderedThings("reddits:", listing.Data.Children);
+                }
+            }
+            catch { }
+        }
+
         Listing _subscribedSubredditListing;
+        Listing _subredditListing;
         HashSet<string> _subscribedSubreddits;
         public async Task<HashSet<string>> GetSubscribedSubreddits()
         {
@@ -278,9 +291,23 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.GetDefaultSubreddits();
         }
 
-        public Task<Listing> GetSubreddits(int? limit)
+        public async Task<Listing> GetSubreddits(int? limit)
         {
-            return _redditService.GetSubreddits(limit);
+            if (_subredditListing != null)
+                return _subredditListing;
+
+            var result = await _redditService.GetSubreddits(limit);
+            if (result != null && result.Data.Children.Count > 0)
+            {
+                _subredditListing = result;
+                await MaybeStoredSubredditListing(result);
+            }
+            else
+            {
+                _subredditListing = await GetDefaultSubreddits();
+            }
+
+            return _subredditListing;
         }
 
         public async Task<TypedThing<Subreddit>> GetSubreddit(string name)

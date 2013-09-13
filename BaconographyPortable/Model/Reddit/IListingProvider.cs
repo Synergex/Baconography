@@ -14,6 +14,10 @@ namespace BaconographyPortable.Model.Reddit
         Task<Listing> Refresh(Dictionary<object, object> state);
     }
 
+    public interface IDontRefreshAutomatically
+    {
+    }
+
     public interface ICachedListingProvider
     {
         Task<Listing> GetCachedListing(Dictionary<object, object> state);
