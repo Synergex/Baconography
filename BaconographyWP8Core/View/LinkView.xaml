@@ -31,7 +31,7 @@
                         </TextBlock.Foreground>
                     </TextBlock>
                     <StackPanel Margin="0,2,0,2" Orientation="Horizontal">
-                        <TextBlock FontSize="18"  Foreground="Goldenrod" Text="{Binding Author}" />
+                        <TextBlock FontSize="18"  Foreground="{StaticResource PhoneAccentBrush}" Text="{Binding Author}" />
                         <TextBlock Margin="8,2,0,0" Foreground="Gray" FontSize="16" Text="{Binding Path=Votable.TotalVotes, Converter={StaticResource totalPointsConverter}}"/>
                     </StackPanel>
                     <StackPanel VerticalAlignment="Top" Orientation="Horizontal" Margin="0,3,0,0">
