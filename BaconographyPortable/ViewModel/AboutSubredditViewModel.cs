@@ -99,7 +99,7 @@ namespace BaconographyPortable.ViewModel
         {
             get
             {
-                return _baconProvider.GetService<IMarkdownProcessor>().Process(Thing.Data.PublicDescription);
+                return _baconProvider.GetService<IMarkdownProcessor>().Process(Thing.Data.Description);
             }
         }
 

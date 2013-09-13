@@ -428,7 +428,11 @@ namespace BaconographyWP8.Converters
                     {
                         item.Accept(fullUIVisitor);
                     }
-                    results.Add(fullUIVisitor.Result);
+
+                    if (fullUIVisitor.ResultGroup != null)
+                        results.Add(fullUIVisitor.ResultGroup);
+                    else
+                        results.Add(fullUIVisitor.Result);
                 }
 
                 if (column != null)
