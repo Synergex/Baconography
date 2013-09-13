@@ -51,6 +51,7 @@ namespace BaconographyPortable.ViewModel
                                 var remainingParts = await Task.Run(() => LoadFullyImpl(httpService, nextPage));
                                 foreach (var part in remainingParts.Item2)
                                 {
+                                    
                                     articleViewModel.ArticleParts.Add(part);
                                 }
                             }
@@ -90,9 +91,23 @@ namespace BaconographyPortable.ViewModel
                     target.Add(new ReadableArticleImage { Url = tpl.Item2 });
                 }
 
+                StringBuilder articleContentsBuilder = new StringBuilder();
                 foreach (var pp in tpl.Item1.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    target.Add(new ReadableArticleParagraph { Text = pp });
+                    if (target.Count > 200)
+                        break;
+
+                    articleContentsBuilder.AppendLine(pp);
+                    if (articleContentsBuilder.Length > 1000)
+                    {
+                        target.Add(new ReadableArticleParagraph { Text = articleContentsBuilder.ToString() });
+                        articleContentsBuilder.Clear();
+                    }
+                    
+                }
+                if (articleContentsBuilder.Length > 0)
+                {
+                    target.Add(new ReadableArticleParagraph { Text = articleContentsBuilder.ToString() });
                 }
             }
             var nextPageUrl = MultiPageUtils.FindNextPageLink(SgmlDomBuilder.GetBody(SgmlDomBuilder.BuildDocument(page)), url);

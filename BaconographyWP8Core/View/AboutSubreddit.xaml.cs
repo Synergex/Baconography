@@ -12,6 +12,8 @@ using Microsoft.Practices.ServiceLocation;
 using BaconographyPortable.Services;
 using BaconographyPortable.Model.Reddit;
 using BaconographyPortable.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
+using BaconographyPortable.Messages;
 
 namespace BaconographyWP8Core.View
 {
@@ -44,15 +46,26 @@ namespace BaconographyWP8Core.View
                             subredditName = subredditName.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries)[1];
                         }
 
-                        var targetSubredditThing = await redditService.GetSubreddit(subredditName);
-                        if (targetSubredditThing != null)
+                        displayNameTextBlock.Text = subredditName;
+
+                        Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                        try
                         {
-                            var sublist = await redditService.GetSubscribedSubreddits();
-                            var viewModel = new AboutSubredditViewModel(ServiceLocator.Current.GetInstance<IBaconProvider>(), targetSubredditThing, sublist.Contains(targetSubredditThing.Data.Name));
-                            DataContext = viewModel;
+                            var targetSubredditThing = await redditService.GetSubreddit(subredditName);
+                            if (targetSubredditThing != null)
+                            {
+                                var sublist = await redditService.GetSubscribedSubreddits();
+                                var viewModel = new AboutSubredditViewModel(ServiceLocator.Current.GetInstance<IBaconProvider>(), targetSubredditThing, sublist.Contains(targetSubredditThing.Data.Name));
+                                DataContext = viewModel;
+                                ContentPanel.Visibility = System.Windows.Visibility.Visible;
+                            }
+                        }
+                        finally
+                        {
+                            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("failed to display subreddit sidebar: " + ex.ToString());
                     }

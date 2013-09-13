@@ -24,11 +24,11 @@
 
         <!--TitlePanel contains the name of the application and page title-->
         <StackPanel Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource PhoneTextTitle1Style}"/>
+            <TextBlock x:Name="displayNameTextBlock" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -49,7 +49,7 @@
 
             <TextBlock Grid.Row="3" Visibility="{Binding Over18, Converter={StaticResource booleanVisibilityConverter}}" Text="NSFW" Foreground="Red"/>
             
-            <ContentControl Grid.Row="4"  Content="{Binding PublicDescription, Converter={StaticResource markdownConverter}}"/>
+            <ContentControl HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="4"  Content="{Binding PublicDescription, Converter={StaticResource markdownConverter}}"/>
         </Grid>
     </Grid>
 
