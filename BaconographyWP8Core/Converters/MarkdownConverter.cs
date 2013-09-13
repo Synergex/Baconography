@@ -66,7 +66,7 @@ namespace BaconographyWP8.Converters
 
         private object MakePlain(string value)
         {
-            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(10, 0, 0, 0) };
+            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(4, 6, 4, 6) };
         }
 
        
@@ -84,7 +84,7 @@ namespace BaconographyWP8.Converters
         }
         Brush _forgroundBrush;
         private int _textLengthInCurrent = 0;
-        public RichTextBox Result = new RichTextBox { TextWrapping = TextWrapping.Wrap };
+        public RichTextBox Result = new RichTextBox { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(-6, 6, 4, 6) };
         public StackPanel ResultGroup = null;
         System.Windows.Documents.Paragraph _currentParagraph;
 
@@ -94,16 +94,41 @@ namespace BaconographyWP8.Converters
             {
                 if (ResultGroup == null)
                 {
-                    ResultGroup = new StackPanel { Orientation = Orientation.Vertical };
+                    ResultGroup = new StackPanel { Orientation = Orientation.Vertical};
                     ResultGroup.Children.Add(Result);
+                    Result.Margin = new Thickness(-6);
                 }
 
-                ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap });
+                ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(-6, 6, 4, 6) });
                 _textLengthInCurrent = 0;
             }
 
-            _currentParagraph = new System.Windows.Documents.Paragraph();
+            _currentParagraph = new System.Windows.Documents.Paragraph { TextAlignment = TextAlignment.Left };
             Result.Blocks.Add(_currentParagraph);
+        }
+
+        private void DirectlyPlaceUIContent(UIElement element)
+        {
+            if (ResultGroup == null)
+            {
+                ResultGroup = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(0)};
+                if (Result.Blocks.Count == 0)
+                {
+                    //nothing here yet so lets just ignore the current result and move on
+                }
+                else
+                {
+                    ResultGroup.Children.Add(Result);
+                }
+            }
+            else if(ResultGroup.Children.Last() is RichTextBox && ((RichTextBox)ResultGroup.Children.Last()).Blocks.Count == 0)
+            {
+                ResultGroup.Children.Remove(ResultGroup.Children.Last());
+            }
+            ResultGroup.Children.Add(element);
+
+            ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(-6, 6, 4, 6) });
+            _textLengthInCurrent = 0;
         }
 
         public void Visit(Text text)
@@ -162,7 +187,7 @@ namespace BaconographyWP8.Converters
             {
                 if (_currentParagraph == null)
                 {
-                    _currentParagraph = new System.Windows.Documents.Paragraph();
+                    _currentParagraph = new System.Windows.Documents.Paragraph { TextAlignment = TextAlignment.Left };
                     Result.Blocks.Add(_currentParagraph);
                 }
                 _currentParagraph.Inlines.Add(madeRun);
@@ -299,10 +324,8 @@ namespace BaconographyWP8.Converters
 
         public void Visit(Quote code)
         {
-            var inlineContainer = new InlineUIContainer();
-
             SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
-
+            UIElement result = null;
             foreach (var item in code)
             {
                 item.Accept(categoryVisitor);
@@ -317,7 +340,7 @@ namespace BaconographyWP8.Converters
                     item.Accept(plainTextVisitor);
 
 
-                inlineContainer.Child = new MarkdownQuote(plainTextVisitor.Result);
+                result = new MarkdownQuote(plainTextVisitor.Result);
             }
             else
             {
@@ -326,20 +349,10 @@ namespace BaconographyWP8.Converters
                 foreach (var item in code)
                     item.Accept(fullUIVisitor);
 
-                inlineContainer.Child = new MarkdownQuote(fullUIVisitor.Result);
+                result = new MarkdownQuote(fullUIVisitor.Result);
             }
 
-            if (_currentParagraph == null)
-            {
-                MaybeSplitForParagraph();
-            }
-            else
-            {
-                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
-            }
-
-            _currentParagraph.Inlines.Add(inlineContainer);
-            _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+            DirectlyPlaceUIContent(result);
         }
 
         private IEnumerable<UIElement> BuildChildUIList(IEnumerable<IDomObject> objects)
@@ -382,7 +395,7 @@ namespace BaconographyWP8.Converters
                         item.Accept(plainTextVisitor);
                     }
 
-                    results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = plainTextVisitor.Result });
+                    results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = plainTextVisitor.Result, Margin = new Thickness(4, 6, 4, 6) });
                 }
                 else if (column != null && ((TableColumn)item).Contents.Count() == 1 && (columnFirstContent = ((TableColumn)item).Contents.FirstOrDefault()) != null &&
                     (columnFirstContent is Text))
@@ -398,7 +411,7 @@ namespace BaconographyWP8.Converters
                     }
                     else
                     {
-                        results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = ((Text)columnFirstContent).Contents });
+                        results.Add(new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Text = ((Text)columnFirstContent).Contents, Margin = new Thickness(4, 6, 4, 6) });
                     }
                 }
                 else
@@ -415,7 +428,11 @@ namespace BaconographyWP8.Converters
                     {
                         item.Accept(fullUIVisitor);
                     }
-                    results.Add(fullUIVisitor.Result);
+
+                    if (fullUIVisitor.ResultGroup != null)
+                        results.Add(fullUIVisitor.ResultGroup);
+                    else
+                        results.Add(fullUIVisitor.Result);
                 }
 
                 if (column != null)
@@ -442,19 +459,13 @@ namespace BaconographyWP8.Converters
         public void Visit(OrderedList orderedList)
         {
             var uiElements = BuildChildUIList(orderedList);
-            var inlineContainer = new InlineUIContainer();
-            inlineContainer.Child = new MarkdownList(true, uiElements);
-            MaybeSplitForParagraph();
-            _currentParagraph.Inlines.Add(inlineContainer);
+            DirectlyPlaceUIContent(new MarkdownList(true, uiElements));
         }
 
         public void Visit(UnorderedList unorderedList)
         {
             var uiElements = BuildChildUIList(unorderedList);
-            var inlineContainer = new InlineUIContainer();
-            inlineContainer.Child = new MarkdownList(false, uiElements);
-            MaybeSplitForParagraph();
-            _currentParagraph.Inlines.Add(inlineContainer);
+            DirectlyPlaceUIContent(new MarkdownList(false, uiElements));
         }
 
         public void Visit(Table table)
@@ -465,18 +476,8 @@ namespace BaconographyWP8.Converters
             {
                 tableBody.Add(BuildChildUIList(row.Columns));
             }
-            var madeTable = new MarkdownTable(headerUIElements, tableBody);
 
-            if (ResultGroup == null)
-            {
-                ResultGroup = new StackPanel { Orientation = Orientation.Vertical };
-                ResultGroup.Children.Add(Result);
-            }
-
-            ResultGroup.Children.Add(madeTable);
-
-            ResultGroup.Children.Add(Result = new RichTextBox { TextWrapping = TextWrapping.Wrap });
-            _textLengthInCurrent = 0;
+            DirectlyPlaceUIContent(new MarkdownTable(headerUIElements, tableBody));
         }
 
         public void Visit(Document document)

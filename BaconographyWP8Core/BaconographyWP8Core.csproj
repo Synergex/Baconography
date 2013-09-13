@@ -199,6 +199,9 @@
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
+    <Compile Include="View\AboutSubreddit.xaml.cs">
+      <DependentUpon>AboutSubreddit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
@@ -318,6 +321,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\AboutSubreddit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\AboutUserView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

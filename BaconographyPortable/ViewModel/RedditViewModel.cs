@@ -305,6 +305,17 @@ namespace BaconographyPortable.ViewModel
 			}
 		}
 
+        public bool IsMulti
+        {
+            get
+            {
+                if (_selectedSubreddit == null || _selectedSubreddit.Data.Url == "/")
+                    return true;
+                else
+                    return _selectedSubreddit.Data.Url.Contains("/m/") || _selectedSubreddit.Data.Url.Contains("+");
+            }
+        }
+
 		public bool IsTilePinned
         {
             get

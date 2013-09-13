@@ -53,6 +53,9 @@
                         <Border Padding="1,0,1,0" Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
                             <TextBlock Foreground="{Binding PosterFlair, Converter={StaticResource fgAuthorFlairKindConverter}}" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
                         </Border>
+
+                        <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Path=AuthorFlairText}" Margin="5,2,0,0" />
+
                         <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Path=Votable.TotalVotes}" Margin="5,2,0,0" />
                         <TextBlock Foreground="Gray" FontSize="15" Text="points" Margin="5,2,0,0" />
                         <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,2,0,0" />

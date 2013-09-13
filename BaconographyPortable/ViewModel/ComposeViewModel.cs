@@ -20,6 +20,7 @@ namespace BaconographyPortable.ViewModel
         IRedditService _redditService;
         INavigationService _navigationService;
         IDynamicViewLocator _dynamicViewLocator;
+        INotificationService _notificationService;
         MessageViewModel _replyMessage;
 
         public ComposeViewModel(IBaconProvider baconProvider, MessageViewModel replyMessage = null)
@@ -29,6 +30,7 @@ namespace BaconographyPortable.ViewModel
             _redditService = baconProvider.GetService<IRedditService>();
             _navigationService = baconProvider.GetService<INavigationService>();
             _dynamicViewLocator = baconProvider.GetService<IDynamicViewLocator>();
+            _notificationService = baconProvider.GetService<INotificationService>();
             _refreshUser = new RelayCommand(RefreshUserImpl);
             _send = new RelayCommand(SendImpl);
 
@@ -139,8 +141,27 @@ namespace BaconographyPortable.ViewModel
         private RelayCommand _send;
         private async void SendImpl()
         {
-            _navigationService.GoBack();
-            await _redditService.AddMessage(_recipient, _subject, _message);
+            try
+            {
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+
+                await _redditService.AddMessage(_recipient, _subject, _message);
+
+                this.Message = "";
+                this.Recipient = "";
+                this.Subject = "";
+
+                _navigationService.GoBack();
+            }
+            catch (Exception ex)
+            {
+                _notificationService.CreateNotification("something bad happened while trying to submit your PM: " + ex.ToString());
+            }
+            finally
+            {
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+
             // TODO: Content for SENT view
             /*
             if (IsReply && (_replyMessage.IsPostReply || _replyMessage.IsCommentReply))

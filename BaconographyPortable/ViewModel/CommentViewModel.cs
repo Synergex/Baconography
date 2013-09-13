@@ -44,6 +44,7 @@ namespace BaconographyPortable.ViewModel
             OddNesting = oddNesting;
 			Depth = depth;
             AuthorFlair = _redditService.GetUsernameModifiers(_comment.Data.Author, _linkId, _comment.Data.Subreddit);
+            AuthorFlairText = _comment.Data.AuthorFlairText;
             _showExtendedView = new RelayCommand(ShowExtendedViewImpl);
             _gotoReply = new RelayCommand(GotoReplyImpl);
             _save = new RelayCommand(SaveImpl);
@@ -72,6 +73,8 @@ namespace BaconographyPortable.ViewModel
 		public int Depth { get; set; }
 
         AuthorFlairKind AuthorFlair { get; set; }
+
+        public string AuthorFlairText { get; set; }
 
         public List<ViewModelBase> Replies
         {
