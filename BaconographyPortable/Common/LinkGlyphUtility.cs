@@ -74,6 +74,8 @@ namespace BaconographyPortable.Common
 
                 if (subreddit == "videos" ||
                     targetHost == "www.youtube.com" ||
+                    targetHost == "www.youtu.be" ||
+                    targetHost == "youtu.be" ||
                     targetHost == "youtube.com" ||
                     targetHost == "vimeo.com" ||
                     targetHost == "www.vimeo.com" ||
