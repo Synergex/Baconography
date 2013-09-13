@@ -33,6 +33,9 @@ Now that everything is set up, you can build, deploy, and debug the solution
 *   On WinRT Show images inline RES style (including gifs), for links as well as comments
 *   Get it on Windows Phone 8
 *   Optimize web content using a modified version of NBoilerpipe
+*   Render all kinds of markdown including tables
+*   Subreddit flair text
+*   Subreddit sidebar including subscribe and unsubscribe functionality
 
 # Things left on the Todo list
 *   ~~keep track of links that have already been shown in never ending reddit, don't show them further down~~
