@@ -98,169 +98,175 @@ namespace BaconographyPortable.Common
             {
                 return;
             }
-
-            var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
-            _longNavWatcher.ClearInFlight();
-            var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
-            var navigationService = baconProvider.GetService<INavigationService>();
-
-            if (CommentRegex.IsMatch(str))
+            try
             {
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : 
-                    new Thing { Kind = "t3", Data = new Link { Permalink = str, Url = str, Title = str, Name= "", Author = "", Selftext = "" } };
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                if (targetLinkThing != null && targetLinkThing.Data is Link)
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(targetLinkThing)});
-                else
+                var settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
+                _longNavWatcher.ClearInFlight();
+                var baconProvider = ServiceLocator.Current.GetInstance<IBaconProvider>();
+                var navigationService = baconProvider.GetService<INavigationService>();
+
+                if (CommentRegex.IsMatch(str))
                 {
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-                }
-            }
-            else if (CommentsPageRegex.IsMatch(str))
-            {
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                if (targetLinkThing != null)
-                {
-                    var typedLinkThing = new TypedThing<Link>(targetLinkThing);
-                    await baconProvider.GetService<IOfflineService>().StoreHistory(typedLinkThing.Data.Permalink);
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
-                }
-                else
-                {
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
-                }
-            }
-            else if (SubredditRegex.IsMatch(str))
-            {
-                var nameIndex = str.LastIndexOf("/r/");
-                var subredditName = str.Substring(nameIndex + 3);
-
-                TypedThing<Subreddit> subreddit = null;
-
-                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
-                if (settingsService.IsOnline())
-                {
-                    subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
-                }
-                else
-                {
-                    var thing = await offlineService.GetSubreddit(subredditName);
-                    if (thing != null)
-                        subreddit = new TypedThing<Subreddit>(thing);
-                }
-
-                if (subreddit != null)
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
-                else
-                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
-            }
-            else if (UserMultiredditRegex.IsMatch(str))
-            {
-                var nameIndex = str.LastIndexOf("/u/");
-                string subredditName = "";
-                if (nameIndex < 0)
-                {
-                    nameIndex = str.LastIndexOf("/user/");
-                    subredditName = str.Substring(nameIndex);
-                }
-                else
-                {
-                    subredditName = str.Substring(nameIndex);
-                }
-
-                subredditName = subredditName.Replace("/u/", "/user/");
-
-                TypedThing<Subreddit> subreddit = null;
-
-                var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
-                if (settingsService.IsOnline())
-                {
-                    subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
-                }
-                else
-                {
-                    var thing = await offlineService.GetSubreddit(subredditName);
-                    if (thing != null)
-                        subreddit = new TypedThing<Subreddit>(thing);
-                }
-
-                if (subreddit != null)
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
-                else
-                    ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
-            }
-			else if (UserRegex.IsMatch(str))
-			{
-				var nameIndex = str.LastIndexOf("/u/");
-				string userName = "";
-				if (nameIndex < 0)
-				{
-					nameIndex = str.LastIndexOf("/user/");
-					userName = str.Substring(nameIndex + 6);
-				}
-				else
-				{
-					userName = str.Substring(nameIndex + 3);
-				}
-
-				TypedThing<Account> account = null;
-
-				var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
-				if (settingsService.IsOnline())
-				{
-					account = await baconProvider.GetService<IRedditService>().GetAccountInfo(userName);
-
-					if (account != null)
-						navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().AboutUserView, new SelectUserAccountMessage { Account = account });
-					else
-						ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This account does not exist.");
-				}
-				else
-				{
-					ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Cannot access user info in offline mode.");
-				}				
-			}
-			else
-			{
-                var smartOfflineService = baconProvider.GetService<ISmartOfflineService>();
-                smartOfflineService.NavigatedToOfflineableThing(sourceLink, false);
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = false, TargetUrl = str });
-				await baconProvider.GetService<IOfflineService>().StoreHistory(str);
-                var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl(sourceLink == null ? "" : sourceLink.Data.Title, str);
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-                
-				if (imageResults != null && imageResults.Count() > 0 && !_longNavWatcher.GetTerminatedClearInFlight(str))
-				{
-                    var imageTuple = new Tuple<string, IEnumerable<Tuple<string, string>>, string>(sourceLink != null ? sourceLink.Data.Title : "", imageResults, sourceLink != null ? sourceLink.Data.Id : "");
-                    Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
-                    navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageTuple);
-				}
-				else
-				{
-                    var uri = new Uri(str);
-                    var targetHost = uri.DnsSafeHost.ToLower();
-
-                    Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
-					var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
-                    if (videoResults != null)
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) :
+                        new Thing { Kind = "t3", Data = new Link { Permalink = str, Url = str, Title = str, Name = "", Author = "", Selftext = "" } };
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    if (targetLinkThing != null && targetLinkThing.Data is Link)
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = new TypedThing<Link>(targetLinkThing) });
+                    else
                     {
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
                     }
-                    else if (settingsService.ApplyReadabliltyToLinks && LinkGlyphUtility.GetLinkGlyph(str) == LinkGlyphUtility.WebGlyph)
+                }
+                else if (CommentsPageRegex.IsMatch(str))
+                {
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    if (targetLinkThing != null)
                     {
-                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, Tuple.Create<string, string>(str, sourceLink != null ? sourceLink.Data.Id : ""));
+                        var typedLinkThing = new TypedThing<Link>(targetLinkThing);
+                        await baconProvider.GetService<IOfflineService>().StoreHistory(typedLinkThing.Data.Permalink);
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
                     }
                     else
                     {
-                        //its not an image/video url we can understand so whatever it is just show it in the browser
                         navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
                     }
-				}
-			}
+                }
+                else if (SubredditRegex.IsMatch(str))
+                {
+                    var nameIndex = str.LastIndexOf("/r/");
+                    var subredditName = str.Substring(nameIndex + 3);
+
+                    TypedThing<Subreddit> subreddit = null;
+
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    if (settingsService.IsOnline())
+                    {
+                        subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                    }
+                    else
+                    {
+                        var thing = await offlineService.GetSubreddit(subredditName);
+                        if (thing != null)
+                            subreddit = new TypedThing<Subreddit>(thing);
+                    }
+
+                    if (subreddit != null)
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                    else
+                        ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
+                }
+                else if (UserMultiredditRegex.IsMatch(str))
+                {
+                    var nameIndex = str.LastIndexOf("/u/");
+                    string subredditName = "";
+                    if (nameIndex < 0)
+                    {
+                        nameIndex = str.LastIndexOf("/user/");
+                        subredditName = str.Substring(nameIndex);
+                    }
+                    else
+                    {
+                        subredditName = str.Substring(nameIndex);
+                    }
+
+                    subredditName = subredditName.Replace("/u/", "/user/");
+
+                    TypedThing<Subreddit> subreddit = null;
+
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    if (settingsService.IsOnline())
+                    {
+                        subreddit = await baconProvider.GetService<IRedditService>().GetSubreddit(subredditName);
+                    }
+                    else
+                    {
+                        var thing = await offlineService.GetSubreddit(subredditName);
+                        if (thing != null)
+                            subreddit = new TypedThing<Subreddit>(thing);
+                    }
+
+                    if (subreddit != null)
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().RedditView, new SelectSubredditMessage { Subreddit = subreddit });
+                    else
+                        ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This subreddit is not available in offline mode");
+                }
+                else if (UserRegex.IsMatch(str))
+                {
+                    var nameIndex = str.LastIndexOf("/u/");
+                    string userName = "";
+                    if (nameIndex < 0)
+                    {
+                        nameIndex = str.LastIndexOf("/user/");
+                        userName = str.Substring(nameIndex + 6);
+                    }
+                    else
+                    {
+                        userName = str.Substring(nameIndex + 3);
+                    }
+
+                    TypedThing<Account> account = null;
+
+                    var offlineService = ServiceLocator.Current.GetInstance<IOfflineService>();
+                    if (settingsService.IsOnline())
+                    {
+                        account = await baconProvider.GetService<IRedditService>().GetAccountInfo(userName);
+
+                        if (account != null)
+                            navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().AboutUserView, new SelectUserAccountMessage { Account = account });
+                        else
+                            ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("This account does not exist.");
+                    }
+                    else
+                    {
+                        ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification("Cannot access user info in offline mode.");
+                    }
+                }
+                else
+                {
+                    var smartOfflineService = baconProvider.GetService<ISmartOfflineService>();
+                    smartOfflineService.NavigatedToOfflineableThing(sourceLink, false);
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = false, TargetUrl = str });
+                    await baconProvider.GetService<IOfflineService>().StoreHistory(str);
+                    var imageResults = await baconProvider.GetService<IImagesService>().GetImagesFromUrl(sourceLink == null ? "" : sourceLink.Data.Title, str);
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+
+                    if (imageResults != null && imageResults.Count() > 0 && !_longNavWatcher.GetTerminatedClearInFlight(str))
+                    {
+                        var imageTuple = new Tuple<string, IEnumerable<Tuple<string, string>>, string>(sourceLink != null ? sourceLink.Data.Title : "", imageResults, sourceLink != null ? sourceLink.Data.Id : "");
+                        Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedPictureView, imageTuple);
+                    }
+                    else
+                    {
+                        var uri = new Uri(str);
+                        var targetHost = uri.DnsSafeHost.ToLower();
+
+                        Messenger.Default.Send<LongNavigationMessage>(new LongNavigationMessage { Finished = true, TargetUrl = str });
+                        var videoResults = await baconProvider.GetService<IVideoService>().GetPlayableStreams(str);
+                        if (videoResults != null)
+                        {
+                            navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedVideoView, videoResults);
+                        }
+                        else if (settingsService.ApplyReadabliltyToLinks && LinkGlyphUtility.GetLinkGlyph(str) == LinkGlyphUtility.WebGlyph)
+                        {
+                            navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedReadabilityView, Tuple.Create<string, string>(str, sourceLink != null ? sourceLink.Data.Id : ""));
+                        }
+                        else
+                        {
+                            //its not an image/video url we can understand so whatever it is just show it in the browser
+                            navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ServiceLocator.Current.GetInstance<INotificationService>().CreateNotification(string.Format("failed to navigate to {0}, due to {1}", str, ex.ToString()));
+            }
         }
     }
 }

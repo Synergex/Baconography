@@ -103,6 +103,11 @@ namespace BaconographyWP8.Converters
                 _textLengthInCurrent = 0;
             }
 
+            if (_currentParagraph != null)
+            {
+                _currentParagraph.Inlines.Add(new System.Windows.Documents.LineBreak());
+            }
+
             _currentParagraph = new System.Windows.Documents.Paragraph { TextAlignment = TextAlignment.Left };
             Result.Blocks.Add(_currentParagraph);
         }
@@ -227,6 +232,13 @@ namespace BaconographyWP8.Converters
 
         public void Visit(Link link)
         {
+            if(link.Display.Count() == 0 && 
+                (link.Url.StartsWith("#") || link.Url.StartsWith("/#") ||
+                link.Url.StartsWith("//#") || (link.Url.StartsWith("/") && link.Url.Count(ch => ch == '/') == 1)))
+            {
+                return;
+            }
+
             Inline inlineContainer = null;
             SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
             if (link.Display != null)
@@ -349,7 +361,15 @@ namespace BaconographyWP8.Converters
                 foreach (var item in code)
                     item.Accept(fullUIVisitor);
 
-                result = new MarkdownQuote(fullUIVisitor.Result);
+                if (fullUIVisitor.ResultGroup != null)
+                {
+                    result = new MarkdownQuote(fullUIVisitor.ResultGroup);
+                }
+                else
+                {
+                    result = new MarkdownQuote(fullUIVisitor.Result);
+                }
+                
             }
 
             DirectlyPlaceUIContent(result);
