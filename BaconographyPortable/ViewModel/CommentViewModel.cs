@@ -76,6 +76,14 @@ namespace BaconographyPortable.ViewModel
 
         public string AuthorFlairText { get; set; }
 
+		public bool HasAuthorFlair
+		{
+			get
+			{
+				return (!String.IsNullOrWhiteSpace(AuthorFlairText));
+			}
+		}
+
         public List<ViewModelBase> Replies
         {
             get
