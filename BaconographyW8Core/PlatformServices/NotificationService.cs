@@ -30,6 +30,12 @@ namespace BaconographyW8.PlatformServices
             ToastNotificationManager.CreateToastNotifier().Show(toast);
         }
 
+        public void CreateNotificationWithNavigation(string text, Type navTarget, object arguments)
+        {
+            //TODO: click should navigate
+            CreateNotification(text);
+        }
+
         public void CreateErrorNotification(Exception exception)
         {
             //we're no longer connected to the internet

@@ -78,7 +78,7 @@ namespace BaconographyPortable.ViewModel
                     _liveTileService.SetMessageRead(viewModel.Id);
                     var newMessageCount = _messages.OfType<MessageViewModel>().Count(message => message.IsNew);
                     _liveTileService.SetCount(newMessageCount);
-                    _notificationService.CreateNotification("New Message: " + viewModel.Preview);
+                    _notificationService.CreateNotificationWithNavigation("New Message: " + viewModel.Preview, _baconProvider.GetService<IDynamicViewLocator>().MessagesView, null);
                     HasMail = true;
                 }
             }

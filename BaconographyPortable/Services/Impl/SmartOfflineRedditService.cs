@@ -221,13 +221,16 @@ namespace BaconographyPortable.Services.Impl
             return null;
         }
 
-        private Listing MaybeStoreSubscribedSubredditListing(Listing listing, User user)
+        private async Task MaybeStoreSubscribedSubredditListing(Listing listing, User user)
         {
-            if (user != null && user.Username != null && listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
+            try
             {
-                _offlineService.StoreOrderedThings("sublist:" + user.Username, listing.Data.Children);
+                if (user != null && user.Username != null && listing != null && listing.Data.Children != null && listing.Data.Children.Count > 0)
+                {
+                    await _offlineService.StoreOrderedThings("sublist:" + user.Username, listing.Data.Children);
+                }
             }
-            return listing;
+            catch { }
         }
 
         Listing _subscribedSubredditListing;
@@ -265,7 +268,7 @@ namespace BaconographyPortable.Services.Impl
                 _subscribedSubredditListing = await GetDefaultSubreddits();
             }
 
-            _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token) => MaybeStoreSubscribedSubredditListing(result, await _userService.GetUser()));
+            await MaybeStoreSubscribedSubredditListing(result, await _userService.GetUser());
 
             return _subscribedSubredditListing;
         }
@@ -280,9 +283,21 @@ namespace BaconographyPortable.Services.Impl
             return _redditService.GetSubreddits(limit);
         }
 
-        public Task<TypedThing<Subreddit>> GetSubreddit(string name)
+        public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
         {
-            return _redditService.GetSubreddit(name);
+            var thing = await _offlineService.GetSubreddit(name);
+            if (thing != null)
+                return new TypedThing<Subreddit>(thing);
+            else
+            {
+                var result = await _redditService.GetSubreddit(name);
+                try
+                {
+                    await _offlineService.StoreSubreddit(result);
+                }
+                catch { }
+                return result;
+            }
         }
 
         public Task<Listing> GetPostsByUser(string username, int? limit)
