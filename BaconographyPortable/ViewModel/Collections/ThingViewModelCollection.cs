@@ -158,7 +158,7 @@ namespace BaconographyPortable.ViewModel.Collections
                 {
                     initialListing = await _offlineListingProvider.GetInitialListing(state);
                 }
-                if (!(_offlineListingProvider is IDontRefreshAutomatically))
+                if (!(_offlineListingProvider is IDontRefreshAutomatically) && initialListing != null && initialListing.Data.Children.Count > 0)
                 {
                     BackgroundUpdate(state);
                 }

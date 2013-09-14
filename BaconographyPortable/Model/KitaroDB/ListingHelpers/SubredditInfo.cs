@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 {
-    class SubredditInfo : IListingProvider
+    class SubredditInfo : IListingProvider, IDontRefreshAutomatically
     {
         IOfflineService _offlineService;
         IUserService _userService;
