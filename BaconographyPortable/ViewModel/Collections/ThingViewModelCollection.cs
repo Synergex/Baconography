@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BaconographyPortable.ViewModel.Collections
@@ -158,7 +159,12 @@ namespace BaconographyPortable.ViewModel.Collections
                 {
                     initialListing = await _offlineListingProvider.GetInitialListing(state);
                 }
-                if (!(_offlineListingProvider is IDontRefreshAutomatically) && initialListing != null && initialListing.Data.Children.Count > 0)
+
+                if (initialListing == null || initialListing.Data.Children.Count == 0)
+                {
+                    initialListing = await _onlineListingProvider.GetInitialListing(state);
+                }
+                else if (!(_offlineListingProvider is IDontRefreshAutomatically))
                 {
                     BackgroundUpdate(state);
                 }
@@ -167,72 +173,75 @@ namespace BaconographyPortable.ViewModel.Collections
             else
                 return await _offlineListingProvider.GetInitialListing(state);
         }
+        private async Task UpdateImpl(Dictionary<object, object> state, CancellationToken token)
+        {
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+            var targetListing = await _onlineListingProvider.GetInitialListing(state);
 
+            if (token.IsCancellationRequested)
+                return;
+
+            if (targetListing != null)
+            {
+                ViewModelBase[] mappedListing;
+                lock (_ids)
+                {
+                    foreach (var vm in this)
+                    {
+                        var linkViewModel = vm as LinkViewModel;
+                        if (linkViewModel != null)
+                        {
+                            _ids.Remove(linkViewModel.Id);
+                        }
+                    }
+                    mappedListing = MapListing(targetListing, state).ToArray();
+                }
+
+                //remove the ones we're not replacing, otherwise we end up with state results
+                if (Count > mappedListing.Length)
+                {
+                    for (int i = Count - 1; i >= mappedListing.Length; i--)
+                    {
+                        RemoveAt(i);
+                    }
+                }
+
+                for (int i = 0; i < mappedListing.Length; i++)
+                {
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    if (Count > i)
+                    {
+                        if (this[i] is IMergableThing)
+                        {
+                            if (((IMergableThing)this[i]).MaybeMerge(mappedListing[i]))
+                                continue;
+                        }
+                        this[i] = mappedListing[i];
+                    }
+                    else
+                        Add(mappedListing[i]);
+                }
+
+                if (_onlineListingProvider is ICachedListingProvider)
+                {
+                    try
+                    {
+                        await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) => await ((ICachedListingProvider)_onlineListingProvider).CacheIt(targetListing));
+                    }
+                    catch (TaskCanceledException)
+                    {
+                    }
+                }
+            }
+            Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+        }
         private void BackgroundUpdate(Dictionary<object, object> state)
         {
             _suspendableWorkQueue.QueueInteruptableUI(async (token) =>
             {
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
-                var targetListing = await _onlineListingProvider.GetInitialListing(state);
-
-                if (token.IsCancellationRequested)
-                    return;
-
-                if (targetListing != null)
-                {
-                    ViewModelBase[] mappedListing;
-                    lock (_ids)
-                    {
-                        foreach (var vm in this)
-                        {
-                            var linkViewModel = vm as LinkViewModel;
-                            if (linkViewModel != null)
-                            {
-                                _ids.Remove(linkViewModel.Id);
-                            }
-                        }
-                        mappedListing = MapListing(targetListing, state).ToArray();
-                    }
-
-                    //remove the ones we're not replacing, otherwise we end up with state results
-                    if (Count > mappedListing.Length)
-                    {
-                        for (int i = Count - 1; i >= mappedListing.Length; i--)
-                        {
-                            RemoveAt(i);
-                        }
-                    }
-
-                    for (int i = 0; i < mappedListing.Length; i++)
-                    {
-                        if (token.IsCancellationRequested)
-                            break;
-
-                        if (Count > i)
-                        {
-                            if (this[i] is IMergableThing)
-                            {
-                                if (((IMergableThing)this[i]).MaybeMerge(mappedListing[i]))
-                                    continue;
-                            }
-                            this[i] = mappedListing[i];
-                        }
-                        else
-                            Add(mappedListing[i]);
-                    }
-
-                    if (_onlineListingProvider is ICachedListingProvider)
-                    {
-                        try
-                        {
-                            await _suspendableWorkQueue.QueueLowImportanceRestartableWork(async (token2) => await ((ICachedListingProvider)_onlineListingProvider).CacheIt(targetListing));
-                        }
-                        catch (TaskCanceledException)
-                        {
-                        }
-                    }
-                }
-                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                await UpdateImpl(state, token);
             });
         }
 

@@ -27,7 +27,7 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
             state["SubscribedSubreddits"] = ThingUtility.HashifyListing(orderedThings);
             var things = await _offlineService.RetrieveOrderedThings("reddits:", TimeSpan.FromDays(1024));
             if (things == null || things.Count() == 0)
-                things = new List<Thing>() { ThingUtility.GetFrontPageThing() };
+                return new Listing { Data = new ListingData { Children = new List<Thing>() } };
             return new Listing { Data = new ListingData { Children = new List<Thing>(things) } };
         }
 
