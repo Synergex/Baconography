@@ -54,6 +54,7 @@ namespace BaconographyPortable.ViewModel
             if (Messages == null)
             {
                 Messages = new MessageViewModelCollection(_baconProvider);
+                Messages.CollectionChanged += Messages_CollectionChanged;
                 await Messages.LoadMoreItemsAsync(30);
             }
             else
@@ -64,6 +65,15 @@ namespace BaconographyPortable.ViewModel
             lock (this)
             {
                 _alreadyToastedMessages = new HashSet<string>(_liveTileService.GetMessagesMarkedRead());
+            }
+        }
+
+        void Messages_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if ((e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Replace) &&
+                e.NewItems != null && e.NewItems.Count == 1 && e.NewItems[0] is MessageViewModel)
+            {
+                MaybeToastNewMessage(e.NewItems[0] as MessageViewModel);
             }
         }
 
