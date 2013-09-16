@@ -20,12 +20,15 @@ namespace BaconographyWP8Core.View.Markdown
             foreach (var element in elements)
             {
                 theGrid.RowDefinitions.Add(new RowDefinition());
-                var text = new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Margin = new Thickness(5, -8, 15, -8), Text = numbered ? (number++).ToString() + "." : "\u25CF" };
+                var text = new TextBlock { TextWrapping = System.Windows.TextWrapping.Wrap, Margin = new Thickness(5, 0, 15, 0), Text = numbered ? (number++).ToString() + "." : "\u25CF" };
                 text.SetValue(Grid.RowProperty, rowCount);
                 text.SetValue(Grid.ColumnProperty, 0);
                 element.SetValue(Grid.RowProperty, rowCount++);
                 element.SetValue(Grid.ColumnProperty, 1);
-                element.SetValue(FrameworkElement.MarginProperty, new Thickness(0, -8, 0, -8));
+                if (element is RichTextBox)
+                {
+                    element.SetValue(FrameworkElement.MarginProperty, new Thickness(0, -8, 0, -8));
+                }
                 theGrid.Children.Add(text);
                 theGrid.Children.Add(element);
             }
