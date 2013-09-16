@@ -181,7 +181,7 @@ namespace BaconographyPortable.ViewModel.Collections
             if (token.IsCancellationRequested)
                 return;
 
-            if (targetListing != null)
+            if (targetListing != null && targetListing.Data.Children.Count > 0)
             {
                 ViewModelBase[] mappedListing;
                 lock (_ids)
