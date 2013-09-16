@@ -14,7 +14,7 @@
     <Grid>
         <ad:AdControl
             x:Name="advertisement"
-            ApplicationId="cde702d8-0417-4b14-9c5b-38da338eb6a6" AdUnitId="136797"
+            ApplicationId="cde702d8-0417-4b14-9c5b-38da338eb6a6" AdUnitId="143033"
             Height="80" Width="480"
             IsAutoRefreshEnabled="True"
             IsAutoCollapseEnabled="False"
@@ -27,7 +27,7 @@
 
         <adduplex:AdControl x:Name="adDuplexAd" 
                         AppId="53de57dd-e6cd-46af-89c3-221789b966cd" 
-                        Visibility="Collapsed"/>
+                        Visibility="Collapsed" />
     </Grid>
 
     <!--ApplicationId="test_client" AdUnitId="Image480_80"-->
