@@ -26,6 +26,7 @@ using GalaSoft.MvvmLight;
 using BaconographyWP8Core.Common;
 using BaconographyWP8.Converters;
 using BaconographyWP8Core.View;
+using ReviewNotifier.Apollo;
 
 namespace BaconographyWP8
 {
@@ -44,7 +45,7 @@ namespace BaconographyWP8
             InitializeComponent();
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
-
+            Loaded +=MainPage_Loaded;
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
 			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
 			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
@@ -54,6 +55,12 @@ namespace BaconographyWP8
             _userService = ServiceLocator.Current.GetInstance<IUserService>();
             MaybeUserIsLoggedIn();
         }
+
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ReviewNotification.TriggerAsync("Like what we're doing? Please leave us a review on the store\n\nGot a Nag? Let us know what we can improve on /r/baconography", "Review", 5);
+        }
+
 
 		private void AdjustForOrientation(PageOrientation orientation)
 		{

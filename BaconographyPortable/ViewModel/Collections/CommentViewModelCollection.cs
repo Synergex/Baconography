@@ -103,12 +103,13 @@ namespace BaconographyPortable.ViewModel.Collections
 
         IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
         {
-            if (listing == null)
+            if (listing == null || listing.Data == null || listing.Data.Children == null)
                 return Enumerable.Empty<ViewModelBase>();
             else
             {
                 return listing.Data.Children
                     .Select((thing) => MapThing(thing, parent))
+                    .Where((thing) => thing != null)
                     .ToArray();
             }
                 
