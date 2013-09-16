@@ -729,7 +729,7 @@ namespace BaconographyPortable.Services.Impl
                     return _currentlyStoringMessages[user.Username];
             }
 
-            if (user.Me != null)
+            if (user.Username != null)
                 return MaybeStoreMessages(user, await _redditService.GetMessages(limit));
 
             var messages = await _offlineService.GetMessages(user);

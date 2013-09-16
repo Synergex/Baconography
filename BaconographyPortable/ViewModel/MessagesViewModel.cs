@@ -24,6 +24,7 @@ namespace BaconographyPortable.ViewModel
         ISmartOfflineService _smartOfflineService;
         INotificationService _notificationService;
         ILiveTileService _liveTileService;
+        bool _userLoggedIn = false;
 
         public MessagesViewModel(IBaconProvider baconProvider)
         {
@@ -51,20 +52,23 @@ namespace BaconographyPortable.ViewModel
 
         private async void GetMessages()
         {
-            if (Messages == null)
+            if (_userLoggedIn)
             {
-                Messages = new MessageViewModelCollection(_baconProvider);
-                Messages.CollectionChanged += Messages_CollectionChanged;
-                await Messages.LoadMoreItemsAsync(30);
-            }
-            else
-            {
-                Messages.Refresh();
-            }
+                if (Messages == null)
+                {
+                    Messages = new MessageViewModelCollection(_baconProvider);
+                    Messages.CollectionChanged += Messages_CollectionChanged;
+                    await Messages.LoadMoreItemsAsync(30);
+                }
+                else
+                {
+                    Messages.Refresh();
+                }
 
-            lock (this)
-            {
-                _alreadyToastedMessages = new HashSet<string>(_liveTileService.GetMessagesMarkedRead());
+                lock (this)
+                {
+                    _alreadyToastedMessages = new HashSet<string>(_liveTileService.GetMessagesMarkedRead());
+                }
             }
         }
 
@@ -73,7 +77,9 @@ namespace BaconographyPortable.ViewModel
             if ((e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Replace) &&
                 e.NewItems != null && e.NewItems.Count == 1 && e.NewItems[0] is MessageViewModel)
             {
-                MaybeToastNewMessage(e.NewItems[0] as MessageViewModel);
+                var vm = e.NewItems[0] as MessageViewModel;
+                if(vm.IsNew)
+                    MaybeToastNewMessage(vm);
             }
         }
 
@@ -96,6 +102,7 @@ namespace BaconographyPortable.ViewModel
 
         private void UserLoggedIn(UserLoggedInMessage obj)
         {
+            _userLoggedIn = true;
             GetMessages();
         }
 
