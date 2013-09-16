@@ -313,7 +313,7 @@ namespace BaconographyPortable.Services.Impl
         public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
         {
             var thing = await _offlineService.GetSubreddit(name);
-            if (thing != null)
+            if (thing != null && thing.Data is Subreddit && !string.IsNullOrEmpty(((Subreddit)thing.Data).Description))
                 return new TypedThing<Subreddit>(thing);
             else
             {
