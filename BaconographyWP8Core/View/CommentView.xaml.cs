@@ -31,7 +31,7 @@ namespace BaconographyWP8.View
             }
         }
 
-        private bool IsParentButton(UIElement element)
+        private bool IsParentButton(DependencyObject element)
         {
             if (element == null)
                 return false;
@@ -40,7 +40,7 @@ namespace BaconographyWP8.View
             if (element is Hyperlink)
                 return true;
 
-            return IsParentButton(VisualTreeHelper.GetParent(element) as UIElement);
+            return IsParentButton(VisualTreeHelper.GetParent(element) as DependencyObject);
         }
 
 		private void Comment_Hold(object sender, System.Windows.Input.GestureEventArgs e)
