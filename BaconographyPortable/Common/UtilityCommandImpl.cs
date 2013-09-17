@@ -77,7 +77,9 @@ namespace BaconographyPortable.Common
 
         //Comments page:
         public static Regex CommentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/comments/[a-zA-Z0-9_]+/(?:[a-zA-Z0-9_]+/)*?");
-        public static Regex ShortCommentsPageRegex = new Regex("(?:^|\\s|redd.it)/[a-zA-Z0-9_.]+/?");
+
+		//Short URL comments page:
+		public static Regex ShortCommentsPageRegex = new Regex("(?:redd.it)/[a-zA-Z0-9_.]+/?");
 
         //Comment:
         public static Regex CommentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
