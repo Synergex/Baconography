@@ -193,15 +193,18 @@ namespace SnuDom
 
 	static int rndr_codespan(struct buf *ob,const  struct buf *text, void *opaque) 
 	{
-		//we should be looking at zero or more processed children here
-		auto state = static_cast<dom_builder_state*>(opaque);
-		vector<IDomObject^> expanded;
-		consume_text(text, state, expanded);
-		auto newDomId = state->domId++;
-		auto result = ref new Code(expanded, newDomId);
-		result->IsBlock = false;
-		state->unclaimedDomIdMap[newDomId] = result;
-		makeDomId(ob, newDomId, opaque);
+		if(text != nullptr)
+		{
+			//we should be looking at zero or more processed children here
+			auto state = static_cast<dom_builder_state*>(opaque);
+			vector<IDomObject^> expanded;
+			consume_text(text, state, expanded);
+			auto newDomId = state->domId++;
+			auto result = ref new Code(expanded, newDomId);
+			result->IsBlock = false;
+			state->unclaimedDomIdMap[newDomId] = result;
+			makeDomId(ob, newDomId, opaque);
+		}
 		return 1;
 	}
 
