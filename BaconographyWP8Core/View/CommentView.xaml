@@ -50,16 +50,21 @@
                                <RotateTransform Angle="180" CenterX="9" CenterY="9" />
                             </TextBlock.RenderTransform>
                         </TextBlock>
-                        <Border Padding="1,0,1,0" Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
+                        <Border Padding="2,0,2,0" Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
                             <TextBlock Foreground="{Binding PosterFlair, Converter={StaticResource fgAuthorFlairKindConverter}}" FontSize="16" Margin="0,1,0,0" Text="{Binding PosterName}" />
                         </Border>
+
+                        <TextBlock Foreground="{StaticResource PhoneAccentBrush}" Opacity="0.6" FontStyle="Italic"
+                                   FontSize="15" Text="{Binding Path=AuthorFlairText}" Margin="4,2,2,0"
+                                   Visibility="{Binding HasAuthorFlair, Converter={StaticResource booleanVisibilityConverter}}"/>
+
                         <TextBlock Foreground="Gray" FontSize="15" Text="{Binding Path=Votable.TotalVotes}" Margin="5,2,0,0" />
                         <TextBlock Foreground="Gray" FontSize="15" Text="points" Margin="5,2,0,0" />
                         <TextBlock Foreground="Gray" FontSize="15" Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,2,0,0" />
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <ContentPresenter Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left"
+            <ContentPresenter Content="{Binding BodyMD, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Left"
                               Margin="3,0,0,0"/>
             <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch"
                 Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>

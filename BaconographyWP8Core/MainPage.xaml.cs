@@ -26,6 +26,7 @@ using GalaSoft.MvvmLight;
 using BaconographyWP8Core.Common;
 using BaconographyWP8.Converters;
 using BaconographyWP8Core.View;
+using ReviewNotifier.Apollo;
 
 namespace BaconographyWP8
 {
@@ -44,7 +45,7 @@ namespace BaconographyWP8
             InitializeComponent();
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
-
+            Loaded +=MainPage_Loaded;
 			Messenger.Default.Register<UserLoggedInMessage>(this, OnUserLoggedIn);
 			Messenger.Default.Register<SelectIndexMessage>(this, OnSelectIndexMessage);
 			_settingsService = ServiceLocator.Current.GetInstance<ISettingsService>();
@@ -54,6 +55,12 @@ namespace BaconographyWP8
             _userService = ServiceLocator.Current.GetInstance<IUserService>();
             MaybeUserIsLoggedIn();
         }
+
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ReviewNotification.TriggerAsync("Like what we're doing? Please leave us a review on the store\n\nGot a Nag? Let us know what we can improve on /r/baconography", "Review", 5);
+        }
+
 
 		private void AdjustForOrientation(PageOrientation orientation)
 		{
@@ -337,6 +344,7 @@ namespace BaconographyWP8
 		{
 			Login = 0,
             Search,
+            Sidebar,
             Submit,
 			Close,
 			Pin
@@ -412,6 +420,11 @@ namespace BaconographyWP8
             appMenuItems[(int)MenuEnum.Search].Click += MenuSearch_Click;
 
             appMenuItems.Add(new ApplicationBarMenuItem());
+            appMenuItems[(int)MenuEnum.Sidebar].Text = "sidebar";
+            appMenuItems[(int)MenuEnum.Sidebar].IsEnabled = true;
+            appMenuItems[(int)MenuEnum.Sidebar].Click += MenuSidebar_Click;
+
+            appMenuItems.Add(new ApplicationBarMenuItem());
             appMenuItems[(int)MenuEnum.Submit].Text = "new post";
             appMenuItems[(int)MenuEnum.Submit].IsEnabled = false;
             appMenuItems[(int)MenuEnum.Submit].Click += MenuSubmit_Click;
@@ -461,6 +474,18 @@ namespace BaconographyWP8
             */
 		}
 
+        private void MenuSidebar_Click(object sender, EventArgs e)
+        {
+            if (pivot.SelectedItem is PivotItem &&
+                ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel)
+            {
+                var vm = ((PivotItem)pivot.SelectedItem).DataContext as RedditViewModel;
+
+                var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+                _navigationService.Navigate(typeof(AboutSubreddit), new Tuple<string>(vm.SelectedSubreddit.Data.Url));
+            }
+        }
+
         private void SetMailButtonIcon(System.ComponentModel.PropertyChangedEventArgs args)
         {
             if (args == null || args.PropertyName == "HasMail")
@@ -482,6 +507,19 @@ namespace BaconographyWP8
 		{
 			if (appMenuItems == null || ApplicationBar.MenuItems.Count == 0)
 				BuildMenu();
+
+            if (pivot.SelectedItem is PivotItem &&
+                ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel &&
+                ((RedditViewModel)((PivotItem)pivot.SelectedItem).DataContext).IsMulti)
+            {
+                if(ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Sidebar]))
+                    ApplicationBar.MenuItems.Remove(appMenuItems[(int)MenuEnum.Sidebar]);
+            }
+            else
+            {
+                if(!ApplicationBar.MenuItems.Contains(appMenuItems[(int)MenuEnum.Sidebar]))
+                    ApplicationBar.MenuItems.Insert(0, appMenuItems[(int)MenuEnum.Sidebar]);
+            }
 
             if (pivot.SelectedItem is PivotItem &&
                 ((PivotItem)pivot.SelectedItem).DataContext is RedditViewModel &&

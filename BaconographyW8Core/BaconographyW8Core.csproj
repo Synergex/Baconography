@@ -53,6 +53,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -86,6 +87,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -97,12 +99,17 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
     <ProjectReference Include="..\BaconographyPortable\BaconographyPortable.csproj">
       <Project>{386be814-a21a-4a84-abf3-f9b61130d4f2}</Project>
       <Name>BaconographyPortable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SnuDom\SnuDom.vcxproj">
+      <Project>{4f36f5b4-d188-4350-9bd8-1ff34eb282c3}</Project>
+      <Name>SnuDom</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +146,7 @@
     <Compile Include="PlatformServices\ImageAPI\Quickmeme.cs" />
     <Compile Include="PlatformServices\ImagesService.cs" />
     <Compile Include="PlatformServices\LiveTileService.cs" />
+    <Compile Include="PlatformServices\MarkdownProcessor.cs" />
     <Compile Include="PlatformServices\NavigationService.cs" />
     <Compile Include="PlatformServices\NotificationService.cs" />
     <Compile Include="PlatformServices\SimpleHttpService.cs" />

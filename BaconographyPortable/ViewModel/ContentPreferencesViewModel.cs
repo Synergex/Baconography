@@ -388,6 +388,32 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
+        public bool OnlyFlipViewImages
+        {
+            get
+            {
+                return _settingsService.OnlyFlipViewImages;
+            }
+            set
+            {
+                _settingsService.OnlyFlipViewImages = value;
+                RaisePropertyChanged("OnlyFlipViewImages");
+            }
+        }
+
+        public bool OptimizeWebContent
+        {
+            get
+            {
+                return _settingsService.ApplyReadabliltyToLinks;
+            }
+            set
+            {
+                _settingsService.ApplyReadabliltyToLinks = value;
+                RaisePropertyChanged("OptimizeWebContent");
+            }
+        }
+
         public RelayCommand ClearOffline
         {
             get

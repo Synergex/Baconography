@@ -20,6 +20,7 @@ namespace BaconographyPortable.ViewModel
         IRedditService _redditService;
         INavigationService _navigationService;
         IDynamicViewLocator _dynamicViewLocator;
+        INotificationService _notificationService;
         MessageViewModel _replyMessage;
 
         public ComposePostViewModel(IBaconProvider baconProvider)
@@ -29,6 +30,7 @@ namespace BaconographyPortable.ViewModel
             _redditService = baconProvider.GetService<IRedditService>();
             _navigationService = baconProvider.GetService<INavigationService>();
             _dynamicViewLocator = baconProvider.GetService<IDynamicViewLocator>();
+            _notificationService = baconProvider.GetService<INotificationService>();
             _refreshUser = new RelayCommand(RefreshUserImpl);
             _submit = new RelayCommand(SubmitImpl);
 
@@ -176,19 +178,40 @@ namespace BaconographyPortable.ViewModel
         private RelayCommand _submit;
         private async void SubmitImpl()
         {
-            _navigationService.GoBack();
             if (Url == null)
                 Url = "";
             if (Text == null)
                 Text = "";
-            if (!Editing)
+
+            try
             {
-                await _redditService.AddPost(Kind, Url, Text, Subreddit, Title);
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+
+                if (!Editing)
+                {
+                    await _redditService.AddPost(Kind, Url, Text, Subreddit, Title);
+                }
+                else
+                {
+                    await _redditService.EditPost(Text, _name);
+                }
+
+                Url = "";
+                Text = "";
+                Subreddit = "";
+                Title = "";
+
+                _navigationService.GoBack();
             }
-            else
+            catch (Exception ex)
             {
-                await _redditService.EditPost(Text, _name);
+                _notificationService.CreateNotification("something bad happened while trying to submit your post: " + ex.ToString());
             }
+            finally
+            {
+                MessengerInstance.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+            
         }
 
         public RelayCommand RefreshUser { get { return _refreshUser; } }

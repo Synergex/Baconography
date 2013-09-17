@@ -16,16 +16,10 @@
                 ManipulationStarted="OnManipulationStarted" ManipulationDelta="OnManipulationDelta" 
                 ManipulationCompleted="OnManipulationCompleted" ViewportChanged="viewport_ViewportChanged"
                 DoubleTap="OnDoubleTap">
-            <Canvas x:Name="canvas">
-                <Image
-                    RenderTransformOrigin="0,0"
-                    MaxWidth="2048"
-                    x:Name="image">
-                    <Image.RenderTransform>
-                        <ScaleTransform x:Name="xform"/>
-                    </Image.RenderTransform>
-                </Image>
-            </Canvas>
+            <Image
+                MaxWidth="2048"
+                x:Name="image">
+            </Image>
         </ViewportControl>
     </Grid>
 </UserControl>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="SynergexInternationalCorp.Baconography" Publisher="CN=2FFB1FF2-92E0-4264-9527-53F3988B98DC" Version="1.1.0.56" />
+  <Identity Name="SynergexInternationalCorp.Baconography" Publisher="CN=greenej" Version="1.2.3.57" />
   <Properties>
     <DisplayName>Baconography</DisplayName>
     <PublisherDisplayName>Synergex International Corporation</PublisherDisplayName>

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -30,14 +31,16 @@ namespace BaconographyWP8.View
             }
         }
 
-        private bool IsParentButton(UIElement element)
+        private bool IsParentButton(DependencyObject element)
         {
             if (element == null)
                 return false;
             if (element is Button)
                 return true;
+            if (element is Hyperlink)
+                return true;
 
-            return IsParentButton(VisualTreeHelper.GetParent(element) as UIElement);
+            return IsParentButton(VisualTreeHelper.GetParent(element) as DependencyObject);
         }
 
 		private void Comment_Hold(object sender, System.Windows.Input.GestureEventArgs e)

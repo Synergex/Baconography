@@ -24,6 +24,7 @@ namespace BaconographyPortable.ViewModel
         ISmartOfflineService _smartOfflineService;
         INotificationService _notificationService;
         ILiveTileService _liveTileService;
+        bool _userLoggedIn = false;
 
         public MessagesViewModel(IBaconProvider baconProvider)
         {
@@ -51,21 +52,34 @@ namespace BaconographyPortable.ViewModel
 
         private async void GetMessages()
         {
-            if (Messages == null)
+            if (_userLoggedIn)
             {
-                Messages = new MessageViewModelCollection(_baconProvider);
-                Messages.CollectionChanged += (sender, args) => BridgeChange(_unreadMessages, args);
-                await Messages.LoadMoreItemsAsync(30);
-            }
-            else
-            {
-                _unreadMessages.Clear();
-                Messages.Refresh();
-            }
+                if (Messages == null)
+                {
+                    Messages = new MessageViewModelCollection(_baconProvider);
+                    Messages.CollectionChanged += Messages_CollectionChanged;
+                    await Messages.LoadMoreItemsAsync(30);
+                }
+                else
+                {
+                    Messages.Refresh();
+                }
 
-            lock (this)
+                lock (this)
+                {
+                    _alreadyToastedMessages = new HashSet<string>(_liveTileService.GetMessagesMarkedRead());
+                }
+            }
+        }
+
+        void Messages_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if ((e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add || e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Replace) &&
+                e.NewItems != null && e.NewItems.Count == 1 && e.NewItems[0] is MessageViewModel)
             {
-                _alreadyToastedMessages = new HashSet<string>(_liveTileService.GetMessagesMarkedRead());
+                var vm = e.NewItems[0] as MessageViewModel;
+                if(vm.IsNew)
+                    MaybeToastNewMessage(vm);
             }
         }
 
@@ -78,65 +92,17 @@ namespace BaconographyPortable.ViewModel
                 {
                     _alreadyToastedMessages.Add(viewModel.Id);
                     _liveTileService.SetMessageRead(viewModel.Id);
-                    _liveTileService.SetCount(_unreadMessages.Count);
-                    _notificationService.CreateNotification("New Message: " + viewModel.Preview);
+                    var newMessageCount = _messages.OfType<MessageViewModel>().Count(message => message.IsNew);
+                    _liveTileService.SetCount(newMessageCount);
+                    _notificationService.CreateNotificationWithNavigation("New Message: " + viewModel.Preview, _baconProvider.GetService<IDynamicViewLocator>().MessagesView, null);
                     HasMail = true;
                 }
             }
         }
 
-        private void BridgeChange(ObservableCollection<MessageViewModel> target, System.Collections.Specialized.NotifyCollectionChangedEventArgs args)
-        {
-            switch (args.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    if (args.NewItems[0] is MessageViewModel && (args.NewItems[0] as MessageViewModel).IsNew)
-                    {
-                        var result = args.NewItems[0] as MessageViewModel;
-                        target.Add(result);
-                        MaybeToastNewMessage(result);
-                    }
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    if (target.Contains(args.OldItems[0] as ViewModelBase))
-                        target.Remove(args.OldItems[0] as MessageViewModel);
-
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
-                    var targetIndex = target.IndexOf(args.OldItems[0] as MessageViewModel);
-                    if (targetIndex != -1)
-                    {
-                        if (args.NewItems[0] is MessageViewModel && ((MessageViewModel)args.NewItems[0]).IsNew)
-                        {
-                            target[targetIndex] = args.NewItems[0] as MessageViewModel;
-                        }
-                        else
-                        {
-                            target.RemoveAt(targetIndex);
-                        }
-                    }
-                    else
-                    {
-                        if (args.NewItems[0] is MessageViewModel && ((MessageViewModel)args.NewItems[0]).IsNew)
-                        {
-                            var result = args.NewItems[0] as MessageViewModel;
-                            target.Add(result);
-                            MaybeToastNewMessage(result);
-                        }
-                    }
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    target.Clear();
-                    break;
-                default:
-                    break;
-            }
-        }
-
         private void UserLoggedIn(UserLoggedInMessage obj)
         {
+            _userLoggedIn = true;
             GetMessages();
         }
 
@@ -169,14 +135,12 @@ namespace BaconographyPortable.ViewModel
                     var tempItem = _selectedItem;
                     // Mark the item as read
                     tempItem.IsNew = false;
-                    _unreadMessages.Remove(value);
                 }
 
                 if (value != null && value.IsNew)
                 {
                     value.IsNew = false;
                     _redditService.ReadMessage(value.Name);
-                    _unreadMessages.Remove(value);
                     var newMessageCount = _messages.OfType<MessageViewModel>().Count(message => message.IsNew);
                     HasMail = newMessageCount > 0;
                     _liveTileService.SetCount(newMessageCount);
@@ -184,38 +148,6 @@ namespace BaconographyPortable.ViewModel
 
                 _selectedItem = value;
                 RaisePropertyChanged("SelectedItem");
-            }
-        }
-
-        MessageViewModel _selectedUnreadItem;
-        public MessageViewModel SelectedUnreadItem
-        {
-            get
-            {
-                return _selectedUnreadItem;
-            }
-            set
-            {
-                // If the user deselects a "new" item
-                if (_selectedUnreadItem != null)
-                {
-                    var tempItem = _selectedUnreadItem;
-                    // Mark the item as read
-                    tempItem.IsNew = false;
-                    _unreadMessages.Remove(tempItem);
-                }
-
-                if (value != null && value.IsNew)
-                {
-                    value.IsNew = false;
-                    _redditService.ReadMessage(value.Name);
-                    var newMessageCount = _messages.OfType<MessageViewModel>().Count(message => message.IsNew);
-                    HasMail = newMessageCount > 0;
-                    _liveTileService.SetCount(newMessageCount);
-                }
-
-                _selectedUnreadItem = value;
-                RaisePropertyChanged("SelectedUnreadItem");
             }
         }
 
@@ -244,15 +176,6 @@ namespace BaconographyPortable.ViewModel
             {
                 _messages = value;
                 RaisePropertyChanged("Messages");
-            }
-        }
-
-        ObservableCollection<MessageViewModel> _unreadMessages = new ObservableCollection<MessageViewModel>();
-        public ObservableCollection<MessageViewModel> UnreadMessages
-        {
-            get
-            {
-                return _unreadMessages;
             }
         }
 

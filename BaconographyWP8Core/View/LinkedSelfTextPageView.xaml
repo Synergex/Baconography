@@ -1,0 +1,57 @@
+﻿<phone:PhoneApplicationPage
+    x:Name="pageRoot"
+    x:Class="BaconographyWP8Core.View.LinkedSelfTextPageView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:local="clr-namespace:BaconographyWP8.View"
+    xmlns:localc="clr-namespace:BaconographyWP8Core.View"
+    xmlns:common="clr-namespace:BaconographyWP8.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    shell:SystemTray.IsVisible="{Binding Source={StaticResource orientationManager}, Path=SystemTrayVisible}"
+    shell:SystemTray.Opacity="0"
+    shell:SystemTray.ProgressIndicator="{Binding ProgressActive, Source={StaticResource orientationManager}}"
+    SupportedOrientations="{Binding Source={StaticResource orientationManager}, Path=SupportedOrientation}"  Orientation="{Binding Source={StaticResource orientationManager}, Path=Orientation}">
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideUpFadeIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideDownFadeOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid>
+        <Grid UseOptimizedManipulationRouting="False">
+            <toolkit:GestureService.GestureListener>
+                <toolkit:GestureListener x:Name="myGridGestureListener" Flick="myGridGestureListener_Flick" />
+            </toolkit:GestureService.GestureListener>
+            <ScrollViewer x:Name="selfTextView">
+                <StackPanel>
+                    <local:LinkView InComments="True" DataContext="{Binding}" />
+                    <Border BorderBrush="White" BorderThickness=".5" CornerRadius="3" Margin="5,5,5,10">
+                        <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+            <Rectangle x:Name="disabledRect" UseOptimizedManipulationRouting="False" Fill="{StaticResource PhoneBackgroundBrush}" Opacity=".35" Stretch="Fill" Tap="disabledRect_Tap" />
+        </Grid>
+        <localc:ExtendedAppBar x:Name="appBar" DataContext="{Binding}" Text="Self" Opacity="1" LastButtonSymbol="&#xE13D;" LastButtonText="User" LastButtonCommand="{Binding GotoUser}"/>
+    </Grid>
+</phone:PhoneApplicationPage>

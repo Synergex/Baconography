@@ -17,15 +17,24 @@ namespace BaconographyPortable.ViewModel
         IBaconProvider _baconProvider;
         IUserService _userService;
         IRedditService _redditService;
+        IMarkdownProcessor _markdownProcessor;
         Action<Thing> _convertIntoUIReply;
-        public ReplyViewModel(IBaconProvider baconProvider, Thing replyTargetThing, RelayCommand cancel, Action<Thing> convertIntoUIReply)
+        public ReplyViewModel(IBaconProvider baconProvider, Thing replyTargetThing, RelayCommand cancel, Action<Thing> convertIntoUIReply, bool isEdit = false)
         {
             _convertIntoUIReply = convertIntoUIReply;
             _cancel = cancel;
             _baconProvider = baconProvider;
             _redditService = _baconProvider.GetService<IRedditService>();
             _userService = _baconProvider.GetService<IUserService>();
+            _markdownProcessor = _baconProvider.GetService<IMarkdownProcessor>();
             _replyTargetThing = replyTargetThing;
+
+            if (isEdit)
+            {
+                Editing = true;
+                EditingId = ((Comment)_replyTargetThing.Data).Name;
+                ReplyBody = ((Comment)_replyTargetThing.Data).Body.Replace("&gt;", ">").Replace("&lt;", "<");
+            }
 
 			RefreshUserImpl();
 
@@ -109,8 +118,30 @@ namespace BaconographyPortable.ViewModel
             {
                 _replyBody = value;
                 RaisePropertyChanged("ReplyBody");
+                try
+                {
+                    ReplyBodyMD = _markdownProcessor.Process(value);
+                }
+                catch { }
             }
         }
+
+        private Object _replyBodyMD;
+        public Object ReplyBodyMD
+        {
+            get
+            {
+                return _replyBodyMD;
+            }
+            set
+            {
+                _replyBodyMD = value;
+                RaisePropertyChanged("ReplyBodyMD");
+            }
+        }
+
+        public bool Editing { get; set; }
+        public string EditingId { get; set; }
 
         private Tuple<int, int, string> SurroundSelection(int startPosition, int endPosition, string startText, string newTextFormat)
         {
@@ -257,7 +288,14 @@ namespace BaconographyPortable.ViewModel
 
         private async void SubmitImpl()
         {
-            await _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
+            if (Editing && !string.IsNullOrEmpty(EditingId))
+            {
+                await _redditService.EditComment(EditingId, ReplyBody);
+            }
+            else
+            {
+                await _redditService.AddComment(((dynamic)_replyTargetThing.Data).Name, ReplyBody);
+            }
             var theComment = new Thing
             {
                 Kind = "t2",
@@ -268,6 +306,7 @@ namespace BaconographyPortable.ViewModel
                     Likes = true,
                     Ups = 1,
                     ParentId = ((dynamic)_replyTargetThing.Data).Name,
+                    Name = EditingId,
                     Replies = new Listing { Data = new ListingData { Children = new List<Thing>() } },
                     Created = DateTime.Now,
                     CreatedUTC = DateTime.UtcNow

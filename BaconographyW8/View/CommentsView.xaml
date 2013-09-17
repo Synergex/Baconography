@@ -10,14 +10,21 @@
     mc:Ignorable="d"
     DataContext="{Binding Comments, Source={StaticResource Locator}}">
 
-    <UserControl.Resources>
+    <common:LayoutAwarePage.Resources>
+        <common:TypedTemplateSelector x:Key="localTypedTemplateSelector"
+                                 DefaultTemplateKey="Default"/>
         <DataTemplate x:Key="Type:CommentViewModel">
             <local:CommentView/>
         </DataTemplate>
         <DataTemplate x:Key="Type:MoreViewModel">
             <local:MoreCommentsView/>
         </DataTemplate>
-    </UserControl.Resources>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <Grid Visibility="Collapsed">
+                
+            </Grid>
+        </DataTemplate>
+    </common:LayoutAwarePage.Resources>
     
     <Grid Style="{StaticResource LayoutRootStyle}">
 
@@ -93,7 +100,7 @@
                     <ContentControl Margin="5,5,5,5" Content="{Binding SelfText, Converter={StaticResource markdownConverter}}"/>
                 </Border>
                 <ItemsControl ItemsSource="{Binding Path=Comments}" HorizontalAlignment="Stretch" 
-                              HorizontalContentAlignment="Stretch" ItemTemplateSelector="{StaticResource typedTemplateSelector}">
+                              HorizontalContentAlignment="Stretch" ItemTemplateSelector="{StaticResource localTypedTemplateSelector}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel />

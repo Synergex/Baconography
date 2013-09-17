@@ -23,7 +23,20 @@ namespace BaconographyPortable.Model.KitaroDB.ListingHelpers
 
         public async Task<Listing> GetInitialListing(Dictionary<object, object> state)
         {
-            return await _offlineService.GetMessages(await _userService.GetUser());
+            var messages = await _offlineService.GetMessages(await _userService.GetUser());
+            //we dont want to toast stale messages so mark them as read
+            if (messages != null && messages.Data != null && messages.Data.Children != null)
+            {
+                foreach (var message in messages.Data.Children)
+                {
+                    if (message.Data is Message)
+                    {
+                        ((Message)message.Data).New = false;
+                    }
+                }
+            }
+            return messages;
+
         }
 
         public Task<Listing> GetAdditionalListing(string after, Dictionary<object, object> state)

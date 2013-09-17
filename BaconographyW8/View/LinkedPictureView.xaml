@@ -30,6 +30,21 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{Binding ImageTitle}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
 
+        <FlipView Grid.Row="2" Margin="130,0,130,0" Name="comments"
+                  ItemsSource="{Binding Path=Pictures}">
+            <FlipView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Title}" Visibility="{Binding Path=IsAlbum, Converter={StaticResource booleanVisibilityConverter}}"/>
+                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                            <Image Source="{Binding ImageSource}"/>
+                        </Viewbox>
+                    </Grid>
+                </DataTemplate>
+            </FlipView.ItemTemplate>
+        </FlipView>
+
+        <!--
         <ListView Grid.Row="2" Margin="130,0,130,0" Name="comments"
                 Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                 VerticalAlignment="Stretch" 
@@ -50,7 +65,7 @@
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
+        </ListView>-->
         <VisualStateManager.VisualStateGroups>
 
             <!-- Visual states reflect the application's view state -->

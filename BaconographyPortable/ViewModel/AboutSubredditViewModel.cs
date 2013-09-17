@@ -95,11 +95,11 @@ namespace BaconographyPortable.ViewModel
             }
         }
 
-        public string PublicDescription
+        public MarkdownData PublicDescription
         {
             get
             {
-                return Thing.Data.PublicDescription;
+                return _baconProvider.GetService<IMarkdownProcessor>().Process(Thing.Data.Description);
             }
         }
 

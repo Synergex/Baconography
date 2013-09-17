@@ -19,7 +19,12 @@ namespace BaconographyWP8.View
 
         private void AdControl_AdRefreshed(object sender, EventArgs e)
         {
-
+            if (advertisement.Height == 0)
+            {
+                advertisement.Height = 80;
+                advertisement.Visibility = System.Windows.Visibility.Visible;
+                adDuplexAd.Visibility = System.Windows.Visibility.Collapsed;
+            }
         }
 
         private void AdControl_ErrorOccurred(object sender, Microsoft.Advertising.AdErrorEventArgs e)

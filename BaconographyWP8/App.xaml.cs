@@ -20,6 +20,7 @@ using System.Linq;
 using BaconographyWP8Core.Common;
 using Windows.ApplicationModel.Store;
 using System.Threading.Tasks;
+using ReviewNotifier.Apollo;
 
 namespace BaconographyWP8
 {
@@ -186,9 +187,10 @@ namespace BaconographyWP8
 
         // Code to execute when the application is launching (eg, from Start)
         // This code will not execute when the application is reactivated
-        private void Application_Launching(object sender, LaunchingEventArgs e)
+        private async void Application_Launching(object sender, LaunchingEventArgs e)
         {
             Styles.Resources = this.Resources;
+            await ReviewNotification.InitializeAsync();
             //LowMemoryHelper.BeginRecording();
 			if (RootFrame.Content == null)
 			{

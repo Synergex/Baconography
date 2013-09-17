@@ -17,7 +17,10 @@
             <local:MoreCommentsView/>
         </DataTemplate>
     </UserControl.Resources>
-    <Grid Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}" Margin="20,5,5,5">
+
+    <Grid Visibility="{Binding IsVisible, Converter={StaticResource booleanVisibilityConverter}}"
+          Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}"
+          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -25,36 +28,53 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button Grid.Row="0" Margin="0" Style="{StaticResource PlainButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding ShowExtendedView}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="12" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.RowSpan="5" Grid.Column="0" Background="{Binding Path=Depth, Converter={StaticResource depthColorConverter}}" />
+        <Button Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,0,0" Style="{StaticResource PlainButtonStyle}" HorizontalAlignment="Stretch" Command="{Binding ShowExtendedView}">
             <Button.Content>
-                <StackPanel Orientation="Horizontal">
-                    <Button BorderThickness="0" VerticalAlignment="Top" FontSize="20" Margin="0,-5,0,0" Padding="5,-3,5,5" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
-                    <TextBlock Text="{Binding Path=Votable.TotalVotes}" Margin="5,0,0,0" />
-                    <TextBlock Text="points" Margin="5,0,0,0" />
-                    <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" Margin="5,0,0,0" />
-                    <TextBlock Text="by" Margin="5,0,5,0"/>
-                    <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
-                        <TextBlock Margin="0,0,0,0" Text="{Binding PosterName}" />
-                    </Border>
-                </StackPanel>
+                <Grid>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}"
+                                Margin="0,10,0,0">
+                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="0,-2,0,0" Padding="5,-3,5,5" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[-]</Button>
+                        <TextBlock Text="{Binding Path=Votable.TotalVotes}"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="points"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="by"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,5,0"/>
+                        <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
+                            <TextBlock Margin="0,0,0,0" FontSize="13" Text="{Binding PosterName}" />
+                        </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsMinimized, Converter={StaticResource booleanVisibilityConverter}}"
+                                Margin="0,10,0,0">
+                        <Button BorderThickness="0" VerticalAlignment="Top" FontSize="15" Margin="0,-2,0,0" Padding="5,-3,5,5" Command="{Binding MinimizeCommand}" CommandParameter="{Binding}">[+]</Button>
+                        <TextBlock Text="{Binding Path=Votable.TotalVotes}" FontStyle="Italic"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="points" FontStyle="Italic"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="{Binding CreatedUTC, Converter={StaticResource timeRelationConverter}}" FontStyle="Italic"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,0,0" />
+                        <TextBlock Text="by" FontStyle="Italic"
+                                   FontWeight="Normal" FontSize="12" Margin="5,0,5,0"/>
+                        <Border Margin="0,0,0,0" BorderThickness="0" Background="{Binding PosterFlair, Converter={StaticResource authorFlairKindConverter}}">
+                            <TextBlock Margin="0,0,0,0" FontSize="13" FontStyle="Italic" Text="{Binding PosterName}" />
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </Button.Content>
         </Button>
-        <ContentPresenter Grid.Row="1" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding Body, Converter={StaticResource markdownConverter}}" HorizontalAlignment="Stretch"/>
-        <ContentControl Grid.Row="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
-        <ContentControl Grid.Row="3" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"/>
-        <Border Grid.Row="4" BorderThickness="0" Height="1"/>
-        <ItemsControl Grid.Row="5" Margin="0,5,0,0" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" ItemsSource="{Binding Path=Replies}" HorizontalAlignment="Stretch" 
-                            HorizontalContentAlignment="Stretch" ItemTemplateSelector="{StaticResource typedTemplateSelector}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.Template>
-                <ControlTemplate>
-                    <ItemsPresenter />
-                </ControlTemplate>
-            </ItemsControl.Template>
-        </ItemsControl>
+        <ContentPresenter Grid.Row="1" Grid.Column="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding BodyMD, Converter={StaticResource markdownConverter}}"
+                          Margin="0,5,0,0" FontSize="15" HorizontalAlignment="Stretch"/>
+        <ContentControl Grid.Row="2" Grid.Column="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ExtendedData, Converter={StaticResource extendedCommentConverter}}"/>
+        <ContentControl Grid.Row="3" Grid.Column="2" Visibility="{Binding IsMinimized, Converter={StaticResource invertBooleanVisibilityConverter}}" Content="{Binding ReplyData, Converter={StaticResource replyConverter}}"
+                        Margin="0,0,0,10"/>
+        <Border Grid.Row="4" Grid.Column="2" BorderThickness="0" Height="1" Margin="0,0,0,10"/>
     </Grid>
 </UserControl>

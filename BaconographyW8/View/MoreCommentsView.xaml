@@ -8,14 +8,27 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-    <Grid>
-        <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0" Padding="0" Margin="0,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="Load more comments" Margin="0,0,0,0" />
-                <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
-            </StackPanel>
-        </Button>
-        <ProgressRing IsActive="{Binding Loading}" Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" IsEnabled="{Binding Loading}"/>
+
+    <Grid Background="{Binding Path=OddNesting, Converter={StaticResource alternatingColorConverter}}"
+          Margin="{Binding Path=Depth, Converter={StaticResource depthMarginConverter}}"
+          Visibility="{Binding IsVisible, Converter={StaticResource booleanVisibilityConverter}}"
+          MinHeight="40">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Background="{Binding Path=Depth, Converter={StaticResource depthColorConverter}}" />
+        <Grid Grid.Column="1" Margin="0,10,0,10">
+            <Button Visibility="{Binding Loading, Converter={StaticResource invertBooleanVisibilityConverter}}" BorderThickness="0"
+                    Padding="0" Margin="10,0,0,0" VerticalAlignment="Top" Command="{Binding TriggerLoad}"
+                HorizontalContentAlignment="Left" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="Load more comments" Margin="0,0,0,0" />
+                    <TextBlock Foreground="DarkOrange" Style="{StaticResource BodyTextStyle}" Text="{Binding CountString}" Margin="5,0,0,0" />
+                </StackPanel>
+            </Button>
+            <ProgressRing IsActive="{Binding Loading}" Visibility="{Binding Loading, Converter={StaticResource booleanVisibilityConverter}}" IsEnabled="{Binding Loading}"/>
+        </Grid>
     </Grid>
-    
+
 </UserControl>

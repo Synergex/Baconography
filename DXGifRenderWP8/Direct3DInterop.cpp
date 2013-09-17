@@ -35,8 +35,9 @@ namespace DXGifRenderWP8
 		int error = 0;
 		gif_user_data userData = { 0, asset->Length, asset->Data };
 		GifFileType* gifFile = DGifOpen(&userData, istreamReader, &error);
-		if(gifFile != nullptr && DGifSlurp(gifFile) == GIF_OK)
+		if(gifFile != nullptr)
 		{
+			DGifSlurp(gifFile);
 			Height = gifFile->SHeight;
 			Width = gifFile->SWidth;
 			_gifFile = gifFile;
@@ -111,7 +112,10 @@ namespace DXGifRenderWP8
 
 	HRESULT Direct3DInterop::GetTexture(_In_ const DrawingSurfaceSizeF* size, _Inout_ IDrawingSurfaceSynchronizedTextureNative** synchronizedTexture, _Inout_ DrawingSurfaceRectF* textureSubRectangle)
 	{
-		m_timer->Update();
+		if(!m_renderer->StartedRendering())
+			m_timer->Reset();
+		else
+			m_timer->Update();
 		if(m_renderer->Update(m_timer->Total, m_timer->Delta))
 			m_renderer->Render();
 
@@ -122,7 +126,10 @@ namespace DXGifRenderWP8
 
 	ID3D11Texture2D* Direct3DInterop::GetTexture()
 	{
-		return m_renderer->GetTexture();
+		if(m_renderer != nullptr)
+		{
+			return m_renderer->GetTexture();
+		}
 	}
 
 }

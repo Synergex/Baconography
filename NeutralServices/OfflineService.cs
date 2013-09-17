@@ -195,9 +195,9 @@ namespace Baconography.NeutralServices
 
             await _comments.Clear();
             await _links.Clear();
+            _blobStoreDb.Dispose();
             await PurgeDB(_historyDb, _historyFileName);
             await PurgeDB(_actionsDb, _actionsFileName);
-            await PurgeDB(_blobStoreDb, _blobsFileName);
             await PurgeDB(_imageAPIDb, _imageApiFileName);
             await PurgeDB(_imageDb, _imageFileName);
 

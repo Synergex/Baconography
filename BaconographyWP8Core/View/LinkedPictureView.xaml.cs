@@ -1,4 +1,5 @@
-﻿using BaconographyPortable.Messages;
+﻿using BaconographyPortable.Common;
+using BaconographyPortable.Messages;
 using BaconographyPortable.Services;
 using BaconographyPortable.ViewModel;
 using BaconographyWP8.Common;
@@ -6,7 +7,9 @@ using BaconographyWP8.Converters;
 using BaconographyWP8.PlatformServices;
 using BaconographyWP8Core;
 using BaconographyWP8Core.Common;
+using BaconographyWP8Core.View;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
@@ -55,7 +58,7 @@ namespace BaconographyWP8.View
             }
             _viewModelContextService = ServiceLocator.Current.GetInstance<IViewModelContextService>();
             _smartOfflineService = ServiceLocator.Current.GetInstance<ISmartOfflineService>();
-            
+            _saveCommand = new RelayCommand(SaveImage_Tap);
         }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -108,7 +111,6 @@ namespace BaconographyWP8.View
             
             _viewModelContextService.PushViewModelContext(DataContext as ViewModelBase);
             _smartOfflineService.NavigatedToView(typeof(LinkedPictureView), e == null ? true : e.NavigationMode == NavigationMode.New);
-            SetMenuState();
 		}
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
@@ -130,7 +132,8 @@ namespace BaconographyWP8.View
             {
                 
                 var absPath = e.Uri.ToString().Contains('?') ? e.Uri.ToString().Substring(0, e.Uri.ToString().IndexOf("?")) : e.Uri.ToString();
-                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml")
+                if (absPath == "/BaconographyWP8Core;component/View/LinkedPictureView.xaml" || absPath == "/BaconographyWP8Core;component/View/LinkedReadabilityView.xaml" ||
+                    absPath == "/BaconographyWP8Core;component/View/LinkedSelfTextPageView.xaml")
                 {
                     CleanupImageSource();
                     ServiceLocator.Current.GetInstance<INavigationService>().RemoveBackEntry();
@@ -277,118 +280,21 @@ namespace BaconographyWP8.View
             item.Content = null;
         }
 
-        enum ImageContextMenuState
+        public void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
         {
-            Extended,
-            Collapsed
+            FlipViewUtility.FlickHandler(sender, e, DataContext as ViewModelBase, this);
         }
 
-        private static ImageContextMenuState _contextMenuState = ImageContextMenuState.Extended;
-
-        private void CaptionHitbox_ManipulationStarted(object sender, ManipulationStartedEventArgs e)
+        private RelayCommand _saveCommand;
+        public RelayCommand SaveCommand
         {
-            switch (_contextMenuState)
+            get
             {
-                case ImageContextMenuState.Extended:
-                    // Animate to Collapsed
-                    _contextMenuState = ImageContextMenuState.Collapsed;
-                    break;
-                case ImageContextMenuState.Collapsed:
-                    // Animate to Extended
-                    _contextMenuState = ImageContextMenuState.Extended;
-                    break;
-            }
-
-            SetMenuState();
-        }
-
-        private void SetMenuState()
-        {
-            switch (_contextMenuState)
-            {
-                case ImageContextMenuState.Collapsed:
-                    // Animate to Collapsed
-                    caption.TextWrapping = System.Windows.TextWrapping.NoWrap;
-                    caption.TextTrimming = System.Windows.TextTrimming.WordEllipsis;
-                    trayButtons.Visibility = System.Windows.Visibility.Collapsed;
-                    break;
-                case ImageContextMenuState.Extended:
-                    // Animate to Extended
-                    caption.TextWrapping = System.Windows.TextWrapping.Wrap;
-                    caption.TextTrimming = System.Windows.TextTrimming.None;
-                    trayButtons.Visibility = System.Windows.Visibility.Visible;
-                    break;
+                return _saveCommand;
             }
         }
 
-        private Tuple<string, IEnumerable<Tuple<string, string>>, string> MakeSerializable(LinkedPictureViewModel vm)
-        {
-            return Tuple.Create(vm.LinkTitle, vm.Pictures.Select(linkedPicture => Tuple.Create(linkedPicture.Title, linkedPicture.Url)), vm.LinkId);
-        }
-
-
-        bool _flicking;
-        private async void myGridGestureListener_Flick(object sender, FlickGestureEventArgs e)
-        {
-            if (_flicking)
-                return;
-
-            if (e.Direction == System.Windows.Controls.Orientation.Vertical)
-            {
-                //Up
-                if (e.VerticalVelocity < -1500)
-                {
-                    _flicking = true;
-                    try
-                    {
-                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
-                        {
-                            var next = await _pictureViewModel.Next();
-                            if (next != null)
-                            {
-                                TransitionService.SetNavigationOutTransition(this,
-                                    new NavigationOutTransition()
-                                    {
-                                        Forward = new SlideTransition()
-                                        {
-                                            Mode = SlideTransitionMode.SlideUpFadeOut
-                                        }
-                                    }
-                                );
-                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(next));
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        _flicking = false;
-                    }
-                   
-                    
-                }
-                else if (e.VerticalVelocity > 1500) //Down
-                {
-                    _flicking = true;
-                    try
-                    {
-                        using (ServiceLocator.Current.GetInstance<ISuspendableWorkQueue>().HighValueOperationToken)
-                        {
-                            var previous = await _pictureViewModel.Previous();
-                            if (previous != null)
-                            {
-                                ServiceLocator.Current.GetInstance<INavigationService>().Navigate(typeof(LinkedPictureView), MakeSerializable(previous));
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        _flicking = false;
-                    }
-                }
-            }
-        }
-
-        private async void SaveImage_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        private async void SaveImage_Tap()
         {
             var linkedPicture = _pictureViewModel.Pictures.ToList()[albumPivot.SelectedIndex];
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });

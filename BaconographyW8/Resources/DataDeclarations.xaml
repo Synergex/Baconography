@@ -24,6 +24,8 @@
     <converters:ExtendedCommentConverter x:Key="extendedCommentConverter"/>
     <converters:BooleanToZeroBasedIndexConverter x:Key="booleanToZeroBasedIndexConverter"/>
     <converters:PortableAsyncCollectionConverter x:Key="portableAsyncCollectionConverter"/>
+    <converters:DepthMarginConverter x:Key="depthMarginConverter" />
+    <converters:DepthColorConverter x:Key="depthColorConverter" />
     <common:TypedTemplateSelector x:Key="typedTemplateSelector"
                                  DefaultTemplateKey="Default"/>
 

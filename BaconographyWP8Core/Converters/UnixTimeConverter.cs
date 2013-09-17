@@ -11,8 +11,8 @@ namespace BaconographyWP8.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var dateTime = (DateTime)value;
-            var currentTime = DateTime.UtcNow;
+            var dateTime = ((DateTime)value).ToLocalTime();
+            var currentTime = DateTime.Now;
 
             if (dateTime.Day == currentTime.Day)
             {

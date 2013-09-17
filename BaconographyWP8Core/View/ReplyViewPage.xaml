@@ -65,15 +65,9 @@
                 </StackPanel>
             </Grid>
 
-            <TextBox MinHeight="300" Text="{Binding ReplyBody, Mode=TwoWay}" Margin="0,5,0,5"
-                     SelectionStart="{Binding SelectionStart}" SelectionLength="{Binding SelectionLength}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                     KeyUp="TextBox_KeyUp"
+            <TextBox MinHeight="300" Text="{Binding ReplyBody, Mode=TwoWay}" Margin="0,5,0,5" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                     KeyUp="TextBox_KeyUp" InputScope="Text"
                      SelectionChanged="TextBox_SelectionChanged">
-                <TextBox.InputScope>
-                    <InputScope>
-                        <InputScopeName NameValue="Text" />
-                    </InputScope>
-                </TextBox.InputScope>
             </TextBox>
 
             <Grid HorizontalAlignment="Stretch">
@@ -165,7 +159,7 @@
                 </StackPanel>
             </Grid>
 
-            <ContentControl Content="{Binding ReplyBody, Mode=OneWay, Converter={StaticResource markdownConverter}}" MinHeight="200" Margin="12,15,12,0"/>
+            <ContentControl Content="{Binding ReplyBodyMD, Mode=OneWay, Converter={StaticResource markdownConverter}}" MinHeight="200" Margin="12,15,12,0"/>
     </StackPanel>
 
     </ScrollViewer>

@@ -45,6 +45,7 @@ namespace BaconographyPortable.Services
         bool MultiColorCommentMargins { get; set; }
         bool InvertSystemTheme { get; set; }
         bool OnlyFlipViewUnread { get; set; }
+        bool OnlyFlipViewImages { get; set; }
        
         bool AllowAdvertising { get; set; }
 
