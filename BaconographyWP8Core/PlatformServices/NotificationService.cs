@@ -3,6 +3,7 @@ using BaconographyPortable.Services;
 using Coding4Fun.Toolkit.Controls;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Shell;
+using Microsoft.Practices.ServiceLocation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,23 @@ namespace BaconographyWP8.PlatformServices
                     toast.Show();
                     
                 }, System.Threading.CancellationToken.None, TaskCreationOptions.None, _scheduler); 
+        }
+
+        public void CreateNotificationWithNavigation(string text, Type navTarget, object arguments)
+        {
+            if (_scheduler == null)
+                return;
+            Task.Factory.StartNew(() =>
+            {
+                ToastPrompt toast = new ToastPrompt();
+                toast.Title = "Baconography";
+                toast.Message = text;
+                toast.TextWrapping = System.Windows.TextWrapping.Wrap;
+                toast.ImageSource = new BitmapImage(new Uri("Assets\\ApplicationIconSmall.png", UriKind.RelativeOrAbsolute));
+                toast.Tap += (sender, obj) => ServiceLocator.Current.GetInstance<INavigationService>().Navigate(navTarget, arguments);
+                toast.Show();
+
+            }, System.Threading.CancellationToken.None, TaskCreationOptions.None, _scheduler);
         }
 
         public void CreateErrorNotification(Exception exception)

@@ -25,9 +25,10 @@ namespace BaconographyPortable.ViewModel.Collections
         string _permaLink;
         string _subreddit;
         string _targetName;
+        TypedThing<Link> _sourceLink;
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName)
+        public CommentViewModelCollection(IBaconProvider baconProvider, string permaLink, string subreddit, string subredditId, string targetName, TypedThing<Link> sourceLink = null)
         {
             var suspensionService = baconProvider.GetService<ISuspensionService>();
             suspensionService.Suspending += CommentViewModelCollection_Suspending;
@@ -50,6 +51,13 @@ namespace BaconographyPortable.ViewModel.Collections
             //to the actual observable collection leaving a bit of time in between so we dont block anything
 
             _systemServices = baconProvider.GetService<ISystemServices>();
+
+            if (sourceLink != null)
+            {
+                _sourceLink = sourceLink;
+                Add(MapThing(sourceLink, null));
+            }
+
             RunInitialLoad();
         }
 
@@ -95,12 +103,13 @@ namespace BaconographyPortable.ViewModel.Collections
 
         IEnumerable<ViewModelBase> MapListing(Listing listing, ViewModelBase parent)
         {
-            if (listing == null)
+            if (listing == null || listing.Data == null || listing.Data.Children == null)
                 return Enumerable.Empty<ViewModelBase>();
             else
             {
                 return listing.Data.Children
                     .Select((thing) => MapThing(thing, parent))
+                    .Where((thing) => thing != null)
                     .ToArray();
             }
                 
@@ -111,11 +120,13 @@ namespace BaconographyPortable.ViewModel.Collections
             if (thing.Data is More)
             {
 				var depth = 0;
+				bool oddNesting = false;
 				if (parent is CommentViewModel)
 				{
 					depth = ((CommentViewModel)parent).Depth + 1;
+					oddNesting = !((CommentViewModel)parent).OddNesting;
 				}
-				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth);
+				var more = new MoreViewModel(_baconProvider, ((More)thing.Data).Children, _targetName, _subreddit, RunLoadMore, parent as CommentViewModel, depth, oddNesting);
 				more.Parent = parent as CommentViewModel;
 				return more;
             }
@@ -214,6 +225,9 @@ namespace BaconographyPortable.ViewModel.Collections
 
         private int VisitAddChildren(ViewModelBase vm, int index = -1)
         {
+            if (_sourceLink != null && vm is LinkViewModel)
+                return 0;
+
             int count = 1;
             if (index < 0)
                 this.Add(vm);

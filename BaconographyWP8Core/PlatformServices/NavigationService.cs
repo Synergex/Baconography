@@ -83,6 +83,16 @@ namespace BaconographyWP8.PlatformServices
                 }
 			}
 
+            if (parameter is SelectCommentTreeMessage)
+            {
+                var commentMessage = parameter as SelectCommentTreeMessage;
+                if (commentMessage.LinkThing != null)
+                {
+                    commentMessage.LinkThing.Data.SelftextHtml = "";
+                }
+                
+            }
+
             var uriAttribute = source.GetCustomAttributes(typeof(ViewUriAttribute), true).FirstOrDefault() as ViewUriAttribute;
             if (uriAttribute != null)
             {
@@ -92,7 +102,8 @@ namespace BaconographyWP8.PlatformServices
 				if (Uri.IsWellFormedUriString(uri, UriKind.Relative))
 				{
 					var targetUri = parameter != null ? new Uri(uri, UriKind.Relative) : new Uri(uriAttribute._targetUri, UriKind.Relative);
-					return _frame.Navigate(targetUri);
+					var navResult = _frame.Navigate(targetUri);
+                    return navResult;
 				}
 				else
 				{
@@ -112,8 +123,15 @@ namespace BaconographyWP8.PlatformServices
 
         public async void NavigateToExternalUri(Uri uri)
         {
-            ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
-            await Launcher.LaunchUriAsync(uri);
+            try
+            {
+                ServiceLocator.Current.GetInstance<ISuspensionService>().FireSuspending();
+                await Launcher.LaunchUriAsync(uri);
+            }
+            catch (AccessViolationException)
+            {
+                //this is platform sillyness when somehow someone triggers this twice it crashes the app
+            }
         }
 
 

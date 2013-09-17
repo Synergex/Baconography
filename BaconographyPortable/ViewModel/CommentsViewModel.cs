@@ -78,7 +78,7 @@ namespace BaconographyPortable.ViewModel
                     {
                         permalink = permalink + (!string.IsNullOrWhiteSpace(_sortOrder) ? ".json?sort=" + _sortOrder : "");
                     }
-                    Comments = new CommentViewModelCollection(_baconProvider, permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name);
+                    Comments = new CommentViewModelCollection(_baconProvider, permalink, _linkThing.Data.Subreddit, _linkThing.Data.SubredditId, _linkThing.Data.Name, _linkThing);
                     RaisePropertyChanged("Comments");
                     RaisePropertyChanged("SortOrder");
                 }
@@ -140,7 +140,7 @@ namespace BaconographyPortable.ViewModel
 		{
 			get
 			{
-				if (_linkViewModel == null)
+				if (_linkViewModel == null && _linkThing != null && _linkThing.Data is Link)
 				{
 					_linkViewModel = new LinkViewModel(_linkThing, _baconProvider);
                     _linkViewModel.FromMultiReddit = true;

@@ -107,10 +107,19 @@
     <Compile Include="..\NeutralServices\VideoService.cs">
       <Link>NeutralServices\VideoService.cs</Link>
     </Compile>
+    <Compile Include="Common\RichMarkdownButton.xaml.cs">
+      <DependentUpon>RichMarkdownButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common\FlipViewUtility.cs" />
+    <Compile Include="Converters\BoolToAccentBrushConverter.cs" />
     <Compile Include="Converters\ReifiedAlbumItemConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Common\RichMarkdownButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -143,7 +152,6 @@
     <Compile Include="Common\OrientationManager.cs" />
     <Compile Include="Common\DataTemplateSelector.cs" />
     <Compile Include="Common\FixedLongListSelector.cs" />
-    <Compile Include="Common\ImageTypeSelector.cs" />
     <Compile Include="Common\LinkViewLayoutManager.cs" />
     <Compile Include="Common\RedditViewPivotItemControl.cs" />
     <Compile Include="Common\ReorderListBox.cs" />
@@ -191,6 +199,9 @@
     <Compile Include="ViewModel\LoginPageViewModel.cs" />
     <Compile Include="ViewModel\MainPageViewModel.cs" />
     <Compile Include="ViewModel\SubredditSelectorViewModel.cs" />
+    <Compile Include="View\AboutSubreddit.xaml.cs">
+      <DependentUpon>AboutSubreddit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\AboutUserView.xaml.cs">
       <DependentUpon>AboutUserView.xaml</DependentUpon>
     </Compile>
@@ -212,11 +223,29 @@
     <Compile Include="View\ComposePostPageView.xaml.cs">
       <DependentUpon>ComposePostPageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ExtendedAppBar.xaml.cs">
+      <DependentUpon>ExtendedAppBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\HelpView.xaml.cs">
       <DependentUpon>HelpView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\LinkedReadabilityView.xaml.cs">
+      <DependentUpon>LinkedReadabilityView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LinkedSelfTextPageView.xaml.cs">
+      <DependentUpon>LinkedSelfTextPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LockScreen.xaml.cs">
       <DependentUpon>LockScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownList.xaml.cs">
+      <DependentUpon>MarkdownList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownQuote.xaml.cs">
+      <DependentUpon>MarkdownQuote.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownTable.xaml.cs">
+      <DependentUpon>MarkdownTable.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MessagingPageView.xaml.cs">
       <DependentUpon>MessagingPageView.xaml</DependentUpon>
@@ -292,6 +321,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\AboutSubreddit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\AboutUserView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -319,11 +352,35 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\ExtendedAppBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\HelpView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\LinkedReadabilityView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LinkedSelfTextPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\LockScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownQuote.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownTable.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -448,25 +505,9 @@
       <Project>{B9A8ED65-C137-4751-AF3A-44D2D7DCA0F5}</Project>
       <Name>DXGifRenderWP8</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Controls.Phone\ImageTools.Controls.Phone.csproj">
-      <Project>{30BEDEDE-3224-49FA-9340-8A82447619CB}</Project>
-      <Name>ImageTools.Controls.Phone</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.IO.Gif.Phone\ImageTools.IO.Gif.Phone.csproj">
-      <Project>{58E343B0-5342-4266-8F2E-E1D0554B9D11}</Project>
-      <Name>ImageTools.IO.Gif.Phone</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Phone\ImageTools.Phone.csproj">
-      <Project>{5876DA9E-C3DF-4D27-835F-DF998658CB6E}</Project>
-      <Name>ImageTools.Phone</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ImageTools\src\ImageTools\ImageTools.Utils.Phone\ImageTools.Utils.Phone.csproj">
-      <Project>{F05F81AE-91FD-435D-9AC8-E53980B071A9}</Project>
-      <Name>ImageTools.Utils.Phone</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutWP8.vcxproj">
-      <Project>{DE2EB691-C3C1-49BE-9DE0-FED05D2EC220}</Project>
-      <Name>SoldOutWP8</Name>
+    <ProjectReference Include="..\SnuDom\SnuDomWP8.vcxproj">
+      <Project>{4D497A51-5483-4236-B2F0-640A4DC26E18}</Project>
+      <Name>SnuDomWP8</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -495,8 +536,14 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\Portable.CommonServiceLocator.1.2.2\lib\portable-net4+sl4+wp7+win8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="ReviewNotifier.Apollo">
+      <HintPath>..\packages\ReviewNotifier.1.0.0\lib\windowsphone8\ReviewNotifier.Apollo.dll</HintPath>
+    </Reference>
     <Reference Include="SharpGIS.GZipWebClient">
       <HintPath>..\packages\SharpGIS.GZipWebClient.1.4.0.0\lib\wp71\SharpGIS.GZipWebClient.dll</HintPath>
+    </Reference>
+    <Reference Include="StorageHelper.Apollo">
+      <HintPath>..\packages\StorageHelper.1.0.0\lib\windowsphone8\StorageHelper.Apollo.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Interactivity, Version=3.9.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\wp8\System.Windows.Interactivity.dll</HintPath>

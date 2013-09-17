@@ -15,17 +15,18 @@ namespace BaconographyPortable.ViewModel
         TypedThing<IVotable> _votableThing;
         IRedditService _redditService;
         Action _propertyChanged;
-
         public VotableViewModel(Thing votableThing, IBaconProvider baconProvider, Action propertyChanged)
         {
             _votableThing = new TypedThing<IVotable>(votableThing);
             _redditService = baconProvider.GetService<IRedditService>();
             _propertyChanged = propertyChanged;
+            originalVoteModifier = (Like ? 1 : 0) + (Dislike ? -1 : 0);
         }
 
         public void MergeVotable(Thing votableThing)
         {
             _votableThing = new TypedThing<IVotable>(votableThing);
+            originalVoteModifier = (Like ? 1 : 0) + (Dislike ? -1 : 0);
             RaisePropertyChanged("Like");
             RaisePropertyChanged("Dislike");
             RaisePropertyChanged("TotalVotes");
@@ -34,12 +35,18 @@ namespace BaconographyPortable.ViewModel
 
         public RelayCommand<VotableViewModel> ToggleUpvote { get { return _toggleUpvote; } }
         public RelayCommand<VotableViewModel> ToggleDownvote { get { return _toggleDownvote; } }
+        private int originalVoteModifier = 0;
+
 
         public int TotalVotes
         {
             get
             {
-                return (_votableThing.Data.Ups - _votableThing.Data.Downs) + (Like ? 1 : 0) + (Dislike ? -1 : 0);
+                var currentVoteModifier = (Like ? 1 : 0) + (Dislike ? -1 : 0);
+                if (originalVoteModifier == currentVoteModifier)
+                    return (_votableThing.Data.Ups - _votableThing.Data.Downs);
+                else
+                    return (_votableThing.Data.Ups - _votableThing.Data.Downs) + currentVoteModifier;
             }
         }
 

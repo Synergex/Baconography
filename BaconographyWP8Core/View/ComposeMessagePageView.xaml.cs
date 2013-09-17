@@ -62,9 +62,12 @@ namespace BaconographyWP8.View
 
         private void Cancel_Click(object sender, EventArgs e)
         {
-            // TODO: ARE YOU SURE?!?!?!
-            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
-            _navigationService.GoBack();
+            var result = MessageBox.Show("Cancel this new message?", "confirm", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+                _navigationService.GoBack();
+            }
         }
 
         private List<ApplicationBarIconButton> _appBarButtons;

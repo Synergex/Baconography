@@ -19,7 +19,7 @@ namespace BaconographyPortable.ViewModel
         string _subreddit;
         CommentViewModel _parent;
         Action<IEnumerable<string>, List<ViewModelBase>, ViewModelBase, ViewModelBase> _loadMore;
-        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, List<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent, int depth)
+        public MoreViewModel(IBaconProvider baconProvider, IEnumerable<string> ids, string targetName, string subreddit, Action<IEnumerable<string>, List<ViewModelBase>, ViewModelBase, ViewModelBase> loadMore, CommentViewModel parent, int depth, bool oddNesting)
         {
             _loadMore = loadMore;
             _parent = parent;
@@ -28,6 +28,7 @@ namespace BaconographyPortable.ViewModel
             _subreddit = subreddit;
 			Depth = depth;
             Count = _ids.Count();
+			OddNesting = oddNesting;
             //TODO use the targetname to determine the kind for now its always going to be comments but
             //that might change in the future
             Kind = "comment";
@@ -91,6 +92,8 @@ namespace BaconographyPortable.ViewModel
 				return true;
 			}
 		}
+
+		public bool OddNesting { get; set; }
 
         RelayCommand _triggerLoad;
         public RelayCommand TriggerLoad

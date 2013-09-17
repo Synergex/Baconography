@@ -5,7 +5,6 @@ using BaconographyWP8.PlatformServices;
 using BaconographyWP8.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
-using ImageTools.IO.Gif;
 using Microsoft.Phone.Controls;
 using Microsoft.Practices.ServiceLocation;
 using System;

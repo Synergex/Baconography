@@ -315,5 +315,31 @@ namespace BaconographyW8.PlatformServices
             TileNotification notification = new TileNotification(final);
             _tileUpdater.Update(notification);
         }
+
+
+        public void SetCount(int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMessageRead(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<string> GetMessagesMarkedRead()
+        {
+            throw new NotImplementedException();
+        }
+
+        public BaconographyPortable.Model.TaskSettings? LoadTaskSettings()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StoreTaskSettings(Func<BaconographyPortable.Model.TaskSettings?, BaconographyPortable.Model.TaskSettings> getSettings, bool atomic)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

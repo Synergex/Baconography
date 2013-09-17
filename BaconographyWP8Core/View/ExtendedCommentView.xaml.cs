@@ -32,5 +32,17 @@ namespace BaconographyWP8.View
 			var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
 			_navigationService.Navigate(typeof(ReplyViewPage), null);
 		}
+
+        private void EditCommentButton_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var vm = this.DataContext as CommentViewModel;
+            vm.GotoEdit.Execute(null);
+            var replyData = vm.ReplyData;
+            if (SimpleIoc.Default.IsRegistered<ReplyViewModel>())
+                SimpleIoc.Default.Unregister<ReplyViewModel>();
+            SimpleIoc.Default.Register<ReplyViewModel>(() => replyData, true);
+            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+            _navigationService.Navigate(typeof(ReplyViewPage), null);
+        }
     }
 }

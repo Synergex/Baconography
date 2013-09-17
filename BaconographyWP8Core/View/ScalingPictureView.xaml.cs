@@ -89,7 +89,8 @@ namespace BaconographyWP8.View
                         _bitmap.ImageFailed += _bitmap_ImageFailed;
                         Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                         _bitmap.SetSource(new MemoryStream(value as byte[]));
-                        OnImageOpened(null, null);
+                        if (_loaded)
+                            OnImageOpened(null, null);
                     }
                     _imageSource = value;
                     SetValue(ImageSourceProperty, value);
@@ -109,7 +110,22 @@ namespace BaconographyWP8.View
 		public ScalingPictureView()
 		{
 			InitializeComponent();
+            Loaded += ScalingPictureView_Loaded;
 		}
+        bool _loaded = false;
+        void ScalingPictureView_Loaded(object sender, RoutedEventArgs e)
+        {
+            _loaded = true;
+            if (_bitmap != null)
+            {
+                var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _bitmap.PixelWidth, _bitmap.PixelHeight, 0.0);
+                _scale = _coercedScale = _minScale = result.Item1;
+
+                ResizeImage(true);
+                image.Source = _bitmap;
+                Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+            }
+        }
 
         private bool _initialLoad = true;
 
@@ -165,9 +181,9 @@ namespace BaconographyWP8.View
 					_screenMidpoint = xform.Transform(center);
 				}
 
-				_scale = _originalScale * e.PinchManipulation.CumulativeScale;
+				_coercedScale = _scale = _originalScale * e.PinchManipulation.CumulativeScale;
 
-				CoerceScale(false);
+				//CoerceScale(false);
 				ResizeImage(false);
 			}
 			else if (_pinching)
@@ -193,11 +209,20 @@ namespace BaconographyWP8.View
 		async void OnImageOpened(object sender, RoutedEventArgs e)
 		{
             Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
-            await Task.Yield();
-			// Set scale to the minimum, and then save it.
-			_scale = 0;
-			CoerceScale(true);
-			_scale = _coercedScale;
+            int yieldCount = 0;
+            //sanity check just in case the viewport hasnt been put into the visual tree, we need to wait until it is
+            while(!(viewport != null && viewport.ActualHeight > 100 && viewport.ActualWidth > 100 && _bitmap != null && _bitmap.PixelHeight != 0 && _bitmap.PixelWidth != 0))
+            {
+                if (yieldCount++ > 10)
+                {
+                    return;
+                }
+                await Task.Yield();
+            }
+
+            var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _bitmap.PixelWidth, _bitmap.PixelHeight, 0.0);
+            _minScale = result.Item1;
+            _scale = result.Item2;
 
 			ResizeImage(true);
             image.Source = _bitmap;
@@ -217,12 +242,10 @@ namespace BaconographyWP8.View
 				double newHeight;
 				if (_bitmap != null)
 				{
-					newWidth = canvas.Width = Math.Round(_bitmap.PixelWidth * _coercedScale);
-					newHeight = canvas.Height = Math.Round(_bitmap.PixelHeight * _coercedScale);
+					newWidth = image.Width = Math.Round(_bitmap.PixelWidth * _coercedScale);
+					newHeight = image.Height = Math.Round(_bitmap.PixelHeight * _coercedScale);
 				}
 				else return;
-
-				xform.ScaleX = xform.ScaleY = _coercedScale;
 
 				viewport.Bounds = new Rect(0, 0, newWidth, newHeight);
 
@@ -230,8 +253,8 @@ namespace BaconographyWP8.View
 				{
 					viewport.SetViewportOrigin(
 						new Point(
-							Math.Round((newWidth - viewport.ActualWidth) / 2),
-							Math.Round((newHeight - viewport.ActualHeight) / 2)
+							Math.Round(newWidth / 2),
+							Math.Round(newHeight / 2)
 							));
 				}
 				else
@@ -251,23 +274,24 @@ namespace BaconographyWP8.View
 		/// <param name="recompute">Will recompute the min max scale if true.</param>
 		void CoerceScale(bool recompute)
 		{
-			if (recompute && viewport != null)
-			{
-                _scale = 0.0;
-				// Calculate the minimum scale to fit the viewport
-				if (_bitmap != null)
-				{
-					double minX = viewport.ActualWidth / _bitmap.PixelWidth;
-					double minY = viewport.ActualHeight / _bitmap.PixelHeight;
-					_minScale = Math.Min(minX, minY);
-					if (_minScale <= 0.0)
-						_minScale = 1.0;
-				}		
-			}
-
-			_coercedScale = Math.Min(MaxScale, Math.Max(_scale, _minScale));
+            if (viewport != null && _bitmap != null && _bitmap.PixelHeight != 0 && _bitmap.PixelWidth != 0)
+            {
+                var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _bitmap.PixelWidth, _bitmap.PixelHeight, 0.0);
+                _minScale = result.Item1;
+                _coercedScale = _scale = result.Item2;
+            }
 
 		}
+
+        private static Tuple<double, double> CoerceScaleImpl(double viewWidth, double viewHeight, double bitmapWidth, double bitmapHeight, double scale)
+        {
+            double minX = viewWidth / bitmapWidth;
+            double minY = viewHeight / bitmapHeight;
+            var minScale = Math.Min(minX, minY);
+
+            return Tuple.Create(minScale, Math.Min(MaxScale, Math.Max(scale, minScale)));
+
+        }
 
         private void OnDoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
         {
@@ -278,7 +302,9 @@ namespace BaconographyWP8.View
             _screenMidpoint = xform.Transform(point);
 
             if (_coercedScale >= (_minScale * 2.5) || _coercedScale < 0)
+            {
                 _coercedScale = _minScale;
+            }
             else
                 _coercedScale *= 1.75;
 

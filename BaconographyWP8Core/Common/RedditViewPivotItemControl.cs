@@ -121,14 +121,21 @@ namespace BaconographyWP8.Common
                     await Task.Delay(500);
                     if (inflightLoad == e.Item)
                         return;
+                    try
+                    {
+                        WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
+                        bitmap.Invalidate();
 
-                    WriteableBitmap bitmap = new WriteableBitmap(e.Item.Content as UIElement, null);
-                    bitmap.Invalidate();
-
-                    await Task.Delay(250);
-                    if (inflightLoad == e.Item)
-                        return;
-                    e.Item.Content = new Image { Source = bitmap };
+                        await Task.Delay(250);
+                        if (inflightLoad == e.Item)
+                            return;
+                        e.Item.Content = new Image { Source = bitmap };
+                    }
+                    catch
+                    {
+                        //sometimes we get a catestrophic error depending on how things were loaded and unloaded here
+                        e.Item.Content = null;
+                    }
                 }
             }
         }

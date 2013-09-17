@@ -128,6 +128,8 @@
     <Compile Include="Converters\BooleanVisibilityConverter.cs" />
     <Compile Include="Converters\ColorBrightnessConverter.cs" />
     <Compile Include="Converters\ColorContrastConverter.cs" />
+    <Compile Include="Converters\DepthColorConverter.cs" />
+    <Compile Include="Converters\DepthMarginConverter.cs" />
     <Compile Include="Converters\ExtendedCommentConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />
     <Compile Include="Converters\MarkdownConverter.cs" />
@@ -181,6 +183,21 @@
     </Compile>
     <Compile Include="View\LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownImageLink.xaml.cs">
+      <DependentUpon>MarkdownImageLink.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownLink.xaml.cs">
+      <DependentUpon>MarkdownLink.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownList.xaml.cs">
+      <DependentUpon>MarkdownList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownQuote.xaml.cs">
+      <DependentUpon>MarkdownQuote.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Markdown\MarkdownTable.xaml.cs">
+      <DependentUpon>MarkdownTable.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MoreCommentsView.xaml.cs">
       <DependentUpon>MoreCommentsView.xaml</DependentUpon>
@@ -309,6 +326,26 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\Markdown\MarkdownImageLink.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownLink.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownQuote.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Markdown\MarkdownTable.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MoreCommentsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -371,9 +408,9 @@
       <Project>{93f2fa2a-cee4-45cd-88f8-1224f6af2e6f}</Project>
       <Name>DXRenderInterop</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SoldOutW8\SoldOutW8.vcxproj">
-      <Project>{af80694b-f24a-4007-b74c-86b1e10ef559}</Project>
-      <Name>SoldOutW8</Name>
+    <ProjectReference Include="..\SnuDom\SnuDom.vcxproj">
+      <Project>{4f36f5b4-d188-4350-9bd8-1ff34eb282c3}</Project>
+      <Name>SnuDom</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

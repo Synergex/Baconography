@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>0cca6bcd-0519-4c91-94c2-2ce21c39d400</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\DomObject.h" />
+    <ClInclude Include="inc\Paragraph.h" />
+    <ClInclude Include="inc\Link.h" />
+    <ClInclude Include="inc\Table.h" />
+    <ClInclude Include="inc\HorizontalRule.h" />
+    <ClInclude Include="inc\UnorderedList.h" />
+    <ClInclude Include="inc\OrderedList.h" />
+    <ClInclude Include="inc\Quote.h" />
+    <ClInclude Include="inc\Code.h" />
+    <ClInclude Include="inc\Text.h" />
+    <ClInclude Include="inc\SimpleSessionMemoryPool.h" />
+    <ClInclude Include="inc\autolink.h" />
+    <ClInclude Include="inc\buffer.h" />
+    <ClInclude Include="inc\html_blocks.h" />
+    <ClInclude Include="inc\markdown.h" />
+    <ClInclude Include="inc\stack.h" />
+    <ClInclude Include="inc\LineBreak.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\autolink.cpp" />
+    <ClCompile Include="src\buffer.cpp" />
+    <ClCompile Include="src\markdown.cpp" />
+    <ClCompile Include="src\stack.cpp" />
+    <ClCompile Include="src\DomRenderer.cpp" />
+  </ItemGroup>
+</Project>

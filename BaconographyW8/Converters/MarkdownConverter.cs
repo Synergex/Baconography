@@ -1,5 +1,5 @@
-﻿using BaconographyPortable.ViewModel;
-using SoldOutW8;
+﻿using BaconographyPortable.Services;
+using BaconographyPortable.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,100 +10,411 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
+using SnuDom;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Text;
+using BaconographyW8.View.Markdown;
+using Windows.UI;
 
 namespace BaconographyW8.Converters
 {
     public class MarkdownConverter : IValueConverter
     {
-        object bindingContext;
-        static int insertionLength = "<LineBreak/>".Length + "</Paragraph>".Length + "<Paragraph>".Length;
         unsafe public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (bindingContext == null)
+            if (value is MarkdownData)
             {
-                bindingContext = new
-                        {
-                            TextButtonStyle = App.Current.Resources["TextButtonStyle"] as Style,
-                            BodyText = App.Current.Resources["BaconReadingBodyParagraphStyle"] as Style,
-                            Locator = App.Current.Resources["Locator"] as ViewModelLocator,
-                            StaticCommands = App.Current.Resources["StaticCommands"]
-                        };
-            }
-
-            if (!string.IsNullOrWhiteSpace(value as string))
-            {
+                var markdownData = value as MarkdownData;
                 try
                 {
-                    var startingText = value as string;
-                    string markdown = null;
-                    fixed (char* textPtr = startingText)
+                    
+                    var categoryVisitor = new SnuDomCategoryVisitor();
+                    ((IDomObject)markdownData.MarkdownDom).Accept(categoryVisitor);
+                    switch (categoryVisitor.Category)
                     {
-                        var markdownPtr = SoldOut.MarkdownToXaml((uint)textPtr, (uint)startingText.Length);
-                        if(markdownPtr != 0)
-                            markdown = new string((char*)markdownPtr);
-                    }
-
-                    //bad markdown (possibly due to unicode char, just pass it through plain)
-                    var isSame = (markdown.Length < "<paragraph></paragraph>".Length) || string.Compare(startingText, 0, markdown, "<paragraph>\n".Length, startingText.Length) == 0;
-
-                    if (isSame)
-                    {
-                        var rtb = new RichTextBlock();
-                        var pp = new Paragraph();
-                        pp.Inlines.Add(new Run { Text = startingText } );
-                        rtb.Blocks.Add(pp);
-                        return rtb;
-                    }
-                    else
-                    {
-                        markdown = markdown.Trim('\n');
-                        if (!markdown.EndsWith("</Paragraph>"))
-                        {
-                            var lastParagraph = markdown.LastIndexOf("</Paragraph>");
-                            if (lastParagraph != -1)
+                        case MarkdownCategory.PlainText:
                             {
-                                markdown = markdown.Substring(0, lastParagraph + "</Paragraph>".Length) + "<Paragraph>" + markdown.Substring(lastParagraph + "</Paragraph>".Length + 1) + "</Paragraph>";
+                                var visitor = new SnuDomPlainTextVisitor();
+                                ((IDomObject)markdownData.MarkdownDom).Accept(visitor);
+                                return MakePlain(visitor.Result);
                             }
-                        }
-
-                        for (int lineBreakPos = markdown.IndexOf("<LineBreak/>", 0); lineBreakPos != -1 && lineBreakPos + "<LineBreak/>".Length + 1 < markdown.Length; lineBreakPos = markdown.IndexOf("<LineBreak/>", lineBreakPos + insertionLength))
-                        {
-                            //unfortnately the renderer doesnt really allow us to  wrap this in a paragrpah properly (For xaml)
-                            if (lineBreakPos > -1)
+                        case MarkdownCategory.Formatted:
+                        case MarkdownCategory.Full:
                             {
-                                var paragraphEnding = markdown.LastIndexOf("</Paragraph>", lineBreakPos);
-                                if (paragraphEnding != -1)
-                                {
-                                    markdown = markdown.Insert(paragraphEnding + "</Paragraph>".Length, "<Paragraph>").Insert(lineBreakPos + "<Paragraph>".Length + "<LineBreak/>".Length, "</Paragraph>");
-                                }
+                                var visitor = new SnuDomFullUIVisitor(new SolidColorBrush(Colors.White));
+                                ((IDomObject)markdownData.MarkdownDom).Accept(visitor);
+                                if (visitor.ResultGroup != null)
+                                    return visitor.ResultGroup;
+                                else
+                                    return visitor.Result;
                             }
-                        }
-                        var uiElement = XamlReader.Load(string.Format("<RichTextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:view=\"using:BaconographyW8.View\"><RichTextBlock.Blocks>{0}</RichTextBlock.Blocks></RichTextBlock>", markdown)) as RichTextBlock;
-                        uiElement.DataContext = bindingContext;
-                        return uiElement;
+                        default:
+                            return new TextBlock { Text = "" };
                     }
+
                 }
-                catch
+                catch (Exception ex)
                 {
-                    var rtb = new RichTextBlock();
-                    var pp = new Paragraph();
-
-                    var semiCleanText = value as string;
-                    if(semiCleanText != null)
-                        semiCleanText = semiCleanText.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"").Replace("&apos;", "'");
-
-                    pp.Inlines.Add(new Run { Text = semiCleanText });
-                    rtb.Blocks.Add(pp);
-                    return rtb;
+                    return MakePlain(ex.ToString());
                 }
             }
             else
                 return new TextBlock { Text = "" };
         }
 
+        private object MakePlain(string value)
+        {
+            return new TextBlock { Text = value as string, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 0) };
+        }
+
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             throw new NotImplementedException();
+        }
+
+    }
+
+    class SnuDomFullUIVisitor : IDomVisitor
+    {
+        public SnuDomFullUIVisitor(Brush forgroundBrush)
+        {
+            _forgroundBrush = forgroundBrush;
+        }
+        Brush _forgroundBrush;
+        private int _textLengthInCurrent = 0;
+        public RichTextBlock Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Segoe UI"), FontSize = 15 };
+        public StackPanel ResultGroup = null;
+        Windows.UI.Xaml.Documents.Paragraph _currentParagraph;
+
+        private void MaybeSplitForParagraph()
+        {
+            if (_textLengthInCurrent > 1000)
+            {
+                if (ResultGroup == null)
+                {
+                    ResultGroup = new StackPanel { Orientation = Orientation.Vertical };
+                    ResultGroup.Children.Add(Result);
+                }
+
+				ResultGroup.Children.Add(Result = new RichTextBlock { TextWrapping = TextWrapping.Wrap, FontFamily = new FontFamily("Segoe UI"), FontSize = 15 });
+                _textLengthInCurrent = 0;
+            }
+
+            _currentParagraph = new Windows.UI.Xaml.Documents.Paragraph();
+            Result.Blocks.Add(_currentParagraph);
+        }
+
+        public void Visit(Text text)
+        {
+            var madeRun = new Run { Text = text.Contents };
+            _textLengthInCurrent += text.Contents.Length;
+
+            if (text.Italic)
+                madeRun.FontStyle = Windows.UI.Text.FontStyle.Italic;
+
+            if (text.Bold)
+                madeRun.FontWeight = FontWeights.Bold;
+
+            if (text.HeaderSize != 0)
+            {
+                switch (text.HeaderSize)
+                {
+                    case 1:
+                        madeRun.FontSize = 24;
+                        break;
+                    case 2:
+                        madeRun.FontSize = 24;
+                        madeRun.FontWeight = FontWeights.Bold;
+                        madeRun.Foreground = _forgroundBrush;
+                        break;
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                        madeRun.FontSize = 28;
+                        madeRun.FontWeight = FontWeights.Bold;
+                        break;
+                }
+                MaybeSplitForParagraph();
+                _currentParagraph.Inlines.Add(madeRun);
+                if (text.HeaderSize == 1)
+                {
+                    var inlineContainer = new InlineUIContainer();
+                    inlineContainer.Child = new Border
+                    {
+                        Margin = new Thickness(0, 5, 0, 5),
+                        Height = 1,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        BorderBrush = _forgroundBrush,
+                        BorderThickness = new Thickness(1),
+                        MinWidth = 1800
+                    };
+                    _currentParagraph.Inlines.Add(inlineContainer);
+                }
+                else
+                    _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+
+            }
+            else
+            {
+                if (_currentParagraph == null)
+                {
+                    _currentParagraph = new Windows.UI.Xaml.Documents.Paragraph();
+                    Result.Blocks.Add(_currentParagraph);
+                }
+                _currentParagraph.Inlines.Add(madeRun);
+            }
+        }
+
+        public void Visit(SnuDom.Paragraph paragraph)
+        {
+            MaybeSplitForParagraph();
+            foreach (var elem in paragraph)
+            {
+                elem.Accept(this);
+            }
+
+        }
+
+        public void Visit(HorizontalRule horizontalRule)
+        {
+            var inlineContainer = new InlineUIContainer();
+            inlineContainer.Child = new Border
+            {
+                Margin = new Thickness(0, 5, 0, 5),
+                Height = 2,
+                VerticalAlignment = VerticalAlignment.Top,
+                BorderBrush = _forgroundBrush,
+                BorderThickness = new Thickness(2),
+                MinWidth = 1800
+            };
+            MaybeSplitForParagraph();
+            _currentParagraph.Inlines.Add(inlineContainer);
+        }
+
+        public void Visit(SnuDom.LineBreak lineBreak)
+        {
+            _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+        }
+
+        public void Visit(Link link)
+        {
+            var inlineContainer = new InlineUIContainer();
+
+            SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
+            if (link.Display != null)
+            {
+                foreach (var item in link.Display)
+                {
+                    item.Accept(categoryVisitor);
+                }
+            }
+
+            if (categoryVisitor.Category == MarkdownCategory.PlainText)
+            {
+                var plainTextVisitor = new SnuDomPlainTextVisitor();
+                if (link.Display != null)
+                {
+                    foreach (var item in link.Display)
+                        item.Accept(plainTextVisitor);
+                }
+                else
+                    plainTextVisitor.Result = link.Url;
+
+                inlineContainer.Child = new MarkdownLink(link.Url, plainTextVisitor.Result);
+            }
+            else
+            {
+                var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
+                //cant be null in this category
+                foreach (var item in link.Display)
+                    item.Accept(fullUIVisitor);
+
+                inlineContainer.Child = new MarkdownLink(link.Url, fullUIVisitor.Result);
+            }
+
+            _currentParagraph.Inlines.Add(inlineContainer);
+        }
+
+        public void Visit(Code code)
+        {
+            var plainTextVisitor = new SnuDomPlainTextVisitor();
+
+            foreach (var item in code)
+                item.Accept(plainTextVisitor);
+
+            var madeRun = new Run { Text = plainTextVisitor.Result };
+            if (_currentParagraph == null || code.IsBlock)
+            {
+                MaybeSplitForParagraph();
+            }
+            _currentParagraph.Inlines.Add(madeRun);
+
+            if (code.IsBlock)
+            {
+                _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+            }
+        }
+
+        public void Visit(Quote code)
+        {
+            var inlineContainer = new InlineUIContainer();
+
+            SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
+
+            foreach (var item in code)
+            {
+                item.Accept(categoryVisitor);
+            }
+
+
+            if (categoryVisitor.Category == MarkdownCategory.PlainText && code.Count() == 1)
+            {
+                var plainTextVisitor = new SnuDomPlainTextVisitor();
+
+                foreach (var item in code)
+                    item.Accept(plainTextVisitor);
+
+
+                inlineContainer.Child = new MarkdownQuote(plainTextVisitor.Result);
+            }
+            else
+            {
+                var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
+                //cant be null in this category
+                foreach (var item in code)
+                    item.Accept(fullUIVisitor);
+
+                inlineContainer.Child = new MarkdownQuote(fullUIVisitor.Result);
+            }
+
+            if (_currentParagraph == null)
+            {
+                MaybeSplitForParagraph();
+            }
+            else
+            {
+                _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+            }
+
+            _currentParagraph.Inlines.Add(inlineContainer);
+            _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+        }
+
+        private IEnumerable<UIElement> BuildChildUIList(IEnumerable<IDomObject> objects)
+        {
+            List<UIElement> results = new List<UIElement>();
+            foreach (var item in objects)
+            {
+                SnuDomCategoryVisitor categoryVisitor = new SnuDomCategoryVisitor();
+                item.Accept(categoryVisitor);
+                var column = item as TableColumn;
+                if (categoryVisitor.Category == MarkdownCategory.PlainText)
+                {
+                    var plainTextVisitor = new SnuDomPlainTextVisitor();
+                    //this might be a pp
+                    if (column != null)
+                    {
+                        foreach (var contents in column.Contents)
+                        {
+                            contents.Accept(plainTextVisitor);
+                        }
+                    }
+                    else if (item is SnuDom.Paragraph)
+                    {
+                        item.Accept(plainTextVisitor);
+                    }
+
+                    results.Add(new TextBlock { Text = plainTextVisitor.Result });
+                }
+                else
+                {
+                    var fullUIVisitor = new SnuDomFullUIVisitor(_forgroundBrush);
+                    item.Accept(fullUIVisitor);
+                    results.Add(fullUIVisitor.Result);
+                }
+
+
+                if (column != null)
+                {
+                    switch (column.Alignment)
+                    {
+                        case ColumnAlignment.Center:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+                            break;
+                        case ColumnAlignment.Left:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+                            break;
+                        case ColumnAlignment.Right:
+                            results.Last().SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Right);
+                            break;
+                    }
+                }
+            }
+            return results;
+        }
+
+        public void Visit(OrderedList orderedList)
+        {
+            var uiElements = BuildChildUIList(orderedList);
+            var inlineContainer = new InlineUIContainer();
+            inlineContainer.Child = new MarkdownList(true, uiElements);
+            MaybeSplitForParagraph();
+            _currentParagraph.Inlines.Add(inlineContainer);
+        }
+
+        public void Visit(UnorderedList unorderedList)
+        {
+            var uiElements = BuildChildUIList(unorderedList);
+            var inlineContainer = new InlineUIContainer();
+            inlineContainer.Child = new MarkdownList(false, uiElements);
+            MaybeSplitForParagraph();
+            _currentParagraph.Inlines.Add(inlineContainer);
+        }
+
+        public void Visit(Table table)
+        {
+            var headerUIElements = BuildChildUIList(table.Headers);
+            List<IEnumerable<UIElement>> tableBody = new List<IEnumerable<UIElement>>();
+            foreach (var row in table.Rows)
+            {
+                tableBody.Add(BuildChildUIList(row.Columns));
+            }
+            var inlineContainer = new InlineUIContainer();
+            inlineContainer.Child = new MarkdownTable(headerUIElements, tableBody);
+
+            if (_currentParagraph == null)
+            {
+                MaybeSplitForParagraph();
+            }
+            else
+            {
+                _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+            }
+
+            _currentParagraph.Inlines.Add(inlineContainer);
+            _currentParagraph.Inlines.Add(new Windows.UI.Xaml.Documents.LineBreak());
+        }
+
+        public void Visit(Document document)
+        {
+            foreach (var elem in document)
+            {
+                elem.Accept(this);
+            }
+        }
+
+        public void Visit(TableRow tableRow)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(TableColumn tableColumn)
+        {
+            foreach (var elem in tableColumn.Contents)
+            {
+                elem.Accept(this);
+            }
         }
     }
 }

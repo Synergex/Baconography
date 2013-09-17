@@ -37,7 +37,7 @@ namespace BaconographyW8.PlatformServices
             var smartOfflineService = new SmartOfflineService();
             var viewModelContextService = new ViewModelContextService();
             var suspendableWorkQueueImpl = new SuspendableWorkQueueImpl(systemServices);
-            //var markdownProcessor = new MarkdownProcessor();
+            var markdownProcessor = new MarkdownProcessor();
             
 
             _services = new Dictionary<Type, object>
@@ -59,7 +59,7 @@ namespace BaconographyW8.PlatformServices
                 {typeof(ISuspensionService), suspensionService},
                 {typeof(IViewModelContextService), viewModelContextService},
                 {typeof(ISuspendableWorkQueue), suspendableWorkQueueImpl },
-                {typeof(IMarkdownProcessor), null }
+                {typeof(IMarkdownProcessor), markdownProcessor }
             };
 
             foreach (var initialService in initialServices)
@@ -86,7 +86,7 @@ namespace BaconographyW8.PlatformServices
             SimpleIoc.Default.Register<ISmartOfflineService>(() => smartOfflineService);
             SimpleIoc.Default.Register<ISuspensionService>(() => suspensionService);
             SimpleIoc.Default.Register<IViewModelContextService>(() => viewModelContextService);
-            SimpleIoc.Default.Register<IMarkdownProcessor>(() => (IMarkdownProcessor)null);
+            SimpleIoc.Default.Register<IMarkdownProcessor>(() => markdownProcessor);
             SimpleIoc.Default.Register<ISuspendableWorkQueue>(() => suspendableWorkQueueImpl);
 
             redditService.Initialize(GetService<ISettingsService>(),

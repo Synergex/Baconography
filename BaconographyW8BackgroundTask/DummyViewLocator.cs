@@ -78,5 +78,17 @@ namespace BaconographyW8BackgroundTask
         {
             get { return null; }
         }
+
+
+        public Type LinkedReadabilityView
+        {
+            get { return null; }
+        }
+
+
+        public Type SelfPostView
+        {
+            get { return null; }
+        }
     }
 }

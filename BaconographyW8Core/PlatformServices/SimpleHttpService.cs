@@ -116,5 +116,11 @@ namespace BaconographyW8.PlatformServices
 
             _lastRequestMade = DateTime.Now;
         }
+
+
+        public Task<string> UnAuthedGet(System.Threading.CancellationToken cancelToken, string uri, Action<uint> progress)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

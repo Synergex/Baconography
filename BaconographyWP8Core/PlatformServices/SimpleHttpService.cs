@@ -227,11 +227,22 @@ namespace BaconographyWP8.PlatformServices
 
         private async Task<string> UnAuthedGet(string uri, bool hasRetried)
         {
+            return await UnAuthedGet(uri, hasRetried, null);
+        }
+
+        private async Task<string> UnAuthedGet(string uri, bool hasRetried, CookieContainer cookieContainer)
+        {
             //limit requests to once every 500 milliseconds
             await ThrottleRequests();
 
             HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            if (cookieContainer != null)
+                request.CookieContainer = cookieContainer;
+            else
+                request.CookieContainer = new CookieContainer();
+
             request.AllowReadStreamBuffering = true;
+            request.AllowAutoRedirect = true;
             request.Method = "GET";
             request.UserAgent = "Baconography_Windows_Phone_8_Client/1.0";
 
@@ -239,7 +250,11 @@ namespace BaconographyWP8.PlatformServices
 
             if (getResult.StatusCode == HttpStatusCode.OK)
             {
-                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());  
+                return await (new StreamReader(getResult.GetResponseStream()).ReadToEndAsync());
+            }
+            else if (getResult.StatusCode == HttpStatusCode.Found || getResult.StatusCode == HttpStatusCode.SeeOther)
+            {
+                return await UnAuthedGet(getResult.ResponseUri.ToString(), hasRetried, request.CookieContainer);
             }
             else if (!hasRetried)
             {
@@ -256,6 +271,7 @@ namespace BaconographyWP8.PlatformServices
             else
                 throw new Exception(getResult.StatusCode.ToString());
         }
+
         public Task<string> UnAuthedGet(string uri)
         {
             return UnAuthedGet(uri, false);
@@ -386,6 +402,60 @@ namespace BaconographyWP8.PlatformServices
                 }
             };
             client.OpenReadAsync(new Uri(url));
+            return taskCompletion.Task;
+        }
+
+        public Task<string> UnAuthedGet(CancellationToken cancelToken, string url, Action<uint> progress)
+        {
+            TaskCompletionSource<string> taskCompletion = new TaskCompletionSource<string>();
+            WebClient client = new WebClient();
+            int cancelCount = 0;
+            client.AllowReadStreamBuffering = true;
+            client.DownloadProgressChanged += (sender, args) =>
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    client.CancelAsync();
+                }
+                else
+                {
+                    progress((uint)args.ProgressPercentage);
+                }
+            };
+
+            client.DownloadStringCompleted += (sender, args) =>
+            {
+                if (args.Cancelled)
+                {
+                    if (cancelCount++ < 5 && !cancelToken.IsCancellationRequested)
+                        client.OpenReadAsync(new Uri(url));
+                    else
+                        taskCompletion.SetCanceled();
+                }
+                else if (args.Error != null)
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetException(args.Error);
+                    }
+                }
+                else
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        taskCompletion.SetCanceled();
+                    }
+                    else
+                    {
+                        taskCompletion.SetResult(args.Result);
+                    }
+                }
+            };
+            client.DownloadStringAsync(new Uri(url));
             return taskCompletion.Task;
         }
     }

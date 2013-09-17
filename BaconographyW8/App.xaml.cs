@@ -112,6 +112,8 @@ namespace BaconographyW8
                 _baconProvider = new BaconProvider(new Tuple<Type, Object>[] { new Tuple<Type, Object>(typeof(IDynamicViewLocator), new DynamicViewLocator()) });
 
                 await _baconProvider.Initialize(rootFrame);
+				var settingsService = _baconProvider.GetService<ISettingsService>();
+				settingsService.AllowAdvertising = false;
 
                 ViewModelLocator.Initialize(_baconProvider);
             }

@@ -29,9 +29,14 @@ namespace DXGifRenderWP8
 	{
 		int width;
 		int height;
+		int top;
+		int left;
+		int right;
+		int bottom;
+		int transparentColor;
 		uint32_t delay;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> preRendered;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> resource;
+		SavedImage* imageData;
+		DISPOSAL_METHODS disposal;
 	};
 
 	ref class GifRenderer sealed : Direct3DBase
@@ -42,13 +47,19 @@ namespace DXGifRenderWP8
 		virtual void CreateDeviceResources() override;
 		virtual void Render() override;
 		bool Update(float total, float delta);
+		bool StartedRendering() { return _startedRendering; }
 	private:
 		int _width;
 		int _height;
 		bool _hasLoop;
 		int	_currentFrame;
+		int	_lastFrame;
 		int	_loopCount;
+		bool _startedRendering;
 		std::unique_ptr<DirectX::SpriteBatch> _spriteBatch;
+		std::unique_ptr<uint32_t> _buffer;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> preRendered;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> resource;
 		DXGI_RGBA _backgroundColor;
 		std::vector<GifFrame> _frames;
 		GifFileType* _gifFile;

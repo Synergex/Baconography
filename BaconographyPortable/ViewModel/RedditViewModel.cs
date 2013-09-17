@@ -113,8 +113,11 @@ namespace BaconographyPortable.ViewModel
 
                 _selectedSubreddit = message.Subreddit;
                 SelectedLink = null;
-                if(!message.DontRefresh)
-                    RefreshLinks();
+				if (!message.DontRefresh)
+				{
+					_links = null;
+					RefreshLinks();
+				}
 
 				Heading = _selectedSubreddit.Data.DisplayName;
 
@@ -301,6 +304,17 @@ namespace BaconographyPortable.ViewModel
 				return false;
 			}
 		}
+
+        public bool IsMulti
+        {
+            get
+            {
+                if (_selectedSubreddit == null || _selectedSubreddit.Data.Url == "/")
+                    return true;
+                else
+                    return _selectedSubreddit.Data.Url.Contains("/m/") || _selectedSubreddit.Data.Url.Contains("+");
+            }
+        }
 
 		public bool IsTilePinned
         {

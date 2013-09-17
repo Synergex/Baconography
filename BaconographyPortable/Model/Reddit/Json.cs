@@ -44,6 +44,12 @@ namespace BaconographyPortable.Model.Reddit
         public Object[] Errors { get; set; }
     }
 
+    public class JsonErrorsData : IThingData
+    {
+        [JsonProperty("errors")]
+        public Object[] Errors { get; set; }
+    }
+
 	public class JsonData2 : IThingData
     {
         [JsonProperty("things")]

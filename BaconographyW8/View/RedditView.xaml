@@ -9,8 +9,19 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     DataContext="{Binding Reddit, Source={StaticResource Locator}}">
-    <Grid Style="{StaticResource LayoutRootStyle}">
 
+    <common:LayoutAwarePage.Resources>
+        <DataTemplate x:Key="Type:LinkViewModel">
+            <local:LinkView />
+        </DataTemplate>
+        <DataTemplate x:Key="Type:AdvertisementViewModel">
+            <Grid Visibility="Collapsed">
+                
+            </Grid>
+        </DataTemplate>
+    </common:LayoutAwarePage.Resources>
+    
+    <Grid Style="{StaticResource LayoutRootStyle}">
         <!-- Main page layout -->
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
@@ -47,6 +58,7 @@
                 SelectedItem="{Binding Mode=TwoWay,Path=SelectedLink}"
                 SelectionMode="Single"
                 ItemsSource="{Binding Path=Links, Converter={StaticResource portableAsyncCollectionConverter}}"
+                ItemTemplateSelector="{StaticResource typedTemplateSelector}"
                 HorizontalContentAlignment="Stretch">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
@@ -54,13 +66,6 @@
                     <Setter Property="Margin" Value="0,0,0,10" />
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <local:LinkView />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
         </ListView>
 
         <VisualStateManager.VisualStateGroups>

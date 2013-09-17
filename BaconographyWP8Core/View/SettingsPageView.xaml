@@ -54,8 +54,12 @@
                                 IsEnabled="{Binding AllowAdvertising}" Click="Button_Click"/>
                             <CheckBox Margin="12,0,0,0" Content="Allow NSFW (over 18) content"
                                 IsChecked="{Binding AllowNSFWContent, Mode=TwoWay}" />
-                            <CheckBox Margin="12,0,0,0" Content="Only flipview unviewed images"
+                            <CheckBox Margin="12,0,0,0" Content="Only flipview unviewed content"
                                 IsChecked="{Binding OnlyFlipViewUnread, Mode=TwoWay}" />
+                            <CheckBox Margin="12,0,0,0" Content="Only flipview images"
+                                IsChecked="{Binding OnlyFlipViewImages, Mode=TwoWay}" />
+                            <CheckBox Margin="12,0,0,0" Content="In app web content"
+                                IsChecked="{Binding OptimizeWebContent, Mode=TwoWay}" />
 
                             <TextBlock FontWeight="SemiBold" Text="LAYOUT"/>
                             <CheckBox Margin="12,0,0,0" Content="Left-handed mode"
@@ -66,8 +70,9 @@
                                 Unchecked="OrientationLock_Unchecked"/>
                             <CheckBox Margin="12,0,0,0" Content="Tap title for comments"
                                 IsChecked="{Binding TapForComments, Mode=TwoWay}" />
+                            
 
-                            <CheckBox Margin="12,0,0,0" Content="Mutli-Color comment margins"
+                            <CheckBox Margin="12,0,0,0" Content="Multi color comment margins"
                                 IsChecked="{Binding MultiColorCommentMargins, Mode=TwoWay}" />
 
                             <StackPanel Orientation="Horizontal">

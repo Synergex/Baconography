@@ -66,9 +66,24 @@ namespace BaconographyWP8.View
 
         private void Send_Click(object sender, EventArgs e)
         {
+            BindingExpression bindingExpression = TextInputBox.GetBindingExpression(TextBox.TextProperty);
+            if (bindingExpression != null)
+            {
+                bindingExpression.UpdateSource();
+            }
+
+            
+
             var vm = this.DataContext as ComposePostViewModel;
             if (vm != null)
+            {
+                var pivotItem = pivot.SelectedItem as PivotItem;
+                if (pivotItem != null)
+                {
+                    vm.Kind = pivotItem.Header as string;
+                }
                 vm.Submit.Execute(null);
+            }
         }
 
         private void ChangeUser_Click(object sender, RoutedEventArgs e)
@@ -83,9 +98,12 @@ namespace BaconographyWP8.View
 
         private void Cancel_Click(object sender, EventArgs e)
         {
-            // TODO: ARE YOU SURE?!?!?!
-            var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
-            _navigationService.GoBack();
+            var result = MessageBox.Show("Cancel this new post?", "confirm", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                var _navigationService = ServiceLocator.Current.GetInstance<INavigationService>();
+                _navigationService.GoBack();
+            }
         }
 
         private List<ApplicationBarIconButton> _appBarButtons;
@@ -136,15 +154,6 @@ namespace BaconographyWP8.View
             var vm = this.DataContext as ComposePostViewModel;
             if (vm == null)
                 return;
-
-            if (pivot.SelectedIndex == 0)
-            {
-                vm.Kind = "link";
-            }
-            else
-            {
-                vm.Kind = "self";
-            }
         }
 
     }
