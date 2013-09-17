@@ -76,7 +76,8 @@ namespace BaconographyPortable.Common
 		public static Regex SubredditRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/?$");
 
         //Comments page:
-        public static Regex CommentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
+        public static Regex CommentsPageRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/comments/[a-zA-Z0-9_]+/(?:[a-zA-Z0-9_]+/)*?");
+        public static Regex ShortCommentsPageRegex = new Regex("(?:^|\\s|redd.it)/[a-zA-Z0-9_.]+/?");
 
         //Comment:
         public static Regex CommentRegex = new Regex("(?:^|\\s|reddit.com)/r/[a-zA-Z0-9_.]+/comments/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/[a-zA-Z0-9_]+/?");
@@ -122,6 +123,23 @@ namespace BaconographyPortable.Common
                 {
                     Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
                     var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetLinkByUrl(str) : sourceLink;
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
+                    if (targetLinkThing != null)
+                    {
+                        var typedLinkThing = new TypedThing<Link>(targetLinkThing);
+                        await baconProvider.GetService<IOfflineService>().StoreHistory(typedLinkThing.Data.Permalink);
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().CommentsView, new SelectCommentTreeMessage { LinkThing = typedLinkThing });
+                    }
+                    else
+                    {
+                        navigationService.Navigate(baconProvider.GetService<IDynamicViewLocator>().LinkedWebView, new NavigateToUrlMessage { TargetUrl = str, Title = str });
+                    }
+                }
+                else if (ShortCommentsPageRegex.IsMatch(str))
+                {
+                    Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = true });
+                    var thingId = "t3_" + str.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last();
+                    var targetLinkThing = sourceLink == null ? await baconProvider.GetService<IRedditService>().GetThingById(thingId) : sourceLink;
                     Messenger.Default.Send<LoadingMessage>(new LoadingMessage { Loading = false });
                     if (targetLinkThing != null)
                     {
