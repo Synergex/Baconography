@@ -36,14 +36,17 @@ namespace BaconographyWP8.View
 
         void ScalingGifView_Loaded(object sender, RoutedEventArgs e)
         {
-            _loaded = true;
-            if (_interop != null)
+            if (!_loaded)
             {
-                image.SetContentProvider(_interop.CreateContentProvider());
+                _loaded = true;
+                if (_interop != null)
+                {
+                    image.SetContentProvider(_interop.CreateContentProvider());
 
-                var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _interop.Width, _interop.Height, 0.0);
-                _scale = _coercedScale = _minScale = result.Item1;
-                ResizeImage(true);
+                    var result = CoerceScaleImpl(viewport.ActualWidth, viewport.ActualHeight, _interop.Width, _interop.Height, 0.0);
+                    _scale = _coercedScale = _minScale = result.Item1;
+                    ResizeImage(true);
+                }
             }
         }
 

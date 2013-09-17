@@ -126,7 +126,10 @@ namespace DXGifRenderWP8
 
 	ID3D11Texture2D* Direct3DInterop::GetTexture()
 	{
-		return m_renderer->GetTexture();
+		if(m_renderer != nullptr)
+		{
+			return m_renderer->GetTexture();
+		}
 	}
 
 }
