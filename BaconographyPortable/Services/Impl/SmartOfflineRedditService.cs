@@ -310,20 +310,37 @@ namespace BaconographyPortable.Services.Impl
             return _subredditListing;
         }
 
-        public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
+        private async void UpdateCachedSubreddit(string name)
         {
-            var thing = await _offlineService.GetSubreddit(name);
-            if (thing != null && thing.Data is Subreddit && !string.IsNullOrEmpty(((Subreddit)thing.Data).Description))
-                return new TypedThing<Subreddit>(thing);
-            else
+            try
             {
                 var result = await _redditService.GetSubreddit(name);
-                try
+            
+                await _offlineService.StoreSubreddit(result);
+            }
+            catch { }
+        }
+
+        public async Task<TypedThing<Subreddit>> GetSubreddit(string name)
+        {
+            try
+            {
+                var thing = await _offlineService.GetSubreddit(name);
+                if (thing != null && thing.Data is Subreddit && !string.IsNullOrEmpty(((Subreddit)thing.Data).Description))
                 {
-                    await _offlineService.StoreSubreddit(result);
+                    UpdateCachedSubreddit(name);
+                    return new TypedThing<Subreddit>(thing);
                 }
-                catch { }
-                return result;
+                else
+                {
+                    var result = await _redditService.GetSubreddit(name);
+                    await _offlineService.StoreSubreddit(result);
+                    return result;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 

@@ -27,7 +27,11 @@ namespace BaconographyWP8Core.View.Markdown
                 element.SetValue(Grid.ColumnProperty, 1);
                 if (element is RichTextBox)
                 {
-                    element.SetValue(FrameworkElement.MarginProperty, new Thickness(0, -8, 0, -8));
+                    element.SetValue(FrameworkElement.MarginProperty, new Thickness(-8, 0, 0, 0));
+                }
+                else
+                {
+                    element.SetValue(FrameworkElement.MarginProperty, new Thickness(4, 0, 0, 0));
                 }
                 theGrid.Children.Add(text);
                 theGrid.Children.Add(element);

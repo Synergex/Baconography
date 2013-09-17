@@ -375,6 +375,19 @@ namespace BaconographyWP8.Converters
             DirectlyPlaceUIContent(result);
         }
 
+        private void FlatenVisitParagraph(IDomVisitor visitor, SnuDomWP8.Paragraph paragraph)
+        {
+            foreach (var item in paragraph)
+            {
+                if (item is SnuDomWP8.Paragraph)
+                {
+                    FlatenVisitParagraph(visitor, item as SnuDomWP8.Paragraph);
+                }
+                else
+                    item.Accept(visitor);
+            }
+        }
+
         private IEnumerable<UIElement> BuildChildUIList(IEnumerable<IDomObject> objects)
         {
             List<UIElement> results = new List<UIElement>();
@@ -446,7 +459,7 @@ namespace BaconographyWP8.Converters
                     }
                     else if (item is SnuDomWP8.Paragraph)
                     {
-                        item.Accept(fullUIVisitor);
+                        FlatenVisitParagraph(fullUIVisitor, item as SnuDomWP8.Paragraph);
                     }
 
                     if (fullUIVisitor.ResultGroup != null)
