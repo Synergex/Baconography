@@ -658,7 +658,7 @@ namespace BaconographyPortable.Model.Reddit
                 {"api_type", "json"},
                 {"kind", kind},
                 {"url", url},
-                {"text", text},
+                {"text", text.Replace("\r\n", "\n").Replace("+", "%2B")},
                 {"title", title},
                 {"sr", subreddit},
                 {"renderstyle", "html" },
@@ -675,7 +675,7 @@ namespace BaconographyPortable.Model.Reddit
             var arguments = new Dictionary<string, string>
             {
                 {"api_type", "json"},
-                {"text", text},
+                {"text", text.Replace("\r\n", "\n").Replace("+", "%2B")},
                 {"thing_id", name},
                 {"uh", modhash}
             };
@@ -784,8 +784,8 @@ namespace BaconographyPortable.Model.Reddit
             {
                 {"id", "#compose-message"},
                 {"to", recipient},
-                {"text", message},
-                {"subject", subject},
+                {"text", message.Replace("\r\n", "\n").Replace("+", "%2B")},
+                {"subject", subject.Replace("+", "%2B")},
                 {"thing-id", ""},
                 {"renderstyle", "html"},
                 {"uh", modhash}
@@ -802,8 +802,8 @@ namespace BaconographyPortable.Model.Reddit
             {
                 {"id", "#compose-message"},
                 {"to", recipient},
-                {"text", message},
-                {"subject", subject},
+                {"text", message.Replace("\r\n", "\n").Replace("+", "%2B")},
+                {"subject", subject.Replace("+", "%2B")},
                 {"thing-id", ""},
                 {"renderstyle", "html"},
                 {"uh", modhash}
@@ -819,7 +819,7 @@ namespace BaconographyPortable.Model.Reddit
             var arguments = new Dictionary<string, string>
             {
                 {"thing_id", parentId},
-                {"text", content.Replace("\r\n", "\n")},
+                {"text", content.Replace("\r\n", "\n").Replace("+", "%2B")},
                 {"uh", modhash}
             };
 
@@ -833,7 +833,7 @@ namespace BaconographyPortable.Model.Reddit
             var arguments = new Dictionary<string, string>
             {
                 {"thing_id", thingId},
-                {"text", text.Replace("\r\n", "\n")},
+                {"text", text.Replace("\r\n", "\n").Replace("+", "%2B")},
                 {"uh", modhash}
             };
 
