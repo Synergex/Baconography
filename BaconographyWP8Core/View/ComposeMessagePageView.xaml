@@ -207,7 +207,8 @@
                          BorderThickness="0" Padding="0" VerticalAlignment="Stretch"
                          AcceptsReturn="True" TextWrapping="Wrap"
                          FontSize="22" KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
-                         Text="{Binding Path=Compose.Message, Mode=TwoWay}">
+                         Text="{Binding Path=Compose.Message, Mode=TwoWay}"
+                         TextChanged="TextBox_TextChanged">
                     <TextBox.InputScope>
                         <InputScope>
                             <InputScopeName NameValue="Text" />

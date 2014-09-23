@@ -67,7 +67,8 @@
 
             <TextBox MinHeight="300" Text="{Binding ReplyBody, Mode=TwoWay}" Margin="0,5,0,5" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                      KeyUp="TextBox_KeyUp" InputScope="Text"
-                     SelectionChanged="TextBox_SelectionChanged">
+                     SelectionChanged="TextBox_SelectionChanged"
+                     TextChanged="TextBox_TextChanged">
             </TextBox>
 
             <Grid HorizontalAlignment="Stretch">

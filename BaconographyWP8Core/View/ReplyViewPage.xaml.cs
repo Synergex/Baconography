@@ -132,5 +132,19 @@ namespace BaconographyWP8.View
 				}
 			}
 		}
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textbox = sender as TextBox;
+            if (textbox != null)
+            {
+                var vm = this.DataContext as ReplyViewModel;
+                if (vm != null)
+                {
+                    if (vm.ReplyBody != textbox.Text)
+                        vm.ReplyBody = textbox.Text;
+                }
+            }
+        }
     }
 }

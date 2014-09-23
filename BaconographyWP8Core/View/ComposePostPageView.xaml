@@ -208,6 +208,7 @@
                             <TextBox x:Name="TextInputBox" Margin="0,2,0,0" Style="{StaticResource MessageTextBox}"
                              BorderThickness="1" BorderBrush="{StaticResource PhoneSubtleBrush}" Padding="0" FontSize="22" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
                              KeyUp="TextBox_KeyUp" CaretBrush="{StaticResource PhoneAccentBrush}"
+                             TextChanged="TextInputBox_TextChanged"
                              Text="{Binding Path=Text, Mode=TwoWay}" TextWrapping="Wrap">
                                 <TextBox.InputScope>
                                     <InputScope>

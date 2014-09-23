@@ -156,5 +156,16 @@ namespace BaconographyWP8.View
                 return;
         }
 
+        private void TextInputBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            BindingExpression bindingExpression = ((TextBox)sender).GetBindingExpression(TextBox.TextProperty);
+            if (bindingExpression != null)
+            {
+                bindingExpression.UpdateSource();
+            }
+
+            UpdateMenuItems();
+        }
+
     }
 }
